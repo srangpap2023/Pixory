@@ -13,6 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   /* App font size — uses zoom on screen content for clean proportional scaling */
@@ -1679,11 +1680,326 @@
     border-color: rgba(255,255,255,.1) !important;
     color: #aaa !important;
   }
+
+  /* ============ AUTH SCREENS (Login / Signup / Forgot) ============ */
+  .auth-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(160deg, #f9c5a3 0%, #f4a36a 38%, #d8704a 100%);
+    z-index: 9000;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+  .auth-screen.active { display: block; }
+  body.dark-theme .auth-screen {
+    background: linear-gradient(160deg, #2a1810 0%, #4a1f0d 60%, #1a0a04 100%);
+  }
+  .auth-card {
+    max-width: 360px;
+    margin: 0 auto;
+    padding: max(56px, env(safe-area-inset-top, 0px) + 36px) 24px max(40px, env(safe-area-inset-bottom, 0px) + 24px) 24px;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  .auth-brand {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .auth-brand svg {
+    width: 64px;
+    height: 64px;
+    color: #fff;
+    margin: 0 auto 12px;
+    display: block;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,.2));
+  }
+  .auth-brand .auth-wordmark {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-weight: 800;
+    font-size: 36px;
+    letter-spacing: -0.02em;
+    color: #fff;
+    text-shadow: 0 2px 6px rgba(0,0,0,.18);
+  }
+  .auth-brand .auth-tagline {
+    font-size: 13px;
+    color: rgba(255,255,255,.85);
+    margin-top: 2px;
+    font-weight: 500;
+  }
+  .auth-panel {
+    background: rgba(255,255,255,.96);
+    border-radius: 20px;
+    padding: 24px 20px 20px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.08);
+    backdrop-filter: blur(20px);
+  }
+  body.dark-theme .auth-panel {
+    background: rgba(36, 36, 40, .96);
+    color: #f5f5f7;
+  }
+  .auth-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 6px;
+    text-align: center;
+  }
+  body.dark-theme .auth-title { color: #fff; }
+  .auth-sub {
+    font-size: 13px;
+    color: #6b7280;
+    text-align: center;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  body.dark-theme .auth-sub { color: #aaa; }
+  .auth-field {
+    margin-bottom: 14px;
+  }
+  .auth-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+  body.dark-theme .auth-field label { color: #d4d4d8; }
+  .auth-field input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 15px;
+    box-sizing: border-box;
+    background: #fff;
+    color: #1a1a1a;
+    transition: border-color .15s, box-shadow .15s;
+    -webkit-appearance: none;
+  }
+  body.dark-theme .auth-field input {
+    background: #1f1f23;
+    border-color: #3a3a3f;
+    color: #fff;
+  }
+  .auth-field input:focus {
+    outline: none;
+    border-color: #d8704a;
+    box-shadow: 0 0 0 3px rgba(216,112,74,.15);
+  }
+  .auth-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(180deg, #e87f5a, #d8704a);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: transform .12s, box-shadow .12s;
+    box-shadow: 0 2px 8px rgba(216,112,74,.3);
+  }
+  .auth-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(216,112,74,.4); }
+  .auth-btn:active { transform: translateY(0); }
+  .auth-btn:disabled {
+    background: #d1d5db;
+    color: #9ca3af;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .auth-btn.secondary {
+    background: transparent;
+    color: #d8704a;
+    border: 1px solid #d8704a;
+    box-shadow: none;
+    margin-top: 10px;
+  }
+  body.dark-theme .auth-btn.secondary { color: #f4a36a; border-color: #f4a36a; }
+  .auth-btn.secondary:hover { background: rgba(216,112,74,.05); box-shadow: none; }
+  .auth-error {
+    font-size: 13px;
+    color: #dc2626;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    display: none;
+    line-height: 1.4;
+  }
+  body.dark-theme .auth-error {
+    background: rgba(220,38,38,.15);
+    border-color: rgba(220,38,38,.35);
+    color: #fca5a5;
+  }
+  .auth-success {
+    font-size: 13px;
+    color: #15803d;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    display: none;
+    line-height: 1.5;
+  }
+  body.dark-theme .auth-success {
+    background: rgba(34,197,94,.12);
+    border-color: rgba(34,197,94,.3);
+    color: #86efac;
+  }
+  .auth-links {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 13px;
+    color: #6b7280;
+  }
+  body.dark-theme .auth-links { color: #aaa; }
+  .auth-links a {
+    color: #d8704a;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  body.dark-theme .auth-links a { color: #f4a36a; }
+  .auth-links a:hover { text-decoration: underline; }
+  .auth-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 16px 0;
+  }
+  body.dark-theme .auth-divider { background: #3a3a3f; }
+  .auth-meta {
+    text-align: center;
+    font-size: 11px;
+    color: rgba(255,255,255,.7);
+    margin-top: 20px;
+  }
 </style>
 </head>
 <body>
 
 <div class="proto-tag">PROTOTYPE · Pixory</div>
+
+<!-- ====== AUTH SCREEN: LOGIN ====== -->
+<div class="auth-screen" id="auth-login">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 40 85 Q 40 65 60 65 L 70 65 L 82 50 Q 86 45 92 45 L 108 45 Q 114 45 118 50 L 130 65 L 140 65 Q 160 65 160 85 L 160 150 Q 160 165 145 165 L 55 165 Q 40 165 40 150 Z"/>
+        <circle cx="100" cy="118" r="28"/>
+        <circle cx="100" cy="118" r="14" stroke-width="5"/>
+        <circle cx="143" cy="80" r="4" fill="currentColor" stroke="none"/>
+      </svg>
+      <div class="auth-wordmark">pixory</div>
+      <div class="auth-tagline" data-i18n="auth.tagline">Studio in your pocket</div>
+    </div>
+    <div class="auth-panel">
+      <h2 class="auth-title" data-i18n="auth.loginTitle">เข้าสู่ระบบ</h2>
+      <p class="auth-sub" data-i18n="auth.loginSub">ใช้บัญชี Pixory ของคุณ</p>
+      <div class="auth-error" id="login-error"></div>
+      <div class="auth-success" id="login-success"></div>
+      <div class="auth-field">
+        <label data-i18n="auth.email">อีเมล</label>
+        <input type="email" id="login-email" autocomplete="email" inputmode="email" placeholder="you@example.com">
+      </div>
+      <div class="auth-field">
+        <label data-i18n="auth.password">รหัสผ่าน</label>
+        <input type="password" id="login-password" autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <button class="auth-btn" id="login-btn" onclick="doLogin()" data-i18n="auth.loginBtn">เข้าสู่ระบบ</button>
+      <div class="auth-links">
+        <a onclick="goAuth('forgot')" data-i18n="auth.forgotLink">ลืมรหัสผ่าน?</a>
+      </div>
+      <div class="auth-divider"></div>
+      <div class="auth-links">
+        <span data-i18n="auth.noAccount">ยังไม่มีบัญชี?</span>
+        <a onclick="goAuth('signup')" data-i18n="auth.signupLink">สมัครสมาชิก</a>
+      </div>
+    </div>
+    <div class="auth-meta" data-i18n="auth.metaCopy">© Pixory 2026 · Studio Management for Photographers</div>
+  </div>
+</div>
+
+<!-- ====== AUTH SCREEN: SIGNUP ====== -->
+<div class="auth-screen" id="auth-signup">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 40 85 Q 40 65 60 65 L 70 65 L 82 50 Q 86 45 92 45 L 108 45 Q 114 45 118 50 L 130 65 L 140 65 Q 160 65 160 85 L 160 150 Q 160 165 145 165 L 55 165 Q 40 165 40 150 Z"/>
+        <circle cx="100" cy="118" r="28"/>
+        <circle cx="100" cy="118" r="14" stroke-width="5"/>
+        <circle cx="143" cy="80" r="4" fill="currentColor" stroke="none"/>
+      </svg>
+      <div class="auth-wordmark">pixory</div>
+      <div class="auth-tagline" data-i18n="auth.tagline">Studio in your pocket</div>
+    </div>
+    <div class="auth-panel">
+      <h2 class="auth-title" data-i18n="auth.signupTitle">สมัครสมาชิก</h2>
+      <p class="auth-sub" data-i18n="auth.signupSub">เริ่มใช้ Pixory ฟรี · ใช้ได้ทันที</p>
+      <div class="auth-error" id="signup-error"></div>
+      <div class="auth-success" id="signup-success"></div>
+      <div class="auth-field">
+        <label data-i18n="auth.email">อีเมล</label>
+        <input type="email" id="signup-email" autocomplete="email" inputmode="email" placeholder="you@example.com">
+      </div>
+      <div class="auth-field">
+        <label data-i18n="auth.password">รหัสผ่าน <span style="color:#9ca3af; font-weight:400;">(อย่างน้อย 6 ตัวอักษร)</span></label>
+        <input type="password" id="signup-password" autocomplete="new-password" placeholder="••••••••">
+      </div>
+      <div class="auth-field">
+        <label data-i18n="auth.studioName">ชื่อสตูดิโอ <span style="color:#9ca3af; font-weight:400;">(ไม่บังคับ)</span></label>
+        <input type="text" id="signup-studio" autocomplete="organization" placeholder="เช่น SRANGPAP WEDDING">
+      </div>
+      <button class="auth-btn" id="signup-btn" onclick="doSignup()" data-i18n="auth.signupBtn">สมัครสมาชิก</button>
+      <div class="auth-divider"></div>
+      <div class="auth-links">
+        <span data-i18n="auth.hasAccount">มีบัญชีแล้ว?</span>
+        <a onclick="goAuth('login')" data-i18n="auth.loginLink">เข้าสู่ระบบ</a>
+      </div>
+    </div>
+    <div class="auth-meta" data-i18n="auth.metaCopy">© Pixory 2026 · Studio Management for Photographers</div>
+  </div>
+</div>
+
+<!-- ====== AUTH SCREEN: FORGOT PASSWORD ====== -->
+<div class="auth-screen" id="auth-forgot">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 40 85 Q 40 65 60 65 L 70 65 L 82 50 Q 86 45 92 45 L 108 45 Q 114 45 118 50 L 130 65 L 140 65 Q 160 65 160 85 L 160 150 Q 160 165 145 165 L 55 165 Q 40 165 40 150 Z"/>
+        <circle cx="100" cy="118" r="28"/>
+        <circle cx="100" cy="118" r="14" stroke-width="5"/>
+        <circle cx="143" cy="80" r="4" fill="currentColor" stroke="none"/>
+      </svg>
+      <div class="auth-wordmark">pixory</div>
+    </div>
+    <div class="auth-panel">
+      <h2 class="auth-title" data-i18n="auth.forgotTitle">ลืมรหัสผ่าน</h2>
+      <p class="auth-sub" data-i18n="auth.forgotSub">กรอกอีเมลของคุณ · เราจะส่งลิงก์ตั้งรหัสใหม่ไปให้</p>
+      <div class="auth-error" id="forgot-error"></div>
+      <div class="auth-success" id="forgot-success"></div>
+      <div class="auth-field">
+        <label data-i18n="auth.email">อีเมล</label>
+        <input type="email" id="forgot-email" autocomplete="email" inputmode="email" placeholder="you@example.com">
+      </div>
+      <button class="auth-btn" id="forgot-btn" onclick="doForgot()" data-i18n="auth.forgotBtn">ส่งลิงก์ตั้งรหัสใหม่</button>
+      <div class="auth-divider"></div>
+      <div class="auth-links">
+        <a onclick="goAuth('login')" data-i18n="auth.backToLogin">‹ กลับหน้าเข้าสู่ระบบ</a>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="phone-wrap">
   <div class="phone">
@@ -2814,6 +3130,15 @@
         </div>
       </div>
 
+      <div class="settings-section" id="settings-account-section" style="display:none;">
+        <div style="border-radius: 12px; overflow: hidden;">
+          <div class="settings-row" onclick="goTo('settings-account')">
+            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-home)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="36" r="12" fill="#fff"/><path d="M22 70 Q22 52 44 52 Q66 52 66 70 Z" fill="#fff"/></svg></div><div><div class="row-title" data-i18n="set.account">บัญชีของฉัน</div><div class="row-sub" id="hub-account-sub">—</div></div></div>
+            <div class="right">›</div>
+          </div>
+        </div>
+      </div>
+
       <div class="settings-section">
         <div style="border-radius: 12px; overflow: hidden;">
           <div class="settings-row" data-theme-row onclick="toggleTheme()">
@@ -3090,6 +3415,42 @@
       </div>
       <div style="font-size:11px; color:#9ca3af; text-align:center; padding:20px;" data-i18n="ab.copyright">
         © 2026 · Prototype Version
+      </div>
+    </div>
+
+    <!-- ====== SETTINGS: ACCOUNT (Logout, user info) ====== -->
+    <div class="screen" id="screen-settings-account">
+      <div class="header">
+        <button class="back" onclick="goTo('settings')">‹</button>
+        <h1><span style="margin-right:6px;">👤</span><span data-i18n="header.account">บัญชีของฉัน</span></h1>
+        <span style="width: 22px;"></span>
+      </div>
+      <div class="settings-section">
+        <div style="border-radius: 12px; overflow: hidden;">
+          <div class="settings-row">
+            <div class="left"><div class="row-title" data-i18n="acc.email">อีเมล</div></div>
+            <div class="right" id="acc-email-display" style="font-size:13px; color:#6b7280;">—</div>
+          </div>
+          <div class="settings-row">
+            <div class="left"><div class="row-title" data-i18n="acc.userId">User ID</div></div>
+            <div class="right" id="acc-userid-display" style="font-size:11px; color:#9ca3af; font-family:monospace;">—</div>
+          </div>
+          <div class="settings-row">
+            <div class="left"><div class="row-title" data-i18n="acc.status">สถานะ</div></div>
+            <div class="right" id="acc-status-display" style="font-size:13px; color:#15803d;">เข้าสู่ระบบแล้ว</div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div style="border-radius: 12px; overflow: hidden;">
+          <div class="settings-row" onclick="doLogout()">
+            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-cal-header)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M28 26 L56 26 L56 36 L42 36 L42 52 L56 52 L56 62 L28 62 Z" fill="#fff"/><path d="M50 36 L62 44 L50 52 M62 44 L40 44" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="row-title" style="color:#dc2626;" data-i18n="acc.logout">ออกจากระบบ</div><div class="row-sub" data-i18n="acc.logoutSub">ข้อมูลในเครื่องนี้จะคงอยู่ · ล็อกอินใหม่เพื่อใช้ต่อ</div></div></div>
+            <div class="right">›</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:11px; color:#9ca3af; text-align:center; padding:20px;" data-i18n="acc.note">
+        ระบบล็อกอินใช้ Supabase · ข้อมูลของคุณยังเก็บในเครื่องนี้ (จะ sync cloud ในเวอร์ชันถัดไป)
       </div>
     </div>
 
@@ -3585,8 +3946,210 @@ function selectOne(el, group) {
   el.classList.add('active');
 }
 
+// ========== SUPABASE AUTH ==========
+const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_d_Pp52QFpipDvj4JlhCzNw_mBpgyEvE';
+let SUPABASE = null;
+let CURRENT_USER = null;  // { id, email } when logged in
+
+function initSupabase() {
+  try {
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      SUPABASE = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, storage: window.localStorage, storageKey: 'pixory.auth.session' }
+      });
+      return true;
+    }
+  } catch(e) { console.warn('Supabase init failed', e); }
+  return false;
+}
+
+async function getCurrentSession() {
+  if (!SUPABASE) return null;
+  try {
+    const { data } = await SUPABASE.auth.getSession();
+    return data && data.session ? data.session : null;
+  } catch(e) { return null; }
+}
+
+function showAuthScreen(name) {
+  document.querySelectorAll('.auth-screen').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('auth-' + name);
+  if (el) el.classList.add('active');
+  // Clear errors/success messages
+  document.querySelectorAll('.auth-error, .auth-success').forEach(el => { el.style.display = 'none'; el.textContent = ''; });
+  // Hide phone wrap while on auth
+  const pw = document.querySelector('.phone-wrap');
+  if (pw) pw.style.display = 'none';
+}
+
+function hideAuthScreens() {
+  document.querySelectorAll('.auth-screen').forEach(el => el.classList.remove('active'));
+  const pw = document.querySelector('.phone-wrap');
+  if (pw) pw.style.display = '';
+}
+
+function goAuth(name) { showAuthScreen(name); }
+
+function setAuthError(panel, msg) {
+  const el = document.getElementById(panel + '-error');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+function setAuthSuccess(panel, msg) {
+  const el = document.getElementById(panel + '-success');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+function clearAuthMsg(panel) {
+  ['error', 'success'].forEach(t => {
+    const el = document.getElementById(panel + '-' + t);
+    if (el) { el.style.display = 'none'; el.textContent = ''; }
+  });
+}
+
+async function doLogin() {
+  clearAuthMsg('login');
+  const email = (document.getElementById('login-email').value || '').trim();
+  const pw = document.getElementById('login-password').value || '';
+  if (!email || !pw) { setAuthError('login', 'กรุณากรอกอีเมลและรหัสผ่าน'); return; }
+  if (!SUPABASE) { setAuthError('login', 'ระบบล็อกอินยังไม่พร้อม · ลองอีกครั้ง'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'กำลังเข้าสู่ระบบ...';
+  try {
+    const { data, error } = await SUPABASE.auth.signInWithPassword({ email, password: pw });
+    if (error) {
+      const m = error.message || '';
+      if (/invalid login credentials/i.test(m)) setAuthError('login', 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+      else if (/email not confirmed/i.test(m)) setAuthError('login', 'อีเมลยังไม่ได้ยืนยัน · ตรวจ inbox ของคุณ');
+      else setAuthError('login', m);
+      btn.disabled = false; btn.textContent = t('auth.loginBtn');
+      return;
+    }
+    CURRENT_USER = { id: data.user.id, email: data.user.email };
+    finishAuthAndStartApp();
+  } catch(e) {
+    setAuthError('login', 'เกิดข้อผิดพลาด: ' + (e.message || e));
+    btn.disabled = false; btn.textContent = t('auth.loginBtn');
+  }
+}
+
+async function doSignup() {
+  clearAuthMsg('signup');
+  const email = (document.getElementById('signup-email').value || '').trim();
+  const pw = document.getElementById('signup-password').value || '';
+  const studio = (document.getElementById('signup-studio').value || '').trim();
+  if (!email || !pw) { setAuthError('signup', 'กรุณากรอกอีเมลและรหัสผ่าน'); return; }
+  if (pw.length < 6) { setAuthError('signup', 'รหัสผ่านต้องอย่างน้อย 6 ตัวอักษร'); return; }
+  if (!SUPABASE) { setAuthError('signup', 'ระบบสมัครยังไม่พร้อม · ลองอีกครั้ง'); return; }
+  const btn = document.getElementById('signup-btn');
+  btn.disabled = true; btn.textContent = 'กำลังสมัคร...';
+  try {
+    const { data, error } = await SUPABASE.auth.signUp({
+      email, password: pw,
+      options: { data: { studio_name: studio } }
+    });
+    if (error) {
+      const m = error.message || '';
+      if (/already registered|already exists/i.test(m)) setAuthError('signup', 'อีเมลนี้สมัครไว้แล้ว · ลองเข้าสู่ระบบแทน');
+      else if (/password/i.test(m)) setAuthError('signup', 'รหัสผ่านไม่ปลอดภัย — กรุณาตั้งรหัสที่ซับซ้อนกว่านี้');
+      else setAuthError('signup', m);
+      btn.disabled = false; btn.textContent = t('auth.signupBtn');
+      return;
+    }
+    // If user is set on signUp response, we are auto-confirmed (Supabase project config)
+    if (data && data.session) {
+      CURRENT_USER = { id: data.user.id, email: data.user.email, signupStudio: studio };
+      finishAuthAndStartApp();
+    } else if (data && data.user && !data.session) {
+      // Email confirmation required
+      setAuthSuccess('signup', 'สมัครสำเร็จ! กรุณาตรวจอีเมลของคุณ · กดลิงก์ยืนยัน แล้วกลับมาเข้าสู่ระบบ');
+      btn.disabled = false; btn.textContent = t('auth.signupBtn');
+    } else {
+      setAuthError('signup', 'สมัครไม่สำเร็จ · ลองอีกครั้ง');
+      btn.disabled = false; btn.textContent = t('auth.signupBtn');
+    }
+  } catch(e) {
+    setAuthError('signup', 'เกิดข้อผิดพลาด: ' + (e.message || e));
+    btn.disabled = false; btn.textContent = t('auth.signupBtn');
+  }
+}
+
+async function doForgot() {
+  clearAuthMsg('forgot');
+  const email = (document.getElementById('forgot-email').value || '').trim();
+  if (!email) { setAuthError('forgot', 'กรุณากรอกอีเมล'); return; }
+  if (!SUPABASE) { setAuthError('forgot', 'ระบบยังไม่พร้อม · ลองอีกครั้ง'); return; }
+  const btn = document.getElementById('forgot-btn');
+  btn.disabled = true; btn.textContent = 'กำลังส่ง...';
+  try {
+    const { error } = await SUPABASE.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname
+    });
+    if (error) {
+      setAuthError('forgot', error.message);
+      btn.disabled = false; btn.textContent = t('auth.forgotBtn');
+      return;
+    }
+    setAuthSuccess('forgot', '✓ ส่งลิงก์ตั้งรหัสใหม่ไปที่อีเมลแล้ว · ตรวจ inbox ของคุณ');
+    btn.disabled = false; btn.textContent = t('auth.forgotBtn');
+  } catch(e) {
+    setAuthError('forgot', 'เกิดข้อผิดพลาด: ' + (e.message || e));
+    btn.disabled = false; btn.textContent = t('auth.forgotBtn');
+  }
+}
+
+async function doLogout() {
+  if (!confirm('ออกจากระบบ?\n\nข้อมูลในเครื่องนี้จะยังอยู่ · กลับมาล็อกอินใหม่เมื่อไหร่ก็ใช้ต่อได้')) return;
+  try {
+    if (SUPABASE) await SUPABASE.auth.signOut();
+  } catch(e) { console.warn('signOut failed', e); }
+  CURRENT_USER = null;
+  location.reload();
+}
+
+function buildStorageKey() {
+  return CURRENT_USER && CURRENT_USER.id
+    ? 'srangpap_wedding_data_v2__' + CURRENT_USER.id
+    : 'srangpap_wedding_data_v2';
+}
+
+// Try to migrate legacy anonymous data to current user's key
+function migrateLegacyDataIfAny() {
+  if (!CURRENT_USER || !CURRENT_USER.id) return;
+  const legacyKey = 'srangpap_wedding_data_v2';
+  const userKey = buildStorageKey();
+  if (userKey === legacyKey) return;
+  const userRaw = localStorage.getItem(userKey);
+  if (userRaw) return; // user already has data
+  const legacyRaw = localStorage.getItem(legacyKey);
+  if (!legacyRaw) return;
+  // Found legacy data + no user data → offer to migrate
+  let jobsN = 0, quotesN = 0;
+  try {
+    const d = JSON.parse(legacyRaw);
+    jobsN = (d.JOBS || []).length;
+    quotesN = (d.QUOTES || []).length;
+  } catch(e) {}
+  const msg = '📦 พบข้อมูลเก่าที่ใช้งานก่อนระบบสมาชิก\n\n' +
+              '• งาน: ' + jobsN + ' รายการ\n' +
+              '• ใบเสนอราคา: ' + quotesN + ' รายการ\n\n' +
+              'ย้ายข้อมูลนี้มายังบัญชี ' + CURRENT_USER.email + ' ของคุณ?\n\n' +
+              '(แนะนำ: กด OK เพื่อย้าย — ของเก่าจะลบทิ้งหลังย้ายเสร็จ)';
+  if (confirm(msg)) {
+    localStorage.setItem(userKey, legacyRaw);
+    localStorage.removeItem(legacyKey);
+  }
+}
+
+function finishAuthAndStartApp() {
+  hideAuthScreens();
+  migrateLegacyDataIfAny();
+  STORAGE_KEY = buildStorageKey();
+  // Re-init the app now that we have user context
+  initAfterAuth();
+}
+
 // ========== PERSISTENCE (localStorage) ==========
-const STORAGE_KEY = 'srangpap_wedding_data_v2';
+let STORAGE_KEY = 'srangpap_wedding_data_v2';
 // Profile, Bank, Template storage
 const PROFILE = { shop:'', tagline:'', phone:'', line:'', ig:'', fb:'', address:'' };
 const BANKS = [];
@@ -4233,6 +4796,38 @@ const I18N = {
   'filter.unpaid':      { th: 'Unpaid', en: 'Unpaid' },
 
   // Backup page
+  // Auth screens
+  'auth.tagline':       { th: 'Studio in your pocket', en: 'Studio in your pocket' },
+  'auth.loginTitle':    { th: 'เข้าสู่ระบบ', en: 'Sign In' },
+  'auth.loginSub':      { th: 'ใช้บัญชี Pixory ของคุณ', en: 'Use your Pixory account' },
+  'auth.signupTitle':   { th: 'สมัครสมาชิก', en: 'Create Account' },
+  'auth.signupSub':     { th: 'เริ่มใช้ Pixory ฟรี · ใช้ได้ทันที', en: 'Start with Pixory — free, instant access' },
+  'auth.forgotTitle':   { th: 'ลืมรหัสผ่าน', en: 'Reset Password' },
+  'auth.forgotSub':     { th: 'กรอกอีเมลของคุณ · เราจะส่งลิงก์ตั้งรหัสใหม่ไปให้', en: 'Enter your email — we\'ll send a reset link' },
+  'auth.email':         { th: 'อีเมล', en: 'Email' },
+  'auth.password':      { th: 'รหัสผ่าน', en: 'Password' },
+  'auth.studioName':    { th: 'ชื่อสตูดิโอ', en: 'Studio Name' },
+  'auth.loginBtn':      { th: 'เข้าสู่ระบบ', en: 'Sign In' },
+  'auth.signupBtn':     { th: 'สมัครสมาชิก', en: 'Create Account' },
+  'auth.forgotBtn':     { th: 'ส่งลิงก์ตั้งรหัสใหม่', en: 'Send Reset Link' },
+  'auth.forgotLink':    { th: 'ลืมรหัสผ่าน?', en: 'Forgot password?' },
+  'auth.noAccount':     { th: 'ยังไม่มีบัญชี?', en: 'No account?' },
+  'auth.hasAccount':    { th: 'มีบัญชีแล้ว?', en: 'Have an account?' },
+  'auth.signupLink':    { th: 'สมัครสมาชิก', en: 'Sign up' },
+  'auth.loginLink':     { th: 'เข้าสู่ระบบ', en: 'Sign in' },
+  'auth.backToLogin':   { th: '‹ กลับหน้าเข้าสู่ระบบ', en: '‹ Back to sign in' },
+  'auth.metaCopy':      { th: '© Pixory 2026 · Studio Management for Photographers', en: '© Pixory 2026 · Studio Management for Photographers' },
+
+  // Account page
+  'set.account':        { th: 'บัญชีของฉัน', en: 'My Account' },
+  'header.account':     { th: 'บัญชีของฉัน', en: 'My Account' },
+  'acc.email':          { th: 'อีเมล', en: 'Email' },
+  'acc.userId':         { th: 'User ID', en: 'User ID' },
+  'acc.status':         { th: 'สถานะ', en: 'Status' },
+  'acc.logout':         { th: 'ออกจากระบบ', en: 'Sign Out' },
+  'acc.logoutSub':      { th: 'ข้อมูลในเครื่องนี้จะคงอยู่ · ล็อกอินใหม่เพื่อใช้ต่อ', en: 'Local data is preserved · Sign in again to continue' },
+  'acc.note':           { th: 'ระบบล็อกอินใช้ Supabase · ข้อมูลของคุณยังเก็บในเครื่องนี้ (จะ sync cloud ในเวอร์ชันถัดไป)', en: 'Login via Supabase · Data stays on this device (cloud sync in next version)' },
+
   'backup.export':      { th: 'Export Backup (JSON)', en: 'Export Backup (JSON)' },
   'backup.exportSub':   { th: 'โหลดไฟล์ข้อมูลทั้งหมดเก็บไว้', en: 'Download all data as a backup file' },
   'backup.import':      { th: 'Import Backup (กู้คืน JSON)', en: 'Import Backup (Restore JSON)' },
@@ -4449,7 +5044,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.4.6 · Build 2026-05-20', en: 'v1.4.6 · Build 2026-05-20' },
+  'ab.version':         { th: 'v1.5.0 · Build 2026-05-20', en: 'v1.5.0 · Build 2026-05-20' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
   'ab.builtFor':        { th: 'ออกแบบเพื่อช่างภาพไลฟ์สไตล์', en: 'Designed for lifestyle photographers' },
   'ab.byline':          { th: 'สำหรับสตูดิโอเดี่ยวและทีมเล็ก ที่ต้องการระบบจัดการงานในมือถือ', en: 'For solo studios and small teams who need a mobile management system' },
@@ -9120,10 +9715,33 @@ function renderSettingsLists() {
 }
 
 // ========== INIT ==========
-function init() {
-  loadData();
+async function init() {
+  // Always load theme + lang first so auth screens render correctly
   loadTheme();
   loadLang();
+
+  // Try Supabase auth first
+  const supaReady = initSupabase();
+  if (supaReady) {
+    const session = await getCurrentSession();
+    if (session && session.user) {
+      CURRENT_USER = { id: session.user.id, email: session.user.email };
+      STORAGE_KEY = buildStorageKey();
+      // Has session → run full app init
+      initAfterAuth();
+      return;
+    }
+    // No session → show login screen
+    showAuthScreen('login');
+    return;
+  }
+  // Fallback: Supabase failed to load → run app in anonymous mode
+  console.warn('Pixory: running in anonymous fallback mode (no auth)');
+  initAfterAuth();
+}
+
+function initAfterAuth() {
+  loadData();
   loadWallpaper();
   loadFontSize();
   renderHomeUpcoming();
@@ -9145,20 +9763,52 @@ function init() {
   updateSettingsSubcounts();
   if (JOBS.length > 0) openJob(JOBS[0].code);
 
+  // Update account UI
+  updateAccountUI();
+
+  // Pre-fill studio name from signup if first-time wizard
+  if (CURRENT_USER && CURRENT_USER.signupStudio && !PROFILE.shop) {
+    PROFILE.shop = CURRENT_USER.signupStudio;
+    saveData();
+  }
+
   // Show wizard if first time (no shop name set yet)
   if (!PROFILE.shop && !PROFILE.wizardDone) {
     startWizard();
   } else {
     goTo('home');
   }
-  // (updateClock removed — .status-bar is hidden on mobile, iOS shows its own clock)
 }
 
-// Wait for Chart.js to load
-if (typeof Chart === 'undefined') {
-  window.addEventListener('load', init);
-} else {
+function updateAccountUI() {
+  const section = document.getElementById('settings-account-section');
+  if (!section) return;
+  if (CURRENT_USER) {
+    section.style.display = '';
+    const emailEl = document.getElementById('acc-email-display');
+    const subEl = document.getElementById('hub-account-sub');
+    const idEl = document.getElementById('acc-userid-display');
+    if (emailEl) emailEl.textContent = CURRENT_USER.email || '—';
+    if (subEl) subEl.textContent = CURRENT_USER.email || '—';
+    if (idEl) idEl.textContent = (CURRENT_USER.id || '').slice(0, 8) + '...';
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+// Wait for Chart.js + Supabase to load
+function bootstrap() {
+  if (typeof Chart === 'undefined' || typeof window.supabase === 'undefined') {
+    // Give libs another chance
+    setTimeout(bootstrap, 100);
+    return;
+  }
   init();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootstrap);
+} else {
+  bootstrap();
 }
 </script>
 </body>
