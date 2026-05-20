@@ -33,13 +33,13 @@
   .phone { width: 100%; max-width: 400px; height: min(880px, 95vh); background: #f7f8fa; border-radius: 36px; box-shadow: 0 20px 60px rgba(0,0,0,.15), 0 0 0 10px #1a1a1a, 0 0 0 11px #2a2a2a; overflow: hidden; position: relative; display: flex; flex-direction: column; }
   @media (max-width: 460px) {
     .phone-wrap { padding: 0; }
-    .phone { max-width: 100%; height: 100vh; border-radius: 0; box-shadow: none; }
+    .phone { max-width: 100%; height: 100dvh; min-height: 100vh; border-radius: 0; box-shadow: none; }
     /* Hide the desktop-mockup status bar + notch on real phones — the OS already shows its own */
     .notch { display: none !important; }
     .status-bar { display: none !important; }
     .proto-tag { display: none !important; }
     /* Bottom nav respects home indicator */
-    .bottom-nav { padding-top: 6px !important; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4px) !important; align-items: center !important; }
+    .bottom-nav { padding-top: 4px !important; padding-bottom: env(safe-area-inset-bottom, 0px) !important; align-items: center !important; }
   }
 
   .notch { display: none !important; }
@@ -4442,7 +4442,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.4.4 · Build 2026-05-20', en: 'v1.4.4 · Build 2026-05-20' },
+  'ab.version':         { th: 'v1.4.5 · Build 2026-05-20', en: 'v1.4.5 · Build 2026-05-20' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
   'ab.builtFor':        { th: 'ออกแบบเพื่อช่างภาพไลฟ์สไตล์', en: 'Designed for lifestyle photographers' },
   'ab.byline':          { th: 'สำหรับสตูดิโอเดี่ยวและทีมเล็ก ที่ต้องการระบบจัดการงานในมือถือ', en: 'For solo studios and small teams who need a mobile management system' },
