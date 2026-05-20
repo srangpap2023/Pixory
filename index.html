@@ -5319,7 +5319,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.6.0 · Build 2026-05-20', en: 'v1.6.0 · Build 2026-05-20' },
+  'ab.version':         { th: 'v1.6.1 · Build 2026-05-21', en: 'v1.6.1 · Build 2026-05-21' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
   'ab.builtFor':        { th: 'ออกแบบเพื่อช่างภาพไลฟ์สไตล์', en: 'Designed for lifestyle photographers' },
   'ab.byline':          { th: 'สำหรับสตูดิโอเดี่ยวและทีมเล็ก ที่ต้องการระบบจัดการงานในมือถือ', en: 'For solo studios and small teams who need a mobile management system' },
@@ -6288,20 +6288,54 @@ function importBackup(ev) {
     if (!confirm('ยืนยันอีกครั้ง — ทับข้อมูลปัจจุบันทั้งหมด?\n\nกด OK เพื่อกู้คืน\nกด Cancel เพื่อยกเลิก')) return;
 
     // Write directly to localStorage in the schema saveData() uses
-    try {
-      const toStore = {};
-      const keys = ['PKG_PHOTO','PKG_PB','PKG_VIDEO','PKG_PRE','ADDONS','JOB_TYPES','SOURCES',
-                    'EXPENSE_CATS','TEAM','EXPENSES','JOBS','QUOTES','PROFILE','BANKS',
-                    'QUOTE_TEMPLATE','NOTIF_SETTINGS','SERVICES','CUSTOMER_INFO','EQUIPMENT'];
-      keys.forEach(k => { if (k in data) toStore[k] = data[k]; });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
-      // Mark wizard as done so old user doesn't get pushed back into setup
-      try { localStorage.setItem('srangpap_wizard_done', '1'); } catch(e) {}
-      alert('✅ กู้คืนข้อมูลสำเร็จ\n\nแอพจะ reload เพื่อโหลดข้อมูลใหม่');
-      setTimeout(() => { location.reload(); }, 300);
-    } catch(err) {
-      alert('❌ บันทึกข้อมูลไม่สำเร็จ: ' + err.message);
-    }
+    (async () => {
+      try {
+        const toStore = {};
+        const keys = ['PKG_PHOTO','PKG_PB','PKG_VIDEO','PKG_PRE','ADDONS','JOB_TYPES','SOURCES',
+                      'EXPENSE_CATS','TEAM','EXPENSES','JOBS','QUOTES','PROFILE','BANKS',
+                      'QUOTE_TEMPLATE','NOTIF_SETTINGS','SERVICES','CUSTOMER_INFO','EQUIPMENT'];
+        keys.forEach(k => { if (k in data) toStore[k] = data[k]; });
+
+        // CRITICAL: stamp _meta with current timestamp so Cloud Sync won't override imported data
+        const now = new Date().toISOString();
+        toStore._meta = {
+          updated_at: now,
+          device_id: (typeof DEVICE_ID !== 'undefined' ? DEVICE_ID : 'imported'),
+          version: 999999,  // high version number to win any conflict
+          source: 'import_backup'
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
+        // Mark wizard as done so old user doesn't get pushed back into setup
+        try { localStorage.setItem('srangpap_wizard_done', '1'); } catch(e) {}
+
+        // Push imported data to Cloud immediately (if logged in) so Cloud Sync won't override on reload
+        let cloudPushOk = true;
+        if (typeof CURRENT_USER !== 'undefined' && CURRENT_USER && typeof SUPABASE !== 'undefined' && SUPABASE) {
+          try {
+            const { error } = await SUPABASE
+              .from('user_data')
+              .upsert({
+                user_id: CURRENT_USER.id,
+                data: toStore,
+                device_id: (typeof DEVICE_ID !== 'undefined' ? DEVICE_ID : 'imported'),
+                updated_at: now
+              }, { onConflict: 'user_id' });
+            if (error) { cloudPushOk = false; console.warn('Import cloud push error:', error); }
+          } catch(e) {
+            cloudPushOk = false;
+            console.warn('Import cloud push failed:', e);
+          }
+        }
+
+        const successMsg = cloudPushOk
+          ? '✅ กู้คืนข้อมูลสำเร็จ + ซิงค์ขึ้น Cloud แล้ว\n\nแอพจะ reload เพื่อโหลดข้อมูลใหม่'
+          : '✅ กู้คืนข้อมูลสำเร็จ (เฉพาะเครื่องนี้)\n⚠ Cloud sync ไม่สำเร็จ — ไม่เป็นไร · กดซิงค์เดี๋ยวนี้ใน Settings ทีหลังก็ได้\n\nแอพจะ reload เพื่อโหลดข้อมูลใหม่';
+        alert(successMsg);
+        setTimeout(() => { location.reload(); }, 300);
+      } catch(err) {
+        alert('❌ บันทึกข้อมูลไม่สำเร็จ: ' + err.message);
+      }
+    })();
   };
   reader.onerror = function() {
     alert('❌ อ่านไฟล์ไม่สำเร็จ');
