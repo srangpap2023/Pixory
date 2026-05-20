@@ -22,12 +22,12 @@
   body.fs-xl .screen { zoom: 1.22; }
   html, body { margin: 0; padding: 0; font-family: 'IBM Plex Sans Thai', system-ui, -apple-system, sans-serif; background: #e8eaef; color: #1a1a1a; }
   /* Defensive: never render head-only elements as visible text (fixes Safari source bleed) */
-  style, script, link, meta, title { display: none !important; visibility: hidden !important; position: absolute !important; left: -99999px !important; }
-  /* Prevent body-level overscroll (Safari bounce showing page source) */
-  html { overscroll-behavior: none; }
-  body { overscroll-behavior: none; overflow-x: hidden; }
-  /* Phone-wrap clips overflow to prevent any content past the phone container */
-  .phone-wrap { overflow: hidden; }
+  style, script, link, meta, title { display: none !important; visibility: hidden !important; height: 0 !important; width: 0 !important; font-size: 0 !important; line-height: 0 !important; color: transparent !important; opacity: 0 !important; position: fixed !important; left: -99999px !important; top: -99999px !important; pointer-events: none !important; }
+  /* Lock viewport — html+body fill exactly viewport, no scroll past, no bounce */
+  html { height: 100%; width: 100%; overflow: hidden; overscroll-behavior: none; }
+  body { height: 100%; width: 100%; overflow: hidden; overscroll-behavior: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; }
+  /* Phone-wrap fills entire body, no overflow */
+  .phone-wrap { overflow: hidden; height: 100%; width: 100%; position: relative; }
 
   .phone-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 12px; }
   .phone { width: 100%; max-width: 400px; height: min(880px, 95vh); background: #f7f8fa; border-radius: 36px; box-shadow: 0 20px 60px rgba(0,0,0,.15), 0 0 0 10px #1a1a1a, 0 0 0 11px #2a2a2a; overflow: hidden; position: relative; display: flex; flex-direction: column; }
@@ -4442,7 +4442,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.4.2 · Build 2026-05-20', en: 'v1.4.2 · Build 2026-05-20' },
+  'ab.version':         { th: 'v1.4.3 · Build 2026-05-20', en: 'v1.4.3 · Build 2026-05-20' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
   'ab.builtFor':        { th: 'ออกแบบเพื่อช่างภาพไลฟ์สไตล์', en: 'Designed for lifestyle photographers' },
   'ab.byline':          { th: 'สำหรับสตูดิโอเดี่ยวและทีมเล็ก ที่ต้องการระบบจัดการงานในมือถือ', en: 'For solo studios and small teams who need a mobile management system' },
