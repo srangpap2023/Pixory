@@ -1890,6 +1890,9 @@
 
 <div class="proto-tag">PROTOTYPE · Pixory</div>
 
+<!-- ====== CLOUD SYNC DOT INDICATOR ====== -->
+<div id="cloud-sync-dot" title="ไม่ได้เชื่อมต่อ" style="position:fixed; top:env(safe-area-inset-top, 8px); right:8px; width:8px; height:8px; border-radius:50%; background:#9ca3af; z-index:8500; box-shadow:0 0 8px rgba(0,0,0,.15); transition:background .25s; pointer-events:none;"></div>
+
 <!-- ====== AUTH SCREEN: LOGIN ====== -->
 <div class="auth-screen" id="auth-login">
   <div class="auth-card">
@@ -3441,6 +3444,28 @@
           </div>
         </div>
       </div>
+      <!-- ====== CLOUD SYNC SECTION ====== -->
+      <div class="settings-section">
+        <div style="padding: 0 16px 8px; font-size:12px; color:#9ca3af; font-weight:600; text-transform:uppercase; letter-spacing:.5px;" data-i18n="acc.cloudHeader">ซิงค์ Cloud</div>
+        <div style="border-radius: 12px; overflow: hidden;">
+          <div class="settings-row">
+            <div class="left"><div class="row-title" data-i18n="acc.syncStatus">สถานะการซิงค์</div></div>
+            <div class="right" id="acc-sync-status" style="font-size:13px; color:#15803d;">—</div>
+          </div>
+          <div class="settings-row" onclick="manualSync()">
+            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-home)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M28 30 Q28 22 36 22 L52 22 Q60 22 60 30 L60 38 M60 30 L66 36 M60 30 L54 36" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M60 58 Q60 66 52 66 L36 66 Q28 66 28 58 L28 50 M28 58 L22 52 M28 58 L34 52" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="row-title" data-i18n="acc.syncNow">ซิงค์เดี๋ยวนี้</div><div class="row-sub" data-i18n="acc.syncNowSub">อัปข้อมูลเครื่องนี้ขึ้น cloud + ดึงข้อมูลล่าสุดลงมา</div></div></div>
+            <div class="right">›</div>
+          </div>
+          <div class="settings-row" onclick="forceRefreshFromCloud()">
+            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-teal)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M28 50 Q16 50 16 38 Q16 28 26 28 Q28 18 38 18 Q48 18 50 28 Q60 26 64 36 Q72 36 72 46 Q72 56 60 56 L28 56 Z" fill="#fff"/><path d="M44 62 L44 36 M36 44 L44 36 L52 44" stroke="url(#ic-teal)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="row-title" data-i18n="acc.pullCloud">ดึงข้อมูลจาก cloud มาทับเครื่องนี้</div><div class="row-sub" data-i18n="acc.pullCloudSub">ใช้กรณีเครื่องนี้ดูข้อมูลไม่ครบ (เครื่องอื่นมีของใหม่กว่า)</div></div></div>
+            <div class="right">›</div>
+          </div>
+          <div class="settings-row">
+            <div class="left"><div class="row-title" data-i18n="acc.deviceId">Device ID</div></div>
+            <div class="right" id="acc-device-id" style="font-size:10px; color:#9ca3af; font-family:monospace;">—</div>
+          </div>
+        </div>
+      </div>
       <div class="settings-section">
         <div style="border-radius: 12px; overflow: hidden;">
           <div class="settings-row" onclick="doLogout()">
@@ -3920,6 +3945,7 @@ function goTo(name) {
   if (name === 'notifications') renderAllNotifs();
   if (name === 'home') { renderHomeNotifs(); renderHomeHero(); }
   if (name === 'calendar') { CAL_YEAR = new Date().getFullYear(); CAL_MONTH = new Date().getMonth(); renderCalendar(); }
+  if (name === 'settings-account') { updateAccountUI(); if (typeof updateSyncIndicatorUI === 'function') updateSyncIndicatorUI(); }
   // Toggle wizard-mode on body (hides topbar + bottom-nav during onboarding)
   document.body.classList.toggle('wizard-mode', name === 'wizard');
   if (name === 'settings-hub-packages') renderServicesList();
@@ -4140,12 +4166,244 @@ function migrateLegacyDataIfAny() {
   }
 }
 
-function finishAuthAndStartApp() {
+async function finishAuthAndStartApp() {
   hideAuthScreens();
   migrateLegacyDataIfAny();
   STORAGE_KEY = buildStorageKey();
   // Re-init the app now that we have user context
-  initAfterAuth();
+  await initAfterAuth();
+}
+
+// ========== CLOUD BACKUP (Supabase) ==========
+const DEVICE_ID = (() => {
+  let id = null;
+  try { id = localStorage.getItem('pixory.device_id'); } catch(e) {}
+  if (!id) {
+    id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+    try { localStorage.setItem('pixory.device_id', id); } catch(e) {}
+  }
+  return id;
+})();
+
+let _cloudPushTimer = null;
+let _cloudSyncState = 'idle'; // 'idle' | 'syncing' | 'synced' | 'error' | 'offline'
+let _cloudLastSyncAt = null;  // ISO string of last successful push or pull
+let _cloudInitialSyncDone = false; // prevent debounced push from racing initial sync
+
+function setSyncState(state, detail) {
+  _cloudSyncState = state;
+  updateSyncIndicatorUI(detail);
+}
+
+function fmtSyncTime(iso) {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return 'เมื่อสักครู่';
+    if (diffMin < 60) return diffMin + ' นาทีที่แล้ว';
+    if (diffMin < 1440) return Math.floor(diffMin / 60) + ' ชั่วโมงที่แล้ว';
+    return d.toLocaleDateString('th-TH', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+  } catch(e) { return iso; }
+}
+
+function updateSyncIndicatorUI(detail) {
+  // Floating dot indicator
+  const dot = document.getElementById('cloud-sync-dot');
+  if (dot) {
+    let color = '#9ca3af', title = 'ไม่ได้เชื่อมต่อ';
+    if (_cloudSyncState === 'syncing') { color = '#f59e0b'; title = 'กำลังซิงค์...'; }
+    else if (_cloudSyncState === 'synced') { color = '#22c55e'; title = 'ซิงค์แล้ว · ' + fmtSyncTime(_cloudLastSyncAt); }
+    else if (_cloudSyncState === 'error') { color = '#ef4444'; title = 'ซิงค์ไม่สำเร็จ — ' + (detail || ''); }
+    else if (_cloudSyncState === 'offline') { color = '#9ca3af'; title = 'ออฟไลน์'; }
+    dot.style.background = color;
+    dot.title = title;
+  }
+  // Account page text status
+  const statusEl = document.getElementById('acc-sync-status');
+  if (statusEl) {
+    if (_cloudSyncState === 'syncing') statusEl.textContent = '⏳ กำลังซิงค์...';
+    else if (_cloudSyncState === 'synced') statusEl.textContent = '✓ ซิงค์ล่าสุด: ' + fmtSyncTime(_cloudLastSyncAt);
+    else if (_cloudSyncState === 'error') statusEl.textContent = '⚠ ซิงค์ไม่สำเร็จ · ' + (detail || 'ลองอีกครั้ง');
+    else if (_cloudSyncState === 'offline') statusEl.textContent = '— ออฟไลน์ (ใช้ข้อมูลในเครื่อง)';
+    else statusEl.textContent = '—';
+  }
+  const deviceEl = document.getElementById('acc-device-id');
+  if (deviceEl) deviceEl.textContent = DEVICE_ID;
+}
+
+function getLocalDataObj() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function getLocalUpdatedAt() {
+  const d = getLocalDataObj();
+  if (!d || !d._meta || !d._meta.updated_at) return 0;
+  return new Date(d._meta.updated_at).getTime() || 0;
+}
+
+async function pushToCloud() {
+  if (!CURRENT_USER || !SUPABASE) { setSyncState('offline'); return false; }
+  try {
+    setSyncState('syncing');
+    const blob = getLocalDataObj() || {};
+    const now = new Date().toISOString();
+    // Stamp metadata
+    blob._meta = { updated_at: now, device_id: DEVICE_ID, version: ((blob._meta && blob._meta.version) || 0) + 1 };
+    // Save stamped back to localStorage
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(blob)); } catch(e) {}
+    const { error } = await SUPABASE
+      .from('user_data')
+      .upsert({
+        user_id: CURRENT_USER.id,
+        data: blob,
+        device_id: DEVICE_ID,
+        updated_at: now
+      }, { onConflict: 'user_id' });
+    if (error) {
+      console.warn('Cloud push failed:', error);
+      setSyncState('error', error.message);
+      return false;
+    }
+    _cloudLastSyncAt = now;
+    setSyncState('synced');
+    return true;
+  } catch(e) {
+    console.warn('pushToCloud error:', e);
+    setSyncState('error', e.message);
+    return false;
+  }
+}
+
+async function pullFromCloud() {
+  if (!CURRENT_USER || !SUPABASE) return null;
+  try {
+    const { data, error } = await SUPABASE
+      .from('user_data')
+      .select('data, device_id, updated_at')
+      .eq('user_id', CURRENT_USER.id)
+      .maybeSingle();
+    if (error) {
+      console.warn('Cloud pull failed:', error);
+      return null;
+    }
+    return data; // { data, device_id, updated_at } or null
+  } catch(e) {
+    console.warn('pullFromCloud error:', e);
+    return null;
+  }
+}
+
+async function syncOnStartup() {
+  if (!CURRENT_USER || !SUPABASE) { _cloudInitialSyncDone = true; setSyncState('offline'); return; }
+  setSyncState('syncing');
+  const remote = await pullFromCloud();
+  const localRaw = localStorage.getItem(STORAGE_KEY);
+
+  if (!remote && !localRaw) {
+    // Both empty — fresh new account, nothing to sync yet
+    _cloudInitialSyncDone = true;
+    _cloudLastSyncAt = new Date().toISOString();
+    setSyncState('synced');
+    return;
+  }
+
+  if (remote && !localRaw) {
+    // Only cloud has data → restore to local
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
+    _cloudLastSyncAt = remote.updated_at;
+    _cloudInitialSyncDone = true;
+    setSyncState('synced');
+    return;
+  }
+
+  if (!remote && localRaw) {
+    // Only local has data → push to cloud (first-time migration to cloud)
+    _cloudInitialSyncDone = true;
+    await pushToCloud();
+    return;
+  }
+
+  // Both have data → compare timestamps
+  const localUpdated = getLocalUpdatedAt();
+  const remoteUpdated = remote.updated_at ? new Date(remote.updated_at).getTime() : 0;
+
+  if (remoteUpdated > localUpdated) {
+    // Cloud newer → check if user wants to overwrite local
+    if (localUpdated === 0) {
+      // Local has no timestamp (data from before cloud sync existed) — auto use cloud
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
+      _cloudLastSyncAt = remote.updated_at;
+    } else if (remote.device_id !== DEVICE_ID) {
+      // Different device made the latest change — silently take cloud version
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
+      _cloudLastSyncAt = remote.updated_at;
+    } else {
+      // Same device — odd; trust cloud anyway
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
+      _cloudLastSyncAt = remote.updated_at;
+    }
+    _cloudInitialSyncDone = true;
+    setSyncState('synced');
+  } else if (localUpdated > remoteUpdated) {
+    // Local newer → push
+    _cloudInitialSyncDone = true;
+    await pushToCloud();
+  } else {
+    // Same time → already in sync
+    _cloudLastSyncAt = remote.updated_at;
+    _cloudInitialSyncDone = true;
+    setSyncState('synced');
+  }
+}
+
+function debouncedCloudPush() {
+  if (!CURRENT_USER || !SUPABASE) return;
+  if (!_cloudInitialSyncDone) return; // avoid racing initial sync
+  if (_cloudPushTimer) clearTimeout(_cloudPushTimer);
+  _cloudPushTimer = setTimeout(() => pushToCloud(), 1500);
+}
+
+async function manualSync() {
+  if (!CURRENT_USER || !SUPABASE) { toast('ยังไม่ได้เชื่อมต่อ cloud'); return; }
+  // Try to push our latest, then pull any newer from cloud
+  setSyncState('syncing');
+  const ok = await pushToCloud();
+  if (ok) {
+    // After push, also pull (in case another device pushed during the wait)
+    const remote = await pullFromCloud();
+    if (remote && new Date(remote.updated_at).getTime() > new Date(_cloudLastSyncAt).getTime()) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
+      _cloudLastSyncAt = remote.updated_at;
+      setSyncState('synced');
+      // Reload page so in-memory data is fresh
+      if (confirm('พบข้อมูลใหม่จากเครื่องอื่น — รีโหลดเพื่อแสดงข้อมูลล่าสุด?')) {
+        location.reload();
+      }
+      return;
+    }
+    toast('✓ ซิงค์เรียบร้อย');
+  } else {
+    toast('⚠ ซิงค์ไม่สำเร็จ — ลองอีกครั้ง');
+  }
+}
+
+async function forceRefreshFromCloud() {
+  if (!CURRENT_USER || !SUPABASE) { toast('ยังไม่ได้เชื่อมต่อ cloud'); return; }
+  if (!confirm('ดึงข้อมูลล่าสุดจาก cloud มาทับเครื่องนี้?\n\nข้อมูลในเครื่องนี้ที่ยังไม่ได้ซิงค์จะหายไป\n\nแนะนำใช้กรณีเครื่องนี้ดูข้อมูลไม่ครบ')) return;
+  setSyncState('syncing');
+  const remote = await pullFromCloud();
+  if (!remote) { toast('ไม่มีข้อมูลใน cloud หรือดึงไม่สำเร็จ'); setSyncState('error', 'no data'); return; }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
+  _cloudLastSyncAt = remote.updated_at;
+  setSyncState('synced');
+  toast('✓ ดึงข้อมูลจาก cloud สำเร็จ — กำลังรีโหลด...');
+  setTimeout(() => location.reload(), 600);
 }
 
 // ========== PERSISTENCE (localStorage) ==========
@@ -4179,10 +4437,20 @@ const NOTIF_SETTINGS = {
 
 function saveData() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    // Preserve cloud meta if any
+    let _meta = null;
+    try {
+      const prev = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      _meta = prev && prev._meta ? prev._meta : null;
+    } catch(e) {}
+    const blob = {
       PKG_PHOTO, PKG_PB, PKG_VIDEO, PKG_PRE, ADDONS, JOB_TYPES, SOURCES, EXPENSE_CATS, TEAM, EXPENSES,
       JOBS, QUOTES, PROFILE, BANKS, QUOTE_TEMPLATE, NOTIF_SETTINGS, SERVICES, CUSTOMER_INFO, EQUIPMENT
-    }));
+    };
+    if (_meta) blob._meta = _meta;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(blob));
+    // Trigger debounced cloud sync (no-op if not logged in)
+    if (typeof debouncedCloudPush === 'function') debouncedCloudPush();
   } catch(e) { console.warn('save failed', e); }
 }
 function loadData() {
@@ -4826,7 +5094,14 @@ const I18N = {
   'acc.status':         { th: 'สถานะ', en: 'Status' },
   'acc.logout':         { th: 'ออกจากระบบ', en: 'Sign Out' },
   'acc.logoutSub':      { th: 'ข้อมูลในเครื่องนี้จะคงอยู่ · ล็อกอินใหม่เพื่อใช้ต่อ', en: 'Local data is preserved · Sign in again to continue' },
-  'acc.note':           { th: 'ระบบล็อกอินใช้ Supabase · ข้อมูลของคุณยังเก็บในเครื่องนี้ (จะ sync cloud ในเวอร์ชันถัดไป)', en: 'Login via Supabase · Data stays on this device (cloud sync in next version)' },
+  'acc.note':           { th: 'ระบบล็อกอินใช้ Supabase · ข้อมูลซิงค์ผ่าน cloud อัตโนมัติ', en: 'Login via Supabase · Data syncs to cloud automatically' },
+  'acc.cloudHeader':    { th: 'ซิงค์ Cloud', en: 'Cloud Sync' },
+  'acc.syncStatus':     { th: 'สถานะการซิงค์', en: 'Sync Status' },
+  'acc.syncNow':        { th: 'ซิงค์เดี๋ยวนี้', en: 'Sync Now' },
+  'acc.syncNowSub':     { th: 'อัปข้อมูลเครื่องนี้ขึ้น cloud + ดึงข้อมูลล่าสุดลงมา', en: 'Push local to cloud + pull latest' },
+  'acc.pullCloud':      { th: 'ดึงข้อมูลจาก cloud มาทับเครื่องนี้', en: 'Pull from Cloud (overwrite local)' },
+  'acc.pullCloudSub':   { th: 'ใช้กรณีเครื่องนี้ดูข้อมูลไม่ครบ (เครื่องอื่นมีของใหม่กว่า)', en: 'Use when this device shows incomplete data' },
+  'acc.deviceId':       { th: 'Device ID', en: 'Device ID' },
 
   'backup.export':      { th: 'Export Backup (JSON)', en: 'Export Backup (JSON)' },
   'backup.exportSub':   { th: 'โหลดไฟล์ข้อมูลทั้งหมดเก็บไว้', en: 'Download all data as a backup file' },
@@ -5044,7 +5319,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.5.0 · Build 2026-05-20', en: 'v1.5.0 · Build 2026-05-20' },
+  'ab.version':         { th: 'v1.6.0 · Build 2026-05-20', en: 'v1.6.0 · Build 2026-05-20' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
   'ab.builtFor':        { th: 'ออกแบบเพื่อช่างภาพไลฟ์สไตล์', en: 'Designed for lifestyle photographers' },
   'ab.byline':          { th: 'สำหรับสตูดิโอเดี่ยวและทีมเล็ก ที่ต้องการระบบจัดการงานในมือถือ', en: 'For solo studios and small teams who need a mobile management system' },
@@ -9728,7 +10003,7 @@ async function init() {
       CURRENT_USER = { id: session.user.id, email: session.user.email };
       STORAGE_KEY = buildStorageKey();
       // Has session → run full app init
-      initAfterAuth();
+      await initAfterAuth();
       return;
     }
     // No session → show login screen
@@ -9737,10 +10012,17 @@ async function init() {
   }
   // Fallback: Supabase failed to load → run app in anonymous mode
   console.warn('Pixory: running in anonymous fallback mode (no auth)');
-  initAfterAuth();
+  await initAfterAuth();
 }
 
-function initAfterAuth() {
+async function initAfterAuth() {
+  // 1) Sync with cloud first (only if logged in) so localStorage has latest before load
+  if (CURRENT_USER && SUPABASE) {
+    try { await syncOnStartup(); } catch(e) { console.warn('initial sync error:', e); }
+  } else {
+    _cloudInitialSyncDone = true;
+  }
+  // 2) Load data from localStorage (now reflects cloud state if applicable)
   loadData();
   loadWallpaper();
   loadFontSize();
