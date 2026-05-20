@@ -3030,6 +3030,11 @@
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-teal)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M28 50 Q16 50 16 38 Q16 28 26 28 Q28 18 38 18 Q48 18 50 28 Q60 26 64 36 Q72 36 72 46 Q72 56 60 56 L28 56 Z" fill="#fff"/><path d="M44 36 L44 62 M36 54 L44 62 L52 54" stroke="url(#ic-teal)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="row-title" data-i18n="backup.export">Export Backup (JSON)</div><div class="row-sub" data-i18n="backup.exportSub">โหลดไฟล์ข้อมูลทั้งหมดเก็บไว้</div></div></div>
             <div class="right">›</div>
           </div>
+          <div class="settings-row" onclick="document.getElementById('import-backup-file').click()">
+            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-indigo)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M28 50 Q16 50 16 38 Q16 28 26 28 Q28 18 38 18 Q48 18 50 28 Q60 26 64 36 Q72 36 72 46 Q72 56 60 56 L28 56 Z" fill="#fff"/><path d="M44 62 L44 36 M36 44 L44 36 L52 44" stroke="url(#ic-indigo)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="row-title" data-i18n="backup.import">Import Backup (กู้คืน JSON)</div><div class="row-sub" data-i18n="backup.importSub">เลือกไฟล์ .json ที่ Export ไว้เพื่อกู้คืนข้อมูล</div></div></div>
+            <div class="right">›</div>
+          </div>
+          <input type="file" id="import-backup-file" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
           <div class="settings-row" onclick="startWizard()">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-purple)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="14" y="62" width="54" height="6" rx="3" transform="rotate(-30 14 62)" fill="#fff"/><path d="M58 18 L62 28 L72 30 L64 38 L66 50 L58 44 L50 50 L52 38 L44 30 L54 28 Z" fill="#fff"/></svg></div><div><div class="row-title" data-i18n="backup.setupWiz">Setup Wizard (เริ่มใหม่)</div><div class="row-sub" data-i18n="backup.setupWizSub">เดินทีละขั้นตั้งค่าหน้าร้าน</div></div></div>
             <div class="right">›</div>
@@ -4230,6 +4235,8 @@ const I18N = {
   // Backup page
   'backup.export':      { th: 'Export Backup (JSON)', en: 'Export Backup (JSON)' },
   'backup.exportSub':   { th: 'โหลดไฟล์ข้อมูลทั้งหมดเก็บไว้', en: 'Download all data as a backup file' },
+  'backup.import':      { th: 'Import Backup (กู้คืน JSON)', en: 'Import Backup (Restore JSON)' },
+  'backup.importSub':   { th: 'เลือกไฟล์ .json ที่ Export ไว้เพื่อกู้คืนข้อมูล', en: 'Select an exported .json file to restore your data' },
   'backup.setupWiz':    { th: 'Setup Wizard (เริ่มใหม่)', en: 'Setup Wizard (Restart)' },
   'backup.setupWizSub': { th: 'เดินทีละขั้นตั้งค่าหน้าร้าน', en: 'Walk through studio setup again' },
   'backup.resetTx':     { th: 'ล้างข้อมูลงาน/ลูกค้า', en: 'Clear Jobs/Customers' },
@@ -4442,7 +4449,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.4.5 · Build 2026-05-20', en: 'v1.4.5 · Build 2026-05-20' },
+  'ab.version':         { th: 'v1.4.6 · Build 2026-05-20', en: 'v1.4.6 · Build 2026-05-20' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
   'ab.builtFor':        { th: 'ออกแบบเพื่อช่างภาพไลฟ์สไตล์', en: 'Designed for lifestyle photographers' },
   'ab.byline':          { th: 'สำหรับสตูดิโอเดี่ยวและทีมเล็ก ที่ต้องการระบบจัดการงานในมือถือ', en: 'For solo studios and small teams who need a mobile management system' },
@@ -5355,6 +5362,81 @@ function exportBackup() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
   toast('Export ข้อมูลแล้ว — ตรวจในโฟลเดอร์ Downloads');
+}
+
+// ========== IMPORT BACKUP (Restore from JSON) ==========
+function importBackup(ev) {
+  const file = ev && ev.target && ev.target.files && ev.target.files[0];
+  // Reset input so re-selecting same file works
+  try { ev.target.value = ''; } catch(e) {}
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let data;
+    try {
+      data = JSON.parse(e.target.result);
+    } catch(err) {
+      alert('❌ ไฟล์ JSON ไม่ถูกต้อง — โปรดเลือกไฟล์ backup ที่ Export จาก Pixory');
+      return;
+    }
+
+    // Validate — must have at least one of the core keys
+    const coreKeys = ['JOBS', 'QUOTES', 'PROFILE', 'PKG_PHOTO', 'BANKS'];
+    const hasCore = coreKeys.some(k => k in data);
+    if (!hasCore) {
+      alert('❌ ไฟล์นี้ไม่ใช่ backup ของ Pixory — ไม่พบข้อมูลหลัก (JOBS, QUOTES, PROFILE)');
+      return;
+    }
+
+    // Build summary
+    const exportedAt = data.exportedAt ? new Date(data.exportedAt).toLocaleString('th-TH') : '—';
+    const jobsN = Array.isArray(data.JOBS) ? data.JOBS.length : 0;
+    const quotesN = Array.isArray(data.QUOTES) ? data.QUOTES.length : 0;
+    const expN = Array.isArray(data.EXPENSES) ? data.EXPENSES.length : 0;
+    const teamN = Array.isArray(data.TEAM) ? data.TEAM.length : 0;
+    const banksN = Array.isArray(data.BANKS) ? data.BANKS.length : 0;
+    const shop = (data.PROFILE && data.PROFILE.shop) || '—';
+
+    const msg =
+      '📥 พบไฟล์ Backup\n\n' +
+      'ร้าน: ' + shop + '\n' +
+      'Exported: ' + exportedAt + '\n' +
+      '— — — — — — — — —\n' +
+      '• งาน: ' + jobsN + ' รายการ\n' +
+      '• ใบเสนอราคา: ' + quotesN + ' รายการ\n' +
+      '• ค่าใช้จ่าย: ' + expN + ' รายการ\n' +
+      '• ทีมงาน: ' + teamN + ' คน\n' +
+      '• บัญชีรับโอน: ' + banksN + ' บัญชี\n' +
+      '— — — — — — — — —\n\n' +
+      '⚠ การกู้คืนจะ "ทับ" ข้อมูลปัจจุบันทั้งหมด\n' +
+      'ข้อมูลที่เพิ่มหรือแก้หลัง backup ครั้งนี้จะหายไป\n\n' +
+      'แนะนำ: กด Export Backup ครั้งหนึ่งก่อน เพื่อเก็บข้อมูลปัจจุบันไว้\n\n' +
+      'ดำเนินการต่อ?';
+
+    if (!confirm(msg)) return;
+    if (!confirm('ยืนยันอีกครั้ง — ทับข้อมูลปัจจุบันทั้งหมด?\n\nกด OK เพื่อกู้คืน\nกด Cancel เพื่อยกเลิก')) return;
+
+    // Write directly to localStorage in the schema saveData() uses
+    try {
+      const toStore = {};
+      const keys = ['PKG_PHOTO','PKG_PB','PKG_VIDEO','PKG_PRE','ADDONS','JOB_TYPES','SOURCES',
+                    'EXPENSE_CATS','TEAM','EXPENSES','JOBS','QUOTES','PROFILE','BANKS',
+                    'QUOTE_TEMPLATE','NOTIF_SETTINGS','SERVICES','CUSTOMER_INFO','EQUIPMENT'];
+      keys.forEach(k => { if (k in data) toStore[k] = data[k]; });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
+      // Mark wizard as done so old user doesn't get pushed back into setup
+      try { localStorage.setItem('srangpap_wizard_done', '1'); } catch(e) {}
+      alert('✅ กู้คืนข้อมูลสำเร็จ\n\nแอพจะ reload เพื่อโหลดข้อมูลใหม่');
+      setTimeout(() => { location.reload(); }, 300);
+    } catch(err) {
+      alert('❌ บันทึกข้อมูลไม่สำเร็จ: ' + err.message);
+    }
+  };
+  reader.onerror = function() {
+    alert('❌ อ่านไฟล์ไม่สำเร็จ');
+  };
+  reader.readAsText(file);
 }
 
 // ========== COPY QUOTE TO CLIPBOARD ==========
