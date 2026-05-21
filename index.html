@@ -4654,11 +4654,38 @@ async function pullFromCloud() {
   }
 }
 
+// Count substantive items in a data blob (jobs + quotes + expenses)
+function countMeaningfulItems(d) {
+  if (!d) return 0;
+  return ((Array.isArray(d.JOBS) ? d.JOBS.length : 0)
+        + (Array.isArray(d.QUOTES) ? d.QUOTES.length : 0)
+        + (Array.isArray(d.EXPENSES) ? d.EXPENSES.length : 0));
+}
+
+// Save a local snapshot before risky overwrite — kept in localStorage as recovery
+function snapshotLocalForRecovery() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const stamp = new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY + '__snapshot_' + stamp.slice(0, 10), raw);
+    // Trim old snapshots — keep last 3
+    const keys = Object.keys(localStorage).filter(k => k.startsWith(STORAGE_KEY + '__snapshot_')).sort();
+    while (keys.length > 3) {
+      try { localStorage.removeItem(keys.shift()); } catch(e) {}
+    }
+  } catch(e) { console.warn('snapshot failed', e); }
+}
+
 async function syncOnStartup() {
   if (!CURRENT_USER || !SUPABASE) { _cloudInitialSyncDone = true; setSyncState('offline'); return; }
   setSyncState('syncing');
   const remote = await pullFromCloud();
   const localRaw = localStorage.getItem(STORAGE_KEY);
+  const localObj = localRaw ? JSON.parse(localRaw) : null;
+
+  console.log('[Pixory sync] startup — local items:', countMeaningfulItems(localObj),
+              '· remote items:', remote ? countMeaningfulItems(remote.data) : 'none');
 
   if (!remote && !localRaw) {
     // Both empty — fresh new account, nothing to sync yet
@@ -4670,6 +4697,7 @@ async function syncOnStartup() {
 
   if (remote && !localRaw) {
     // Only cloud has data → restore to local
+    console.log('[Pixory sync] cloud → local (fresh device)');
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
     _cloudLastSyncAt = remote.updated_at;
     _cloudInitialSyncDone = true;
@@ -4679,6 +4707,7 @@ async function syncOnStartup() {
 
   if (!remote && localRaw) {
     // Only local has data → push to cloud (first-time migration to cloud)
+    console.log('[Pixory sync] local → cloud (first push)');
     _cloudInitialSyncDone = true;
     await pushToCloud();
     return;
@@ -4687,30 +4716,28 @@ async function syncOnStartup() {
   // Both have data → compare timestamps
   const localUpdated = getLocalUpdatedAt();
   const remoteUpdated = remote.updated_at ? new Date(remote.updated_at).getTime() : 0;
+  const localCount = countMeaningfulItems(localObj);
+  const remoteCount = countMeaningfulItems(remote.data);
+
+  // SAFETY GUARD: if cloud is "much smaller" than local AND local has data
+  // → snapshot local before overwriting (recovery option)
+  if (remoteUpdated > localUpdated && localCount > 5 && remoteCount < localCount / 2) {
+    console.warn('[Pixory sync] ⚠ Cloud is significantly smaller than local — taking snapshot before overwrite');
+    snapshotLocalForRecovery();
+  }
 
   if (remoteUpdated > localUpdated) {
-    // Cloud newer → check if user wants to overwrite local
-    if (localUpdated === 0) {
-      // Local has no timestamp (data from before cloud sync existed) — auto use cloud
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
-      _cloudLastSyncAt = remote.updated_at;
-    } else if (remote.device_id !== DEVICE_ID) {
-      // Different device made the latest change — silently take cloud version
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
-      _cloudLastSyncAt = remote.updated_at;
-    } else {
-      // Same device — odd; trust cloud anyway
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
-      _cloudLastSyncAt = remote.updated_at;
-    }
+    console.log('[Pixory sync] cloud → local (cloud newer, local-from-other-device or no-meta)');
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
+    _cloudLastSyncAt = remote.updated_at;
     _cloudInitialSyncDone = true;
     setSyncState('synced');
   } else if (localUpdated > remoteUpdated) {
-    // Local newer → push
+    console.log('[Pixory sync] local → cloud (local newer)');
     _cloudInitialSyncDone = true;
     await pushToCloud();
   } else {
-    // Same time → already in sync
+    console.log('[Pixory sync] in sync (equal timestamps)');
     _cloudLastSyncAt = remote.updated_at;
     _cloudInitialSyncDone = true;
     setSyncState('synced');
@@ -4813,26 +4840,47 @@ function loadData() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const d = JSON.parse(raw);
+
+    // Helper: replace array contents
     function replace(target, src) { target.length = 0; src.forEach(x => target.push(x)); }
-    if (d.PKG_PHOTO) replace(PKG_PHOTO, d.PKG_PHOTO);
-    if (d.PKG_PB) replace(PKG_PB, d.PKG_PB);
-    if (d.PKG_VIDEO) replace(PKG_VIDEO, d.PKG_VIDEO);
-    if (d.PKG_PRE) replace(PKG_PRE, d.PKG_PRE);
-    if (d.ADDONS) replace(ADDONS, d.ADDONS);
-    if (d.JOB_TYPES) replace(JOB_TYPES, d.JOB_TYPES);
-    if (d.SOURCES) replace(SOURCES, d.SOURCES);
-    if (d.EXPENSE_CATS) replace(EXPENSE_CATS, d.EXPENSE_CATS);
-    if (d.EXPENSES) replace(EXPENSES, d.EXPENSES);
-    if (d.JOBS) replace(JOBS, d.JOBS);
-    if (d.QUOTES) replace(QUOTES, d.QUOTES);
+
+    // Helper: ONLY replace if source is a non-empty array (protect defaults)
+    // For master data (packages/types/sources/expenseCats) — never let empty arrays clobber defaults.
+    // If user truly cleared everything, we mark explicit clear via _cleared.<key> = true
+    function replaceMaster(target, src, key) {
+      if (!Array.isArray(src)) return;
+      const explicitlyCleared = d._cleared && d._cleared[key] === true;
+      if (src.length === 0 && !explicitlyCleared) {
+        console.log('[Pixory load] guarded ' + key + ' — empty source rejected, keeping defaults');
+        return;
+      }
+      replace(target, src);
+    }
+
+    // Transactional data (user content) — always replace, even if empty (user might delete all jobs)
+    if (Array.isArray(d.EXPENSES)) replace(EXPENSES, d.EXPENSES);
+    if (Array.isArray(d.JOBS)) replace(JOBS, d.JOBS);
+    if (Array.isArray(d.QUOTES)) replace(QUOTES, d.QUOTES);
+
+    // Master/config data (with defaults) — guard against empty replacement
+    replaceMaster(PKG_PHOTO, d.PKG_PHOTO, 'PKG_PHOTO');
+    replaceMaster(PKG_PB, d.PKG_PB, 'PKG_PB');
+    replaceMaster(PKG_VIDEO, d.PKG_VIDEO, 'PKG_VIDEO');
+    replaceMaster(PKG_PRE, d.PKG_PRE, 'PKG_PRE');
+    replaceMaster(ADDONS, d.ADDONS, 'ADDONS');
+    replaceMaster(JOB_TYPES, d.JOB_TYPES, 'JOB_TYPES');
+    replaceMaster(SOURCES, d.SOURCES, 'SOURCES');
+    replaceMaster(EXPENSE_CATS, d.EXPENSE_CATS, 'EXPENSE_CATS');
+
+    // Settings + objects
     if (d.PROFILE) Object.assign(PROFILE, d.PROFILE);
-    if (d.BANKS) replace(BANKS, d.BANKS);
+    if (Array.isArray(d.BANKS)) replace(BANKS, d.BANKS);
     if (d.QUOTE_TEMPLATE) Object.assign(QUOTE_TEMPLATE, d.QUOTE_TEMPLATE);
     if (d.NOTIF_SETTINGS) Object.assign(NOTIF_SETTINGS, d.NOTIF_SETTINGS);
-    if (d.SERVICES) replace(SERVICES, d.SERVICES);
+    if (Array.isArray(d.SERVICES)) replace(SERVICES, d.SERVICES);
     if (d.CUSTOMER_INFO) { Object.keys(CUSTOMER_INFO).forEach(k => delete CUSTOMER_INFO[k]); Object.assign(CUSTOMER_INFO, d.CUSTOMER_INFO); }
-    if (d.EQUIPMENT) replace(EQUIPMENT, d.EQUIPMENT);
-    if (d.TEAM) {
+    if (Array.isArray(d.EQUIPMENT)) replace(EQUIPMENT, d.EQUIPMENT);
+    if (Array.isArray(d.TEAM)) {
       replace(TEAM, d.TEAM);
       Object.keys(PHOTOGRAPHER_COLORS).forEach(k => delete PHOTOGRAPHER_COLORS[k]);
       TEAM.forEach(t => PHOTOGRAPHER_COLORS[t.name] = t.color);
@@ -4886,22 +4934,49 @@ function migrateBackfillPayments() {
     saveData();
   }
 }
-function resetData() {
-  if (!confirm('⚠ ล้างทั้งแอพ — เริ่มจากศูนย์?\n\nรายการทุกอย่างจะถูกลบ:\n• งาน · ใบเสนอราคา · ค่าใช้จ่าย ทั้งหมด\n• ทีมงานทั้งหมด\n• บัญชีรับโอนทั้งหมด\n• โปรไฟล์ร้าน (ชื่อ · tagline · ติดต่อ · social)\n\nแพคเกจและการตั้งค่าอื่นๆ จะกลับเป็น default')) return;
+async function resetData() {
+  const cloudWarning = (CURRENT_USER && SUPABASE)
+    ? '\n\n☁ ข้อมูลใน Cloud ของคุณก็จะถูกลบด้วย\n   ทุกเครื่องที่ login บัญชี ' + CURRENT_USER.email + ' จะกลับเป็นแอพเปล่า'
+    : '';
+  if (!confirm('⚠ ล้างทั้งแอพ — เริ่มจากศูนย์?\n\nรายการทุกอย่างจะถูกลบ:\n• งาน · ใบเสนอราคา · ค่าใช้จ่าย ทั้งหมด\n• ทีมงานทั้งหมด\n• บัญชีรับโอนทั้งหมด\n• โปรไฟล์ร้าน (ชื่อ · tagline · ติดต่อ · social)\n\nแพคเกจและการตั้งค่าอื่นๆ จะกลับเป็น default' + cloudWarning)) return;
   if (!confirm('ยืนยันอีกครั้ง?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้\nควร Export Backup ก่อนถ้ายังไม่ได้ทำ\n\nกด OK เพื่อล้างเป็นแอพเปล่า หรือ Cancel เพื่อยกเลิก')) return;
-  // Set empty operational data + clear TEAM + BANKS + blank PROFILE (wizardDone unset so wizard re-shows)
+
+  // CRITICAL: delete cloud row FIRST so it doesn't restore on reload
+  if (CURRENT_USER && SUPABASE) {
+    try {
+      const { error } = await SUPABASE.from('user_data').delete().eq('user_id', CURRENT_USER.id);
+      if (error) {
+        if (!confirm('⚠ ลบข้อมูลจาก Cloud ไม่สำเร็จ — ' + error.message + '\n\nถ้ากด OK ต่อ จะลบเฉพาะเครื่องนี้ · Cloud ยังมีของเก่า · ข้อมูลจะกลับมาเมื่อรีโหลด')) return;
+      }
+    } catch(e) {
+      console.warn('Cloud reset error:', e);
+    }
+  }
+
+  // Clear localStorage to a minimal empty state + explicit clear flag for master arrays
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
     JOBS: [], QUOTES: [], EXPENSES: [], TEAM: [], BANKS: [],
-    PROFILE: { shop: '', tagline: '', phone: '', line: '', ig: '', fb: '', address: '', wizardDone: false }
+    PROFILE: { shop: '', tagline: '', phone: '', line: '', ig: '', fb: '', address: '', wizardDone: false },
+    _meta: {
+      updated_at: new Date().toISOString(),
+      device_id: (typeof DEVICE_ID !== 'undefined' ? DEVICE_ID : 'reset'),
+      version: 999999,
+      source: 'factory_reset'
+    }
   }));
-  // Also clear wallpaper + library
-  try { localStorage.removeItem(WP_KEY); localStorage.removeItem(WP_LIB_KEY); } catch(e) {}
+  // Also clear wallpaper + library + dismiss flags
+  try {
+    localStorage.removeItem(WP_KEY);
+    localStorage.removeItem(WP_LIB_KEY);
+    localStorage.removeItem('srangpap_wizard_done');
+    localStorage.removeItem('pixory.pwa.dismissed_until');
+  } catch(e) {}
   toast('ล้างเป็นแอพเปล่าแล้ว — กำลังโหลดใหม่...');
   setTimeout(() => location.reload(), 800);
 }
 
-function resetTransactionData() {
-  if (!confirm('🗑 ล้างข้อมูลงาน/ลูกค้า?\n\nรายการต่อไปนี้จะถูกลบ:\n• งานทั้งหมด (รวม demo)\n• ใบเสนอราคาทั้งหมด (รวม demo)\n• ค่าใช้จ่ายทั้งหมด (รวม demo)\n\nการตั้งค่าจะคงไว้:\n✓ แพคเกจ · ทีมงาน · Source\n✓ โปรไฟล์ร้าน · บัญชี · เทมเพลต')) return;
+async function resetTransactionData() {
+  if (!confirm('🗑 ล้างข้อมูลงาน/ลูกค้า?\n\nรายการต่อไปนี้จะถูกลบ:\n• งานทั้งหมด (รวม demo)\n• ใบเสนอราคาทั้งหมด (รวม demo)\n• ค่าใช้จ่ายทั้งหมด (รวม demo)\n\nการตั้งค่าจะคงไว้:\n✓ แพคเกจ · ทีมงาน · Source\n✓ โปรไฟล์ร้าน · บัญชี · เทมเพลต' + ((CURRENT_USER && SUPABASE) ? '\n\n☁ ข้อมูลใน Cloud ก็จะถูกอัปเดทตามด้วย' : ''))) return;
   if (!confirm('ยืนยันอีกครั้ง?\n\nกู้คืนไม่ได้ ควรกด Export Backup ก่อนถ้ายังไม่ได้ทำ')) return;
   // Ensure settings are persisted first (in case nothing saved yet)
   saveData();
@@ -4911,7 +4986,27 @@ function resetTransactionData() {
     d.JOBS = [];
     d.QUOTES = [];
     d.EXPENSES = [];
+    // Stamp fresh timestamp so cloud sync sees this as the source of truth
+    d._meta = {
+      updated_at: new Date().toISOString(),
+      device_id: (typeof DEVICE_ID !== 'undefined' ? DEVICE_ID : 'reset_txn'),
+      version: ((d._meta && d._meta.version) || 0) + 1000,
+      source: 'reset_transaction'
+    };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+
+    // Push the new state (empty trans data) to cloud BEFORE reload
+    if (CURRENT_USER && SUPABASE) {
+      try {
+        const { error } = await SUPABASE.from('user_data').upsert({
+          user_id: CURRENT_USER.id,
+          data: d,
+          device_id: (typeof DEVICE_ID !== 'undefined' ? DEVICE_ID : 'reset_txn'),
+          updated_at: d._meta.updated_at
+        }, { onConflict: 'user_id' });
+        if (error) console.warn('Cloud push after reset failed:', error);
+      } catch(e) { console.warn('Cloud push error:', e); }
+    }
   } catch(e) { console.warn(e); }
   toast('ล้างข้อมูลงาน/ลูกค้าแล้ว — กำลังโหลดใหม่...');
   setTimeout(() => location.reload(), 800);
@@ -5689,7 +5784,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.7.1 · Build 2026-05-21 · PWA', en: 'v1.7.1 · Build 2026-05-21 · PWA' },
+  'ab.version':         { th: 'v1.7.2 · Build 2026-05-21 · Data Safety', en: 'v1.7.2 · Build 2026-05-21 · Data Safety' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
   'ab.builtFor':        { th: 'ออกแบบเพื่อช่างภาพไลฟ์สไตล์', en: 'Designed for lifestyle photographers' },
   'ab.byline':          { th: 'สำหรับสตูดิโอเดี่ยวและทีมเล็ก ที่ต้องการระบบจัดการงานในมือถือ', en: 'For solo studios and small teams who need a mobile management system' },
