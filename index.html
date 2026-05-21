@@ -5785,7 +5785,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.7.3 · Build 2026-05-21 · Persistent Filter', en: 'v1.7.3 · Build 2026-05-21 · Persistent Filter' },
+  'ab.version':         { th: 'v1.7.4 · Build 2026-05-21 · Full Backup Fix', en: 'v1.7.4 · Build 2026-05-21 · Full Backup Fix' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
   'ab.builtFor':        { th: 'ออกแบบเพื่อช่างภาพไลฟ์สไตล์', en: 'Designed for lifestyle photographers' },
   'ab.byline':          { th: 'สำหรับสตูดิโอเดี่ยวและทีมเล็ก ที่ต้องการระบบจัดการงานในมือถือ', en: 'For solo studios and small teams who need a mobile management system' },
@@ -6708,11 +6708,36 @@ function updateHomeExpenseSum() {
 
 // ========== EXPORT BACKUP ==========
 function exportBackup() {
+  // CRITICAL: must include EVERYTHING that saveData() saves — otherwise restore loses data
+  // Keep this list in sync with saveData() forever.
   const data = {
     exportedAt: new Date().toISOString(),
-    PKG_PHOTO, PKG_PB, PKG_VIDEO, PKG_PRE, ADDONS, JOB_TYPES, SOURCES, EXPENSE_CATS, TEAM,
-    JOBS, QUOTES, EXPENSES, PROFILE, BANKS, QUOTE_TEMPLATE
+    pixoryVersion: '1.7.4',
+    // Master / config
+    PKG_PHOTO, PKG_PB, PKG_VIDEO, PKG_PRE, ADDONS,
+    JOB_TYPES, SOURCES, EXPENSE_CATS, TEAM,
+    // Transactional
+    JOBS, QUOTES, EXPENSES,
+    // Settings + brand
+    PROFILE, BANKS, QUOTE_TEMPLATE,
+    NOTIF_SETTINGS,
+    // Newer fields — previously MISSING (cause of v1.7.4 bug fix)
+    SERVICES, CUSTOMER_INFO, EQUIPMENT,
   };
+
+  // Self-check: warn if any key from saveData is missing
+  try {
+    const savedRaw = localStorage.getItem(STORAGE_KEY);
+    if (savedRaw) {
+      const saved = JSON.parse(savedRaw);
+      const missing = Object.keys(saved).filter(k => !(k in data) && k !== '_meta');
+      if (missing.length > 0) {
+        console.warn('[Pixory export] ⚠ Fields in localStorage but NOT in export:', missing);
+        if (!confirm('⚠ Export พบ field ที่อาจขาด: ' + missing.join(', ') + '\n\nดำเนินการต่อหรือยกเลิก?')) return;
+      }
+    }
+  } catch(e) { console.warn('export self-check failed', e); }
+
   const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], {type: 'application/json'});
   const url = URL.createObjectURL(blob);
