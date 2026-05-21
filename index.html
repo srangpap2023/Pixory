@@ -184,6 +184,134 @@
   .chip.team-chip .team-dot { width: 8px; height: 8px; border-radius: 50%; }
   .chip.team-chip.active { color: white; }
 
+  /* Customer Type Inline Pill (Tax T4) */
+  .ctype-inline { margin: 6px 0 0; }
+  .ctype-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px 6px 10px; border-radius: 14px;
+    font-size: 12.5px; font-weight: 600;
+    cursor: pointer; user-select: none;
+    border: 0.5px solid transparent;
+    transition: all .15s;
+    max-width: 100%;
+  }
+  .ctype-pill:active { transform: scale(0.97); }
+  .ctype-pill .ctype-chev { font-size: 10px; opacity: 0.7; margin-left: 2px; }
+  .ctype-pill.ctype-unset { background:#f3f4f6; color:#6b7280; border-color:#d1d5db; border-style:dashed; }
+  .ctype-pill.ctype-b2c { background:#dbeafe; color:#1e40af; border-color:#bfdbfe; }
+  .ctype-pill.ctype-b2b { background:#fde6dc; color:#7c2d12; border-color:#fbcfb8; }
+  .ctype-pill.ctype-gov { background:#dcfce7; color:#14532d; border-color:#bbf7d0; }
+  .ctype-pill.ctype-vip { background:#ede4ff; color:#5b21b6; border-color:#ddd0fa; }
+  body.dark-theme .ctype-pill.ctype-unset { background:#3a3a3a; color:#9ca3af; border-color:#525252; }
+
+  /* Tax ID warning chip (Tax T4) */
+  .ctype-warn {
+    margin: 8px 0 0; padding: 10px 12px;
+    border-radius: 10px;
+    background: #fef3c7; border: 1px solid #fbbf24;
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .ctype-warn:active { transform: scale(0.99); }
+  .ctype-warn .cw-icon { font-size: 16px; flex-shrink: 0; }
+  .ctype-warn .cw-text { flex: 1; min-width: 0; font-size: 12.5px; color: #7c2d12; }
+  .ctype-warn .cw-title { font-weight: 700; }
+  .ctype-warn .cw-sub { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+  .ctype-warn .cw-cta { font-size: 12px; font-weight: 700; color: #b45309; flex-shrink: 0; }
+  body.dark-theme .ctype-warn { background: #422006; border-color: #b45309; }
+  body.dark-theme .ctype-warn .cw-text { color: #fde68a; }
+  body.dark-theme .ctype-warn .cw-cta { color: #fbbf24; }
+
+  /* Bottom sheet (Tax T4) */
+  .ctype-sheet {
+    position: fixed; inset: 0; z-index: 9000;
+    display: none;
+    align-items: flex-end; justify-content: center;
+  }
+  .ctype-sheet.open { display: flex; animation: ctype-sheet-fade .2s ease; }
+  @keyframes ctype-sheet-fade { from { opacity:0; } to { opacity:1; } }
+  .ctype-sheet .cs-backdrop {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.45);
+  }
+  .ctype-sheet .cs-panel {
+    position: relative; width: 100%; max-width: 480px;
+    background: #fff; border-radius: 18px 18px 0 0;
+    padding: 14px 16px calc(16px + env(safe-area-inset-bottom)) 16px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.25);
+    animation: ctype-sheet-slide .25s cubic-bezier(.2,.7,.2,1);
+  }
+  @keyframes ctype-sheet-slide { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  body.dark-theme .ctype-sheet .cs-panel { background: #1f1f1f; color: #f3f4f6; }
+  .ctype-sheet .cs-grabber {
+    width: 38px; height: 4px; background:#d1d5db; border-radius: 2px;
+    margin: 0 auto 10px;
+  }
+  .ctype-sheet .cs-title { font-size: 16px; font-weight: 700; text-align: center; }
+  .ctype-sheet .cs-sub { font-size: 12px; color:#6b7280; text-align: center; margin-top: 4px; }
+  body.dark-theme .ctype-sheet .cs-sub { color: #9ca3af; }
+  .ctype-sheet .cs-options { display: grid; gap: 8px; margin-top: 14px; }
+  .ctype-sheet .cs-opt {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 14px; border-radius: 12px;
+    border: 1px solid #e5e7eb; background: #fff;
+    cursor: pointer; text-align: left;
+    transition: all .15s;
+  }
+  body.dark-theme .ctype-sheet .cs-opt { background: #2a2a2a; border-color: #404040; color: #f3f4f6; }
+  .ctype-sheet .cs-opt:active { transform: scale(0.99); }
+  .ctype-sheet .cs-opt.is-current { border-color: #1a1a1a; background: #fafaf9; }
+  body.dark-theme .ctype-sheet .cs-opt.is-current { border-color: #f5f5f5; background: #333; }
+  .ctype-sheet .cs-opt .cs-icon { font-size: 22px; flex-shrink: 0; }
+  .ctype-sheet .cs-opt .cs-body { flex: 1; min-width: 0; }
+  .ctype-sheet .cs-opt .cs-name { font-size: 14.5px; font-weight: 700; }
+  .ctype-sheet .cs-opt .cs-desc { font-size: 11.5px; color: #6b7280; margin-top: 2px; }
+  body.dark-theme .ctype-sheet .cs-opt .cs-desc { color: #9ca3af; }
+  .ctype-sheet .cs-opt .cs-check {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid #d1d5db;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  }
+  .ctype-sheet .cs-opt.is-current .cs-check {
+    border-color: #1a1a1a; background: #1a1a1a; color: #fff;
+  }
+  body.dark-theme .ctype-sheet .cs-opt.is-current .cs-check {
+    border-color: #f5f5f5; background: #f5f5f5; color: #1a1a1a;
+  }
+  .ctype-sheet .cs-opt .cs-check::after { content: ''; }
+  .ctype-sheet .cs-opt.is-current .cs-check::after { content: '✓'; font-size: 13px; font-weight: 800; }
+  .ctype-sheet .cs-cancel {
+    margin-top: 10px; width: 100%;
+    padding: 12px; border-radius: 12px;
+    background: transparent; border: 0;
+    font-size: 14px; color: #6b7280; cursor: pointer;
+  }
+
+  /* Tax ID Fill modal — same sheet pattern, just a custom panel */
+  .tax-fill-sheet .cs-panel { max-height: 88vh; overflow-y: auto; }
+  .tax-fill-sheet .tf-input-row { margin-top: 10px; }
+  .tax-fill-sheet .tf-input-row label { display:block; font-size:12px; color:#6b7280; margin-bottom:4px; font-weight:500; }
+  body.dark-theme .tax-fill-sheet .tf-input-row label { color: #9ca3af; }
+  .tax-fill-sheet .tf-input-row input,
+  .tax-fill-sheet .tf-input-row textarea {
+    width: 100%; padding: 10px 12px; border-radius: 10px;
+    border: 0.5px solid #d1d5db; background: #fff;
+    font-size: 14px; font-family: inherit;
+  }
+  body.dark-theme .tax-fill-sheet .tf-input-row input,
+  body.dark-theme .tax-fill-sheet .tf-input-row textarea {
+    background: #2a2a2a; border-color: #404040; color: #f3f4f6;
+  }
+  .tax-fill-sheet .tf-actions { display:flex; gap:8px; margin-top:14px; }
+  .tax-fill-sheet .tf-actions .btn-save {
+    flex:1; padding:12px; border-radius:12px;
+    background:#1a1a1a; color:#fff; border:0; font-size:14px; font-weight:700; cursor:pointer;
+  }
+  .tax-fill-sheet .tf-actions .btn-skip {
+    flex:1; padding:12px; border-radius:12px;
+    background:transparent; color:#6b7280; border:0; font-size:14px; cursor:pointer;
+  }
+
   /* Package card (for add job) */
   .pkg-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
   .pkg-card { background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 8px 6px; text-align: center; cursor: pointer; transition: all .15s; }
@@ -2304,6 +2432,83 @@
 <!-- ====== CLOUD SYNC DOT INDICATOR ====== -->
 <div id="cloud-sync-dot" title="ไม่ได้เชื่อมต่อ" style="position:fixed; top:env(safe-area-inset-top, 8px); right:8px; width:8px; height:8px; border-radius:50%; background:#9ca3af; z-index:8500; box-shadow:0 0 8px rgba(0,0,0,.15); transition:background .25s; pointer-events:none;"></div>
 
+<!-- ====== CUSTOMER TYPE BOTTOM SHEET (Tax T4) ====== -->
+<div id="ctype-sheet" class="ctype-sheet" role="dialog" aria-modal="true">
+  <div class="cs-backdrop" onclick="closeCustTypeSheet()"></div>
+  <div class="cs-panel">
+    <div class="cs-grabber"></div>
+    <div class="cs-title" data-i18n="ctype.sheetTitle">เลือกประเภทลูกค้า</div>
+    <div class="cs-sub" data-i18n="ctype.sheetSub">จะใช้กับงานนี้และตั้งเป็นค่าเริ่มต้นของลูกค้า</div>
+    <div class="cs-options">
+      <div class="cs-opt" data-code="B2C" onclick="selectCustTypeInForm('B2C')">
+        <div class="cs-icon">👤</div>
+        <div class="cs-body">
+          <div class="cs-name" data-i18n="ctype.b2cFull">บุคคล (ทั่วไป)</div>
+          <div class="cs-desc" data-i18n="ctype.b2cDesc">ไม่มีภาษี</div>
+        </div>
+        <div class="cs-check"></div>
+      </div>
+      <div class="cs-opt" data-code="B2B" onclick="selectCustTypeInForm('B2B')">
+        <div class="cs-icon">🏢</div>
+        <div class="cs-body">
+          <div class="cs-name" data-i18n="ctype.b2bFull">บริษัท (B2B)</div>
+          <div class="cs-desc" data-i18n="ctype.b2bDesc">เปิดใบกำกับ / VAT / WHT</div>
+        </div>
+        <div class="cs-check"></div>
+      </div>
+      <div class="cs-opt" data-code="Gov" onclick="selectCustTypeInForm('Gov')">
+        <div class="cs-icon">🏛</div>
+        <div class="cs-body">
+          <div class="cs-name" data-i18n="ctype.govFull">หน่วยงานราชการ</div>
+          <div class="cs-desc" data-i18n="ctype.govDesc">มี WHT หัก ณ ที่จ่าย</div>
+        </div>
+        <div class="cs-check"></div>
+      </div>
+      <div class="cs-opt" data-code="VIP" onclick="selectCustTypeInForm('VIP')">
+        <div class="cs-icon">💎</div>
+        <div class="cs-body">
+          <div class="cs-name" data-i18n="ctype.vipFull">VIP / ลูกค้าพิเศษ</div>
+          <div class="cs-desc" data-i18n="ctype.vipDesc">ไม่มีภาษี · ลูกค้าประจำ</div>
+        </div>
+        <div class="cs-check"></div>
+      </div>
+    </div>
+    <button class="cs-cancel" onclick="closeCustTypeSheet()" data-i18n="ctype.cancel">ยกเลิก</button>
+  </div>
+</div>
+
+<!-- ====== TAX ID FILL SHEET (Tax T4) ====== -->
+<div id="tax-fill-sheet" class="ctype-sheet tax-fill-sheet" role="dialog" aria-modal="true">
+  <div class="cs-backdrop" onclick="closeTaxFillSheet()"></div>
+  <div class="cs-panel">
+    <div class="cs-grabber"></div>
+    <div class="cs-title" data-i18n="ctype.fillModalTitle">ข้อมูลภาษีของลูกค้า</div>
+    <div class="cs-sub" data-i18n="ctype.fillModalSub">กรอกเพื่อออกใบกำกับให้ลูกค้านี้</div>
+    <div style="margin-top:6px;">
+      <div class="tf-input-row">
+        <label data-i18n="cust.taxId">เลขประจำตัวผู้เสียภาษี (13 หลัก)</label>
+        <input type="text" id="tf-tax-id" inputmode="numeric" maxlength="13" placeholder="1234567890123">
+      </div>
+      <div class="tf-input-row">
+        <label data-i18n="cust.companyName">ชื่อบริษัท / หน่วยงาน</label>
+        <input type="text" id="tf-company-name" placeholder="บจก. ABC ประเทศไทย">
+      </div>
+      <div class="tf-input-row">
+        <label data-i18n="cust.branch">สาขา</label>
+        <input type="text" id="tf-branch" placeholder="สำนักงานใหญ่ หรือ 00001">
+      </div>
+      <div class="tf-input-row">
+        <label data-i18n="cust.taxAddress">ที่อยู่ออกใบกำกับภาษี</label>
+        <textarea id="tf-tax-address" rows="2" placeholder="ที่อยู่ตามใบทะเบียนพาณิชย์"></textarea>
+      </div>
+      <div class="tf-actions">
+        <button class="btn-skip" onclick="closeTaxFillSheet()" data-i18n="ctype.skipForNow">ข้ามไปก่อน</button>
+        <button class="btn-save" onclick="saveTaxFillSheet()" data-i18n="ctype.save">บันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ====== AUTH SCREEN: LOGIN ====== -->
 <div class="auth-screen" id="auth-login">
   <div class="auth-card">
@@ -2803,6 +3008,21 @@
         <div class="form-group" style="margin: 0 0 10px;">
           <label><span data-i18n="lbl.customer">ลูกค้า</span> <span class="req">*</span></label>
           <input type="text" id="addCustomer" data-i18n-attr="placeholder" data-i18n="aj.placeholderCustomerSearch" placeholder="พิมพ์ชื่อ หรือเลือกจากรายชื่อ" value="" onblur="autofillCustomerOnBlur()">
+          <div class="ctype-inline">
+            <span id="add-ctype-pill" class="ctype-pill ctype-unset" onclick="openCustTypeSheet('add')">
+              <span class="ctype-icon">👤</span>
+              <span class="ctype-name" data-i18n="ctype.unset">เลือกประเภท</span>
+              <span class="ctype-chev">▾</span>
+            </span>
+          </div>
+          <div id="add-ctype-warn" class="ctype-warn" style="display:none;" onclick="openTaxFillSheet('add')">
+            <div class="cw-icon">⚠️</div>
+            <div class="cw-text">
+              <div class="cw-title" data-i18n="ctype.warnTaxId">ยังไม่มีเลขผู้เสียภาษี</div>
+              <div class="cw-sub" data-i18n="ctype.warnDetail">B2B / ราชการ ต้องมีเลข 13 หลัก + ชื่อบริษัทเพื่อออกใบกำกับ</div>
+            </div>
+            <div class="cw-cta" data-i18n="ctype.fillNow">กรอกเลย</div>
+          </div>
         </div>
         <div style="display:flex; gap:8px; margin: 0 0 10px;">
           <div class="form-group" style="margin:0; flex:1;">
@@ -3392,11 +3612,28 @@
         <div class="form-row" style="margin-bottom: 10px;">
           <div class="form-group" style="margin: 0; flex:1.4;">
             <label><span data-i18n="lbl.customerName">ชื่อ</span> <span class="req">*</span></label>
-            <input type="text" id="nq-customer" data-i18n-attr="placeholder" data-i18n="aj.placeholderName" placeholder="คุณ..." onblur="if(typeof populateNQTaxFromCustomer==='function')populateNQTaxFromCustomer(this.value.trim());">
+            <input type="text" id="nq-customer" data-i18n-attr="placeholder" data-i18n="aj.placeholderName" placeholder="คุณ..." onblur="if(typeof onNQCustomerBlur==='function')onNQCustomerBlur(this.value.trim());">
           </div>
           <div class="form-group" style="margin: 0; flex:1;">
             <label data-i18n="lbl.nickname">ชื่อเล่น</label>
             <input type="text" id="nq-nick" data-i18n-attr="placeholder" data-i18n="aj.placeholderNick" placeholder="เช่น ตาล">
+          </div>
+        </div>
+        <div class="form-group" style="margin: 0 0 0;">
+          <div class="ctype-inline">
+            <span id="nq-ctype-pill" class="ctype-pill ctype-unset" onclick="openCustTypeSheet('nq')">
+              <span class="ctype-icon">👤</span>
+              <span class="ctype-name" data-i18n="ctype.unset">เลือกประเภท</span>
+              <span class="ctype-chev">▾</span>
+            </span>
+          </div>
+          <div id="nq-ctype-warn" class="ctype-warn" style="display:none;" onclick="openTaxFillSheet('nq')">
+            <div class="cw-icon">⚠️</div>
+            <div class="cw-text">
+              <div class="cw-title" data-i18n="ctype.warnTaxId">ยังไม่มีเลขผู้เสียภาษี</div>
+              <div class="cw-sub" data-i18n="ctype.warnDetail">B2B / ราชการ ต้องมีเลข 13 หลัก + ชื่อบริษัทเพื่อออกใบกำกับ</div>
+            </div>
+            <div class="cw-cta" data-i18n="ctype.fillNow">กรอกเลย</div>
           </div>
         </div>
         <div class="form-row" style="margin-bottom: 10px;">
@@ -4756,12 +4993,44 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.8.2';
+const PIXORY_VERSION = '1.8.3';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.8.3': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'เลือกประเภทลูกค้าได้ในฟอร์มสร้างงาน · ใบเสนอราคา',
+    items: [
+      {
+        icon: '🏷',
+        title: 'เลือก B2C / B2B / Gov / VIP ในฟอร์มได้ทันที',
+        desc: 'เพิ่มปุ่ม "ประเภทลูกค้า" ใต้ช่องชื่อลูกค้าในฟอร์มเพิ่มงานและใบเสนอราคา · แตะปุ่มขึ้น Bottom Sheet ให้เลือก 4 ประเภท · ไม่ต้องออกไปหน้ารายละเอียดลูกค้าก่อนแล้ว'
+      },
+      {
+        icon: '🔁',
+        title: 'ซิงค์กลับไปที่ลูกค้าตัวแม่อัตโนมัติ',
+        desc: 'เมื่อเลือกประเภทในฟอร์ม · ระบบจะอัปเดตข้อมูลลูกค้าตัวแม่ให้ทันที · งานต่อๆ ไปของลูกค้านี้ก็จะใช้ค่าใหม่ได้เลย · แต่งานเก่าที่บันทึกไปแล้วจะไม่กระทบ (snapshot คงเดิม)'
+      },
+      {
+        icon: '⚠️',
+        title: 'เตือนเมื่อยังไม่มีเลขผู้เสียภาษี',
+        desc: 'ถ้าเลือก B2B หรือ Gov แต่ยังไม่มีเลข 13 หลัก + ชื่อบริษัท · จะมีกล่องเตือนสีเหลืองโผล่ขึ้นมา · แตะ "กรอกเลย" เพื่อกรอกข้อมูลในฟอร์มเดียวได้เลย · ไม่ต้องสลับหน้า'
+      },
+      {
+        icon: '🤖',
+        title: 'Smart Toggle เปิดภาษีตามอัตโนมัติ',
+        desc: 'เมื่อเปลี่ยนประเภทเป็น B2B หรือ Gov · ส่วน "ออกใบกำกับภาษี" จะเปิดให้อัตโนมัติพร้อมคำแนะนำการตั้งค่า · ลด click ในเคสที่ใช้บ่อย'
+      },
+      {
+        icon: '🛡',
+        title: 'ป้องกันบันทึกผิดพลาด',
+        desc: 'ถ้าเปิดออกใบกำกับภาษีไว้แต่ยังไม่มี Tax ID · ระบบจะถามยืนยันก่อนบันทึก · ป้องกันการออกใบกำกับที่ขาดข้อมูลสำคัญ'
+      }
+    ]
+  },
   '1.8.2': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory เรียบร้อยแล้ว',
@@ -6017,6 +6286,32 @@ const I18N = {
   'tax.headerTaxInvoice':   { th: 'ใบเสนอราคา / ใบกำกับภาษี', en: 'Quote / Tax Invoice' },
   'tax.regNo':              { th: 'เลขผู้เสียภาษี', en: 'Tax ID' },
 
+  // Tax T4 — Inline Customer Type picker in forms
+  'ctype.label':            { th: 'ประเภทลูกค้า',    en: 'Customer type' },
+  'ctype.unset':            { th: 'เลือกประเภท',    en: 'Choose type' },
+  'ctype.tapToChange':      { th: 'แตะเพื่อเปลี่ยน', en: 'Tap to change' },
+  'ctype.b2cFull':          { th: 'บุคคล (ทั่วไป)',  en: 'Individual' },
+  'ctype.b2bFull':          { th: 'บริษัท (B2B)',  en: 'Company (B2B)' },
+  'ctype.b2bDesc':          { th: 'เปิดใบกำกับ / VAT / WHT',   en: 'Tax invoice · VAT · WHT' },
+  'ctype.govFull':          { th: 'หน่วยงานราชการ', en: 'Government' },
+  'ctype.govDesc':          { th: 'มี WHT หัก ณ ที่จ่าย',    en: 'WHT withholding applies' },
+  'ctype.vipFull':          { th: 'VIP / ลูกค้าพิเศษ', en: 'VIP / special' },
+  'ctype.vipDesc':          { th: 'ไม่มีภาษี · ลูกค้าประจำ', en: 'No tax · loyal client' },
+  'ctype.b2cDesc':          { th: 'ไม่มีภาษี',     en: 'No tax' },
+  'ctype.sheetTitle':       { th: 'เลือกประเภทลูกค้า', en: 'Choose customer type' },
+  'ctype.sheetSub':         { th: 'จะใช้กับงานนี้และตั้งเป็นค่าเริ่มต้นของลูกค้า', en: 'Applies to this job and sets the customer default' },
+  'ctype.synced':           { th: 'บันทึกประเภทลูกค้าแล้ว', en: 'Customer type saved' },
+  'ctype.warnTaxId':        { th: 'ยังไม่มีเลขผู้เสียภาษี', en: 'Missing tax ID' },
+  'ctype.warnDetail':       { th: 'B2B / ราชการ ต้องมีเลข 13 หลัก + ชื่อบริษัทเพื่อออกใบกำกับ', en: 'B2B/Gov needs a 13-digit Tax ID + Company name for tax invoice' },
+  'ctype.fillNow':          { th: 'กรอกเลย', en: 'Fill now' },
+  'ctype.fillModalTitle':   { th: 'ข้อมูลภาษีของลูกค้า', en: 'Customer tax details' },
+  'ctype.fillModalSub':     { th: 'กรอกเพื่อออกใบกำกับให้ลูกค้านี้', en: 'Required to issue tax invoice for this customer' },
+  'ctype.save':             { th: 'บันทึก', en: 'Save' },
+  'ctype.skipForNow':       { th: 'ข้ามไปก่อน', en: 'Skip for now' },
+  'ctype.cancel':           { th: 'ยกเลิก', en: 'Cancel' },
+  'ctype.savedMaster':      { th: 'บันทึกข้อมูลภาษีลูกค้าแล้ว', en: 'Customer tax info saved' },
+  'ctype.confirmMissing':   { th: 'ยังไม่มีเลขผู้เสียภาษีของลูกค้านี้ — ดำเนินการต่อไหม?', en: 'No Tax ID for this customer yet — proceed?' },
+
   // Tax T3 — Report
   'tax.reportRow':          { th: 'รายงานปีภาษี', en: 'Tax Year Report' },
   'tax.reportRowSub':       { th: 'สรุปรายได้ · VAT · WHT · Export Excel', en: 'Revenue · VAT · WHT · Export Excel' },
@@ -6658,7 +6953,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.8.2 · Build 2026-05-22 · Tax Reports (T3)', en: 'v1.8.2 · Build 2026-05-22 · Tax Reports (T3)' },
+  'ab.version':         { th: 'v1.8.3 · Build 2026-05-22 · เลือกประเภทลูกค้าในฟอร์ม', en: 'v1.8.3 · Build 2026-05-22 · Inline customer type picker' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -9198,6 +9493,9 @@ function openNewJob() {
   renderAddJobScreen();
   // Tax T2 — reset Tax UI to defaults
   if (typeof resetAddTaxUI === 'function') resetAddTaxUI();
+  // Tax T4 — reset inline pill + warning
+  if (typeof renderFormCustomerTypePill === 'function') renderFormCustomerTypePill('add', '');
+  if (typeof refreshCustTaxIdWarning === 'function') refreshCustTaxIdWarning('add');
   goTo('add');
 }
 
@@ -9278,6 +9576,13 @@ function editCurrentJob() {
   renderAddJobScreen();
   // Tax T2 — restore tax settings from saved job
   if (typeof populateAddTaxFromJob === 'function') populateAddTaxFromJob(j);
+  // Tax T4 — restore inline pill from snapshot (fallback to master)
+  {
+    const _cInfo = CUSTOMER_INFO[j.customer] || {};
+    const _cType = j.customerType || _cInfo.type || '';
+    if (typeof renderFormCustomerTypePill === 'function') renderFormCustomerTypePill('add', _cType);
+    if (typeof refreshCustTaxIdWarning === 'function') refreshCustTaxIdWarning('add');
+  }
   goTo('add');
 }
 
@@ -9292,6 +9597,8 @@ function cancelAddJob() {
 
 function autofillCustomerOnBlur() {
   const name = (document.getElementById('addCustomer').value || '').trim();
+  // Tax T4 — refresh inline pill + warning even if name is empty (clears stale state)
+  if (typeof _refreshAddFormCtypeUI === 'function') _refreshAddFormCtypeUI();
   if (!name) return;
   // Tax T2 — sync default tax suggestion based on customer type (B2B/Gov auto-on)
   if (typeof populateAddTaxFromCustomer === 'function') populateAddTaxFromCustomer(name);
@@ -9365,6 +9672,16 @@ function collectAddFormData() {
   const _taxSnap = (typeof buildTaxSnapshot === 'function')
     ? buildTaxSnapshot(sell, _taxOpts, _taxOn)
     : { taxEnabled: false, tax: null, taxBreakdown: null };
+
+  // Tax T4 — guard: B2B/Gov + tax invoice on + missing tax ID/company → confirm
+  if (_taxOn && _embedTax) {
+    const _hasTaxId = !!(_custMeta.taxId && String(_custMeta.taxId).trim());
+    const _hasCompany = !!(_custMeta.companyName && String(_custMeta.companyName).trim());
+    if (!_hasTaxId || !_hasCompany) {
+      const msg = (typeof t === 'function') ? t('ctype.confirmMissing') : 'No Tax ID for this customer yet — proceed?';
+      if (!window.confirm(msg)) return null;
+    }
+  }
 
   return {
     customer,
@@ -10063,6 +10380,9 @@ function openNewQuote() {
   renderNQPackages();
   // Tax T2 — reset Tax UI (new quote starts neutral)
   if (typeof resetNQTaxUI === 'function') resetNQTaxUI();
+  // Tax T4 — reset inline pill + warning
+  if (typeof renderFormCustomerTypePill === 'function') renderFormCustomerTypePill('nq', '');
+  if (typeof refreshCustTaxIdWarning === 'function') refreshCustTaxIdWarning('nq');
   goTo('quote-new');
 }
 
@@ -10119,6 +10439,13 @@ function editCurrentQuote() {
   renderNQPackages();
   // Tax T2 — restore tax settings from saved quote
   if (typeof populateNQTaxFromQuote === 'function') populateNQTaxFromQuote(q);
+  // Tax T4 — restore inline pill from snapshot (fallback to master)
+  {
+    const _cInfo = CUSTOMER_INFO[q.customer] || {};
+    const _cType = q.customerType || _cInfo.type || '';
+    if (typeof renderFormCustomerTypePill === 'function') renderFormCustomerTypePill('nq', _cType);
+    if (typeof refreshCustTaxIdWarning === 'function') refreshCustTaxIdWarning('nq');
+  }
   goTo('quote-new');
 }
 
@@ -10232,6 +10559,15 @@ function saveNewQuote(status) {
   const _taxSnap = (typeof buildTaxSnapshot === 'function')
     ? buildTaxSnapshot(_sell, _taxOpts, _taxOn)
     : { taxEnabled: false, tax: null, taxBreakdown: null };
+  // Tax T4 — guard: B2B/Gov + tax invoice on + missing tax ID/company → confirm
+  if (_taxOn && _embedTax) {
+    const _hasTaxId = !!(_cMeta.taxId && String(_cMeta.taxId).trim());
+    const _hasCompany = !!(_cMeta.companyName && String(_cMeta.companyName).trim());
+    if (!_hasTaxId || !_hasCompany) {
+      const msg = (typeof t === 'function') ? t('ctype.confirmMissing') : 'No Tax ID for this customer yet — proceed?';
+      if (!window.confirm(msg)) return;
+    }
+  }
   const _taxFields = {
     customerType: _cType,
     customerTaxId: _embedTax ? (_cMeta.taxId || '') : '',
@@ -11469,6 +11805,217 @@ function buildTaxSnapshot(base, opts, enabled) {
     },
     taxBreakdown: breakdown
   };
+}
+
+// ============================================================================
+// === TAX T4 · INLINE CUSTOMER TYPE PICKER (in Add Job / Quote forms) =========
+// ============================================================================
+// Pattern: Option C + B2 + C2
+//   - Pill next to customer name field, auto-detects from CUSTOMER_INFO
+//   - On change: sync back to master (B2 — single source of truth)
+//   - If B2B/Gov + missing tax id/company → warning chip + inline fill modal
+
+// Which form opened the type-picker sheet ('add' = Add Job, 'nq' = New Quote)
+let _ctypeFormCtx = null;
+// Which form opened the tax-id fill sheet
+let _taxFillFormCtx = null;
+
+// Returns the customer name from whichever form-ctx is active
+function _getFormCustomerName(ctx) {
+  const id = (ctx === 'nq') ? 'nq-customer' : 'addCustomer';
+  const el = document.getElementById(id);
+  return el ? (el.value || '').trim() : '';
+}
+
+// Render the pill in either form based on a customer type code
+// Also stores the code on the pill's dataset so it survives empty-name picks
+function renderFormCustomerTypePill(ctx, code) {
+  const pill = document.getElementById(ctx + '-ctype-pill');
+  if (!pill) return;
+  const meta = (typeof getCustomerTypeMeta === 'function') ? getCustomerTypeMeta(code || 'B2C') : null;
+  const iconEl = pill.querySelector('.ctype-icon');
+  const nameEl = pill.querySelector('.ctype-name');
+  // Reset classes
+  pill.className = 'ctype-pill ctype-unset';
+  pill.dataset.code = code || '';
+  if (!code) {
+    if (iconEl) iconEl.textContent = '👤';
+    if (nameEl) {
+      nameEl.textContent = (typeof t === 'function') ? t('ctype.unset') : 'Choose type';
+      nameEl.setAttribute('data-i18n', 'ctype.unset');
+    }
+    return;
+  }
+  pill.className = 'ctype-pill ctype-' + String(code).toLowerCase();
+  if (iconEl && meta) iconEl.textContent = meta.icon;
+  if (nameEl && meta) {
+    nameEl.textContent = (typeof t === 'function') ? t(meta.i18nKey) : code;
+    nameEl.setAttribute('data-i18n', meta.i18nKey);
+  }
+}
+
+// Refresh pill + tax-id warning based on the current customer name in the form
+// If the user picked a type before typing the name (pendingCode on pill),
+// commit it to CUSTOMER_INFO master as soon as the name appears.
+function refreshFormCustomerTypeUI(ctx) {
+  const name = _getFormCustomerName(ctx);
+  const pill = document.getElementById(ctx + '-ctype-pill');
+  const pending = pill ? (pill.dataset.code || '') : '';
+
+  if (name) {
+    // Master lookup
+    const info = CUSTOMER_INFO[name] || {};
+    let code = info.type || '';
+    // Commit pending pick (e.g. user tapped pill before typing name)
+    if (!code && pending) {
+      if (!CUSTOMER_INFO[name]) CUSTOMER_INFO[name] = {};
+      CUSTOMER_INFO[name].type = pending;
+      code = pending;
+      if (typeof saveData === 'function') saveData();
+    }
+    renderFormCustomerTypePill(ctx, code);
+  } else {
+    // No name yet — keep pending pick visible
+    renderFormCustomerTypePill(ctx, pending);
+  }
+  refreshCustTaxIdWarning(ctx);
+}
+
+// Show/hide the warning chip in the form
+function refreshCustTaxIdWarning(ctx) {
+  const warnEl = document.getElementById(ctx + '-ctype-warn');
+  if (!warnEl) return;
+  const name = _getFormCustomerName(ctx);
+  const info = (name && CUSTOMER_INFO[name]) || {};
+  const code = info.type || '';
+  const needsTaxId = (code === 'B2B' || code === 'Gov');
+  const hasTaxId = !!(info.taxId && String(info.taxId).trim());
+  const hasCompany = !!(info.companyName && String(info.companyName).trim());
+  const ok = !needsTaxId || (hasTaxId && hasCompany);
+  warnEl.style.display = ok ? 'none' : 'flex';
+}
+
+// Open the type-picker bottom sheet
+function openCustTypeSheet(ctx) {
+  _ctypeFormCtx = ctx;
+  const sheet = document.getElementById('ctype-sheet');
+  if (!sheet) return;
+  // Highlight currently selected option — prefer master, fallback to pill dataset
+  const name = _getFormCustomerName(ctx);
+  const info = (name && CUSTOMER_INFO[name]) || {};
+  let currentCode = info.type || '';
+  if (!currentCode) {
+    const pill = document.getElementById(ctx + '-ctype-pill');
+    if (pill && pill.dataset.code) currentCode = pill.dataset.code;
+  }
+  sheet.querySelectorAll('.cs-opt').forEach(el => {
+    if (el.getAttribute('data-code') === currentCode) el.classList.add('is-current');
+    else el.classList.remove('is-current');
+  });
+  sheet.classList.add('open');
+}
+
+function closeCustTypeSheet() {
+  const sheet = document.getElementById('ctype-sheet');
+  if (sheet) sheet.classList.remove('open');
+  _ctypeFormCtx = null;
+}
+
+// User picked a type from the sheet
+function selectCustTypeInForm(code) {
+  const ctx = _ctypeFormCtx;
+  if (!ctx) { closeCustTypeSheet(); return; }
+  const name = _getFormCustomerName(ctx);
+
+  if (name) {
+    // Sync to master record (B2)
+    if (!CUSTOMER_INFO[name]) CUSTOMER_INFO[name] = {};
+    CUSTOMER_INFO[name].type = code;
+    if (typeof saveData === 'function') saveData();
+  }
+
+  // Re-render pill
+  renderFormCustomerTypePill(ctx, code);
+
+  // Re-apply tax defaults (force overwrite by clearing the 'touched' marker)
+  if (ctx === 'add') {
+    const knob = document.getElementById('add-tax-knob');
+    if (knob) knob.dataset.touched = '0';
+    if (typeof populateAddTaxFromCustomer === 'function' && name) populateAddTaxFromCustomer(name);
+  } else if (ctx === 'nq') {
+    const knob = document.getElementById('nq-tax-knob');
+    if (knob) knob.dataset.touched = '0';
+    if (typeof populateNQTaxFromCustomer === 'function' && name) populateNQTaxFromCustomer(name);
+  }
+
+  // Update warning
+  refreshCustTaxIdWarning(ctx);
+
+  closeCustTypeSheet();
+  if (typeof toast === 'function') toast((typeof t === 'function') ? t('ctype.synced') : 'Saved');
+
+  // If B2B/Gov + name exists but no tax id → auto-prompt fill modal
+  const isBusiness = (code === 'B2B' || code === 'Gov');
+  if (isBusiness && name) {
+    const info = CUSTOMER_INFO[name] || {};
+    if (!info.taxId || !info.companyName) {
+      setTimeout(() => openTaxFillSheet(ctx), 280);
+    }
+  }
+}
+
+// Open the tax-id inline fill modal, pre-populating from current customer
+function openTaxFillSheet(ctx) {
+  _taxFillFormCtx = ctx;
+  const sheet = document.getElementById('tax-fill-sheet');
+  if (!sheet) return;
+  const name = _getFormCustomerName(ctx);
+  const info = (name && CUSTOMER_INFO[name]) || {};
+  const setVal = (id, v) => { const e = document.getElementById(id); if (e) e.value = v || ''; };
+  setVal('tf-tax-id', info.taxId);
+  setVal('tf-company-name', info.companyName);
+  setVal('tf-branch', info.branch);
+  setVal('tf-tax-address', info.taxAddress);
+  sheet.classList.add('open');
+}
+
+function closeTaxFillSheet() {
+  const sheet = document.getElementById('tax-fill-sheet');
+  if (sheet) sheet.classList.remove('open');
+  _taxFillFormCtx = null;
+}
+
+// Save the tax-id details back to CUSTOMER_INFO master, then refresh warning chip
+function saveTaxFillSheet() {
+  const ctx = _taxFillFormCtx;
+  if (!ctx) { closeTaxFillSheet(); return; }
+  const name = _getFormCustomerName(ctx);
+  if (!name) {
+    if (typeof toast === 'function') toast(typeof t === 'function' ? t('toast.errNameRequired') : 'Please enter customer name first');
+    return;
+  }
+  if (!CUSTOMER_INFO[name]) CUSTOMER_INFO[name] = {};
+  const getVal = (id) => { const e = document.getElementById(id); return e ? (e.value || '').trim() : ''; };
+  CUSTOMER_INFO[name].taxId = getVal('tf-tax-id');
+  CUSTOMER_INFO[name].companyName = getVal('tf-company-name');
+  CUSTOMER_INFO[name].branch = getVal('tf-branch');
+  CUSTOMER_INFO[name].taxAddress = getVal('tf-tax-address');
+  if (typeof saveData === 'function') saveData();
+  refreshCustTaxIdWarning(ctx);
+  closeTaxFillSheet();
+  if (typeof toast === 'function') toast(typeof t === 'function' ? t('ctype.savedMaster') : 'Saved');
+}
+
+// Onblur handler for #nq-customer (Quote form). Replaces the old direct populateNQTax call
+// so we can also refresh the pill + warning after the user types/picks a name.
+function onNQCustomerBlur(name) {
+  if (typeof populateNQTaxFromCustomer === 'function') populateNQTaxFromCustomer(name);
+  refreshFormCustomerTypeUI('nq');
+}
+
+// Hook used by the existing autofillCustomerOnBlur (Add Job) — called at the end
+function _refreshAddFormCtypeUI() {
+  refreshFormCustomerTypeUI('add');
 }
 
 // ============================================================================
