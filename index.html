@@ -14,6 +14,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -2726,6 +2727,24 @@
         <div class="detail-row" style="font-size:15px;"><span class="k"><strong data-i18n="job.sellPrice">ราคาขาย</strong></span><span class="v" id="job-sell"><strong>฿25,000</strong></span></div>
       </div>
 
+      <!-- Tax breakdown block (Tax T2/T3) — shown only if job.taxEnabled -->
+      <div class="detail-block" id="job-tax-block" style="display:none;">
+        <h3>📋 <span data-i18n="tax.section">ภาษี</span> <span style="font-size:10px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:1px 6px; border-radius:6px; font-weight:800; letter-spacing:0.3px; margin-left:4px; vertical-align:middle;">PRO</span></h3>
+        <div id="job-tax-breakdown" style="padding:10px 12px; border-radius:10px; background:linear-gradient(135deg, #fef3c7, #fde68a); border:1px solid #fbbf24; font-size:13px;"></div>
+        <!-- Tax T3 — Selective filing -->
+        <div style="margin-top:10px; padding:10px 12px; border-radius:10px; background:#f7f4ef; border:1px solid #e8dfd5; display:flex; align-items:center; gap:10px;">
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:12.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.filingLabel">สถานะการยื่นภาษี</div>
+            <div style="font-size:11px; color:#7c7066; margin-top:2px;" id="job-filing-hint">—</div>
+          </div>
+          <select id="job-filing-select" onchange="onJobFilingChange(this.value)" style="font-size:12px; padding:6px 8px; border-radius:8px; border:1px solid #d6cabc; background:white; cursor:pointer;">
+            <option value="auto" data-i18n="tax.filingAuto">อัตโนมัติ</option>
+            <option value="include" data-i18n="tax.filingInclude">นับในรายงาน</option>
+            <option value="exclude" data-i18n="tax.filingExclude">ไม่นับในรายงาน</option>
+          </select>
+        </div>
+      </div>
+
       <div class="detail-block">
         <h3 data-i18n="job.workSchedule">⏱ ตารางเวลาทำงาน</h3>
         <div id="job-sessions-list"></div>
@@ -2864,6 +2883,65 @@
         </div>
       </div>
 
+      <!-- Section 6b: ภาษี (Tax T2) -->
+      <div class="settings-section" id="add-tax-section">
+        <div class="sec-title" style="display:flex; align-items:center; gap:8px;">
+          <span>📋 <span data-i18n="tax.section">ภาษี</span></span>
+          <span style="font-size:9px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:1px 6px; border-radius:6px; font-weight:800; letter-spacing:0.3px;">PRO</span>
+          <span id="add-tax-cust-hint" style="margin-left:auto; font-size:11px; color:#9ca3af; font-weight:500;"></span>
+        </div>
+
+        <!-- Master toggle -->
+        <div id="add-tax-master" onclick="toggleAddTax()" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:10px; cursor:pointer; background:#f7f4ef; border:1px solid #e8dfd5; transition:all .15s;">
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:13.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.issueTaxInvoice">ออกใบกำกับภาษี</div>
+            <div style="font-size:11px; color:#7c7066; margin-top:2px;" data-i18n="tax.issueTaxInvoiceSub">แสดงรายละเอียด VAT / WHT ในใบเสนอราคา</div>
+          </div>
+          <div id="add-tax-knob" style="width:40px; height:22px; border-radius:14px; background:#cdc3b8; position:relative; transition:all .15s; flex-shrink:0;">
+            <div style="width:18px; height:18px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:all .15s; box-shadow:0 1px 3px rgba(0,0,0,0.15);"></div>
+          </div>
+        </div>
+
+        <!-- Tax panel (hidden until toggle ON) -->
+        <div id="add-tax-panel" style="display:none; margin-top:12px;">
+          <!-- VAT row -->
+          <div style="padding:12px 14px; border-radius:10px; background:#fefcf9; border:1px solid #e8dfd5; margin-bottom:10px;">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none;">
+              <input type="checkbox" id="add-tax-vat" onchange="updateAddTaxCalc()" style="width:18px; height:18px; cursor:pointer;">
+              <span style="font-size:13.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.includeVat">รวม VAT (ภาษีมูลค่าเพิ่ม)</span>
+            </label>
+            <div style="display:grid; grid-template-columns: 1fr 80px; gap:8px; align-items:center; margin-top:8px; padding-left:28px;">
+              <span style="font-size:12px; color:#7c7066;" data-i18n="tax.vatRate">อัตรา VAT (%)</span>
+              <input type="number" id="add-tax-vat-rate" value="7" min="0" max="20" step="0.5" oninput="updateAddTaxCalc()" style="text-align:center;">
+            </div>
+          </div>
+
+          <!-- WHT row -->
+          <div style="padding:12px 14px; border-radius:10px; background:#fefcf9; border:1px solid #e8dfd5; margin-bottom:10px;">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none;">
+              <input type="checkbox" id="add-tax-wht" onchange="updateAddTaxCalc()" style="width:18px; height:18px; cursor:pointer;">
+              <span style="font-size:13.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.includeWht">ลูกค้าหัก ณ ที่จ่าย (WHT)</span>
+            </label>
+            <div style="padding-left:28px; margin-top:8px;">
+              <div style="display:grid; grid-template-columns: 1fr 80px; gap:8px; align-items:center; margin-bottom:8px;">
+                <span style="font-size:12px; color:#7c7066;" data-i18n="tax.whtRate">อัตรา WHT (%)</span>
+                <input type="number" id="add-tax-wht-rate" value="3" min="0" max="20" step="0.5" oninput="updateAddTaxCalc()" style="text-align:center;">
+              </div>
+              <div>
+                <div style="font-size:12px; color:#7c7066; margin-bottom:4px;" data-i18n="tax.whtBasis">ฐานในการหัก WHT</div>
+                <select id="add-tax-wht-basis" onchange="updateAddTaxCalc()">
+                  <option value="base" data-i18n="tax.whtBasisBase">หักจากฐานก่อน VAT (ภ.ง.ด. 3 มาตรฐาน)</option>
+                  <option value="total" data-i18n="tax.whtBasisTotal">หักจากยอดรวมทั้งหมด (รวม VAT)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live breakdown summary -->
+          <div id="add-tax-summary" style="padding:12px 14px; border-radius:10px; background:linear-gradient(135deg, #fef3c7, #fde68a); border:1px solid #fbbf24; font-size:12.5px;"></div>
+        </div>
+      </div>
+
       <!-- Section 7: ต้นทุน -->
       <div class="settings-section">
         <div class="sec-title">💸 ต้นทุน</div>
@@ -2997,10 +3075,21 @@
           </div>
         </div>
         <div class="pdf-body">
+          <!-- Tax invoice title pill (Tax T2) — shown only if taxEnabled -->
+          <div id="q-doc-title" style="display:none; background:linear-gradient(135deg, #fef3c7, #fde68a); border-left:3px solid #f59e0b; padding:6px 10px; margin-bottom:6px; border-radius:0 4px 4px 0;">
+            <div style="font-size:13px; font-weight:700; color:#7c2d12; letter-spacing:0.3px;" id="q-doc-title-text" data-i18n="tax.headerTaxInvoice">ใบเสนอราคา / ใบกำกับภาษี</div>
+            <div style="font-size:9px; color:#a06402; margin-top:1px;">QUOTE · TAX INVOICE</div>
+          </div>
+
           <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
             <div>
               <div style="font-size:9px; color:#374151;" data-i18n="q.no">เลขที่</div>
               <div style="font-weight:600; font-size:11px; color:#111827;" id="q-no">QT-2026-012</div>
+              <!-- Studio Tax ID — shown only if studio has taxId -->
+              <div id="q-studio-tax-row" style="display:none; margin-top:3px;">
+                <div style="font-size:9px; color:#374151;" data-i18n="tax.regNo">เลขผู้เสียภาษี</div>
+                <div style="font-weight:600; font-size:10px; color:#111827;" id="q-studio-tax-id">—</div>
+              </div>
             </div>
             <div style="text-align:right;">
               <div style="font-size:9px; color:#374151;" data-i18n="q.dateIssued">วันที่ออก</div>
@@ -3013,6 +3102,12 @@
           <div style="background:#f3f4f6; padding:6px 10px; border-radius:6px; margin-bottom:6px;">
             <div style="font-size:9px; color:#374151; margin-bottom: 1px;" data-i18n="q.attn">เรียน</div>
             <div style="font-weight:600; font-size:12px; color:#111827;" id="q-customer">คุณ Nam Thanya</div>
+            <!-- Customer tax info (Tax T2) — only shown if B2B/Gov with taxEnabled -->
+            <div id="q-customer-tax-rows" style="display:none; margin-top:3px; font-size:9.5px; color:#374151; line-height:1.45;">
+              <div id="q-cust-company-row"><span style="color:#6b7280;" data-i18n="cust.companyName">ชื่อบริษัท / หน่วยงาน</span>: <span style="color:#111827; font-weight:600;" id="q-cust-company">—</span></div>
+              <div id="q-cust-tax-id-row"><span style="color:#6b7280;" data-i18n="tax.regNo">เลขผู้เสียภาษี</span>: <span style="color:#111827; font-weight:600;" id="q-cust-tax-id">—</span><span id="q-cust-branch-suffix"></span></div>
+              <div id="q-cust-tax-addr-row" style="margin-top:2px;"><span style="color:#6b7280;" data-i18n="cust.taxAddress">ที่อยู่ออกใบกำกับภาษี</span>: <span style="color:#111827;" id="q-cust-tax-addr">—</span></div>
+            </div>
             <div style="font-size:10px; color:#374151; margin-top: 1px;" id="q-event">งาน Wedding · 26 มิถุนายน 2026 · ปากคาด</div>
           </div>
 
@@ -3024,6 +3119,13 @@
           <div class="detail-row" id="q-sub"><span class="k" data-i18n="q.subtotal">ราคารวม</span><span class="v">฿0</span></div>
           <div class="detail-row" id="q-disc"><span class="k" data-i18n="q.discount">ส่วนลด</span><span class="v" style="color:#dc2626;">-฿0</span></div>
           <div class="total"><span data-i18n="q.net">ราคาสุทธิ</span><span id="q-final">฿0</span></div>
+          <!-- Tax breakdown rows (Tax T2) — shown only if taxEnabled -->
+          <div id="q-tax-rows" style="display:none; margin-top:4px;">
+            <div class="detail-row" id="q-vat-row" style="display:none;"><span class="k" id="q-vat-label">+ VAT 7%</span><span class="v" style="color:#15803d; font-weight:600;" id="q-vat-val">฿0</span></div>
+            <div class="total" id="q-grand-row" style="display:none; font-size:12px; background:linear-gradient(135deg, #fef3c7, #fde68a); border-radius:4px; padding:5px 8px; margin-top:3px;"><span style="color:#7c2d12;" data-i18n="tax.grandTotal">ยอดเรียกเก็บ (รวม VAT)</span><span id="q-grand-val" style="color:#7c2d12;">฿0</span></div>
+            <div class="detail-row" id="q-wht-row" style="display:none; margin-top:3px;"><span class="k" id="q-wht-label">− WHT 3%</span><span class="v" style="color:#dc2626; font-weight:600;" id="q-wht-val">-฿0</span></div>
+            <div class="total" id="q-net-row" style="display:none; font-size:13px; background:#d1fae5; border-radius:4px; padding:5px 8px; margin-top:3px; border-left:3px solid #10b981;"><span style="color:#0f6e56;" data-i18n="tax.netReceived">ยอดสุทธิที่ได้รับ</span><span id="q-net-val" style="color:#0f6e56;">฿0</span></div>
+          </div>
           <div id="q-deposit-block" style="display:none; margin-top:6px; padding:6px 10px; background:#fef3c7; border-radius:6px; border-left:3px solid #f59e0b;">
             <div style="font-size:10px; color:#92400e;" data-i18n="q.depositJob">มัดจำจองคิว</div>
             <div style="font-size:14px; font-weight:700; color:#92400e;" id="q-deposit-amount">฿0</div>
@@ -3290,7 +3392,7 @@
         <div class="form-row" style="margin-bottom: 10px;">
           <div class="form-group" style="margin: 0; flex:1.4;">
             <label><span data-i18n="lbl.customerName">ชื่อ</span> <span class="req">*</span></label>
-            <input type="text" id="nq-customer" data-i18n-attr="placeholder" data-i18n="aj.placeholderName" placeholder="คุณ...">
+            <input type="text" id="nq-customer" data-i18n-attr="placeholder" data-i18n="aj.placeholderName" placeholder="คุณ..." onblur="if(typeof populateNQTaxFromCustomer==='function')populateNQTaxFromCustomer(this.value.trim());">
           </div>
           <div class="form-group" style="margin: 0; flex:1;">
             <label data-i18n="lbl.nickname">ชื่อเล่น</label>
@@ -3377,6 +3479,60 @@
         </div>
       </div>
 
+      <!-- Tax (Tax T2) -->
+      <div class="settings-section" id="nq-tax-section">
+        <div class="sec-title" style="display:flex; align-items:center; gap:8px;">
+          <span>📋 <span data-i18n="tax.section">ภาษี</span></span>
+          <span style="font-size:9px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:1px 6px; border-radius:6px; font-weight:800; letter-spacing:0.3px;">PRO</span>
+          <span id="nq-tax-cust-hint" style="margin-left:auto; font-size:11px; color:#9ca3af; font-weight:500;"></span>
+        </div>
+
+        <div id="nq-tax-master" onclick="toggleNQTax()" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:10px; cursor:pointer; background:#f7f4ef; border:1px solid #e8dfd5; transition:all .15s;">
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:13.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.issueTaxInvoice">ออกใบกำกับภาษี</div>
+            <div style="font-size:11px; color:#7c7066; margin-top:2px;" data-i18n="tax.issueTaxInvoiceSub">แสดงรายละเอียด VAT / WHT ในใบเสนอราคา</div>
+          </div>
+          <div id="nq-tax-knob" style="width:40px; height:22px; border-radius:14px; background:#cdc3b8; position:relative; transition:all .15s; flex-shrink:0;">
+            <div style="width:18px; height:18px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:all .15s; box-shadow:0 1px 3px rgba(0,0,0,0.15);"></div>
+          </div>
+        </div>
+
+        <div id="nq-tax-panel" style="display:none; margin-top:12px;">
+          <div style="padding:12px 14px; border-radius:10px; background:#fefcf9; border:1px solid #e8dfd5; margin-bottom:10px;">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none;">
+              <input type="checkbox" id="nq-tax-vat" onchange="updateNQTaxCalc()" style="width:18px; height:18px; cursor:pointer;">
+              <span style="font-size:13.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.includeVat">รวม VAT (ภาษีมูลค่าเพิ่ม)</span>
+            </label>
+            <div style="display:grid; grid-template-columns: 1fr 80px; gap:8px; align-items:center; margin-top:8px; padding-left:28px;">
+              <span style="font-size:12px; color:#7c7066;" data-i18n="tax.vatRate">อัตรา VAT (%)</span>
+              <input type="number" id="nq-tax-vat-rate" value="7" min="0" max="20" step="0.5" oninput="updateNQTaxCalc()" style="text-align:center;">
+            </div>
+          </div>
+
+          <div style="padding:12px 14px; border-radius:10px; background:#fefcf9; border:1px solid #e8dfd5; margin-bottom:10px;">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none;">
+              <input type="checkbox" id="nq-tax-wht" onchange="updateNQTaxCalc()" style="width:18px; height:18px; cursor:pointer;">
+              <span style="font-size:13.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.includeWht">ลูกค้าหัก ณ ที่จ่าย (WHT)</span>
+            </label>
+            <div style="padding-left:28px; margin-top:8px;">
+              <div style="display:grid; grid-template-columns: 1fr 80px; gap:8px; align-items:center; margin-bottom:8px;">
+                <span style="font-size:12px; color:#7c7066;" data-i18n="tax.whtRate">อัตรา WHT (%)</span>
+                <input type="number" id="nq-tax-wht-rate" value="3" min="0" max="20" step="0.5" oninput="updateNQTaxCalc()" style="text-align:center;">
+              </div>
+              <div>
+                <div style="font-size:12px; color:#7c7066; margin-bottom:4px;" data-i18n="tax.whtBasis">ฐานในการหัก WHT</div>
+                <select id="nq-tax-wht-basis" onchange="updateNQTaxCalc()">
+                  <option value="base" data-i18n="tax.whtBasisBase">หักจากฐานก่อน VAT (ภ.ง.ด. 3 มาตรฐาน)</option>
+                  <option value="total" data-i18n="tax.whtBasisTotal">หักจากยอดรวมทั้งหมด (รวม VAT)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div id="nq-tax-summary" style="padding:12px 14px; border-radius:10px; background:linear-gradient(135deg, #fef3c7, #fde68a); border:1px solid #fbbf24; font-size:12.5px;"></div>
+        </div>
+      </div>
+
       <div class="card summary-card" style="margin: 0 16px 12px;">
         <div class="sum-row"><span class="sum-label" data-i18n="aj.totalPkg">รวมแพคเกจ</span><span class="sum-val" id="nq-total">฿0</span></div>
         <div class="sum-row"><span class="sum-label" data-i18n="q.discount">ส่วนลด</span><span class="sum-val sum-neg" id="nq-disc">-฿0</span></div>
@@ -3413,6 +3569,37 @@
           <div style="flex:1;">
             <div style="font-size:22px; font-weight:600;" id="cust-name">—</div>
             <div style="font-size:13px; color:#6b7280; margin-top:2px;" id="cust-stats">0 งาน · ฿0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="sec-title">🏷 <span data-i18n="cust.type">ประเภทลูกค้า</span></div>
+        <div class="form-group" style="margin: 0 0 10px;">
+          <label>เลือกประเภท</label>
+          <div id="cust-type-picker" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px;">
+            <!-- Populated by renderCustomerTypePicker() -->
+          </div>
+          <div style="font-size:11px; color:#9ca3af; margin-top:6px; line-height:1.5;">
+            👤 บุคคล (ปกติ) · 🏢 บริษัท (มีภาษี) · 🏛 ราชการ · 💎 VIP
+          </div>
+        </div>
+        <div id="cust-b2b-fields" style="display:none;">
+          <div class="form-group" style="margin: 0 0 10px;">
+            <label><span data-i18n="cust.taxId">เลขประจำตัวผู้เสียภาษี (13 หลัก)</span> <span style="font-size:9px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:1px 6px; border-radius:6px; font-weight:800; letter-spacing:0.3px; margin-left:4px;">PRO</span></label>
+            <input type="text" id="cust-tax-id" inputmode="numeric" maxlength="13" placeholder="1234567890123">
+          </div>
+          <div class="form-group" style="margin: 0 0 10px;">
+            <label data-i18n="cust.companyName">ชื่อบริษัท / หน่วยงาน</label>
+            <input type="text" id="cust-company-name" placeholder="บจก. ABC ประเทศไทย">
+          </div>
+          <div class="form-group" style="margin: 0 0 10px;">
+            <label data-i18n="cust.branch">สาขา</label>
+            <input type="text" id="cust-branch" placeholder="สำนักงานใหญ่ หรือ 00001">
+          </div>
+          <div class="form-group" style="margin: 0 0 10px;">
+            <label data-i18n="cust.taxAddress">ที่อยู่จดทะเบียน (สำหรับใบกำกับภาษี)</label>
+            <textarea id="cust-tax-address" rows="3" placeholder="เลขที่ ... ถนน ... แขวง ... เขต ... จังหวัด ... รหัสไปรษณีย์"></textarea>
           </div>
         </div>
       </div>
@@ -3532,6 +3719,10 @@
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-rep)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="22" fill="#fff"/><text x="44" y="55" fill="#1a9d6a" font-size="32" font-weight="800" text-anchor="middle" font-family="-apple-system,Inter,sans-serif">฿</text></svg></div><div><div class="row-title" data-i18n="set.finance">การเงิน</div><div class="row-sub" data-i18n="set.financeSub">บัญชี · หมวดรายจ่าย · ใบเสนอราคา</div></div></div>
             <div class="right">›</div>
           </div>
+          <div class="settings-row" onclick="goTo('settings-tax')">
+            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-indigo)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="20" y="20" width="48" height="54" rx="4" fill="#fff"/><line x1="26" y1="32" x2="62" y2="32" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round"/><line x1="26" y1="42" x2="58" y2="42" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="26" y1="52" x2="62" y2="52" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round" opacity="0.7"/><line x1="26" y1="62" x2="48" y2="62" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round" opacity="0.6"/><circle cx="62" cy="62" r="4" fill="#d8704a"/></svg></div><div><div class="row-title"><span data-i18n="set.tax">ภาษี</span> <span style="font-size:9px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:1px 6px; border-radius:6px; font-weight:800; letter-spacing:0.3px; margin-left:4px;">PRO</span></div><div class="row-sub" id="hub-tax-sub" data-i18n="set.taxSub">เลข 13 หลัก · VAT · ที่อยู่ออกใบกำกับ</div></div></div>
+            <div class="right">›</div>
+          </div>
           <div class="settings-row" onclick="goTo('settings-notif')">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-cal-header)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M44 18 Q28 18 28 38 L28 54 L22 60 L22 64 L66 64 L66 60 L60 54 L60 38 Q60 18 44 18 Z" fill="#fff"/><circle cx="44" cy="14" r="3" fill="#fff"/><path d="M38 66 Q38 74 44 74 Q50 74 50 66 Z" fill="#fff"/></svg></div><div><div class="row-title" data-i18n="set.notif">การแจ้งเตือน</div><div class="row-sub" data-i18n="set.notifSub">เตือนกี่วันก่อน/หลังวันงาน</div></div></div>
             <div class="right">›</div>
@@ -3640,6 +3831,165 @@
         </div>
         <div id="wp-library" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
         <div id="wp-library-empty" style="text-align:center; padding:24px 12px; color:#9ca3af; font-size:12px; line-height:1.6;">ยังไม่มีภาพในคลัง<br><span style="font-size:10px;">อัพโหลดภาพ จะถูกเก็บไว้ที่นี่</span></div>
+      </div>
+    </div>
+
+    <!-- ====== SETTINGS: TAX (PRO) ====== -->
+    <div class="screen" id="screen-settings-tax">
+      <div class="header">
+        <button class="back" onclick="goTo('settings')">‹</button>
+        <h1><span style="margin-right:6px;">📋</span><span data-i18n="header.tax">ภาษี</span> <span style="font-size:11px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:2px 7px; border-radius:7px; font-weight:800; letter-spacing:0.3px; margin-left:4px; vertical-align:middle;">PRO</span></h1>
+        <button class="icon-btn" onclick="saveTaxSettings()" style="color:#2563eb;font-size:14px;" data-i18n="btn.save">บันทึก</button>
+      </div>
+
+      <div style="padding: 0 20px 16px;">
+        <div style="font-size:13px; color:#6b7280; line-height:1.5; margin-bottom:14px;">
+          ข้อมูลเหล่านี้จะแสดงในใบเสนอราคา · ใบกำกับภาษี · ใบเสร็จรับเงิน · ใช้สำหรับลูกค้าองค์กรและการยื่นภาษี
+        </div>
+
+        <div class="settings-section">
+          <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; padding: 0 4px;">ข้อมูลผู้เสียภาษี · สตูดิโอ</div>
+          <div class="form-group">
+            <label>เลขประจำตัวผู้เสียภาษี (13 หลัก) <span style="color:#9ca3af; font-weight:400; font-size:11px;">— แสดงในใบกำกับภาษี</span></label>
+            <input type="text" id="tax-id" inputmode="numeric" maxlength="13" placeholder="1234567890123">
+          </div>
+          <div class="form-group">
+            <label>ที่อยู่จดทะเบียน <span style="color:#9ca3af; font-weight:400; font-size:11px;">— สำหรับเอกสารภาษี (ถ้าต่างจากที่อยู่ทั่วไป)</span></label>
+            <textarea id="tax-address" rows="3" placeholder="เลขที่ ... ถนน ... แขวง ... เขต ... จังหวัด ... รหัสไปรษณีย์"></textarea>
+            <div style="font-size:11px; color:#9ca3af; margin-top:4px;">เว้นว่างไว้ = ใช้ที่อยู่จากโปรไฟล์ร้าน</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; padding: 0 4px;">VAT (ภาษีมูลค่าเพิ่ม)</div>
+          <div class="settings-row" style="border-radius:12px; padding:14px;">
+            <div class="left" style="flex:1;">
+              <div class="row-title">จดทะเบียน VAT</div>
+              <div class="row-sub" style="font-size:11.5px;">เปิดเมื่อคุณจดทะเบียน VAT แล้ว · ระบบจะคำนวณ VAT 7% ในใบเสนอ</div>
+            </div>
+            <label class="switch-wrap" style="display:flex; align-items:center;">
+              <input type="checkbox" id="tax-vat-registered" style="width:48px; height:28px; appearance:none; background:#d1d5db; border-radius:14px; position:relative; cursor:pointer; transition:background .2s;">
+              <span style="display:none;"></span>
+            </label>
+          </div>
+          <div class="form-group" id="tax-vat-number-wrap" style="margin-top:12px;">
+            <label>เลขผู้ประกอบการ VAT <span style="color:#9ca3af; font-weight:400; font-size:11px;">— ถ้ามี (ปกติเหมือนเลข 13 หลัก)</span></label>
+            <input type="text" id="tax-vat-number" inputmode="numeric" maxlength="13" placeholder="กรอกถ้าต่างจาก 13 หลัก">
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; padding: 0 4px;">ภาษีหัก ณ ที่จ่าย (WHT)</div>
+          <div class="form-group">
+            <label>อัตรา WHT ปกติ <span style="color:#9ca3af; font-weight:400; font-size:11px;">— สำหรับลูกค้าบริษัท</span></label>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input type="number" id="tax-default-wht" min="0" max="100" step="0.1" style="width:100px;" value="3">
+              <span style="color:#6b7280; font-size:14px;">% (ปกติ 3%)</span>
+            </div>
+            <div style="font-size:11px; color:#9ca3af; margin-top:4px;">บริการช่างภาพปกติ = 3% · ลูกค้า B2B จะหักจากยอดก่อน VAT</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; padding: 0 4px;">ปีงบประมาณ</div>
+          <div class="form-group">
+            <label>เริ่มต้นปีงบของคุณ</label>
+            <select id="tax-year-start">
+              <option value="1">มกราคม (ปฏิทินสากล)</option>
+              <option value="4">เมษายน</option>
+              <option value="10">ตุลาคม (ปีงบประมาณราชการ)</option>
+            </select>
+            <div style="font-size:11px; color:#9ca3af; margin-top:4px;">ใช้สำหรับรายงานสรุปประจำปี · บุคคลธรรมดาใช้ ม.ค.-ธ.ค.</div>
+          </div>
+        </div>
+
+        <div style="background:#fef3eb; border:1px solid rgba(216, 112, 74, 0.2); border-radius:12px; padding:14px; font-size:12px; line-height:1.6; color:#7c2d12;">
+          💡 <strong>คำแนะนำ:</strong> ถ้ารายได้รวมต่อปีของคุณยังไม่ถึง 1.8 ล้านบาท · ไม่จำเป็นต้องจดทะเบียน VAT · เปิด VAT เมื่อคุณจดแล้วเท่านั้น
+        </div>
+
+        <!-- Tax T3 — Report link -->
+        <div class="settings-section" style="margin-top:16px;">
+          <div style="border-radius: 12px; overflow: hidden;">
+            <div class="settings-row" onclick="goTo('tax-report')">
+              <div class="left">
+                <div class="ico-wrap svg-icon">
+                  <svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-cal-header)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="22" y="22" width="44" height="52" rx="4" fill="#fff"/><line x1="30" y1="38" x2="58" y2="38" stroke="#d92020" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="48" x2="50" y2="48" stroke="#d92020" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="30" y1="58" x2="58" y2="58" stroke="#d92020" stroke-width="3" stroke-linecap="round" opacity="0.7"/></svg>
+                </div>
+                <div>
+                  <div class="row-title" data-i18n="tax.reportRow">รายงานปีภาษี</div>
+                  <div class="row-sub" data-i18n="tax.reportRowSub">สรุปรายได้ · VAT · WHT · Export Excel</div>
+                </div>
+              </div>
+              <div class="right">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SCREEN: TAX REPORT (Tax T3) ====== -->
+    <div class="screen" id="screen-tax-report">
+      <div class="header">
+        <button class="back" onclick="goTo('settings-tax')">‹</button>
+        <h1><span style="margin-right:6px;">📊</span><span data-i18n="tax.reportHeader">รายงานปีภาษี</span> <span style="font-size:11px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:2px 7px; border-radius:7px; font-weight:800; letter-spacing:0.3px; margin-left:4px; vertical-align:middle;">PRO</span></h1>
+        <button class="icon-btn" onclick="exportTaxExcel()" style="color:#15803d;font-size:14px;" title="Export Excel">⬇</button>
+      </div>
+
+      <!-- Year + Tax-year period info -->
+      <div style="padding: 0 16px 12px;">
+        <div style="background: white; border-radius: 12px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); display:flex; gap:10px; align-items:center;">
+          <div style="flex:1;">
+            <div style="font-size:11px; color:#6b7280;" data-i18n="tax.reportYearLabel">ปีภาษี</div>
+            <select id="tax-report-year" onchange="renderTaxReport()" style="border:none; background:transparent; font-size:16px; font-weight:700; color:#1a1a1a; padding:2px 0; outline:none; cursor:pointer; width:100%;"></select>
+            <div id="tax-report-period" style="font-size:11px; color:#7c7066; margin-top:2px;">—</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px; color:#6b7280;" data-i18n="tax.reportJobs">จำนวนงานที่ยื่น</div>
+            <div style="font-size:20px; font-weight:700; color:#1a1a1a;" id="tax-report-count">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI cards (2x2 grid) -->
+      <div style="padding: 0 16px 12px;">
+        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px;">
+          <div style="background: linear-gradient(135deg,#f0f9ff,#e0f2fe); border-radius:12px; padding:12px;">
+            <div style="font-size:11px; color:#075985;" data-i18n="tax.kpiGross">ยอดขายก่อนภาษี</div>
+            <div style="font-size:18px; font-weight:700; color:#0c4a6e; margin-top:2px;" id="tr-kpi-gross">฿0</div>
+          </div>
+          <div style="background: linear-gradient(135deg,#fef3c7,#fde68a); border-radius:12px; padding:12px;">
+            <div style="font-size:11px; color:#7c2d12;" data-i18n="tax.kpiVat">VAT รวม (ขายออก)</div>
+            <div style="font-size:18px; font-weight:700; color:#7c2d12; margin-top:2px;" id="tr-kpi-vat">฿0</div>
+          </div>
+          <div style="background: linear-gradient(135deg,#fee2e2,#fecaca); border-radius:12px; padding:12px;">
+            <div style="font-size:11px; color:#991b1b;" data-i18n="tax.kpiWht">WHT ถูกหัก</div>
+            <div style="font-size:18px; font-weight:700; color:#991b1b; margin-top:2px;" id="tr-kpi-wht">฿0</div>
+          </div>
+          <div style="background: linear-gradient(135deg,#d1fae5,#a7f3d0); border-radius:12px; padding:12px;">
+            <div style="font-size:11px; color:#065f46;" data-i18n="tax.kpiNet">ยอดสุทธิที่รับจริง</div>
+            <div style="font-size:18px; font-weight:700; color:#065f46; margin-top:2px;" id="tr-kpi-net">฿0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter chips -->
+      <div style="padding: 0 16px 6px;">
+        <div class="chip-row" id="tr-filter-chips" style="gap:6px;"></div>
+      </div>
+
+      <!-- Job list table -->
+      <div style="padding: 0 16px 16px;">
+        <div style="background: white; border-radius: 12px; overflow:hidden; box-shadow: 0 1px 3px rgba(0,0,0,.04);" id="tr-table-wrap">
+          <div id="tr-table"></div>
+          <div id="tr-empty" style="padding:40px 20px; text-align:center; color:#9ca3af; font-size:13px; display:none;" data-i18n="tax.reportEmpty">ยังไม่มีงานที่ยื่นภาษีในปีนี้</div>
+        </div>
+      </div>
+
+      <!-- Export buttons -->
+      <div style="padding: 0 16px 24px;">
+        <button class="btn" onclick="exportTaxExcel()" style="margin:0; background:linear-gradient(135deg, #15803d, #166534);">
+          <span style="margin-right:6px;">📊</span><span data-i18n="tax.exportExcelBtn">บันทึก Excel · ภ.พ.30 · ภ.ง.ด. 3</span>
+        </button>
       </div>
     </div>
 
@@ -4377,6 +4727,8 @@ function goTo(name) {
   if (name === 'calendar') { CAL_YEAR = new Date().getFullYear(); CAL_MONTH = new Date().getMonth(); renderCalendar(); }
   if (name === 'settings-account') { updateAccountUI(); if (typeof updateSyncIndicatorUI === 'function') updateSyncIndicatorUI(); }
   if (name === 'jobs') { if (typeof renderJobsWithCurrentFilter === 'function') { renderJobsWithCurrentFilter(); syncJobFilterChips(); } }
+  if (name === 'settings-tax') { if (typeof populateTaxSettings === 'function') { populateTaxSettings(); setupTaxToggleListener(); updateTaxHubSub(); } }
+  if (name === 'tax-report')   { if (typeof renderTaxReport === 'function') renderTaxReport(); }
   // Toggle wizard-mode on body (hides topbar + bottom-nav during onboarding)
   document.body.classList.toggle('wizard-mode', name === 'wizard');
   if (name === 'settings-hub-packages') renderServicesList();
@@ -4404,12 +4756,103 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.7.8';
+const PIXORY_VERSION = '1.8.2';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.8.2': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'ระบบจัดการภาษี · เฟส 3 · รายงาน + Export Excel',
+    items: [
+      {
+        icon: '📊',
+        title: 'รายงานปีภาษีในตัว',
+        desc: 'หน้ารายงานสรุปข้อมูลภาษีแยกตามปี · ครอบคลุมยอดขายก่อนภาษี · VAT รวม · WHT ถูกหัก · ยอดสุทธิที่ได้รับ · พร้อมรายการงานทุกใบที่ยื่นภาษี'
+      },
+      {
+        icon: '📥',
+        title: 'Export Excel · เตรียมยื่น ภ.พ.30 / ภ.ง.ด. 3',
+        desc: 'ส่งออกไฟล์ Excel 4 sheets · สรุปยอดประจำปี · รายงาน VAT ขายออก (ภ.พ.30) · รายงาน WHT ที่ถูกหัก (ภ.ง.ด. 3) · งานทั้งหมดในปี · ใช้ส่งให้ผู้ตรวจสอบบัญชีหรือเก็บประวัติได้ทันที'
+      },
+      {
+        icon: '🎚',
+        title: 'เลือกได้ว่างานไหนจะยื่นภาษี (Selective Filing)',
+        desc: 'ในหน้ารายละเอียดงาน · เพิ่ม "สถานะการยื่นภาษี" · เลือก อัตโนมัติ / นับ / ไม่นับ · เหมาะกับงานเงินสดที่ไม่ต้องการให้เข้าระบบ'
+      },
+      {
+        icon: '📅',
+        title: 'ปีภาษีตามการตั้งค่า',
+        desc: 'รองรับปีปฏิทิน (ม.ค.-ธ.ค.) · ปีงบบริษัท (เม.ย.) · ปีงบราชการ (ต.ค.) · ขึ้นกับการตั้งค่าใน Settings → ภาษี'
+      },
+      {
+        icon: '🏷',
+        title: 'กรองด่วนตามประเภทลูกค้า',
+        desc: 'ในหน้ารายงาน เลือกดูเฉพาะ B2B · ราชการ · หรืองานที่ไม่ได้นับ (Excluded) ได้ทันที'
+      }
+    ]
+  },
+  '1.8.1': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'ระบบจัดการภาษี · เฟส 2 · เครื่องคิดเลข VAT/WHT',
+    items: [
+      {
+        icon: '🧮',
+        title: 'เครื่องคิดเลขภาษีในใบเสนอราคา / งาน',
+        desc: 'เพิ่ม Smart Toggle "ออกใบกำกับภาษี" ในฟอร์มเพิ่มงานและใบเสนอราคา · คำนวณ VAT 7% และ WHT 3% ให้อัตโนมัติ · แสดงยอดเรียกเก็บและยอดสุทธิที่ได้รับชัดเจน'
+      },
+      {
+        icon: '⚙',
+        title: 'รองรับ WHT ทั้งสองวิธี',
+        desc: 'เลือกได้ว่าจะให้ลูกค้าหักภาษี ณ ที่จ่ายจากฐานก่อน VAT (ภ.ง.ด. 3 มาตรฐาน) หรือหักจากยอดรวมทั้งหมด · ระบบจะคำนวณยอดสุทธิให้ถูกต้องตามแบบที่เลือก'
+      },
+      {
+        icon: '🤖',
+        title: 'เปิดอัตโนมัติเมื่อลูกค้าเป็นบริษัท / ราชการ',
+        desc: 'เมื่อกรอกชื่อลูกค้าที่ถูกระบุประเภทเป็น B2B หรือ Gov ระบบจะเปิดส่วนภาษีให้อัตโนมัติพร้อมคำแนะนำการตั้งค่า · ลูกค้าทั่วไป (B2C/VIP) สามารถเปิดเองได้เมื่อจำเป็น'
+      },
+      {
+        icon: '📄',
+        title: 'ใบเสนอราคา / ใบกำกับภาษี · PDF',
+        desc: 'ใบเสนอราคาจะอัปเกรดเป็น "ใบเสนอราคา / ใบกำกับภาษี" อัตโนมัติเมื่อเปิดโหมดภาษี · แสดงเลขผู้เสียภาษีของสตูดิโอ · ข้อมูลภาษีของลูกค้าองค์กร · และยอด VAT/WHT แยกบรรทัด'
+      },
+      {
+        icon: '📊',
+        title: 'แสดงรายละเอียดภาษีในหน้ารายละเอียดงาน',
+        desc: 'เพิ่มกล่อง "ภาษี" ในหน้ารายละเอียดงาน · เห็นการคิด VAT / WHT / ยอดสุทธิ ทุกครั้งที่เปิดงานที่มีภาษี'
+      }
+    ]
+  },
+  '1.8.0': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'เริ่มต้นระบบจัดการภาษี · เฟส 1',
+    items: [
+      {
+        icon: '📋',
+        title: 'ตั้งค่าข้อมูลภาษีของสตูดิโอ',
+        desc: 'เพิ่มหน้าตั้งค่าภาษี · เลขประจำตัวผู้เสียภาษี 13 หลัก · สถานะจดทะเบียน VAT · อัตรา WHT ปกติ · เดือนเริ่มปีภาษี · ที่อยู่จดทะเบียนสำหรับเอกสารภาษี'
+      },
+      {
+        icon: '🏷',
+        title: 'ระบุประเภทลูกค้า · 4 ประเภท',
+        desc: 'แท็กลูกค้าเป็น บุคคล (B2C) · บริษัท (B2B) · ราชการ (Gov) · VIP — รองรับการออกใบกำกับภาษีในเฟสถัดไป'
+      },
+      {
+        icon: '🏢',
+        title: 'ข้อมูลภาษีสำหรับลูกค้าองค์กร',
+        desc: 'เก็บเลขผู้เสียภาษี · ชื่อบริษัท · สาขา · ที่อยู่ออกใบกำกับภาษี สำหรับลูกค้าประเภทบริษัทและราชการโดยเฉพาะ'
+      },
+      {
+        icon: '📌',
+        title: 'แสดงประเภทลูกค้าในหน้ารายการ',
+        desc: 'รายการลูกค้าและรายละเอียดงานจะแสดงแท็กประเภทลูกค้า ช่วยให้แยกงานที่ต้องออกใบกำกับภาษีได้ทันที'
+      }
+    ]
+  },
   '1.7.8': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory เรียบร้อยแล้ว',
@@ -5154,7 +5597,17 @@ async function forceRefreshFromCloud() {
 // ========== PERSISTENCE (localStorage) ==========
 let STORAGE_KEY = 'srangpap_wedding_data_v2';
 // Profile, Bank, Template storage
-const PROFILE = { shop:'', tagline:'', phone:'', line:'', ig:'', fb:'', address:'' };
+const PROFILE = {
+  shop:'', tagline:'', phone:'', line:'', ig:'', fb:'', address:'',
+  // === Tax (added v1.8.0) ===
+  taxId:'',              // เลขผู้เสียภาษี 13 หลัก ของสตูดิโอ
+  vatRegistered:false,   // จดทะเบียน VAT?
+  vatNumber:'',          // เลขผู้ประกอบการ VAT (ถ้าจด)
+  taxAddress:'',         // ที่อยู่จดทะเบียนสำหรับเอกสารภาษี
+  defaultWHT:3,          // อัตรา WHT ปกติ (3% สำหรับบริการ)
+  taxYearStart:1         // เดือนที่เริ่มปีงบ (1=ม.ค., 10=ต.ค. เป็นต้น)
+};
+const CUSTOMER_TYPES = ['B2C','B2B','Gov','VIP'];  // Customer Type tags
 const BANKS = [];
 const QUOTE_TEMPLATE = {
   title:'ใบเสนอราคา / Quotation', greeting:'เรียน',
@@ -5526,6 +5979,64 @@ const I18N = {
   'set.wallpaper':     { th: 'พื้นหลังแอป',       en: 'Wallpaper' },
   'set.language':      { th: 'ภาษา / Language',  en: 'Language / ภาษา' },
   'set.about':         { th: 'เกี่ยวกับแอป',      en: 'About' },
+  // Tax (added v1.8.0)
+  'set.tax':           { th: 'ภาษี',             en: 'Tax' },
+  'set.taxSub':        { th: 'เลขผู้เสียภาษี · VAT · WHT · ปีภาษี', en: 'Tax ID · VAT · WHT · Tax Year' },
+  'header.tax':        { th: 'ภาษี',             en: 'Tax Settings' },
+
+  // Customer Type (Tax T1)
+  'ct.b2c':            { th: 'บุคคล',            en: 'Individual' },
+  'ct.b2b':            { th: 'บริษัท',           en: 'Company' },
+  'ct.gov':            { th: 'ราชการ',           en: 'Gov' },
+  'ct.vip':            { th: 'VIP',             en: 'VIP' },
+  'cust.type':         { th: 'ประเภทลูกค้า',     en: 'Customer Type' },
+  'cust.taxInfo':      { th: 'ข้อมูลภาษี',       en: 'Tax Information' },
+  'cust.taxId':        { th: 'เลขผู้เสียภาษี (13 หลัก)', en: 'Tax ID (13 digits)' },
+  'cust.companyName':  { th: 'ชื่อบริษัท / หน่วยงาน', en: 'Company / Agency Name' },
+  'cust.branch':       { th: 'สาขา (ถ้ามี)',     en: 'Branch (if any)' },
+  'cust.taxAddress':   { th: 'ที่อยู่ออกใบกำกับภาษี', en: 'Tax Invoice Address' },
+
+  // Tax T2 — Calculator
+  'tax.section':            { th: 'ภาษี', en: 'Tax' },
+  'tax.issueTaxInvoice':    { th: 'ออกใบกำกับภาษี', en: 'Issue tax invoice' },
+  'tax.issueTaxInvoiceSub': { th: 'แสดงรายละเอียด VAT / WHT ในใบเสนอราคา', en: 'Show VAT / WHT breakdown in the quote' },
+  'tax.includeVat':         { th: 'รวม VAT (ภาษีมูลค่าเพิ่ม)', en: 'Include VAT' },
+  'tax.includeWht':         { th: 'ลูกค้าหัก ณ ที่จ่าย (WHT)', en: 'Customer withholds tax (WHT)' },
+  'tax.vatRate':            { th: 'อัตรา VAT (%)', en: 'VAT rate (%)' },
+  'tax.whtRate':            { th: 'อัตรา WHT (%)', en: 'WHT rate (%)' },
+  'tax.whtBasis':           { th: 'ฐานในการหัก WHT', en: 'WHT basis' },
+  'tax.whtBasisBase':       { th: 'หักจากฐานก่อน VAT (ภ.ง.ด. 3 มาตรฐาน)', en: 'Withhold on base (pre-VAT) — standard' },
+  'tax.whtBasisTotal':      { th: 'หักจากยอดรวมทั้งหมด (รวม VAT)', en: 'Withhold on total (incl. VAT)' },
+  'tax.base':               { th: 'ฐานราคา (ก่อนภาษี)', en: 'Base (pre-tax)' },
+  'tax.vat':                { th: 'VAT', en: 'VAT' },
+  'tax.wht':                { th: 'WHT', en: 'WHT' },
+  'tax.grandTotal':         { th: 'ยอดเรียกเก็บ (รวม VAT)', en: 'Grand total (incl. VAT)' },
+  'tax.netReceived':        { th: 'ยอดสุทธิที่ได้รับ', en: 'Net received' },
+  'tax.custHintB2B':        { th: '🏢 B2B · เปิดอัตโนมัติ', en: '🏢 B2B · auto-enabled' },
+  'tax.custHintGov':        { th: '🏛 Gov · เปิดอัตโนมัติ', en: '🏛 Gov · auto-enabled' },
+  'tax.headerTaxInvoice':   { th: 'ใบเสนอราคา / ใบกำกับภาษี', en: 'Quote / Tax Invoice' },
+  'tax.regNo':              { th: 'เลขผู้เสียภาษี', en: 'Tax ID' },
+
+  // Tax T3 — Report
+  'tax.reportRow':          { th: 'รายงานปีภาษี', en: 'Tax Year Report' },
+  'tax.reportRowSub':       { th: 'สรุปรายได้ · VAT · WHT · Export Excel', en: 'Revenue · VAT · WHT · Export Excel' },
+  'tax.reportHeader':       { th: 'รายงานปีภาษี', en: 'Tax Year Report' },
+  'tax.reportYearLabel':    { th: 'ปีภาษี', en: 'Tax year' },
+  'tax.reportJobs':         { th: 'จำนวนงานที่ยื่น', en: 'Filed jobs' },
+  'tax.reportEmpty':        { th: 'ยังไม่มีงานที่ยื่นภาษีในปีนี้', en: 'No filed tax jobs in this year' },
+  'tax.kpiGross':           { th: 'ยอดขายก่อนภาษี', en: 'Gross sales (pre-tax)' },
+  'tax.kpiVat':             { th: 'VAT รวม (ขายออก)', en: 'Total VAT (output)' },
+  'tax.kpiWht':             { th: 'WHT ถูกหัก', en: 'WHT withheld' },
+  'tax.kpiNet':             { th: 'ยอดสุทธิที่รับจริง', en: 'Net received' },
+  'tax.exportExcelBtn':     { th: 'บันทึก Excel · ภ.พ.30 · ภ.ง.ด. 3', en: 'Export Excel · VAT report · WHT report' },
+  'tax.filingAuto':         { th: 'อัตโนมัติ', en: 'Auto' },
+  'tax.filingInclude':      { th: 'นับในรายงาน', en: 'Include in report' },
+  'tax.filingExclude':      { th: 'ไม่นับในรายงาน', en: 'Exclude from report' },
+  'tax.filingLabel':        { th: 'สถานะการยื่นภาษี', en: 'Filing status' },
+  'tax.fchipAll':           { th: 'ทั้งหมด', en: 'All' },
+  'tax.fchipB2B':           { th: '🏢 B2B', en: '🏢 B2B' },
+  'tax.fchipGov':           { th: '🏛 Gov', en: '🏛 Gov' },
+  'tax.fchipExcluded':      { th: '🚫 ไม่นับ', en: '🚫 Excluded' },
 
   // Section
   'sec.allJobs':       { th: 'งานทั้งหมด',         en: 'All Jobs' },
@@ -6147,7 +6658,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.7.8 · Build 2026-05-22 · Settings Reorder', en: 'v1.7.8 · Build 2026-05-22 · Settings Reorder' },
+  'ab.version':         { th: 'v1.8.2 · Build 2026-05-22 · Tax Reports (T3)', en: 'v1.8.2 · Build 2026-05-22 · Tax Reports (T3)' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -6836,9 +7347,16 @@ function openJob(code) {
   // Contact row
   const _phone = j.custPhone || _info.phone || '';
   const _lineId = j.custLine || _info.line || '';
+  // Customer Type — prefer denormalized job-level value, fallback to CUSTOMER_INFO (Tax T1)
+  const _cType = j.customerType || _info.type || '';
   const cr = document.getElementById('job-contact-row');
   if (cr) {
     cr.innerHTML = '';
+    if (_cType) {
+      const tp = document.createElement('span');
+      tp.innerHTML = customerTypePill(_cType, 'full');
+      cr.appendChild(tp.firstChild);
+    }
     if (_phone) {
       const a = document.createElement('a');
       a.href = 'tel:' + _phone.replace(/[^\d+]/g,'');
@@ -6894,6 +7412,41 @@ function openJob(code) {
   if (j.qr) addRow('QR หน้า Backdrop', j.qr);
   if (j.other) addRow('อื่นๆ', j.other);
   if (j.extraTime > 0) addRow('⏱ Extra time', j.extraTime);
+
+  // Tax T2 — show breakdown block if job has tax enabled
+  const _taxBlock = document.getElementById('job-tax-block');
+  const _taxBreakdownEl = document.getElementById('job-tax-breakdown');
+  if (_taxBlock && _taxBreakdownEl) {
+    if (j.taxEnabled && j.tax) {
+      // Prefer pre-computed snapshot; if missing, recalc on the fly from job.sell
+      const breakdown = j.taxBreakdown || (typeof calcTax === 'function' ? calcTax(j.sell || 0, j.tax) : null);
+      if (breakdown) {
+        _taxBreakdownEl.innerHTML = formatTaxBreakdownHTML(breakdown);
+        _taxBlock.style.display = '';
+      } else {
+        _taxBlock.style.display = 'none';
+      }
+    } else {
+      _taxBlock.style.display = 'none';
+    }
+  }
+  // Tax T3 — filing selector
+  const _fSel = document.getElementById('job-filing-select');
+  const _fHint = document.getElementById('job-filing-hint');
+  if (_fSel) _fSel.value = j.filing || 'auto';
+  if (_fHint) {
+    const inReport = (typeof isJobInTaxReport === 'function') ? isJobInTaxReport(j) : !!j.taxEnabled;
+    const reason = (j.filing === 'include')
+      ? (LANG === 'en' ? 'Forced include' : 'บังคับนับ')
+      : (j.filing === 'exclude')
+        ? (LANG === 'en' ? 'Forced exclude — won\'t appear in report/Excel' : 'บังคับไม่นับ — จะไม่ขึ้นในรายงาน/Excel')
+        : (j.taxEnabled
+            ? (LANG === 'en' ? 'Auto: included (taxEnabled)' : 'อัตโนมัติ: นับ (เปิดภาษีไว้)')
+            : (LANG === 'en' ? 'Auto: excluded (no tax)' : 'อัตโนมัติ: ไม่นับ (ไม่มีภาษี)'));
+    _fHint.textContent = reason;
+    _fHint.style.color = inReport ? '#15803d' : '#9ca3af';
+  }
+
   window._currentJob = j;
 
   // Invoice button label — change based on whether invoice exists
@@ -7420,6 +7973,76 @@ function saveProfile() {
   saveData();
   updateGreeting();
   toast(t('toast.savedProfile'));
+}
+
+// ============ TAX SETTINGS ============
+function populateTaxSettings() {
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  setVal('tax-id', PROFILE.taxId);
+  setVal('tax-address', PROFILE.taxAddress);
+  setVal('tax-vat-number', PROFILE.vatNumber);
+  setVal('tax-default-wht', PROFILE.defaultWHT || 3);
+  setVal('tax-year-start', PROFILE.taxYearStart || 1);
+  const vatChk = document.getElementById('tax-vat-registered');
+  if (vatChk) {
+    vatChk.checked = !!PROFILE.vatRegistered;
+    syncVatToggleStyle();
+  }
+}
+
+function syncVatToggleStyle() {
+  const chk = document.getElementById('tax-vat-registered');
+  if (!chk) return;
+  // visual toggle look (CSS-only checkbox)
+  chk.style.background = chk.checked ? 'linear-gradient(180deg, #e87f5a, #d8704a)' : '#d1d5db';
+  // simulate knob with pseudo (using box-shadow trick)
+  chk.style.boxShadow = chk.checked
+    ? 'inset 22px 0 0 -2px #fff'
+    : 'inset -22px 0 0 -2px #fff';
+  // Show/hide VAT number field
+  const wrap = document.getElementById('tax-vat-number-wrap');
+  if (wrap) wrap.style.display = chk.checked ? 'block' : 'none';
+}
+
+function setupTaxToggleListener() {
+  const chk = document.getElementById('tax-vat-registered');
+  if (!chk) return;
+  // Avoid duplicate listeners
+  if (chk.dataset.listenerSetup === '1') return;
+  chk.dataset.listenerSetup = '1';
+  chk.addEventListener('change', syncVatToggleStyle);
+}
+
+function updateTaxHubSub() {
+  const el = document.getElementById('hub-tax-sub');
+  if (!el) return;
+  const parts = [];
+  if (PROFILE.taxId) parts.push('ID ✓');
+  if (PROFILE.vatRegistered) parts.push('VAT 7%');
+  if (PROFILE.defaultWHT) parts.push('WHT ' + PROFILE.defaultWHT + '%');
+  el.textContent = parts.length > 0 ? parts.join(' · ') : 'เลข 13 หลัก · VAT · ที่อยู่ออกใบกำกับ';
+}
+
+function saveTaxSettings() {
+  const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  PROFILE.taxId = getVal('tax-id');
+  PROFILE.taxAddress = getVal('tax-address');
+  PROFILE.vatNumber = getVal('tax-vat-number');
+  const wht = parseFloat(getVal('tax-default-wht') || '3');
+  PROFILE.defaultWHT = isNaN(wht) ? 3 : Math.max(0, Math.min(100, wht));
+  const yearStart = parseInt(getVal('tax-year-start') || '1', 10);
+  PROFILE.taxYearStart = [1, 4, 10].includes(yearStart) ? yearStart : 1;
+  const vatChk = document.getElementById('tax-vat-registered');
+  PROFILE.vatRegistered = vatChk ? vatChk.checked : false;
+
+  // Validate Tax ID format
+  if (PROFILE.taxId && !/^\d{13}$/.test(PROFILE.taxId)) {
+    if (!confirm('⚠ เลขประจำตัวผู้เสียภาษีไม่ใช่ 13 หลัก\n\nบันทึกต่อไหม? (จะใช้แสดงในใบกำกับภาษีเหมือนที่กรอก)')) return;
+  }
+
+  saveData();
+  toast('บันทึกการตั้งค่าภาษีแล้ว');
+  goTo('settings');
 }
 
 function updateGreeting() {
@@ -8573,6 +9196,8 @@ function openNewJob() {
   populateSourceDropdown();
   renderSessions('add');
   renderAddJobScreen();
+  // Tax T2 — reset Tax UI to defaults
+  if (typeof resetAddTaxUI === 'function') resetAddTaxUI();
   goTo('add');
 }
 
@@ -8651,6 +9276,8 @@ function editCurrentJob() {
   document.getElementById('addSource').value = j.source || (SOURCES[0] || 'Facebook');
   renderSessions('add');
   renderAddJobScreen();
+  // Tax T2 — restore tax settings from saved job
+  if (typeof populateAddTaxFromJob === 'function') populateAddTaxFromJob(j);
   goTo('add');
 }
 
@@ -8666,6 +9293,8 @@ function cancelAddJob() {
 function autofillCustomerOnBlur() {
   const name = (document.getElementById('addCustomer').value || '').trim();
   if (!name) return;
+  // Tax T2 — sync default tax suggestion based on customer type (B2B/Gov auto-on)
+  if (typeof populateAddTaxFromCustomer === 'function') populateAddTaxFromCustomer(name);
   const info = CUSTOMER_INFO[name];
   if (!info) return;
   const nick = document.getElementById('add-cust-nick');
@@ -8724,9 +9353,32 @@ function collectAddFormData() {
   if (deposit > 0 && remain > 0) payStatus = 'มัดจำแล้ว';
   if (remain === 0 && deposit > 0) payStatus = 'ชำระครบ';
 
+  // Denormalize customer type + tax info into JOB record (Tax T1)
+  // Snapshot at save time so historical jobs don't change when customer type is later edited
+  const _custMeta = CUSTOMER_INFO[customer] || {};
+  const _cType = _custMeta.type || 'B2C';
+  const _embedTax = (_cType === 'B2B' || _cType === 'Gov');
+
+  // Tax T2 — snapshot tax breakdown if "Issue tax invoice" was toggled ON
+  const _taxOn = (typeof _isAddTaxEnabled === 'function') ? _isAddTaxEnabled() : false;
+  const _taxOpts = (typeof _readAddTaxOpts === 'function') ? _readAddTaxOpts() : {};
+  const _taxSnap = (typeof buildTaxSnapshot === 'function')
+    ? buildTaxSnapshot(sell, _taxOpts, _taxOn)
+    : { taxEnabled: false, tax: null, taxBreakdown: null };
+
   return {
     customer,
     custNick, custPhone, custLine,
+    // Tax T1 — denormalized customer type + tax snapshot
+    customerType: _cType,
+    customerTaxId: _embedTax ? (_custMeta.taxId || '') : '',
+    customerCompanyName: _embedTax ? (_custMeta.companyName || '') : '',
+    customerBranch: _embedTax ? (_custMeta.branch || '') : '',
+    customerTaxAddress: _embedTax ? (_custMeta.taxAddress || '') : '',
+    // Tax T2 — VAT/WHT breakdown
+    taxEnabled: _taxSnap.taxEnabled,
+    tax: _taxSnap.tax,
+    taxBreakdown: _taxSnap.taxBreakdown,
     date: eventDate,
     dateDeposit: document.getElementById('add-date-deposit').value,
     sessions: ADD_SESSIONS.map(s => ({...s})),
@@ -9143,6 +9795,86 @@ function showQuoteScreen(data, source) {
   document.querySelector('#q-disc .v').textContent = data.discount > 0 ? '-' + fmt(data.discount) : '฿0';
   document.getElementById('q-final').textContent = fmt(data.sell);
 
+  // === Tax T2 · PDF tax block ============================================
+  const _qDocTitle    = document.getElementById('q-doc-title');
+  const _qTaxRows     = document.getElementById('q-tax-rows');
+  const _qStudioTaxRow = document.getElementById('q-studio-tax-row');
+  const _qCustTaxRows = document.getElementById('q-customer-tax-rows');
+  const _taxOn = !!data.taxEnabled;
+  // Studio tax id row — show whenever PROFILE has a taxId AND doc is tax-mode
+  if (_qStudioTaxRow) {
+    const studioTaxId = (typeof PROFILE !== 'undefined' && PROFILE.taxId) ? PROFILE.taxId : '';
+    if (_taxOn && studioTaxId) {
+      const el = document.getElementById('q-studio-tax-id');
+      if (el) el.textContent = studioTaxId;
+      _qStudioTaxRow.style.display = '';
+    } else {
+      _qStudioTaxRow.style.display = 'none';
+    }
+  }
+  // Title pill
+  if (_qDocTitle) _qDocTitle.style.display = _taxOn ? '' : 'none';
+  // Customer tax info rows
+  if (_qCustTaxRows) {
+    const hasCustTax = _taxOn && (data.customerType === 'B2B' || data.customerType === 'Gov');
+    if (hasCustTax) {
+      const setText = (id, v, hideIfEmpty) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (!v && hideIfEmpty) {
+          const row = el.closest('div');
+          if (row) row.style.display = 'none';
+        }
+        el.textContent = v || '—';
+      };
+      setText('q-cust-company', data.customerCompanyName);
+      setText('q-cust-tax-id', data.customerTaxId);
+      const branchSfx = document.getElementById('q-cust-branch-suffix');
+      if (branchSfx) branchSfx.textContent = data.customerBranch ? ' · ' + data.customerBranch : '';
+      setText('q-cust-tax-addr', data.customerTaxAddress);
+      _qCustTaxRows.style.display = '';
+    } else {
+      _qCustTaxRows.style.display = 'none';
+    }
+  }
+  // Tax breakdown rows in totals area
+  if (_qTaxRows) {
+    if (_taxOn && data.tax) {
+      const breakdown = data.taxBreakdown || (typeof calcTax === 'function' ? calcTax(data.sell || 0, data.tax) : null);
+      if (breakdown) {
+        // VAT row
+        const vatRow = document.getElementById('q-vat-row');
+        if (breakdown.includeVat) {
+          document.getElementById('q-vat-label').textContent = '+ VAT ' + breakdown.vatRate + '%';
+          document.getElementById('q-vat-val').textContent = fmt(breakdown.vatAmount);
+          vatRow.style.display = '';
+        } else vatRow.style.display = 'none';
+        // Grand total — only meaningful if VAT actually adds anything
+        const grandRow = document.getElementById('q-grand-row');
+        if (breakdown.includeVat) {
+          document.getElementById('q-grand-val').textContent = fmt(breakdown.grandTotal);
+          grandRow.style.display = '';
+        } else grandRow.style.display = 'none';
+        // WHT row
+        const whtRow = document.getElementById('q-wht-row');
+        if (breakdown.includeWht) {
+          const basisHint = breakdown.whtBasis === 'total' ? ' (รวม VAT)' : '';
+          document.getElementById('q-wht-label').textContent = '− WHT ' + breakdown.whtRate + '%' + basisHint;
+          document.getElementById('q-wht-val').textContent = '-' + fmt(breakdown.whtAmount);
+          whtRow.style.display = '';
+        } else whtRow.style.display = 'none';
+        // Net received — only show if WHT was withheld
+        const netRow = document.getElementById('q-net-row');
+        if (breakdown.includeWht) {
+          document.getElementById('q-net-val').textContent = fmt(breakdown.netReceived);
+          netRow.style.display = '';
+        } else netRow.style.display = 'none';
+        _qTaxRows.style.display = '';
+      } else _qTaxRows.style.display = 'none';
+    } else _qTaxRows.style.display = 'none';
+  }
+  // === /Tax T2 ============================================================
+
   // Show deposit block if quote has deposit > 0
   const depBlock = document.getElementById('q-deposit-block');
   if (depBlock) {
@@ -9329,6 +10061,8 @@ function openNewQuote() {
   populateJobTypeChipsForNQ();
   renderSessions('nq');
   renderNQPackages();
+  // Tax T2 — reset Tax UI (new quote starts neutral)
+  if (typeof resetNQTaxUI === 'function') resetNQTaxUI();
   goTo('quote-new');
 }
 
@@ -9383,6 +10117,8 @@ function editCurrentQuote() {
   }
   renderSessions('nq');
   renderNQPackages();
+  // Tax T2 — restore tax settings from saved quote
+  if (typeof populateNQTaxFromQuote === 'function') populateNQTaxFromQuote(q);
   goTo('quote-new');
 }
 
@@ -9461,6 +10197,8 @@ function updateNQTotal() {
   document.getElementById('nq-total').textContent = fmt(total);
   document.getElementById('nq-disc').textContent = '-' + fmt(disc);
   document.getElementById('nq-final').textContent = fmt(Math.max(0, total - disc));
+  // Tax T2 — keep live breakdown in sync with base total
+  if (typeof updateNQTaxCalc === 'function') updateNQTaxCalc();
 }
 
 function saveNewQuote(status) {
@@ -9483,6 +10221,27 @@ function saveNewQuote(status) {
   if (total === 0) { toast(t('toast.errSelectPackage')); return; }
 
   const typeEl = document.querySelector('#nq-type-row .chip.active');
+
+  // Tax T2 — read tax UI state + customer denormalization
+  const _sell = Math.max(0, total - disc);
+  const _cMeta = CUSTOMER_INFO[customer] || {};
+  const _cType = _cMeta.type || 'B2C';
+  const _embedTax = (_cType === 'B2B' || _cType === 'Gov');
+  const _taxOn = (typeof _isNQTaxEnabled === 'function') ? _isNQTaxEnabled() : false;
+  const _taxOpts = (typeof _readNQTaxOpts === 'function') ? _readNQTaxOpts() : {};
+  const _taxSnap = (typeof buildTaxSnapshot === 'function')
+    ? buildTaxSnapshot(_sell, _taxOpts, _taxOn)
+    : { taxEnabled: false, tax: null, taxBreakdown: null };
+  const _taxFields = {
+    customerType: _cType,
+    customerTaxId: _embedTax ? (_cMeta.taxId || '') : '',
+    customerCompanyName: _embedTax ? (_cMeta.companyName || '') : '',
+    customerBranch: _embedTax ? (_cMeta.branch || '') : '',
+    customerTaxAddress: _embedTax ? (_cMeta.taxAddress || '') : '',
+    taxEnabled: _taxSnap.taxEnabled,
+    tax: _taxSnap.tax,
+    taxBreakdown: _taxSnap.taxBreakdown,
+  };
 
   // === EDIT MODE: update existing quote in place ===
   if (_editingQuoteCode) {
@@ -9510,11 +10269,12 @@ function saveNewQuote(status) {
       extraTime: parseFloat((document.getElementById('nq-extratime')||{}).value) || 0,
       qr: NQ_ADDONS.qr || null,
       other: NQ_ADDONS.profile || null,
-      total, discount: disc, sell: Math.max(0, total - disc),
+      total, discount: disc, sell: _sell,
       deposit: parseFloat(document.getElementById('nq-deposit').value) || 0,
       bankIdx: document.getElementById('nq-bank').value || null,
       status: newStatus,
       note: document.getElementById('nq-note').value,
+      ..._taxFields,
     };
     QUOTES[idx] = updated;
     _editingQuoteCode = null;
@@ -9543,11 +10303,12 @@ function saveNewQuote(status) {
     extraTime: parseFloat((document.getElementById('nq-extratime')||{}).value) || 0,
     qr: NQ_ADDONS.qr || null,
     other: NQ_ADDONS.profile || null,
-    total, discount: disc, sell: Math.max(0, total - disc),
+    total, discount: disc, sell: _sell,
     deposit: parseFloat(document.getElementById('nq-deposit').value) || 0,
     bankIdx: document.getElementById('nq-bank').value || null,
     status,
     note: document.getElementById('nq-note').value,
+    ..._taxFields,
   };
   QUOTES.push(quote);
   saveData();
@@ -10220,6 +10981,14 @@ function openCustomerDetail(name) {
   document.getElementById('cust-email').value = info.email || '';
   document.getElementById('cust-birthday').value = info.birthday || '';
   document.getElementById('cust-notes').value = info.notes || '';
+  // Customer Type + Tax fields (Tax T1)
+  renderCustomerTypePicker(info.type || 'B2C');
+  const setIf = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  setIf('cust-tax-id', info.taxId);
+  setIf('cust-company-name', info.companyName);
+  setIf('cust-branch', info.branch);
+  setIf('cust-tax-address', info.taxAddress);
+  updateCustomerB2BFieldsVisibility(info.type || 'B2C');
   // Source dropdown
   const sel = document.getElementById('cust-source');
   sel.innerHTML = '<option value="">— ยังไม่ระบุ —</option>';
@@ -10254,6 +11023,12 @@ function openCustomerDetail(name) {
 
 function saveCustomerInfo() {
   if (!_currentCustomer) return;
+  const getId = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const type = _currentCustomerType || 'B2C';
+  const taxId = getId('cust-tax-id');
+  const companyName = getId('cust-company-name');
+  const branch = getId('cust-branch');
+  const taxAddress = getId('cust-tax-address');
   CUSTOMER_INFO[_currentCustomer] = {
     nickname: document.getElementById('cust-nickname').value,
     phone: document.getElementById('cust-phone').value,
@@ -10264,9 +11039,767 @@ function saveCustomerInfo() {
     birthday: document.getElementById('cust-birthday').value,
     source: document.getElementById('cust-source').value,
     notes: document.getElementById('cust-notes').value,
+    // Tax T1 fields
+    type: type,
+    taxId: taxId,
+    companyName: companyName,
+    branch: branch,
+    taxAddress: taxAddress,
   };
+  // Tax T1 — light backfill: fill customerType into legacy jobs that don't have a snapshot yet
+  // (does NOT overwrite jobs already snapshotted, so historical records stay stable)
+  const _needsTax = (type === 'B2B' || type === 'Gov');
+  let _backfilled = 0;
+  JOBS.forEach(j => {
+    if (j.customer !== _currentCustomer) return;
+    if (!j.customerType) { j.customerType = type; _backfilled++; }
+    // For tax-bearing types: also fill tax snapshot if job has none yet
+    if (_needsTax) {
+      if (!j.customerTaxId && taxId) j.customerTaxId = taxId;
+      if (!j.customerCompanyName && companyName) j.customerCompanyName = companyName;
+      if (!j.customerBranch && branch) j.customerBranch = branch;
+      if (!j.customerTaxAddress && taxAddress) j.customerTaxAddress = taxAddress;
+    }
+  });
   saveData();
+  if (_backfilled > 0 && typeof renderCustomers === 'function') renderCustomers();
   toast(t('toast.savedCustomer'));
+}
+
+// === Customer Type Picker (Tax T1) ===
+let _currentCustomerType = 'B2C';
+
+// Meta source-of-truth for the 4 customer types — used by picker + pills + reports
+function getCustomerTypeMeta(code) {
+  const META = {
+    B2C: { code: 'B2C', icon: '👤', i18nKey: 'ct.b2c', color: '#5fc4f4', bg: '#dbeafe', fg: '#1e40af' },
+    B2B: { code: 'B2B', icon: '🏢', i18nKey: 'ct.b2b', color: '#d8704a', bg: '#fde6dc', fg: '#7c2d12' },
+    Gov: { code: 'Gov', icon: '🏛', i18nKey: 'ct.gov', color: '#15803d', bg: '#dcfce7', fg: '#14532d' },
+    VIP: { code: 'VIP', icon: '💎', i18nKey: 'ct.vip', color: '#aa7df5', bg: '#ede4ff', fg: '#5b21b6' },
+  };
+  return META[code] || META.B2C;
+}
+
+// Render a small pill for a customer type. Returns an HTML string.
+// variant='compact' for list rows (icon-only or icon+code), 'full' for job detail
+function customerTypePill(code, variant) {
+  const meta = getCustomerTypeMeta(code || 'B2C');
+  const name = (typeof t === 'function') ? t(meta.i18nKey) : meta.code;
+  const v = variant || 'full';
+  if (v === 'compact') {
+    return '<span title="' + name + '" style="display:inline-flex; align-items:center; gap:3px; padding:2px 7px; border-radius:8px; background:' + meta.bg + '; color:' + meta.fg + '; font-size:10.5px; font-weight:600; line-height:1; white-space:nowrap;">' +
+      '<span style="font-size:11px;">' + meta.icon + '</span>' + meta.code + '</span>';
+  }
+  return '<span style="display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:10px; background:' + meta.bg + '; color:' + meta.fg + '; font-size:11.5px; font-weight:700; line-height:1; white-space:nowrap;">' +
+    '<span style="font-size:13px;">' + meta.icon + '</span>' + name + '</span>';
+}
+
+function renderCustomerTypePicker(active) {
+  _currentCustomerType = active || 'B2C';
+  const grid = document.getElementById('cust-type-picker');
+  if (!grid) return;
+  const codes = ['B2C', 'B2B', 'Gov', 'VIP'];
+  grid.innerHTML = '';
+  codes.forEach(code => {
+    const meta = getCustomerTypeMeta(code);
+    const isActive = code === _currentCustomerType;
+    const name = (typeof t === 'function') ? t(meta.i18nKey) : code;
+    const cell = document.createElement('div');
+    cell.style.cssText =
+      "display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 6px; " +
+      "border-radius:10px; cursor:pointer; transition:all .15s; text-align:center; " +
+      "background:" + (isActive ? meta.color + '20' : '#f7f4ef') + "; " +
+      "border:2px solid " + (isActive ? meta.color : 'transparent') + ";";
+    cell.innerHTML =
+      '<div style="font-size:22px;">' + meta.icon + '</div>' +
+      '<div style="font-size:11.5px; font-weight:' + (isActive ? '700' : '500') + '; color:' + (isActive ? meta.color : '#5a5550') + ';">' + name + '</div>';
+    cell.onclick = () => {
+      _currentCustomerType = code;
+      renderCustomerTypePicker(code);
+      updateCustomerB2BFieldsVisibility(code);
+    };
+    grid.appendChild(cell);
+  });
+}
+
+function updateCustomerB2BFieldsVisibility(type) {
+  const wrap = document.getElementById('cust-b2b-fields');
+  if (!wrap) return;
+  // Show tax fields for B2B and Gov (these need tax invoice)
+  const needsTaxFields = (type === 'B2B' || type === 'Gov');
+  wrap.style.display = needsTaxFields ? 'block' : 'none';
+}
+
+// ============================================================================
+// === TAX T2 · CALCULATOR (VAT + WHT) =========================================
+// ============================================================================
+// Pure tax calculator. Given a base price (after discount) and options,
+// returns the full breakdown. Used by Add Job form, Quote form, Job Detail,
+// and the Quote PDF. Designed to be deterministic + serialisable.
+//
+// opts = {
+//   includeVat: bool, vatRate: number (default 7),
+//   includeWht: bool, whtRate: number (default 3),
+//   whtBasis: 'base' | 'total'    // base = pre-VAT (ภ.ง.ด.3 standard)
+// }
+// Returns {
+//   base, vatAmount, vatRate,
+//   whtAmount, whtRate, whtBasis,
+//   grandTotal,     // base + vat — what customer pays before WHT
+//   netReceived,    // grandTotal − wht — what the studio actually gets
+//   includeVat, includeWht
+// }
+function calcTax(base, opts) {
+  base = Math.max(0, Number(base) || 0);
+  opts = opts || {};
+  const includeVat = !!opts.includeVat;
+  const includeWht = !!opts.includeWht;
+  const vatRate = Math.max(0, Number(opts.vatRate != null ? opts.vatRate : 7));
+  const whtRate = Math.max(0, Number(opts.whtRate != null ? opts.whtRate : 3));
+  const whtBasis = (opts.whtBasis === 'total') ? 'total' : 'base';
+  const vatAmount = includeVat ? round2(base * (vatRate / 100)) : 0;
+  const grandTotal = round2(base + vatAmount);
+  let whtAmount = 0;
+  if (includeWht) {
+    const whtBase = (whtBasis === 'total') ? grandTotal : base;
+    whtAmount = round2(whtBase * (whtRate / 100));
+  }
+  const netReceived = round2(grandTotal - whtAmount);
+  return { base: round2(base), vatAmount, vatRate, whtAmount, whtRate, whtBasis, grandTotal, netReceived, includeVat, includeWht };
+}
+
+function round2(n) { return Math.round((Number(n) || 0) * 100) / 100; }
+
+// Default suggestion based on studio + customer type
+function getDefaultTaxOpts(customerType) {
+  const studioVat = !!(typeof PROFILE !== 'undefined' && PROFILE && PROFILE.vatRegistered);
+  const isBusinessCust = (customerType === 'B2B' || customerType === 'Gov');
+  return {
+    enabled: isBusinessCust,            // auto-on for B2B/Gov
+    includeVat: studioVat,              // VAT only if studio is VAT-registered
+    vatRate: 7,
+    includeWht: isBusinessCust,         // companies/gov usually withhold
+    whtRate: (typeof PROFILE !== 'undefined' && PROFILE.defaultWHT) ? PROFILE.defaultWHT : 3,
+    whtBasis: 'base'
+  };
+}
+
+// Render a small breakdown block (used inside Add Job form, Job Detail, etc.)
+function formatTaxBreakdownHTML(breakdown, opts) {
+  if (!breakdown) return '';
+  opts = opts || {};
+  const lblBase  = (typeof t === 'function') ? t('tax.base') : 'Base';
+  const lblVat   = (typeof t === 'function') ? t('tax.vat') : 'VAT';
+  const lblWht   = (typeof t === 'function') ? t('tax.wht') : 'WHT';
+  const lblGrand = (typeof t === 'function') ? t('tax.grandTotal') : 'Grand Total';
+  const lblNet   = (typeof t === 'function') ? t('tax.netReceived') : 'Net Received';
+  let html = '';
+  html += '<div style="display:flex; justify-content:space-between; padding:3px 0;"><span style="color:#92400e;">' + lblBase + '</span><span style="font-weight:600;">' + fmt(breakdown.base) + '</span></div>';
+  if (breakdown.includeVat) {
+    html += '<div style="display:flex; justify-content:space-between; padding:3px 0;"><span style="color:#92400e;">+ ' + lblVat + ' ' + breakdown.vatRate + '%</span><span style="font-weight:600; color:#15803d;">' + fmt(breakdown.vatAmount) + '</span></div>';
+  }
+  html += '<div style="display:flex; justify-content:space-between; padding:5px 0 3px; border-top:1px dashed #fbbf24;"><span style="color:#7c2d12; font-weight:600;">= ' + lblGrand + '</span><span style="font-weight:700; color:#7c2d12;">' + fmt(breakdown.grandTotal) + '</span></div>';
+  if (breakdown.includeWht) {
+    html += '<div style="display:flex; justify-content:space-between; padding:3px 0;"><span style="color:#92400e;">− ' + lblWht + ' ' + breakdown.whtRate + '%</span><span style="font-weight:600; color:#dc2626;">−' + fmt(breakdown.whtAmount) + '</span></div>';
+    html += '<div style="display:flex; justify-content:space-between; padding:5px 0 0; border-top:1px solid #92400e;"><span style="color:#1d4d2e; font-weight:700;">= ' + lblNet + '</span><span style="font-weight:800; color:#1d4d2e; font-size:14px;">' + fmt(breakdown.netReceived) + '</span></div>';
+  }
+  return html;
+}
+
+// === Add Job Tax wiring =====================================================
+function setTaxKnobOn(knobEl, on) {
+  if (!knobEl) return;
+  knobEl.style.background = on ? '#10b981' : '#cdc3b8';
+  const dot = knobEl.firstElementChild;
+  if (dot) dot.style.left = on ? '20px' : '2px';
+}
+
+function _readAddTaxOpts() {
+  return {
+    includeVat: !!(document.getElementById('add-tax-vat') || {}).checked,
+    vatRate: parseFloat((document.getElementById('add-tax-vat-rate') || {}).value) || 0,
+    includeWht: !!(document.getElementById('add-tax-wht') || {}).checked,
+    whtRate: parseFloat((document.getElementById('add-tax-wht-rate') || {}).value) || 0,
+    whtBasis: ((document.getElementById('add-tax-wht-basis') || {}).value) || 'base'
+  };
+}
+
+function _readAddBase() {
+  let total = 0;
+  Object.values(ADD_SELECTED || {}).forEach(s => total += (s.price || 0));
+  Object.values(ADD_ADDONS || {}).forEach(p => total += p);
+  const extra = parseFloat((document.getElementById('addExtraTime')||{}).value) || 0;
+  const disc = parseFloat((document.getElementById('addDiscount')||{}).value) || 0;
+  return Math.max(0, total + extra - disc);
+}
+
+// Read current state — kept in DOM (toggle button), not a JS var
+function _isAddTaxEnabled() {
+  const knob = document.getElementById('add-tax-knob');
+  if (!knob) return false;
+  return knob.dataset.on === '1';
+}
+
+function _setAddTaxEnabled(on) {
+  const knob = document.getElementById('add-tax-knob');
+  const panel = document.getElementById('add-tax-panel');
+  if (!knob || !panel) return;
+  knob.dataset.on = on ? '1' : '0';
+  setTaxKnobOn(knob, on);
+  panel.style.display = on ? 'block' : 'none';
+}
+
+function toggleAddTax() {
+  _setAddTaxEnabled(!_isAddTaxEnabled());
+  _markAddTaxTouched();
+  updateAddTaxCalc();
+}
+
+function updateAddTaxCalc() {
+  const sumEl = document.getElementById('add-tax-summary');
+  if (!sumEl) return;
+  if (!_isAddTaxEnabled()) { sumEl.innerHTML = ''; return; }
+  const base = _readAddBase();
+  const opts = _readAddTaxOpts();
+  const breakdown = calcTax(base, opts);
+  sumEl.innerHTML = formatTaxBreakdownHTML(breakdown);
+}
+
+// Populate Tax UI for "create new job" using customer type defaults
+function populateAddTaxFromCustomer(customerName) {
+  const hint = document.getElementById('add-tax-cust-hint');
+  const info = (customerName && CUSTOMER_INFO[customerName]) || {};
+  const cType = info.type || 'B2C';
+  const defaults = getDefaultTaxOpts(cType);
+  if (hint) {
+    if (cType === 'B2B') hint.textContent = (typeof t === 'function') ? t('tax.custHintB2B') : '🏢 B2B · auto-on';
+    else if (cType === 'Gov') hint.textContent = (typeof t === 'function') ? t('tax.custHintGov') : '🏛 Gov · auto-on';
+    else hint.textContent = '';
+  }
+  // Apply defaults only if user hasn't manually toggled yet (knob dataset acts as marker)
+  const knob = document.getElementById('add-tax-knob');
+  if (!knob || knob.dataset.touched === '1') return;
+  _setAddTaxEnabled(!!defaults.enabled);
+  const setChk = (id, v) => { const e = document.getElementById(id); if (e) e.checked = !!v; };
+  const setVal = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
+  setChk('add-tax-vat', defaults.includeVat);
+  setVal('add-tax-vat-rate', defaults.vatRate);
+  setChk('add-tax-wht', defaults.includeWht);
+  setVal('add-tax-wht-rate', defaults.whtRate);
+  setVal('add-tax-wht-basis', defaults.whtBasis);
+  updateAddTaxCalc();
+}
+
+// Populate Tax UI when editing an existing job
+function populateAddTaxFromJob(j) {
+  const knob = document.getElementById('add-tax-knob');
+  if (!knob) return;
+  const tax = (j && j.tax) || null;
+  const enabled = !!(j && j.taxEnabled);
+  _setAddTaxEnabled(enabled);
+  knob.dataset.touched = '1';   // editing → consider it intentional
+  const setChk = (id, v) => { const e = document.getElementById(id); if (e) e.checked = !!v; };
+  const setVal = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
+  setChk('add-tax-vat',  tax ? tax.includeVat : false);
+  setVal('add-tax-vat-rate', tax && tax.vatRate != null ? tax.vatRate : 7);
+  setChk('add-tax-wht',  tax ? tax.includeWht : false);
+  setVal('add-tax-wht-rate', tax && tax.whtRate != null ? tax.whtRate : 3);
+  setVal('add-tax-wht-basis', tax && tax.whtBasis ? tax.whtBasis : 'base');
+  // Customer hint
+  const hint = document.getElementById('add-tax-cust-hint');
+  if (hint) {
+    const cType = (j && j.customerType) || 'B2C';
+    if (cType === 'B2B') hint.textContent = (typeof t === 'function') ? t('tax.custHintB2B') : '🏢 B2B';
+    else if (cType === 'Gov') hint.textContent = (typeof t === 'function') ? t('tax.custHintGov') : '🏛 Gov';
+    else hint.textContent = '';
+  }
+  updateAddTaxCalc();
+}
+
+function resetAddTaxUI() {
+  const knob = document.getElementById('add-tax-knob');
+  if (knob) { knob.dataset.on = '0'; knob.dataset.touched = '0'; setTaxKnobOn(knob, false); }
+  const panel = document.getElementById('add-tax-panel');
+  if (panel) panel.style.display = 'none';
+  const setChk = (id, v) => { const e = document.getElementById(id); if (e) e.checked = !!v; };
+  const setVal = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
+  setChk('add-tax-vat', false);
+  setVal('add-tax-vat-rate', 7);
+  setChk('add-tax-wht', false);
+  setVal('add-tax-wht-rate', (typeof PROFILE !== 'undefined' && PROFILE.defaultWHT) ? PROFILE.defaultWHT : 3);
+  setVal('add-tax-wht-basis', 'base');
+  const sum = document.getElementById('add-tax-summary');
+  if (sum) sum.innerHTML = '';
+  const hint = document.getElementById('add-tax-cust-hint');
+  if (hint) hint.textContent = '';
+}
+
+// Mark "user touched" the toggle so we don't overwrite their intent
+function _markAddTaxTouched() {
+  const knob = document.getElementById('add-tax-knob');
+  if (knob) knob.dataset.touched = '1';
+}
+
+// === New Quote Tax wiring (mirror of Add Job) ===============================
+function _isNQTaxEnabled() {
+  const knob = document.getElementById('nq-tax-knob');
+  if (!knob) return false;
+  return knob.dataset.on === '1';
+}
+
+function _setNQTaxEnabled(on) {
+  const knob = document.getElementById('nq-tax-knob');
+  const panel = document.getElementById('nq-tax-panel');
+  if (!knob || !panel) return;
+  knob.dataset.on = on ? '1' : '0';
+  setTaxKnobOn(knob, on);
+  panel.style.display = on ? 'block' : 'none';
+}
+
+function toggleNQTax() {
+  _setNQTaxEnabled(!_isNQTaxEnabled());
+  _markNQTaxTouched();
+  updateNQTaxCalc();
+}
+
+function _readNQTaxOpts() {
+  return {
+    includeVat: !!(document.getElementById('nq-tax-vat') || {}).checked,
+    vatRate: parseFloat((document.getElementById('nq-tax-vat-rate') || {}).value) || 0,
+    includeWht: !!(document.getElementById('nq-tax-wht') || {}).checked,
+    whtRate: parseFloat((document.getElementById('nq-tax-wht-rate') || {}).value) || 0,
+    whtBasis: ((document.getElementById('nq-tax-wht-basis') || {}).value) || 'base'
+  };
+}
+
+function _readNQBase() {
+  let total = 0;
+  Object.values(NQ_SELECTED || {}).forEach(s => total += (s.price || 0));
+  Object.values(NQ_ADDONS || {}).forEach(p => total += p);
+  const extra = parseFloat((document.getElementById('nq-extratime')||{}).value) || 0;
+  const disc = parseFloat((document.getElementById('nq-discount')||{}).value) || 0;
+  return Math.max(0, total + extra - disc);
+}
+
+function updateNQTaxCalc() {
+  const sumEl = document.getElementById('nq-tax-summary');
+  if (!sumEl) return;
+  if (!_isNQTaxEnabled()) { sumEl.innerHTML = ''; return; }
+  const base = _readNQBase();
+  const opts = _readNQTaxOpts();
+  const breakdown = calcTax(base, opts);
+  sumEl.innerHTML = formatTaxBreakdownHTML(breakdown);
+}
+
+function populateNQTaxFromCustomer(customerName) {
+  const hint = document.getElementById('nq-tax-cust-hint');
+  const info = (customerName && CUSTOMER_INFO[customerName]) || {};
+  const cType = info.type || 'B2C';
+  const defaults = getDefaultTaxOpts(cType);
+  if (hint) {
+    if (cType === 'B2B') hint.textContent = (typeof t === 'function') ? t('tax.custHintB2B') : '🏢 B2B · auto-on';
+    else if (cType === 'Gov') hint.textContent = (typeof t === 'function') ? t('tax.custHintGov') : '🏛 Gov · auto-on';
+    else hint.textContent = '';
+  }
+  const knob = document.getElementById('nq-tax-knob');
+  if (!knob || knob.dataset.touched === '1') return;
+  _setNQTaxEnabled(!!defaults.enabled);
+  const setChk = (id, v) => { const e = document.getElementById(id); if (e) e.checked = !!v; };
+  const setVal = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
+  setChk('nq-tax-vat', defaults.includeVat);
+  setVal('nq-tax-vat-rate', defaults.vatRate);
+  setChk('nq-tax-wht', defaults.includeWht);
+  setVal('nq-tax-wht-rate', defaults.whtRate);
+  setVal('nq-tax-wht-basis', defaults.whtBasis);
+  updateNQTaxCalc();
+}
+
+function populateNQTaxFromQuote(q) {
+  const knob = document.getElementById('nq-tax-knob');
+  if (!knob) return;
+  const tax = (q && q.tax) || null;
+  const enabled = !!(q && q.taxEnabled);
+  _setNQTaxEnabled(enabled);
+  knob.dataset.touched = '1';
+  const setChk = (id, v) => { const e = document.getElementById(id); if (e) e.checked = !!v; };
+  const setVal = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
+  setChk('nq-tax-vat',  tax ? tax.includeVat : false);
+  setVal('nq-tax-vat-rate', tax && tax.vatRate != null ? tax.vatRate : 7);
+  setChk('nq-tax-wht',  tax ? tax.includeWht : false);
+  setVal('nq-tax-wht-rate', tax && tax.whtRate != null ? tax.whtRate : 3);
+  setVal('nq-tax-wht-basis', tax && tax.whtBasis ? tax.whtBasis : 'base');
+  updateNQTaxCalc();
+}
+
+function resetNQTaxUI() {
+  const knob = document.getElementById('nq-tax-knob');
+  if (knob) { knob.dataset.on = '0'; knob.dataset.touched = '0'; setTaxKnobOn(knob, false); }
+  const panel = document.getElementById('nq-tax-panel');
+  if (panel) panel.style.display = 'none';
+  const setChk = (id, v) => { const e = document.getElementById(id); if (e) e.checked = !!v; };
+  const setVal = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
+  setChk('nq-tax-vat', false);
+  setVal('nq-tax-vat-rate', 7);
+  setChk('nq-tax-wht', false);
+  setVal('nq-tax-wht-rate', (typeof PROFILE !== 'undefined' && PROFILE.defaultWHT) ? PROFILE.defaultWHT : 3);
+  setVal('nq-tax-wht-basis', 'base');
+  const sum = document.getElementById('nq-tax-summary');
+  if (sum) sum.innerHTML = '';
+  const hint = document.getElementById('nq-tax-cust-hint');
+  if (hint) hint.textContent = '';
+}
+
+function _markNQTaxTouched() {
+  const knob = document.getElementById('nq-tax-knob');
+  if (knob) knob.dataset.touched = '1';
+}
+
+// Build the snapshot stored on a saved JOB/QUOTE
+function buildTaxSnapshot(base, opts, enabled) {
+  if (!enabled) return { taxEnabled: false, tax: null, taxBreakdown: null };
+  const breakdown = calcTax(base, opts);
+  return {
+    taxEnabled: true,
+    tax: {
+      includeVat: !!opts.includeVat,
+      vatRate: Number(opts.vatRate) || 0,
+      includeWht: !!opts.includeWht,
+      whtRate: Number(opts.whtRate) || 0,
+      whtBasis: opts.whtBasis === 'total' ? 'total' : 'base'
+    },
+    taxBreakdown: breakdown
+  };
+}
+
+// ============================================================================
+// === TAX T3 · REPORTS + EXCEL EXPORT + SELECTIVE FILING ======================
+// ============================================================================
+
+// Selective filing: each job has `filing` ∈ ('auto' | 'include' | 'exclude')
+// 'auto' = include if job.taxEnabled is true (default)
+// 'include' = force include (even if taxEnabled is false — rare but allowed)
+// 'exclude' = force exclude (e.g. cash, off-book — common in TH)
+function isJobInTaxReport(j) {
+  if (!j) return false;
+  const f = j.filing || 'auto';
+  if (f === 'include') return true;
+  if (f === 'exclude') return false;
+  return !!j.taxEnabled;  // auto
+}
+
+function setJobFiling(jobCode, mode) {
+  const j = JOBS.find(x => x.code === jobCode);
+  if (!j) return;
+  j.filing = (mode === 'include' || mode === 'exclude' || mode === 'auto') ? mode : 'auto';
+  saveData();
+}
+
+// Called by the Job Detail filing dropdown — updates current job & refreshes hint text
+function onJobFilingChange(mode) {
+  const j = window._currentJob;
+  if (!j) return;
+  j.filing = (mode === 'include' || mode === 'exclude' || mode === 'auto') ? mode : 'auto';
+  saveData();
+  // Re-render just the hint
+  const _fHint = document.getElementById('job-filing-hint');
+  if (_fHint) {
+    const inReport = isJobInTaxReport(j);
+    const reason = (j.filing === 'include')
+      ? (LANG === 'en' ? 'Forced include' : 'บังคับนับ')
+      : (j.filing === 'exclude')
+        ? (LANG === 'en' ? 'Forced exclude — won\'t appear in report/Excel' : 'บังคับไม่นับ — จะไม่ขึ้นในรายงาน/Excel')
+        : (j.taxEnabled
+            ? (LANG === 'en' ? 'Auto: included (taxEnabled)' : 'อัตโนมัติ: นับ (เปิดภาษีไว้)')
+            : (LANG === 'en' ? 'Auto: excluded (no tax)' : 'อัตโนมัติ: ไม่นับ (ไม่มีภาษี)'));
+    _fHint.textContent = reason;
+    _fHint.style.color = inReport ? '#15803d' : '#9ca3af';
+  }
+  toast(LANG === 'en' ? 'Filing updated' : 'อัปเดตสถานะการยื่นแล้ว');
+}
+
+// Tax-year period: returns {start: Date, end: Date, label: string}
+// For taxYearStart=1 (Jan), year 2026 → 2026-01-01 to 2026-12-31
+// For taxYearStart=10 (Oct), year 2026 (FY26) → 2025-10-01 to 2026-09-30
+function getTaxYearPeriod(year) {
+  const ys = (PROFILE && PROFILE.taxYearStart) ? PROFILE.taxYearStart : 1;
+  const startYear = (ys === 1) ? year : year - 1;
+  const start = new Date(startYear, ys - 1, 1);
+  const end = new Date(year, ys - 1, 0);   // last day of month BEFORE next FY start
+  // Special case for ys=1 (Jan): end = Dec 31 of `year`
+  if (ys === 1) {
+    return { start: new Date(year, 0, 1), end: new Date(year, 11, 31), label: String(year) };
+  }
+  const _ms = (typeof monthsShortArray === 'function') ? monthsShortArray() : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const fmtDate = (d) => d.getDate() + ' ' + _ms[d.getMonth()] + ' ' + (typeof displayYear === 'function' ? displayYear(d.getFullYear()) : d.getFullYear());
+  return { start, end, label: fmtDate(start) + ' – ' + fmtDate(end) };
+}
+
+let _taxReportYear = null;
+let _taxReportFilter = 'all';  // 'all' | 'B2B' | 'Gov' | 'excluded'
+
+function getTaxReportRows(year, filter) {
+  const period = getTaxYearPeriod(year);
+  const rows = [];
+  JOBS.forEach(j => {
+    const d = new Date(j.date);
+    if (isNaN(d)) return;
+    if (d < period.start || d > period.end) return;
+    // Filter by inclusion + customer type
+    const included = isJobInTaxReport(j);
+    if (filter === 'excluded') {
+      // Show jobs that are tax-eligible (B2B/Gov OR taxEnabled was set) but currently excluded
+      if (included) return;
+      if (!j.taxEnabled && j.customerType !== 'B2B' && j.customerType !== 'Gov') return;
+    } else {
+      if (!included) return;
+      if (filter === 'B2B' && j.customerType !== 'B2B') return;
+      if (filter === 'Gov'  && j.customerType !== 'Gov') return;
+    }
+    // Compute breakdown if missing
+    let breakdown = j.taxBreakdown;
+    if (!breakdown && j.taxEnabled && j.tax) breakdown = calcTax(j.sell || 0, j.tax);
+    if (!breakdown) {
+      // Job is included but doesn't have a tax snapshot — treat as plain (record as gross only)
+      breakdown = { base: j.sell || 0, vatAmount: 0, vatRate: 0, whtAmount: 0, whtRate: 0, whtBasis: 'base', grandTotal: j.sell || 0, netReceived: j.sell || 0, includeVat: false, includeWht: false };
+    }
+    rows.push({
+      code: j.code, date: j.date, customer: j.customer,
+      customerType: j.customerType || 'B2C',
+      customerTaxId: j.customerTaxId || '',
+      customerCompany: j.customerCompanyName || '',
+      type: j.type, location: j.loc,
+      base: breakdown.base, vatAmount: breakdown.vatAmount, vatRate: breakdown.vatRate,
+      whtAmount: breakdown.whtAmount, whtRate: breakdown.whtRate, whtBasis: breakdown.whtBasis,
+      grandTotal: breakdown.grandTotal, netReceived: breakdown.netReceived,
+      filing: j.filing || 'auto',
+      taxEnabled: !!j.taxEnabled
+    });
+  });
+  // Sort by date ASC (oldest first, matches accounting workflow)
+  rows.sort((a, b) => new Date(a.date) - new Date(b.date));
+  return { rows, period };
+}
+
+function summariseTaxRows(rows) {
+  return rows.reduce((acc, r) => ({
+    gross: acc.gross + (r.base || 0),
+    vat: acc.vat + (r.vatAmount || 0),
+    wht: acc.wht + (r.whtAmount || 0),
+    net: acc.net + (r.netReceived || 0)
+  }), { gross: 0, vat: 0, wht: 0, net: 0 });
+}
+
+function populateTaxReportYearSelect() {
+  const sel = document.getElementById('tax-report-year');
+  if (!sel) return;
+  const thisYear = new Date().getFullYear();
+  const years = new Set([thisYear]);
+  JOBS.forEach(j => { if (j.date) years.add(new Date(j.date).getFullYear()); });
+  const sorted = Array.from(years).sort((a, b) => b - a);
+  const current = _taxReportYear != null ? _taxReportYear : thisYear;
+  sel.innerHTML = '';
+  sorted.forEach(y => {
+    const o = document.createElement('option');
+    o.value = y;
+    o.textContent = (typeof displayYear === 'function') ? displayYear(y) : y;
+    if (y === current) o.selected = true;
+    sel.appendChild(o);
+  });
+  if (!sel.value) sel.value = thisYear;
+  _taxReportYear = parseInt(sel.value, 10);
+}
+
+function renderTaxReport() {
+  populateTaxReportYearSelect();
+  const yr = _taxReportYear || new Date().getFullYear();
+  const { rows, period } = getTaxReportRows(yr, _taxReportFilter);
+  const sum = summariseTaxRows(rows);
+
+  // KPI cards
+  const k = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = fmt(v); };
+  k('tr-kpi-gross', sum.gross);
+  k('tr-kpi-vat', sum.vat);
+  k('tr-kpi-wht', sum.wht);
+  k('tr-kpi-net', sum.net);
+  const cnt = document.getElementById('tr-report-count') || document.getElementById('tax-report-count');
+  if (cnt) cnt.textContent = String(rows.length);
+
+  // Period label
+  const periodEl = document.getElementById('tax-report-period');
+  if (periodEl) {
+    const ys = (PROFILE && PROFILE.taxYearStart) ? PROFILE.taxYearStart : 1;
+    periodEl.textContent = (ys === 1)
+      ? (LANG === 'en' ? '1 Jan – 31 Dec' : '1 ม.ค. – 31 ธ.ค.')
+      : period.label;
+  }
+
+  // Filter chips
+  const chips = document.getElementById('tr-filter-chips');
+  if (chips) {
+    chips.innerHTML = '';
+    const opts = [
+      { id: 'all', label: t('tax.fchipAll') },
+      { id: 'B2B', label: t('tax.fchipB2B') },
+      { id: 'Gov', label: t('tax.fchipGov') },
+      { id: 'excluded', label: t('tax.fchipExcluded') }
+    ];
+    opts.forEach(o => {
+      const c = document.createElement('div');
+      c.className = 'chip' + (_taxReportFilter === o.id ? ' active' : '');
+      c.textContent = o.label;
+      c.onclick = () => { _taxReportFilter = o.id; renderTaxReport(); };
+      chips.appendChild(c);
+    });
+  }
+
+  // Table
+  const tbl = document.getElementById('tr-table');
+  const empty = document.getElementById('tr-empty');
+  if (tbl) {
+    if (rows.length === 0) {
+      tbl.innerHTML = '';
+      if (empty) empty.style.display = '';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    let html = '';
+    rows.forEach(r => {
+      const dp = dateParts(r.date);
+      const monShort = (typeof monthsShortArray === 'function') ? monthsShortArray()[dp.m] : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dp.m];
+      const typePill = (typeof customerTypePill === 'function') ? customerTypePill(r.customerType, 'compact') : '';
+      const filingTag = r.filing === 'exclude'
+        ? '<span style="font-size:9.5px; color:#dc2626; background:#fee2e2; padding:1px 5px; border-radius:6px; margin-left:4px;">🚫 ' + t('tax.filingExclude') + '</span>'
+        : (r.filing === 'include' && !r.taxEnabled
+            ? '<span style="font-size:9.5px; color:#0c4a6e; background:#e0f2fe; padding:1px 5px; border-radius:6px; margin-left:4px;">+ ' + t('tax.filingInclude') + '</span>'
+            : '');
+      html += '<div onclick="openJob(\'' + r.code + '\')" style="display:flex; gap:10px; padding:12px 14px; border-bottom:1px solid #f3f4f6; cursor:pointer; align-items:flex-start;">';
+      html += '<div style="width:42px; text-align:center; flex-shrink:0;"><div style="font-size:17px; font-weight:700; color:#1a1a1a; line-height:1.1;">' + dp.d + '</div><div style="font-size:10px; color:#9ca3af; text-transform:uppercase;">' + monShort + '</div></div>';
+      html += '<div style="flex:1; min-width:0;">';
+      html += '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span style="font-size:13px; font-weight:600; color:#1a1a1a;">' + r.customer + '</span>' + typePill + filingTag + '</div>';
+      html += '<div style="font-size:11px; color:#6b7280; margin-top:2px;">' + r.code + ' · ' + (r.type || '-') + (r.customerCompany ? ' · ' + r.customerCompany : '') + '</div>';
+      html += '<div style="font-size:11px; color:#7c7066; margin-top:3px;">' + (typeof t === 'function' ? t('tax.base') : 'Base') + ': <strong>' + fmt(r.base) + '</strong>';
+      if (r.vatAmount > 0) html += ' · VAT: <span style="color:#15803d;">+' + fmt(r.vatAmount) + '</span>';
+      if (r.whtAmount > 0) html += ' · WHT: <span style="color:#dc2626;">-' + fmt(r.whtAmount) + '</span>';
+      html += '</div></div>';
+      html += '<div style="text-align:right; flex-shrink:0;"><div style="font-size:13px; font-weight:700; color:#0f6e56;">' + fmt(r.netReceived) + '</div><div style="font-size:10px; color:#9ca3af;">' + (typeof t === 'function' ? t('tax.netReceived') : 'Net') + '</div></div>';
+      html += '</div>';
+    });
+    tbl.innerHTML = html;
+  }
+}
+
+// === Excel Export ============================================================
+function exportTaxExcel() {
+  if (typeof XLSX === 'undefined') {
+    toast(LANG === 'en' ? 'Excel library not loaded — please refresh' : 'ยังโหลด Excel library ไม่เสร็จ — รีโหลดหน้าก่อน');
+    return;
+  }
+  const yr = _taxReportYear || new Date().getFullYear();
+  // Pull ALL eligible rows for the year (ignore current chip filter — export should be complete)
+  const { rows, period } = getTaxReportRows(yr, 'all');
+  const excludedJobs = getTaxReportRows(yr, 'excluded').rows;
+  const summary = summariseTaxRows(rows);
+
+  const wb = XLSX.utils.book_new();
+
+  // === Sheet 1: Summary
+  const studioName = (PROFILE && PROFILE.shop) || 'Studio';
+  const studioTaxId = (PROFILE && PROFILE.taxId) || '';
+  const summaryRows = [
+    ['Pixory — ' + (LANG === 'en' ? 'Tax Year Report' : 'รายงานปีภาษี')],
+    [],
+    [LANG === 'en' ? 'Studio' : 'ชื่อสตูดิโอ', studioName],
+    [LANG === 'en' ? 'Tax ID' : 'เลขผู้เสียภาษี', studioTaxId],
+    [LANG === 'en' ? 'Tax Year' : 'ปีภาษี', String(yr)],
+    [LANG === 'en' ? 'Period' : 'ช่วงเวลา', period.start.toISOString().slice(0,10) + '  →  ' + period.end.toISOString().slice(0,10)],
+    [LANG === 'en' ? 'Generated' : 'สร้างเมื่อ', new Date().toISOString().slice(0,10)],
+    [],
+    [LANG === 'en' ? '— Totals —' : '— สรุปยอด —'],
+    [LANG === 'en' ? 'Number of filed jobs' : 'จำนวนงานที่ยื่น', rows.length],
+    [LANG === 'en' ? 'Gross sales (pre-tax)' : 'ยอดขายก่อนภาษี', summary.gross],
+    [LANG === 'en' ? 'Total VAT (output)' : 'VAT รวม (ขายออก)', summary.vat],
+    [LANG === 'en' ? 'Total WHT withheld' : 'WHT ถูกหักรวม', summary.wht],
+    [LANG === 'en' ? 'Net received' : 'ยอดสุทธิที่รับจริง', summary.net],
+    [],
+    [LANG === 'en' ? '— Excluded jobs (not filed) —' : '— งานที่ไม่ได้ยื่น (excluded) —'],
+    [LANG === 'en' ? 'Count' : 'จำนวน', excludedJobs.length]
+  ];
+  const ws0 = XLSX.utils.aoa_to_sheet(summaryRows);
+  ws0['!cols'] = [{ wch: 28 }, { wch: 22 }];
+  XLSX.utils.book_append_sheet(wb, ws0, LANG === 'en' ? 'Summary' : 'สรุป');
+
+  // === Sheet 2: ภ.พ.30 · VAT Sales (output VAT)
+  // ภ.พ.30 needs: invoice date, invoice number, customer tax ID, customer name, base, VAT
+  const vatHeader = LANG === 'en'
+    ? ['No.', 'Invoice Date', 'Job Code', 'Customer Tax ID', 'Customer Name', 'Customer Type', 'Base (pre-VAT)', 'VAT Rate %', 'VAT Amount', 'Total (incl. VAT)']
+    : ['ลำดับ', 'วันที่ใบกำกับ', 'เลขที่งาน', 'เลขผู้เสียภาษีลูกค้า', 'ชื่อลูกค้า', 'ประเภท', 'ฐาน (ก่อน VAT)', 'อัตรา VAT %', 'จำนวน VAT', 'ยอดรวม (รวม VAT)'];
+  const vatBody = rows.filter(r => r.vatAmount > 0).map((r, i) => [
+    i + 1,
+    r.date,
+    r.code,
+    r.customerTaxId || '',
+    r.customerCompany || r.customer,
+    r.customerType,
+    r.base,
+    r.vatRate,
+    r.vatAmount,
+    r.grandTotal
+  ]);
+  // Add totals row
+  if (vatBody.length > 0) {
+    const totalBase = vatBody.reduce((s, r) => s + r[6], 0);
+    const totalVat  = vatBody.reduce((s, r) => s + r[8], 0);
+    const totalGr   = vatBody.reduce((s, r) => s + r[9], 0);
+    vatBody.push(['', '', '', '', LANG === 'en' ? 'TOTAL' : 'รวม', '', totalBase, '', totalVat, totalGr]);
+  }
+  const ws1 = XLSX.utils.aoa_to_sheet([vatHeader, ...vatBody]);
+  ws1['!cols'] = [{ wch: 5 }, { wch: 12 }, { wch: 14 }, { wch: 18 }, { wch: 28 }, { wch: 8 }, { wch: 14 }, { wch: 10 }, { wch: 14 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, ws1, LANG === 'en' ? 'VAT Sales (PP30)' : 'ภ.พ.30 ขายออก');
+
+  // === Sheet 3: ภ.ง.ด. 3 · WHT received (จะรู้ว่าโดนหักเท่าไหร่)
+  const whtHeader = LANG === 'en'
+    ? ['No.', 'Date', 'Job Code', 'Payer Tax ID', 'Payer Name', 'Customer Type', 'Base', 'WHT Rate %', 'WHT Basis', 'WHT Amount', 'Net Received']
+    : ['ลำดับ', 'วันที่', 'เลขที่งาน', 'เลขผู้เสียภาษีผู้จ่าย', 'ชื่อผู้จ่าย', 'ประเภท', 'ฐาน', 'อัตรา WHT %', 'ฐานหัก', 'จำนวน WHT', 'ยอดสุทธิ'];
+  const whtBody = rows.filter(r => r.whtAmount > 0).map((r, i) => [
+    i + 1,
+    r.date,
+    r.code,
+    r.customerTaxId || '',
+    r.customerCompany || r.customer,
+    r.customerType,
+    r.base,
+    r.whtRate,
+    r.whtBasis === 'total' ? (LANG === 'en' ? 'Incl. VAT' : 'รวม VAT') : (LANG === 'en' ? 'Pre-VAT' : 'ก่อน VAT'),
+    r.whtAmount,
+    r.netReceived
+  ]);
+  if (whtBody.length > 0) {
+    const tBase = whtBody.reduce((s, r) => s + r[6], 0);
+    const tWht  = whtBody.reduce((s, r) => s + r[9], 0);
+    const tNet  = whtBody.reduce((s, r) => s + r[10], 0);
+    whtBody.push(['', '', '', '', LANG === 'en' ? 'TOTAL' : 'รวม', '', tBase, '', '', tWht, tNet]);
+  }
+  const ws2 = XLSX.utils.aoa_to_sheet([whtHeader, ...whtBody]);
+  ws2['!cols'] = [{ wch: 5 }, { wch: 12 }, { wch: 14 }, { wch: 18 }, { wch: 28 }, { wch: 8 }, { wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 14 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, ws2, LANG === 'en' ? 'WHT (PND3)' : 'ภ.ง.ด.3 ถูกหัก');
+
+  // === Sheet 4: All filed jobs (raw)
+  const allHeader = LANG === 'en'
+    ? ['Date', 'Job Code', 'Customer', 'Customer Type', 'Tax ID', 'Company', 'Job Type', 'Location', 'Base', 'VAT', 'Grand Total', 'WHT', 'Net Received', 'Filing']
+    : ['วันที่', 'เลขที่งาน', 'ลูกค้า', 'ประเภท', 'เลขผู้เสียภาษี', 'บริษัท', 'ประเภทงาน', 'สถานที่', 'ฐาน', 'VAT', 'ยอดเรียกเก็บ', 'WHT', 'สุทธิ', 'การยื่น'];
+  const allBody = rows.map(r => [
+    r.date, r.code, r.customer, r.customerType, r.customerTaxId || '', r.customerCompany || '',
+    r.type, r.location, r.base, r.vatAmount, r.grandTotal, r.whtAmount, r.netReceived, r.filing
+  ]);
+  const ws3 = XLSX.utils.aoa_to_sheet([allHeader, ...allBody]);
+  ws3['!cols'] = [{ wch: 12 }, { wch: 14 }, { wch: 22 }, { wch: 8 }, { wch: 18 }, { wch: 24 }, { wch: 12 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }];
+  XLSX.utils.book_append_sheet(wb, ws3, LANG === 'en' ? 'All Filed Jobs' : 'งานที่ยื่นทั้งหมด');
+
+  // Filename
+  const safe = (s) => (s || '').toString().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_').slice(0, 40);
+  const fname = 'Pixory_Tax_' + safe(studioName || 'Studio') + '_' + yr + '.xlsx';
+  XLSX.writeFile(wb, fname);
+  toast(LANG === 'en' ? 'Tax Excel exported · ' + rows.length + ' jobs' : 'ส่งออก Excel · ' + rows.length + ' งาน');
 }
 
 // ========== EQUIPMENT ==========
@@ -10443,14 +11976,20 @@ function renderCustomers() {
   dynCustomers.sort((a,b) => b.total - a.total).forEach((cu, i) => {
     const [bg, fg] = AVATAR_COLORS[i % AVATAR_COLORS.length].split('-');
     const initials = cu.name.replace(/[^a-zA-Zก-๙ ]/g,'').split(/\s+/).map(s => s[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+    // Customer Type pill (Tax T1) — pulls from CUSTOMER_INFO, defaults to B2C silently
+    const _custInfo = CUSTOMER_INFO[cu.name] || {};
+    const _typePill = _custInfo.type ? customerTypePill(_custInfo.type, 'compact') : '';
     const row = document.createElement('div');
     row.className = 'cust-row';
     row.style.cursor = 'pointer';
     row.onclick = () => openCustomerDetail(cu.name);
     row.innerHTML = `<div class="avatar" style="background:${bg}; color:${fg}">${initials || '?'}</div>
       <div style="flex:1; min-width:0;">
-        <div style="font-size:14px; font-weight:500;">${cu.name}</div>
-        <div style="font-size:12px; color:#6b7280;">${cu.jobs} งาน</div>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <span style="font-size:14px; font-weight:500;">${cu.name}</span>
+          ${_typePill}
+        </div>
+        <div style="font-size:12px; color:#6b7280; margin-top:2px;">${cu.jobs} งาน</div>
       </div>
       <div style="font-size:13px; font-weight:600;">${fmt(cu.total)}</div>`;
     c.appendChild(row);
@@ -10685,6 +12224,8 @@ function updateAddTotal() {
   document.getElementById('add-total').textContent = fmt(total);
   document.getElementById('add-disc').textContent = '-' + fmt(disc);
   document.getElementById('add-final').textContent = fmt(finalP);
+  // Tax T2 — keep live breakdown in sync with base total
+  if (typeof updateAddTaxCalc === 'function') updateAddTaxCalc();
 }
 
 // ========== DASHBOARD ==========
