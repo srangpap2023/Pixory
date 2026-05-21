@@ -2051,6 +2051,181 @@
     cursor: pointer;
     font-family: inherit;
   }
+
+  /* ============ WHAT'S NEW MODAL ============ */
+  #whatsnew-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 14, 8, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9300;
+    padding: 16px;
+    animation: wn-fade-in .28s ease-out;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  #whatsnew-modal.show { display: flex; }
+  @keyframes wn-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+  #whatsnew-modal .wn-card {
+    background: #fff;
+    border-radius: 22px;
+    width: 100%;
+    max-width: 380px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(20,14,8,0.32), 0 8px 20px rgba(20,14,8,0.12);
+    animation: wn-pop .35s cubic-bezier(.18, .89, .32, 1.28);
+    position: relative;
+  }
+  body.dark-theme #whatsnew-modal .wn-card {
+    background: #261d15;
+    color: #f5f0e8;
+  }
+  @keyframes wn-pop {
+    from { transform: scale(.9) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  #whatsnew-modal .wn-header {
+    background: linear-gradient(165deg, #f9c5a3 0%, #f4a36a 50%, #d8704a 100%);
+    padding: 28px 24px 22px;
+    text-align: center;
+    position: relative;
+  }
+  body.dark-theme #whatsnew-modal .wn-header {
+    background: linear-gradient(165deg, #4a2e1c 0%, #5a3a26 50%, #6a4a32 100%);
+  }
+  #whatsnew-modal .wn-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: rgba(255,255,255,0.25);
+    border: none;
+    color: #fff;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  #whatsnew-modal .wn-logo {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 10px;
+  }
+  #whatsnew-modal .wn-logo svg {
+    width: 100%;
+    height: 100%;
+    color: #fff;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,.15));
+  }
+  #whatsnew-modal .wn-version-pill {
+    display: inline-block;
+    background: rgba(255,255,255,0.25);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  #whatsnew-modal .wn-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.01em;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    line-height: 1.3;
+  }
+  #whatsnew-modal .wn-subtitle {
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.92);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  #whatsnew-modal .wn-body {
+    padding: 22px 22px 18px;
+  }
+  #whatsnew-modal .wn-section-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #9ca3af;
+    margin-bottom: 12px;
+  }
+  body.dark-theme #whatsnew-modal .wn-section-label { color: #807870; }
+  #whatsnew-modal .wn-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(20,14,8,0.06);
+  }
+  body.dark-theme #whatsnew-modal .wn-item {
+    border-color: rgba(255,255,255,0.06);
+  }
+  #whatsnew-modal .wn-item:last-child { border-bottom: none; }
+  #whatsnew-modal .wn-item .icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #fef3eb, #fbe2cd);
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  body.dark-theme #whatsnew-modal .wn-item .icon {
+    background: linear-gradient(135deg, #3a2818, #4a2e1c);
+  }
+  #whatsnew-modal .wn-item .content { flex: 1; min-width: 0; }
+  #whatsnew-modal .wn-item .item-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.35;
+  }
+  body.dark-theme #whatsnew-modal .wn-item .item-title { color: #f5f0e8; }
+  #whatsnew-modal .wn-item .item-desc {
+    font-size: 11.5px;
+    color: #6b7280;
+    line-height: 1.45;
+    margin-top: 2px;
+  }
+  body.dark-theme #whatsnew-modal .wn-item .item-desc { color: #b8b0a4; }
+  #whatsnew-modal .wn-actions {
+    padding: 0 22px 22px;
+  }
+  #whatsnew-modal .wn-primary {
+    width: 100%;
+    background: linear-gradient(180deg, #e87f5a, #d8704a);
+    color: #fff;
+    border: none;
+    padding: 13px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 12px rgba(216, 112, 74, 0.32);
+    letter-spacing: 0.2px;
+  }
+  #whatsnew-modal .wn-primary:active { transform: scale(0.98); }
+  #whatsnew-modal .wn-footer-note {
+    font-size: 10.5px;
+    color: #9ca3af;
+    text-align: center;
+    margin-top: 10px;
+  }
+  body.dark-theme #whatsnew-modal .wn-footer-note { color: #807870; }
 </style>
 </head>
 <body>
@@ -2094,6 +2269,34 @@
       </div>
     </div>
     <button class="pwa-modal-ok" onclick="pwaCloseIosModal()" data-i18n="pwa.iosOk">เข้าใจแล้ว</button>
+  </div>
+</div>
+
+<!-- ====== WHAT'S NEW MODAL (filled by JS) ====== -->
+<div id="whatsnew-modal">
+  <div class="wn-card">
+    <div class="wn-header">
+      <button class="wn-close" onclick="dismissWhatsNew()" aria-label="ปิด">×</button>
+      <div class="wn-logo">
+        <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 40 85 Q 40 65 60 65 L 70 65 L 82 50 Q 86 45 92 45 L 108 45 Q 114 45 118 50 L 130 65 L 140 65 Q 160 65 160 85 L 160 150 Q 160 165 145 165 L 55 165 Q 40 165 40 150 Z"/>
+          <circle cx="100" cy="118" r="28"/>
+          <circle cx="100" cy="118" r="14" stroke-width="6"/>
+          <circle cx="143" cy="80" r="5" fill="currentColor" stroke="none"/>
+        </svg>
+      </div>
+      <span class="wn-version-pill" id="wn-version-pill">เวอร์ชัน 1.7.5</span>
+      <div class="wn-title" id="wn-title">อัปเดต Pixory เรียบร้อยแล้ว</div>
+      <div class="wn-subtitle" id="wn-subtitle">เรียนแจ้งรายการพัฒนาในเวอร์ชันนี้</div>
+    </div>
+    <div class="wn-body">
+      <div class="wn-section-label">รายการพัฒนา</div>
+      <div id="wn-items"></div>
+    </div>
+    <div class="wn-actions">
+      <button class="wn-primary" onclick="dismissWhatsNew()">รับทราบ · เริ่มใช้งาน</button>
+      <div class="wn-footer-note" id="wn-footer-note">ขอบคุณที่ใช้ Pixory · พัฒนาโดยช่างภาพ เพื่อช่างภาพ</div>
+    </div>
   </div>
 </div>
 
@@ -3625,6 +3828,10 @@
             <div class="left"><div class="row-title" data-i18n="ab.contactAdmin">ติดต่อแอดมิน</div></div>
             <div class="right" style="font-size:13px; color:#6b7280;">@srangpap</div>
           </div>
+          <div class="settings-row" onclick="showCurrentVersionNotes()">
+            <div class="left"><div class="row-title" data-i18n="ab.releaseNotes">รายการพัฒนาเวอร์ชันนี้</div><div class="row-sub" data-i18n="ab.releaseNotesSub">ดูสิ่งที่เปลี่ยนแปลงล่าสุด</div></div>
+            <div class="right">›</div>
+          </div>
         </div>
       </div>
       <div style="font-size:11px; color:#9ca3af; text-align:center; padding:20px;" data-i18n="ab.copyright">
@@ -4182,6 +4389,108 @@ function toggleSwitch(row) {
 function selectOne(el, group) {
   el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
+}
+
+// ========== WHAT'S NEW MODAL ==========
+const PIXORY_VERSION = '1.7.5';
+const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
+
+// Release notes — newest first
+// Maintain this object on every version bump
+const RELEASE_NOTES = {
+  '1.7.5': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'เรียนแจ้งรายการพัฒนาในเวอร์ชันนี้',
+    items: [
+      {
+        icon: '🔔',
+        title: 'ระบบแจ้งการอัปเดตเวอร์ชัน',
+        desc: 'แสดงรายการพัฒนาทุกครั้งที่ Pixory ได้รับการอัปเดตเป็นเวอร์ชันใหม่'
+      },
+      {
+        icon: '🛡',
+        title: 'ปรับปรุงระบบสำรองข้อมูล (Backup)',
+        desc: 'ครอบคลุมข้อมูลครบทุกประเภท เช่น แพ็คเกจ ข้อมูลลูกค้า และคลังอุปกรณ์'
+      },
+      {
+        icon: '🎯',
+        title: 'หน้ารายการงานจดจำตัวกรอง',
+        desc: 'ระบบจะรักษาสถานะตัวกรอง (เช่น จอง · ปิดงาน · ค้างเงิน) แม้ออกจากหน้าและกลับมาใหม่'
+      },
+      {
+        icon: '☁',
+        title: 'ปรับปรุงการล้างข้อมูล (Factory Reset)',
+        desc: 'การล้างข้อมูลจะครอบคลุมการลบข้อมูลใน Cloud พร้อมกัน ป้องกันข้อมูลเก่ากลับมาแสดง'
+      },
+      {
+        icon: '📥',
+        title: 'นำเข้าข้อมูลจาก Microsoft Excel',
+        desc: 'รองรับการแปลงไฟล์ Excel เป็น JSON เพื่อนำเข้าข้อมูลย้อนหลังโดยไม่ต้องกรอกใหม่'
+      }
+    ]
+  },
+  '1.7.4': {
+    date: '2026-05-21',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'เรียนแจ้งการแก้ไขในเวอร์ชันนี้',
+    items: [
+      { icon: '🛡', title: 'แก้ไขระบบสำรองข้อมูล',
+        desc: 'เพิ่มฟิลด์ที่จำเป็น 4 รายการ (SERVICES, CUSTOMER_INFO, EQUIPMENT, NOTIF_SETTINGS) เพื่อป้องกันข้อมูลสูญหาย' }
+    ]
+  }
+};
+
+function showWhatsNewModal(versionKey) {
+  const notes = RELEASE_NOTES[versionKey];
+  if (!notes) return;
+  // Populate modal
+  const pill = document.getElementById('wn-version-pill');
+  const title = document.getElementById('wn-title');
+  const subtitle = document.getElementById('wn-subtitle');
+  const itemsEl = document.getElementById('wn-items');
+  if (pill) pill.textContent = 'เวอร์ชัน ' + versionKey;
+  if (title) title.textContent = notes.title || 'อัปเดต Pixory';
+  if (subtitle) subtitle.textContent = notes.subtitle || '';
+  if (itemsEl) {
+    itemsEl.innerHTML = (notes.items || []).map(it => `
+      <div class="wn-item">
+        <div class="icon">${it.icon}</div>
+        <div class="content">
+          <div class="item-title">${it.title}</div>
+          <div class="item-desc">${it.desc}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('whatsnew-modal').classList.add('show');
+}
+
+function dismissWhatsNew() {
+  document.getElementById('whatsnew-modal').classList.remove('show');
+  try { localStorage.setItem(LAST_SEEN_VERSION_KEY, PIXORY_VERSION); } catch(e) {}
+}
+
+// Called from About page / Settings — manual replay
+function showCurrentVersionNotes() {
+  showWhatsNewModal(PIXORY_VERSION);
+}
+
+// Auto-check on app startup
+function checkVersionUpdate() {
+  let lastSeen = '';
+  try { lastSeen = localStorage.getItem(LAST_SEEN_VERSION_KEY) || ''; } catch(e) {}
+  if (lastSeen !== PIXORY_VERSION) {
+    // For brand-new users (never seen any version) → still show
+    // But delay so it doesn't fight with login/wizard
+    setTimeout(() => {
+      // Don't show if wizard or auth screen is active
+      if (typeof _wizardActive !== 'undefined' && _wizardActive) return;
+      const authActive = document.querySelector('.auth-screen.active');
+      if (authActive) return;
+      showWhatsNewModal(PIXORY_VERSION);
+    }, 1500);
+  }
 }
 
 // ========== PWA INSTALL (Service Worker + Banner) ==========
@@ -5785,7 +6094,9 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.7.4 · Build 2026-05-21 · Full Backup Fix', en: 'v1.7.4 · Build 2026-05-21 · Full Backup Fix' },
+  'ab.version':         { th: 'v1.7.5 · Build 2026-05-22 · Release Notes', en: 'v1.7.5 · Build 2026-05-22 · Release Notes' },
+  'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
+  'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
   'ab.builtFor':        { th: 'ออกแบบเพื่อช่างภาพไลฟ์สไตล์', en: 'Designed for lifestyle photographers' },
   'ab.byline':          { th: 'สำหรับสตูดิโอเดี่ยวและทีมเล็ก ที่ต้องการระบบจัดการงานในมือถือ', en: 'For solo studios and small teams who need a mobile management system' },
@@ -10620,6 +10931,9 @@ async function initAfterAuth() {
     // Brand-new user (or never completed wizard) → onboarding
     startWizard();
   }
+
+  // After home/wizard is settled — check for version notes to display
+  try { checkVersionUpdate(); } catch(e) { console.warn('checkVersionUpdate failed', e); }
 }
 
 function updateAccountUI() {
