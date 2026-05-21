@@ -3611,9 +3611,21 @@
 
       <div class="settings-section">
         <div style="font-size:12px; color:#6b7280; margin-bottom:8px; font-weight:500;">ภาพปัจจุบัน</div>
-        <div id="wp-preview" style="width:100%; height:180px; border-radius:14px; background:var(--wallpaper) center/cover; box-shadow: inset 0 0 0 0.5px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.06);"></div>
-        <div style="display:flex; gap:8px; margin-top:14px;">
-          <label for="wp-file-input" class="btn secondary" style="flex:1; margin:0; cursor:pointer; text-align:center;">📷 อัพโหลดรูปใหม่</label>
+        <div id="wp-preview" style="width:100%; height:180px; border-radius:14px; background:var(--wallpaper); box-shadow: inset 0 0 0 0.5px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.06);"></div>
+      </div>
+
+      <div class="settings-section">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div style="font-size:12px; color:#6b7280; font-weight:500;">🎨 Pixory Presets</div>
+          <div style="font-size:10.5px; color:#9ca3af;">ออกแบบมาเฉพาะสำหรับช่างภาพ</div>
+        </div>
+        <div id="wp-presets" style="display:grid; grid-template-columns:1fr; gap:10px;"></div>
+      </div>
+
+      <div class="settings-section">
+        <div style="font-size:12px; color:#6b7280; margin-bottom:8px; font-weight:500;">📷 ภาพของคุณ</div>
+        <div style="display:flex; gap:8px;">
+          <label for="wp-file-input" class="btn secondary" style="flex:1; margin:0; cursor:pointer; text-align:center;">อัพโหลดรูปใหม่</label>
           <input type="file" id="wp-file-input" accept="image/*" style="display:none;" onchange="handleWallpaperUpload(event)">
         </div>
         <div style="font-size:11px; color:#9ca3af; margin-top:10px; line-height:1.5;">
@@ -4392,12 +4404,29 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.7.5';
+const PIXORY_VERSION = '1.7.6';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.7.6': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'เรียนแจ้งรายการพัฒนาในเวอร์ชันนี้',
+    items: [
+      {
+        icon: '🎨',
+        title: 'เพิ่มภาพพื้นหลังสำเร็จรูป (Pixory Presets)',
+        desc: 'เพิ่มภาพพื้นหลังออกแบบเฉพาะ 3 แบบ ได้แก่ Warm Studio Glow · Picasso Camera Lines · Bokeh Memory · สามารถเลือกได้ที่ Settings → พื้นหลังแอป'
+      },
+      {
+        icon: '🌅',
+        title: 'ตั้งภาพพื้นหลังเริ่มต้นใหม่',
+        desc: 'Warm Studio Glow เป็นพื้นหลังเริ่มต้นของผู้ใช้ใหม่และเมื่อล้างข้อมูล สื่อความเป็น "studio softbox" ของช่างภาพ'
+      }
+    ]
+  },
   '1.7.5': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory เรียบร้อยแล้ว',
@@ -6094,7 +6123,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.7.5 · Build 2026-05-22 · Release Notes', en: 'v1.7.5 · Build 2026-05-22 · Release Notes' },
+  'ab.version':         { th: 'v1.7.6 · Build 2026-05-22 · Pixory Presets', en: 'v1.7.6 · Build 2026-05-22 · Pixory Presets' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -6299,20 +6328,46 @@ function toggleLang() {
 // ========== WALLPAPER ==========
 const WP_KEY = 'pixory_wallpaper_v1';
 const WP_LIB_KEY = 'pixory_wallpaper_library_v1';
-// Default: clean warm gradient (no specific image), user uploads their own
-const WP_DEFAULT = "linear-gradient(135deg, #fde7c8 0%, #f0d5b8 50%, #e8c9a8 100%)";
+
+// === Pixory Preset Wallpapers (3 designs, on-brand) ===
+// A · Warm Studio Glow — CSS gradient (small, crisp at any size)
+const WP_A_WARM = "radial-gradient(circle at 78% 18%, rgba(255,250,235,0.7) 0%, rgba(255,250,235,0) 55%), linear-gradient(180deg, #fde2ce 0%, #f4a36a 50%, #c4623c 100%)";
+
+// B · Picasso Camera Lines — SVG data URL with line-art elements
+const WP_B_PICASSO_SVG = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 844' preserveAspectRatio='xMidYMid slice'><defs><linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fdf6ea'/><stop offset='1' stop-color='%23f3e5d0'/></linearGradient></defs><rect width='100%' height='100%' fill='url(%23bg)'/><g stroke='%23d8704a' stroke-width='2.2' fill='none' opacity='0.13' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(30,80) scale(0.85) rotate(-12)'><path d='M 0 25 Q 0 5 20 5 L 30 5 L 42 -10 Q 46 -15 52 -15 L 68 -15 Q 74 -15 78 -10 L 90 5 L 100 5 Q 120 5 120 25 L 120 90 Q 120 105 105 105 L 15 105 Q 0 105 0 90 Z'/><circle cx='60' cy='58' r='28'/><circle cx='60' cy='58' r='14' stroke-width='2'/><circle cx='98' cy='22' r='4' fill='%23d8704a'/></g><g transform='translate(310,290)'><circle cx='0' cy='0' r='40'/><circle cx='0' cy='0' r='25'/><path d='M -28 -12 L 28 12 M -28 12 L 28 -12 M 0 -28 L 0 28'/></g><g transform='translate(60,480) scale(0.6) rotate(20)'><path d='M 0 25 Q 0 5 20 5 L 30 5 L 42 -10 Q 46 -15 52 -15 L 68 -15 Q 74 -15 78 -10 L 90 5 L 100 5 Q 120 5 120 25 L 120 90 Q 120 105 105 105 L 15 105 Q 0 105 0 90 Z'/><circle cx='60' cy='58' r='28'/><circle cx='60' cy='58' r='14' stroke-width='2'/></g><g transform='translate(290,650)'><circle cx='0' cy='0' r='50'/><circle cx='0' cy='0' r='32'/><circle cx='0' cy='0' r='16'/></g><g transform='translate(80,720) scale(0.55) rotate(-8)'><path d='M 0 25 Q 0 5 20 5 L 30 5 L 42 -10 Q 46 -15 52 -15 L 68 -15 Q 74 -15 78 -10 L 90 5 L 100 5 Q 120 5 120 25 L 120 90 Q 120 105 105 105 L 15 105 Q 0 105 0 90 Z'/><circle cx='60' cy='58' r='28'/></g><g transform='translate(195,160)'><path d='M 0 -10 L 0 10 M -10 0 L 10 0'/></g><g transform='translate(340,150)'><path d='M 0 -7 L 0 7 M -7 0 L 7 0'/></g><g transform='translate(50,360)'><path d='M 0 -6 L 0 6 M -6 0 L 6 0'/></g></g></svg>`;
+const WP_B_PICASSO = "url(\"data:image/svg+xml;utf8," + WP_B_PICASSO_SVG + "\") center/cover";
+
+// C · Bokeh Memory — SVG with soft blurred circles
+const WP_C_BOKEH_SVG = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 844' preserveAspectRatio='xMidYMid slice'><defs><radialGradient id='bg' cx='50%25' cy='35%25' r='80%25'><stop offset='0' stop-color='%23fff8ed'/><stop offset='0.6' stop-color='%23fbe7d2'/><stop offset='1' stop-color='%23f3c7a2'/></radialGradient><filter id='b' x='-20%25' y='-20%25' width='140%25' height='140%25'><feGaussianBlur stdDeviation='14'/></filter></defs><rect width='100%25' height='100%25' fill='url(%23bg)'/><g filter='url(%23b)'><circle cx='80' cy='120' r='55' fill='%23f4a36a' opacity='0.5'/><circle cx='310' cy='220' r='75' fill='%23d8704a' opacity='0.4'/><circle cx='60' cy='400' r='90' fill='%23e87f5a' opacity='0.35'/><circle cx='335' cy='500' r='65' fill='%23f4a36a' opacity='0.45'/><circle cx='210' cy='350' r='40' fill='%23f9c5a3' opacity='0.55'/><circle cx='100' cy='640' r='100' fill='%23d8704a' opacity='0.30'/><circle cx='335' cy='720' r='58' fill='%23e87f5a' opacity='0.40'/><circle cx='250' cy='600' r='30' fill='%23f9c5a3' opacity='0.60'/><circle cx='180' cy='240' r='20' fill='%23fff8ed' opacity='0.7'/><circle cx='285' cy='100' r='18' fill='%23fff8ed' opacity='0.7'/></g></svg>`;
+const WP_C_BOKEH = "url(\"data:image/svg+xml;utf8," + WP_C_BOKEH_SVG + "\") center/cover";
+
+// All Pixory presets — order matters in the picker UI
+const PIXORY_PRESETS = [
+  { id: 'pixory-warm', name: 'Warm Studio Glow', tag: 'Default', value: WP_A_WARM,
+    thumb: "radial-gradient(circle at 78% 18%, rgba(255,250,235,0.7) 0%, rgba(255,250,235,0) 55%), linear-gradient(180deg, #fde2ce 0%, #f4a36a 50%, #c4623c 100%)" },
+  { id: 'pixory-picasso', name: 'Picasso Camera Lines', tag: 'Artistic', value: WP_B_PICASSO,
+    thumb: WP_B_PICASSO },
+  { id: 'pixory-bokeh', name: 'Bokeh Memory', tag: 'Cinematic', value: WP_C_BOKEH,
+    thumb: WP_C_BOKEH }
+];
+
+// Default is now the first preset (Warm Studio Glow)
+const WP_DEFAULT = WP_A_WARM;
 
 function applyWallpaper(value) {
   // value is a full CSS background string (url() or gradient)
   document.documentElement.style.setProperty('--wallpaper', value);
   const preview = document.getElementById('wp-preview');
-  if (preview) preview.style.background = value + (value.startsWith('url(') ? ' center/cover' : '');
+  if (preview) preview.style.background = value;
   const sub = document.getElementById('wallpaper-sub');
   if (sub) {
-    if (value === WP_DEFAULT) sub.textContent = 'พื้นหลัง default';
-    else if (value.startsWith("url('data:")) sub.textContent = 'ภาพของคุณ';
+    const preset = PIXORY_PRESETS.find(p => p.value === value);
+    if (preset) sub.textContent = preset.name;
+    else if (value.indexOf("data:image/") >= 0 || value.indexOf("data:image%2F") >= 0) sub.textContent = 'ภาพของคุณ';
     else sub.textContent = 'ภาพ custom';
   }
+  // Sync preset selection UI
+  if (typeof renderPixoryPresets === 'function') renderPixoryPresets();
 }
 
 function getWallpaperLibrary() {
@@ -6372,13 +6427,47 @@ function loadWallpaper() {
     const w = localStorage.getItem(WP_KEY);
     applyWallpaper(w || WP_DEFAULT);
   } catch(e) { applyWallpaper(WP_DEFAULT); }
+  renderPixoryPresets();
   renderWallpaperLibrary();
 }
 
 function resetWallpaper() {
   applyWallpaper(WP_DEFAULT);
   try { localStorage.removeItem(WP_KEY); } catch(e) {}
-  toast('คืนค่าเริ่มต้นแล้ว');
+  toast('คืนค่าเริ่มต้นแล้ว · Warm Studio Glow');
+}
+
+// Render the 3 Pixory presets as selectable cards
+function renderPixoryPresets() {
+  const grid = document.getElementById('wp-presets');
+  if (!grid) return;
+  let current = WP_DEFAULT;
+  try { current = localStorage.getItem(WP_KEY) || WP_DEFAULT; } catch(e) {}
+  grid.innerHTML = '';
+  PIXORY_PRESETS.forEach(p => {
+    const isActive = p.value === current;
+    const cell = document.createElement('div');
+    cell.style.cssText = "position:relative; height:140px; border-radius:14px; background:" + p.thumb + "; cursor:pointer; box-shadow: 0 2px 8px rgba(0,0,0,.08); overflow:hidden;" + (isActive ? "outline: 3px solid #d8704a; outline-offset: 2px;" : "");
+    cell.onclick = () => {
+      applyWallpaper(p.value);
+      try { localStorage.setItem(WP_KEY, p.value); } catch(err) {}
+      toast('ใช้ ' + p.name + ' แล้ว');
+    };
+    // Name + tag overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = "position:absolute; bottom:0; left:0; right:0; padding:8px 10px; background:linear-gradient(180deg, transparent, rgba(0,0,0,0.5)); color:#fff;";
+    overlay.innerHTML = '<div style="font-size:11.5px; font-weight:700;">' + p.name + '</div>' +
+                       '<div style="font-size:9.5px; opacity:0.85; margin-top:1px;">' + p.tag + (isActive ? ' · ใช้อยู่' : '') + '</div>';
+    cell.appendChild(overlay);
+    // Active checkmark
+    if (isActive) {
+      const check = document.createElement('div');
+      check.style.cssText = "position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:50%; background:#d8704a; color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; box-shadow:0 2px 6px rgba(0,0,0,.25);";
+      check.textContent = '✓';
+      cell.appendChild(check);
+    }
+    grid.appendChild(cell);
+  });
 }
 
 function handleWallpaperUpload(e) {
