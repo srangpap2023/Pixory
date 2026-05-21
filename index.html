@@ -4157,6 +4157,7 @@ function goTo(name) {
   if (name === 'home') { renderHomeNotifs(); renderHomeHero(); }
   if (name === 'calendar') { CAL_YEAR = new Date().getFullYear(); CAL_MONTH = new Date().getMonth(); renderCalendar(); }
   if (name === 'settings-account') { updateAccountUI(); if (typeof updateSyncIndicatorUI === 'function') updateSyncIndicatorUI(); }
+  if (name === 'jobs') { if (typeof renderJobsWithCurrentFilter === 'function') { renderJobsWithCurrentFilter(); syncJobFilterChips(); } }
   // Toggle wizard-mode on body (hides topbar + bottom-nav during onboarding)
   document.body.classList.toggle('wizard-mode', name === 'wizard');
   if (name === 'settings-hub-packages') renderServicesList();
@@ -5784,7 +5785,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.7.2 · Build 2026-05-21 · Data Safety', en: 'v1.7.2 · Build 2026-05-21 · Data Safety' },
+  'ab.version':         { th: 'v1.7.3 · Build 2026-05-21 · Persistent Filter', en: 'v1.7.3 · Build 2026-05-21 · Persistent Filter' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
   'ab.builtFor':        { th: 'ออกแบบเพื่อช่างภาพไลฟ์สไตล์', en: 'Designed for lifestyle photographers' },
   'ab.byline':          { th: 'สำหรับสตูดิโอเดี่ยวและทีมเล็ก ที่ต้องการระบบจัดการงานในมือถือ', en: 'For solo studios and small teams who need a mobile management system' },
@@ -6260,11 +6261,38 @@ function updateSettingsSubcounts() {
 // (dead code _oldUpdateSettingsSubcounts removed)
 
 // ========== JOBS list ==========
+// Persistent filter state — survives navigation + page reload
+const JOB_FILTER_KEY = 'pixory.jobs.filter';
+let _currentJobFilter = (function() {
+  try { return localStorage.getItem(JOB_FILTER_KEY) || 'all'; } catch(e) { return 'all'; }
+})();
+
+function setCurrentJobFilter(f) {
+  _currentJobFilter = f;
+  try { localStorage.setItem(JOB_FILTER_KEY, f); } catch(e) {}
+}
+
 function jobsForFilter(f) {
   if (f === 'booked') return JOBS.filter(j => j.jobStatus === 'จอง');
   if (f === 'closed') return JOBS.filter(j => j.jobStatus === 'ปิดงาน');
   if (f === 'debt') return JOBS.filter(j => j.remain > 0);
   return JOBS;
+}
+
+// Re-render with the currently active filter — used after edit/save/delete/etc.
+function renderJobsWithCurrentFilter() {
+  const filtered = jobsForFilter(_currentJobFilter);
+  const cntEl = document.getElementById('jobs-count');
+  if (cntEl) cntEl.textContent = filtered.length + ' ' + t('home.jobsCount');
+  renderJobs(filtered, 'jobs-list');
+}
+
+// Sync the chip UI to match current filter state (used when entering Jobs page)
+function syncJobFilterChips() {
+  const chips = document.querySelectorAll('#screen-jobs .chip');
+  const filterOrder = ['all', 'booked', 'closed', 'debt'];
+  const idx = filterOrder.indexOf(_currentJobFilter);
+  chips.forEach((c, i) => c.classList.toggle('active', i === Math.max(0, idx)));
 }
 function renderJobs(list, container) {
   const c = document.getElementById(container);
@@ -6304,11 +6332,10 @@ function renderJobs(list, container) {
   });
 }
 function filterJobs(f, el) {
+  setCurrentJobFilter(f);  // persist state
   document.querySelectorAll('#screen-jobs .chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  const filtered = jobsForFilter(f);
-  document.getElementById('jobs-count').textContent = filtered.length + ' ' + t('home.jobsCount');
-  renderJobs(filtered, 'jobs-list');
+  if (el) el.classList.add('active');
+  renderJobsWithCurrentFilter();
 }
 
 // ========== JOB DETAIL ==========
@@ -8302,7 +8329,7 @@ function saveAddJob() {
   }
   _editJobCode = null;
   // Refresh lists
-  renderJobs(jobsForFilter('all'), 'jobs-list');
+  renderJobsWithCurrentFilter();
   updateCounts();
   renderHomeUpcoming();
   renderCalendar();
@@ -8348,7 +8375,7 @@ function deleteCurrentJob() {
   if (idx >= 0) JOBS.splice(idx, 1);
   saveData();
   toast('ลบ ' + j.code + ' แล้ว');
-  renderJobs(jobsForFilter('all'), 'jobs-list');
+  renderJobsWithCurrentFilter();
   updateCounts();
   renderHomeUpcoming();
   renderCalendar();
@@ -8777,7 +8804,7 @@ function convertQuoteToJob(code) {
   q.convertedJobCode = newCode;
   saveData();
   toast('สร้างงาน ' + newCode + ' แล้ว' + (qDeposit > 0 ? ' · บันทึกมัดจำ ' + fmt(qDeposit) : ''));
-  renderJobs(jobsForFilter('all'), 'jobs-list');
+  renderJobsWithCurrentFilter();
   updateCounts();
   setTimeout(() => openJob(newCode), 600);
 }
@@ -10531,8 +10558,9 @@ async function initAfterAuth() {
   loadWallpaper();
   loadFontSize();
   renderHomeUpcoming();
-  renderJobs(JOBS, 'jobs-list');
-  document.getElementById('jobs-count').textContent = JOBS.length + ' ' + t('home.jobsCount');
+  // Render Jobs with persisted filter from last session
+  renderJobsWithCurrentFilter();
+  syncJobFilterChips();
   renderQuotesList(QUOTES);
   document.querySelector('#seg-jobs .seg-count').textContent = JOBS.length;
   document.querySelector('#seg-quotes .seg-count').textContent = QUOTES.length;
