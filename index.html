@@ -4404,12 +4404,24 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.7.6';
+const PIXORY_VERSION = '1.7.7';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.7.7': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'เรียนแจ้งการแก้ไขในเวอร์ชันนี้',
+    items: [
+      {
+        icon: '🔧',
+        title: 'แก้ไขข้อความ "ตั้งชื่อร้าน" ทับไอคอน',
+        desc: 'ปรับให้ข้อความ placeholder บนหน้าหลัก ไม่ทับสัญลักษณ์กระดิ่งและฟันเฟือง · ปรับข้อความให้กระชับขึ้น'
+      }
+    ]
+  },
   '1.7.6': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory เรียบร้อยแล้ว',
@@ -5837,7 +5849,7 @@ const I18N = {
   'sec.customersExpense':{ th: '👥 ลูกค้า · 🧾 ค่าใช้จ่าย', en: '👥 Customers · 🧾 Expenses' },
 
   // Home empty / setup hints
-  'home.setupShop':     { th: 'ตั้งชื่อร้านใน Settings →', en: 'Set studio name in Settings →' },
+  'home.setupShop':     { th: 'ตั้งชื่อร้าน →', en: 'Set studio name →' },
 
   // Dashboard chart card titles
   'dbcard.byService':   { th: '📊 รายได้แยกบริการ', en: '📊 Revenue by Service' },
@@ -6123,7 +6135,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.7.6 · Build 2026-05-22 · Pixory Presets', en: 'v1.7.6 · Build 2026-05-22 · Pixory Presets' },
+  'ab.version':         { th: 'v1.7.7 · Build 2026-05-22 · UI Fix', en: 'v1.7.7 · Build 2026-05-22 · UI Fix' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -7404,8 +7416,17 @@ function updateGreeting() {
   if (greetEl) {
     if (PROFILE.shop) {
       greetEl.textContent = PROFILE.shop;
+      // Truncate long shop names with ellipsis
+      greetEl.style.whiteSpace = 'nowrap';
+      greetEl.style.overflow = 'hidden';
+      greetEl.style.textOverflow = 'ellipsis';
     } else {
-      greetEl.innerHTML = '<span style="font-size:16px; color:#9ca3af; font-weight:400;">' + t('home.setupShop') + '</span>';
+      // Placeholder — allow wrapping, no truncation (won't overlap icons)
+      greetEl.innerHTML = '<span style="font-size:14px; color:#9ca3af; font-weight:500;">' + t('home.setupShop') + '</span>';
+      greetEl.style.whiteSpace = 'normal';
+      greetEl.style.overflow = 'visible';
+      greetEl.style.textOverflow = 'clip';
+      greetEl.style.lineHeight = '1.3';
     }
   }
   if (subEl) {
