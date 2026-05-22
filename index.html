@@ -6967,8 +6967,10 @@ const I18N = {
   'tax.filingExclude':      { th: 'ไม่นับในรายงาน', en: 'Exclude from report' },
   'tax.filingLabel':        { th: 'สถานะการยื่นภาษี', en: 'Filing status' },
   'tax.fchipAll':           { th: 'ทั้งหมด', en: 'All' },
+  'tax.fchipB2C':           { th: '👤 บุคคล', en: '👤 B2C' },
   'tax.fchipB2B':           { th: '🏢 B2B', en: '🏢 B2B' },
   'tax.fchipGov':           { th: '🏛 Gov', en: '🏛 Gov' },
+  'tax.fchipVIP':           { th: '💎 VIP', en: '💎 VIP' },
   'tax.fchipExcluded':      { th: '🚫 ไม่นับ', en: '🚫 Excluded' },
 
   // Section
@@ -13616,8 +13618,10 @@ function getTaxReportRows(year, filter) {
       if (!j.taxEnabled && j.customerType !== 'B2B' && j.customerType !== 'Gov') return;
     } else {
       if (!included) return;
+      if (filter === 'B2C' && j.customerType !== 'B2C') return;
       if (filter === 'B2B' && j.customerType !== 'B2B') return;
-      if (filter === 'Gov'  && j.customerType !== 'Gov') return;
+      if (filter === 'Gov' && j.customerType !== 'Gov') return;
+      if (filter === 'VIP' && j.customerType !== 'VIP') return;
     }
     // Compute breakdown if missing
     let breakdown = j.taxBreakdown;
@@ -13703,8 +13707,10 @@ function renderTaxReport() {
     chips.innerHTML = '';
     const opts = [
       { id: 'all', label: t('tax.fchipAll') },
+      { id: 'B2C', label: t('tax.fchipB2C') },
       { id: 'B2B', label: t('tax.fchipB2B') },
       { id: 'Gov', label: t('tax.fchipGov') },
+      { id: 'VIP', label: t('tax.fchipVIP') },
       { id: 'excluded', label: t('tax.fchipExcluded') }
     ];
     opts.forEach(o => {
