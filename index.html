@@ -1362,73 +1362,106 @@
     -webkit-appearance: none;
   }
 
-  /* Calendar agenda view (v1.9.5) */
+  /* Calendar agenda view · Style B "Hero + Stack" (v1.9.6) */
   .cal-view-tab.active {
     background: #fefcf9 !important;
     color: #3a2f25 !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
-  .cal-agenda-group { margin-bottom: 18px; }
-  .cal-agenda-date-h {
-    display: flex; align-items: baseline; gap: 10px;
-    padding: 4px 6px 10px;
+  .cal-agenda-eyebrow {
+    font-size: 10.5px; font-weight: 800;
+    color: #d8704a;
+    letter-spacing: 1.8px; text-transform: uppercase;
+    margin: 0 4px 8px;
   }
-  .cal-agenda-date-h .day-num {
-    font-size: 26px; font-weight: 800; color: #3a2f25; line-height: 1;
-  }
-  .cal-agenda-date-h .day-info {
-    font-size: 11.5px; color: #7c7066;
-  }
-  .cal-agenda-date-h .day-info strong {
-    color: #3a2f25; display: block; font-size: 12.5px; font-weight: 700;
-  }
-  .cal-agenda-date-h .today-pill {
-    background: linear-gradient(135deg, #d8704a, #b85a36);
+  .cal-agenda-hero {
+    background: linear-gradient(135deg, #d8704a 0%, #b85a36 100%);
+    border-radius: 18px;
+    padding: 18px;
     color: #fefcf9;
-    padding: 4px 10px; border-radius: 100px;
-    font-size: 10px; font-weight: 800;
-    margin-left: auto;
-    box-shadow: 0 2px 6px rgba(216,112,74,0.3);
-  }
-  .cal-agenda-date-h .past-pill {
-    background: #f3f4f6; color: #7c7066;
-    padding: 4px 10px; border-radius: 100px;
-    font-size: 10px; font-weight: 700;
-    margin-left: auto;
-  }
-  .cal-agenda-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 11px 13px;
-    margin-bottom: 7px;
-    display: flex; gap: 10px; align-items: center;
-    border-left: 3px solid #d8704a;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    position: relative; overflow: hidden;
+    margin-bottom: 18px;
+    box-shadow: 0 6px 20px rgba(216,112,74,0.35);
     cursor: pointer;
     transition: transform .12s ease;
   }
-  .cal-agenda-card:active { transform: scale(0.98); }
-  .cal-agenda-card.closed { border-left-color: #a89a8c; opacity: 0.7; }
-  .cal-agenda-card .time {
-    font-size: 10.5px; color: #7c2d12; font-weight: 800;
-    background: #fef3c7; padding: 5px 7px; border-radius: 7px;
-    text-align: center; flex-shrink: 0;
-    min-width: 46px;
-    line-height: 1.25;
+  .cal-agenda-hero:active { transform: scale(0.99); }
+  .cal-agenda-hero::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 130px; height: 130px;
+    background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
   }
-  .cal-agenda-card.closed .time { background: #f3f4f6; color: #7c7066; }
-  .cal-agenda-card .info { flex: 1; min-width: 0; overflow: hidden; }
-  .cal-agenda-card .nm { font-size: 13.5px; font-weight: 700; color: #3a2f25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cal-agenda-card .meta { font-size: 11.5px; color: #7c7066; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cal-agenda-card .pill {
-    font-size: 9.5px; font-weight: 800;
-    padding: 3px 8px; border-radius: 100px;
+  .cal-agenda-hero .hero-when {
+    font-size: 11.5px; font-weight: 700; opacity: 0.95;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .cal-agenda-hero .hero-when .countdown {
+    background: rgba(255,255,255,0.22);
+    padding: 3px 10px; border-radius: 100px;
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .cal-agenda-hero .hero-nm { font-size: 22px; font-weight: 900; line-height: 1.15; margin-bottom: 6px; }
+  .cal-agenda-hero .hero-meta { font-size: 12.5px; opacity: 0.92; line-height: 1.5; margin-bottom: 12px; }
+  .cal-agenda-hero .hero-stats {
+    display: flex; gap: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+  }
+  .cal-agenda-hero .hero-stat { font-size: 10.5px; opacity: 0.85; min-width: 0; }
+  .cal-agenda-hero .hero-stat strong { display: block; font-size: 13.5px; font-weight: 800; opacity: 1; margin-bottom: 1px; }
+  .cal-agenda-list-h {
+    font-size: 12.5px; font-weight: 800; color: #3a2f25;
+    margin: 4px 4px 8px; padding: 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cal-agenda-list-h .count {
+    font-size: 10.5px; color: #7c7066; font-weight: 600;
+    background: #f7f4ef; padding: 3px 9px; border-radius: 100px;
+  }
+  .cal-agenda-mini {
+    background: #fefcf9;
+    border-radius: 12px;
+    padding: 11px 12px;
+    display: flex; gap: 10px; align-items: center;
+    margin-bottom: 6px;
+    border: 0.5px solid #e8dfd5;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .15s ease;
+  }
+  .cal-agenda-mini:active { transform: scale(0.98); }
+  .cal-agenda-mini:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.06); }
+  .cal-agenda-mini.closed { opacity: 0.6; }
+  .cal-agenda-mini .day-num {
+    width: 36px; flex-shrink: 0;
+    text-align: center;
+  }
+  .cal-agenda-mini .day-num .n {
+    font-size: 18px; font-weight: 800; color: #3a2f25; line-height: 1;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  .cal-agenda-mini .day-num .m {
+    font-size: 9px; font-weight: 700; color: #7c7066;
+    margin-top: 1px; text-transform: uppercase;
+  }
+  .cal-agenda-mini.today .day-num .n { color: #d8704a; }
+  .cal-agenda-mini .bar { width: 2.5px; align-self: stretch; background: #d8704a; border-radius: 2px; }
+  .cal-agenda-mini.closed .bar { background: #a89a8c; }
+  .cal-agenda-mini .info { flex: 1; min-width: 0; overflow: hidden; }
+  .cal-agenda-mini .nm { font-size: 13px; font-weight: 700; color: #3a2f25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cal-agenda-mini .mt { font-size: 10.5px; color: #7c7066; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cal-agenda-mini .time {
+    font-size: 10.5px; color: #d8704a; font-weight: 800;
+    background: #fef3c7; padding: 4px 8px; border-radius: 6px;
     flex-shrink: 0;
   }
-  .cal-agenda-card .pill.deposit { background: #fef3c7; color: #7c2d12; }
-  .cal-agenda-card .pill.paid { background: #d1fae5; color: #14532d; }
-  .cal-agenda-card .pill.unpaid { background: #fee2e2; color: #991b1b; }
-  .cal-agenda-card .pill.closed { background: #f3f4f6; color: #7c7066; }
+  .cal-agenda-mini.closed .time { background: #f3f4f6; color: #7c7066; }
   .cal-agenda-empty {
     text-align: center; padding: 60px 20px;
     color: #a89a8c; font-size: 13px;
@@ -1437,15 +1470,14 @@
     background: #2a2a2a !important;
     color: #fefcf9 !important;
   }
-  body.dark-theme .cal-agenda-card {
+  body.dark-theme .cal-agenda-mini {
     background: #1c1c1c;
     color: #f5f5f5;
+    border-color: #2a2a2a;
   }
-  body.dark-theme .cal-agenda-card .nm { color: #f5f5f5; }
-  body.dark-theme .cal-agenda-date-h .day-num,
-  body.dark-theme .cal-agenda-date-h .day-info strong {
-    color: #f5f5f5;
-  }
+  body.dark-theme .cal-agenda-mini .nm { color: #f5f5f5; }
+  body.dark-theme .cal-agenda-list-h { color: #f5f5f5; }
+  body.dark-theme .cal-agenda-list-h .count { background: #2a2a2a; color: #d1d5db; }
 
   /* Calendar — has-jobs strong Pixory orange (v1.9.4 · was too pale) */
   .cal-day.has-jobs {
@@ -5643,12 +5675,29 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.5';
+const PIXORY_VERSION = '1.9.6';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.6': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory · Hero Agenda + Expense %',
+    subtitle: 'ปฏิทินแบบใหม่ + รายจ่ายเห็นสัดส่วนชัดขึ้น',
+    items: [
+      {
+        icon: '⭐',
+        title: 'ปฏิทินรายการ · งานถัดไปเด่นเป็น Hero',
+        desc: 'งานต่อไปของคุณแสดงเป็นการ์ดส้มเด่น พร้อม countdown ("เริ่มในอีก 2 ชั่วโมง") · เห็นเวลาเริ่ม-เสร็จ-สถานะในตามอง · ใต้นั้นเป็นรายการ compact ของงานต่อ ๆ ไป · กดเข้างานได้ทุกการ์ด'
+      },
+      {
+        icon: '📊',
+        title: 'ดูสัดส่วน % รายจ่ายแยกหมวด',
+        desc: 'หน้า Dashboard → ชาร์ทรายจ่ายแยกหมวด · ตอนนี้แสดง % ของแต่ละหมวดเทียบรายจ่ายรวม · รู้ทันทีว่า "ค่าแรงทีม 42%" ของรายจ่ายปีนี้ · ตัดสินใจคุมต้นทุนง่ายขึ้น'
+      }
+    ]
+  },
   '1.9.5': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory · ปฏิทินรายการ + แก้ปุ่ม Back',
@@ -7861,7 +7910,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.9.5 · Build 2026-05-22 · Agenda View + Smart Back', en: 'v1.9.5 · Build 2026-05-22 · Agenda View + Smart Back' },
+  'ab.version':         { th: 'v1.9.6 · Build 2026-05-22 · Hero Agenda + Expense %', en: 'v1.9.6 · Build 2026-05-22 · Hero Agenda + Expense %' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -12673,103 +12722,149 @@ function setCalendarView(mode) {
   }
 }
 
+// v1.9.6 · Agenda Style B "Hero + Stack"
 function renderAgenda() {
   const list = document.getElementById('cal-agenda-list');
   if (!list) return;
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  // Window: 30 days before → 90 days ahead
-  const minDate = new Date(today); minDate.setDate(today.getDate() - 30);
+  const now = new Date();
+  const today = new Date(now); today.setHours(0,0,0,0);
   const maxDate = new Date(today); maxDate.setDate(today.getDate() + 90);
 
-  // Group jobs by date (using sessions)
-  const groups = {};  // dateStr → [job, session]
+  // Collect upcoming sessions (today + future, within 90 days)
+  const upcoming = [];  // { job, session, dt (Date with time) }
   (JOBS || []).forEach(j => {
+    if (j.jobStatus === 'ปิดงาน') return;  // skip closed jobs in hero/list (still showable but de-prioritized)
     const sessions = getJobSessions(j);
     sessions.forEach(s => {
       if (!s || !s.date) return;
       const d = new Date(s.date);
-      if (isNaN(d) || d < minDate || d > maxDate) return;
-      if (!groups[s.date]) groups[s.date] = [];
-      groups[s.date].push({ job: j, session: s });
+      if (isNaN(d)) return;
+      // include "today" even if time has passed (still relevant for the day)
+      if (d < today || d > maxDate) return;
+      // Build a Date with the start time for accurate sorting
+      const [hh, mm] = (s.start || '00:00').split(':').map(n => parseInt(n,10) || 0);
+      const dt = new Date(d); dt.setHours(hh, mm, 0, 0);
+      upcoming.push({ job: j, session: s, dt: dt });
     });
   });
+  // Sort ascending by date+time
+  upcoming.sort((a, b) => a.dt - b.dt);
 
-  // Sort dates ascending
-  const sortedDates = Object.keys(groups).sort();
-  if (sortedDates.length === 0) {
-    list.innerHTML = '<div class="cal-agenda-empty">🗓 ยังไม่มีงานในช่วง 30 วันก่อน – 90 วันข้างหน้า<br><span style="font-size:11px;">เพิ่มงานใหม่ผ่านปุ่ม + ด้านล่าง</span></div>';
+  if (upcoming.length === 0) {
+    list.innerHTML = '<div class="cal-agenda-empty">🗓 ไม่มีงานที่จะมาถึงในช่วง 90 วันข้างหน้า<br><span style="font-size:11px;">เพิ่มงานใหม่ผ่านปุ่ม + ด้านล่าง</span></div>';
     return;
   }
 
   const THAI_DAYS = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
   const THAI_MONTHS_SHORT = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 
-  let html = '';
-  // If there are upcoming dates, scroll to today section
-  let todayMarkerHtml = '';
+  // ── Helper · build countdown text ──
+  function buildCountdown(targetDt) {
+    const diffMs = targetDt - now;
+    const diffMin = Math.round(diffMs / 60000);
+    const targetDay = new Date(targetDt); targetDay.setHours(0,0,0,0);
+    const daysDiff = Math.round((targetDay - today) / 86400000);
+    if (diffMin < 0) {
+      // Started already today
+      const elapsed = Math.abs(diffMin);
+      if (elapsed < 60) return 'เริ่มไปแล้ว ' + elapsed + ' นาที';
+      return 'เริ่มไปแล้ว ' + Math.floor(elapsed/60) + ' ชั่วโมง';
+    }
+    if (daysDiff === 0) {
+      if (diffMin < 60) return 'เริ่มในอีก ' + diffMin + ' นาที';
+      const hours = Math.floor(diffMin / 60);
+      const mins = diffMin % 60;
+      return 'เริ่มในอีก ' + hours + ' ชม.' + (mins > 0 ? ' ' + mins + ' น.' : '');
+    }
+    if (daysDiff === 1) return 'พรุ่งนี้';
+    if (daysDiff < 7) return 'อีก ' + daysDiff + ' วัน';
+    return 'อีก ' + Math.ceil(daysDiff / 7) + ' สัปดาห์';
+  }
 
-  sortedDates.forEach(dateStr => {
-    const d = new Date(dateStr);
-    const isToday = d.getTime() === today.getTime();
-    const isPast = d < today;
-    const dayName = THAI_DAYS[d.getDay()];
-    const dayNum = d.getDate();
-    const monthName = THAI_MONTHS_SHORT[d.getMonth()];
-    const yr = d.getFullYear();
-    const yrSuffix = (yr !== today.getFullYear()) ? (' ' + (yr + 543)) : '';
-    const items = groups[dateStr];
+  // ── HERO · งานถัดไป ──
+  const hero = upcoming[0];
+  const heroJob = hero.job;
+  const heroS = hero.session;
+  const heroDt = hero.dt;
+  const heroCInfo = (heroJob.customer && CUSTOMER_INFO[heroJob.customer]) ? CUSTOMER_INFO[heroJob.customer] : {};
+  const heroNick = heroCInfo.nickname || heroJob.custNick || '';
+  const heroCust = heroJob.customer + (heroNick && heroNick !== heroJob.customer ? ' (' + heroNick + ')' : '');
+  const heroLoc = (heroJob.loc && heroJob.loc !== '-') ? heroJob.loc : '';
+  const heroType = heroJob.type || '';
+  const heroStart = heroS.start || '—';
+  const heroEnd = heroS.end || '—';
+  // Duration
+  function diffHours(s, e) {
+    if (!s || !e) return null;
+    const [sh, sm] = s.split(':').map(n => parseInt(n,10)||0);
+    const [eh, em] = e.split(':').map(n => parseInt(n,10)||0);
+    const d = (eh*60+em) - (sh*60+sm);
+    if (d <= 0) return null;
+    return (d / 60);
+  }
+  const heroDuration = diffHours(heroStart, heroEnd);
+  const heroDurStr = heroDuration ? (heroDuration % 1 === 0 ? heroDuration + ' ชม.' : heroDuration.toFixed(1) + ' ชม.') : '';
+  const heroPrice = heroJob.sell ? '฿' + fmt(heroJob.sell) : '';
+  // Status pill text
+  let heroStatusLbl = 'รอจ่าย';
+  if (heroJob.payStatus === 'ชำระครบ') heroStatusLbl = 'จ่ายครบ';
+  else if (heroJob.payStatus === 'มัดจำแล้ว') heroStatusLbl = 'มัดจำแล้ว';
+  // Date display
+  const heroDayNum = heroDt.getDate();
+  const heroMonth = THAI_MONTHS_SHORT[heroDt.getMonth()];
+  const heroDayName = THAI_DAYS[heroDt.getDay()];
+  const heroDateLbl = heroDayName + ' ' + heroDayNum + ' ' + heroMonth;
+  const countdown = buildCountdown(heroDt);
+  const safeHeroCode = (heroJob.code || '').replace(/'/g, "\\'");
 
-    let pillHtml = '';
-    if (isToday) pillHtml = '<span class="today-pill">วันนี้</span>';
-    else if (isPast) pillHtml = '<span class="past-pill">ผ่านมาแล้ว</span>';
+  let html = '<div class="cal-agenda-eyebrow">⭐ งานถัดไป · ' + heroDateLbl + '</div>';
+  html += '<div class="cal-agenda-hero" onclick="openJob(\'' + safeHeroCode + '\')">';
+  html += '<div class="hero-when">⏰ ' + heroStart + (heroDuration ? ' · ' + heroDurStr : '') +
+          ' <span class="countdown">' + countdown.toUpperCase() + '</span></div>';
+  html += '<div class="hero-nm">' + heroCust + (heroType ? ' · ' + heroType : '') + '</div>';
+  const heroMetaParts = [];
+  if (heroLoc) heroMetaParts.push('📍 ' + heroLoc);
+  if (heroPrice) heroMetaParts.push(heroPrice);
+  if (heroMetaParts.length) html += '<div class="hero-meta">' + heroMetaParts.join(' · ') + '</div>';
+  html += '<div class="hero-stats">' +
+    '<div class="hero-stat"><strong>' + heroStart + '</strong>เริ่ม</div>' +
+    '<div class="hero-stat"><strong>' + heroEnd + '</strong>เสร็จ</div>' +
+    '<div class="hero-stat"><strong>' + heroStatusLbl + '</strong>สถานะ</div>' +
+    '</div>';
+  html += '</div>';  // hero end
 
-    html += '<div class="cal-agenda-group"' + (isToday ? ' id="cal-agenda-today"' : '') + '>';
-    html += '<div class="cal-agenda-date-h">' +
-      '<span class="day-num">' + dayNum + '</span>' +
-      '<span class="day-info"><strong>' + dayName + '</strong>' + monthName + yrSuffix + ' · ' + items.length + ' งาน</span>' +
-      pillHtml +
-      '</div>';
-
-    items.forEach(it => {
+  // ── STACK · รายการที่เหลือ ──
+  const rest = upcoming.slice(1);
+  if (rest.length > 0) {
+    html += '<div class="cal-agenda-list-h"><span>📅 งานต่อ ๆ ไป</span><span class="count">' + rest.length + ' รายการ</span></div>';
+    rest.forEach(it => {
       const j = it.job;
       const s = it.session;
+      const dt = it.dt;
+      const dayNum = dt.getDate();
+      const monthShort = THAI_MONTHS_SHORT[dt.getMonth()];
+      const dDay = new Date(dt); dDay.setHours(0,0,0,0);
+      const isMiniToday = dDay.getTime() === today.getTime();
       const isClosed = j.jobStatus === 'ปิดงาน';
-      const startStr = s.start || '';
-      const endStr = s.end || '';
-      const timeStr = startStr ? (startStr + (endStr ? '\n' + endStr : '')) : '—';
       const cInfo = (j.customer && CUSTOMER_INFO[j.customer]) ? CUSTOMER_INFO[j.customer] : {};
       const nick = cInfo.nickname || j.custNick || '';
       const custDisplay = j.customer + (nick && nick !== j.customer ? ' (' + nick + ')' : '');
       const loc = (j.loc && j.loc !== '-') ? j.loc : '';
-      const meta = [j.type, loc].filter(Boolean).join(' · ');
-      let pillStatus = '';
-      let pillCls = '';
-      if (isClosed) { pillStatus = 'ปิดงาน'; pillCls = 'closed'; }
-      else if (j.payStatus === 'ชำระครบ') { pillStatus = 'ครบ'; pillCls = 'paid'; }
-      else if (j.payStatus === 'มัดจำแล้ว') { pillStatus = 'มัดจำ'; pillCls = 'deposit'; }
-      else { pillStatus = 'รอ'; pillCls = 'unpaid'; }
+      const metaText = [j.type, loc].filter(Boolean).join(' · ');
+      const startStr = s.start || '—';
       const safeCode = (j.code || '').replace(/'/g, "\\'");
-      html += '<div class="cal-agenda-card' + (isClosed ? ' closed' : '') + '" onclick="openJob(\'' + safeCode + '\')">' +
-        '<div class="time">' + timeStr.replace(/\n/g, '<br>') + '</div>' +
+      html += '<div class="cal-agenda-mini' + (isMiniToday ? ' today' : '') + (isClosed ? ' closed' : '') + '" onclick="openJob(\'' + safeCode + '\')">' +
+        '<div class="day-num"><div class="n">' + dayNum + '</div><div class="m">' + monthShort + '</div></div>' +
+        '<div class="bar"></div>' +
         '<div class="info"><div class="nm">' + custDisplay + '</div>' +
-          (meta ? '<div class="meta">' + meta + '</div>' : '') +
+          (metaText ? '<div class="mt">' + metaText + '</div>' : '') +
         '</div>' +
-        '<span class="pill ' + pillCls + '">' + pillStatus + '</span>' +
+        '<span class="time">' + startStr + '</span>' +
         '</div>';
     });
-    html += '</div>';
-  });
+  }
 
   list.innerHTML = html;
-
-  // Auto-scroll to today (with offset to make it visible)
-  setTimeout(function() {
-    const todayEl = document.getElementById('cal-agenda-today');
-    if (todayEl) {
-      todayEl.scrollIntoView({ behavior: 'auto', block: 'start' });
-    }
-  }, 60);
 }
 
 function showDayDetail(dateStr) {
@@ -15020,17 +15115,20 @@ function renderDashboard() {
   });
 
   // Expense category — custom HTML bars (label above each bar, never covered)
+  // v1.9.6 · Show % of total expense for each category
   const catEntries = Object.entries(cat).sort((a,b) => b[1] - a[1]);
   const maxCat = catEntries.length > 0 ? catEntries[0][1] : 1;
+  const sumCat = catEntries.reduce((s, [, v]) => s + v, 0);
   const BAR_COLORS = ['#E24B4A','#EF9F27','#7F77DD','#1D9E75','#378ADD','#D4537E','#888780','#BA7517','#D85A30'];
   const eb = document.getElementById('expense-bars');
   eb.innerHTML = '';
   catEntries.forEach(([name, val], i) => {
     const pct = Math.max(2, (val / maxCat) * 100);
+    const ofTotal = sumCat > 0 ? Math.round((val / sumCat) * 100) : 0;
     eb.innerHTML += `<div class="ebar-row">
       <div class="ebar-head">
         <span class="ebar-name">${name}</span>
-        <span class="ebar-val">${fmt(val)}</span>
+        <span class="ebar-val">${fmt(val)} <span style="color:#7c7066; font-weight:600; font-size:11px; margin-left:4px;">· ${ofTotal}%</span></span>
       </div>
       <div class="ebar-track"><div class="ebar-fill" style="width:${pct}%; background:${BAR_COLORS[i % BAR_COLORS.length]};"></div></div>
     </div>`;
