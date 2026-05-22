@@ -1362,6 +1362,91 @@
     -webkit-appearance: none;
   }
 
+  /* Calendar agenda view (v1.9.5) */
+  .cal-view-tab.active {
+    background: #fefcf9 !important;
+    color: #3a2f25 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .cal-agenda-group { margin-bottom: 18px; }
+  .cal-agenda-date-h {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 4px 6px 10px;
+  }
+  .cal-agenda-date-h .day-num {
+    font-size: 26px; font-weight: 800; color: #3a2f25; line-height: 1;
+  }
+  .cal-agenda-date-h .day-info {
+    font-size: 11.5px; color: #7c7066;
+  }
+  .cal-agenda-date-h .day-info strong {
+    color: #3a2f25; display: block; font-size: 12.5px; font-weight: 700;
+  }
+  .cal-agenda-date-h .today-pill {
+    background: linear-gradient(135deg, #d8704a, #b85a36);
+    color: #fefcf9;
+    padding: 4px 10px; border-radius: 100px;
+    font-size: 10px; font-weight: 800;
+    margin-left: auto;
+    box-shadow: 0 2px 6px rgba(216,112,74,0.3);
+  }
+  .cal-agenda-date-h .past-pill {
+    background: #f3f4f6; color: #7c7066;
+    padding: 4px 10px; border-radius: 100px;
+    font-size: 10px; font-weight: 700;
+    margin-left: auto;
+  }
+  .cal-agenda-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 11px 13px;
+    margin-bottom: 7px;
+    display: flex; gap: 10px; align-items: center;
+    border-left: 3px solid #d8704a;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    cursor: pointer;
+    transition: transform .12s ease;
+  }
+  .cal-agenda-card:active { transform: scale(0.98); }
+  .cal-agenda-card.closed { border-left-color: #a89a8c; opacity: 0.7; }
+  .cal-agenda-card .time {
+    font-size: 10.5px; color: #7c2d12; font-weight: 800;
+    background: #fef3c7; padding: 5px 7px; border-radius: 7px;
+    text-align: center; flex-shrink: 0;
+    min-width: 46px;
+    line-height: 1.25;
+  }
+  .cal-agenda-card.closed .time { background: #f3f4f6; color: #7c7066; }
+  .cal-agenda-card .info { flex: 1; min-width: 0; overflow: hidden; }
+  .cal-agenda-card .nm { font-size: 13.5px; font-weight: 700; color: #3a2f25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cal-agenda-card .meta { font-size: 11.5px; color: #7c7066; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cal-agenda-card .pill {
+    font-size: 9.5px; font-weight: 800;
+    padding: 3px 8px; border-radius: 100px;
+    flex-shrink: 0;
+  }
+  .cal-agenda-card .pill.deposit { background: #fef3c7; color: #7c2d12; }
+  .cal-agenda-card .pill.paid { background: #d1fae5; color: #14532d; }
+  .cal-agenda-card .pill.unpaid { background: #fee2e2; color: #991b1b; }
+  .cal-agenda-card .pill.closed { background: #f3f4f6; color: #7c7066; }
+  .cal-agenda-empty {
+    text-align: center; padding: 60px 20px;
+    color: #a89a8c; font-size: 13px;
+  }
+  body.dark-theme .cal-view-tab.active {
+    background: #2a2a2a !important;
+    color: #fefcf9 !important;
+  }
+  body.dark-theme .cal-agenda-card {
+    background: #1c1c1c;
+    color: #f5f5f5;
+  }
+  body.dark-theme .cal-agenda-card .nm { color: #f5f5f5; }
+  body.dark-theme .cal-agenda-date-h .day-num,
+  body.dark-theme .cal-agenda-date-h .day-info strong {
+    color: #f5f5f5;
+  }
+
   /* Calendar — has-jobs strong Pixory orange (v1.9.4 · was too pale) */
   .cal-day.has-jobs {
     background: linear-gradient(135deg, #d8704a 0%, #b85a36 100%) !important;
@@ -3330,22 +3415,36 @@
     <div class="screen" id="screen-calendar">
       <div class="header">
         <h1 data-i18n="header.calendar">ปฏิทินทีม</h1>
-        <button class="icon-btn" onclick="toggleLegend()">🎨</button>
+        <button class="icon-btn" id="cal-legend-btn" onclick="toggleLegend()" style="display:none;">🎨</button>
       </div>
 
-      <div class="cal-header">
-        <div class="nav-btn" onclick="changeMonth(-1)">‹</div>
-        <div class="month-title" id="cal-month">พฤศจิกายน 2026</div>
-        <div class="nav-btn" onclick="changeMonth(1)">›</div>
+      <!-- v1.9.5 · View toggle · Agenda (default) / Month -->
+      <div class="cal-view-tabs" style="display:flex; gap:6px; background:#e8dfd5; border-radius:100px; padding:3px; margin:0 16px 14px;">
+        <div class="cal-view-tab active" id="cal-tab-agenda" onclick="setCalendarView('agenda')" style="flex:1; text-align:center; padding:8px 0; font-size:13px; font-weight:700; border-radius:100px; color:#7c7066; cursor:pointer; transition:all .15s;">📋 รายการ</div>
+        <div class="cal-view-tab" id="cal-tab-month" onclick="setCalendarView('month')" style="flex:1; text-align:center; padding:8px 0; font-size:13px; font-weight:700; border-radius:100px; color:#7c7066; cursor:pointer; transition:all .15s;">🗓 เดือน</div>
       </div>
 
-      <div class="legend" id="cal-legend"></div>
-
-      <div class="cal-grid">
-        <div class="weekday" data-i18n="wd.sun">อา</div><div class="weekday" data-i18n="wd.mon">จ</div><div class="weekday" data-i18n="wd.tue">อ</div><div class="weekday" data-i18n="wd.wed">พ</div><div class="weekday" data-i18n="wd.thu">พฤ</div><div class="weekday" data-i18n="wd.fri">ศ</div><div class="weekday" data-i18n="wd.sat">ส</div>
+      <!-- Agenda view -->
+      <div id="cal-agenda-view">
+        <div id="cal-agenda-list" style="padding: 0 16px;"></div>
       </div>
-      <div class="cal-grid" id="cal-days"></div>
-      <div class="day-detail" id="day-detail"></div>
+
+      <!-- Month view -->
+      <div id="cal-month-view" style="display:none;">
+        <div class="cal-header">
+          <div class="nav-btn" onclick="changeMonth(-1)">‹</div>
+          <div class="month-title" id="cal-month">พฤศจิกายน 2026</div>
+          <div class="nav-btn" onclick="changeMonth(1)">›</div>
+        </div>
+
+        <div class="legend" id="cal-legend"></div>
+
+        <div class="cal-grid">
+          <div class="weekday" data-i18n="wd.sun">อา</div><div class="weekday" data-i18n="wd.mon">จ</div><div class="weekday" data-i18n="wd.tue">อ</div><div class="weekday" data-i18n="wd.wed">พ</div><div class="weekday" data-i18n="wd.thu">พฤ</div><div class="weekday" data-i18n="wd.fri">ศ</div><div class="weekday" data-i18n="wd.sat">ส</div>
+        </div>
+        <div class="cal-grid" id="cal-days"></div>
+        <div class="day-detail" id="day-detail"></div>
+      </div>
     </div>
 
     <!-- ====== SCREEN: ADD/EDIT JOB ====== -->
@@ -5509,7 +5608,14 @@ function goTo(name) {
   if (name === 'settings-wallpaper') loadWallpaper();
   if (name === 'notifications') renderAllNotifs();
   if (name === 'home') { renderHomeNotifs(); renderHomeHero(); if (typeof renderHomeBirthdays === 'function') renderHomeBirthdays(); }
-  if (name === 'calendar') { CAL_YEAR = new Date().getFullYear(); CAL_MONTH = new Date().getMonth(); renderCalendar(); }
+  if (name === 'calendar') {
+    CAL_YEAR = new Date().getFullYear(); CAL_MONTH = new Date().getMonth();
+    // v1.9.5 · Restore last view (default: agenda)
+    let view = 'agenda';
+    try { view = localStorage.getItem('pixory.calView') || 'agenda'; } catch (e) {}
+    if (typeof setCalendarView === 'function') setCalendarView(view);
+    else renderCalendar();
+  }
   if (name === 'settings-account') { updateAccountUI(); if (typeof updateSyncIndicatorUI === 'function') updateSyncIndicatorUI(); }
   if (name === 'jobs') { if (typeof renderJobsWithCurrentFilter === 'function') { renderJobsWithCurrentFilter(); syncJobFilterChips(); } }
   if (name === 'settings-tax') { if (typeof populateTaxSettings === 'function') { populateTaxSettings(); setupTaxToggleListener(); updateTaxHubSub(); } }
@@ -5537,12 +5643,29 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.4';
+const PIXORY_VERSION = '1.9.5';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.5': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory · ปฏิทินรายการ + แก้ปุ่ม Back',
+    subtitle: 'Agenda View + Smart Back สำหรับทุกหน้า',
+    items: [
+      {
+        icon: '📋',
+        title: 'ปฏิทินแบบใหม่ · Agenda List',
+        desc: 'หน้าปฏิทินมี view ใหม่ "รายการ" เป็น default · จัดกลุ่มงานตามวัน เห็นรายละเอียดครบในแว่บแรก · กดเข้างานได้ทันที 1 คลิก · scroll ดูล่วงหน้า 90 วัน · ยังสลับไป view "เดือน" ได้ที่ tab ด้านบน · จำการเลือก view ของคุณไว้'
+      },
+      {
+        icon: '🔙',
+        title: 'แก้ปุ่ม Back ผิดหน้า',
+        desc: 'เดิมปุ่ม ‹ ในหน้ารายละเอียดงานกลับไปหน้า "งาน" เสมอ ไม่ว่ามาจากไหน · ตอนนี้กลับไปหน้าที่คุณมาจริง ๆ (เช่น Calendar → Job → back กลับ Calendar ถูกต้องแล้ว) · ใช้กับทุกหน้าในแอพที่มีปุ่ม Back แบบง่าย'
+      }
+    ]
+  },
   '1.9.4': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory · 4 รายการ',
@@ -7738,7 +7861,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.9.4 · Build 2026-05-22 · Job Type + Calendar + Cleanup', en: 'v1.9.4 · Build 2026-05-22 · Job Type + Calendar + Cleanup' },
+  'ab.version':         { th: 'v1.9.5 · Build 2026-05-22 · Agenda View + Smart Back', en: 'v1.9.5 · Build 2026-05-22 · Agenda View + Smart Back' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -12524,6 +12647,131 @@ function renderCalendar() {
   if (firstDateInMonth) showDayDetail(firstDateInMonth);
   else document.getElementById('day-detail').innerHTML = '<div style="text-align:center; color:#a89a8c; padding:30px 0; font-size:13px;">' + t('cal.empty') + '</div>';
 }
+// ====== v1.9.5 · Calendar Agenda View ======
+function setCalendarView(mode) {
+  // mode: 'agenda' | 'month'
+  try { localStorage.setItem('pixory.calView', mode); } catch (e) {}
+  const agendaView = document.getElementById('cal-agenda-view');
+  const monthView = document.getElementById('cal-month-view');
+  const tabAgenda = document.getElementById('cal-tab-agenda');
+  const tabMonth = document.getElementById('cal-tab-month');
+  const legendBtn = document.getElementById('cal-legend-btn');
+  if (mode === 'agenda') {
+    if (agendaView) agendaView.style.display = '';
+    if (monthView) monthView.style.display = 'none';
+    if (tabAgenda) tabAgenda.classList.add('active');
+    if (tabMonth) tabMonth.classList.remove('active');
+    if (legendBtn) legendBtn.style.display = 'none';
+    renderAgenda();
+  } else {
+    if (agendaView) agendaView.style.display = 'none';
+    if (monthView) monthView.style.display = '';
+    if (tabAgenda) tabAgenda.classList.remove('active');
+    if (tabMonth) tabMonth.classList.add('active');
+    if (legendBtn) legendBtn.style.display = '';
+    renderCalendar();
+  }
+}
+
+function renderAgenda() {
+  const list = document.getElementById('cal-agenda-list');
+  if (!list) return;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  // Window: 30 days before → 90 days ahead
+  const minDate = new Date(today); minDate.setDate(today.getDate() - 30);
+  const maxDate = new Date(today); maxDate.setDate(today.getDate() + 90);
+
+  // Group jobs by date (using sessions)
+  const groups = {};  // dateStr → [job, session]
+  (JOBS || []).forEach(j => {
+    const sessions = getJobSessions(j);
+    sessions.forEach(s => {
+      if (!s || !s.date) return;
+      const d = new Date(s.date);
+      if (isNaN(d) || d < minDate || d > maxDate) return;
+      if (!groups[s.date]) groups[s.date] = [];
+      groups[s.date].push({ job: j, session: s });
+    });
+  });
+
+  // Sort dates ascending
+  const sortedDates = Object.keys(groups).sort();
+  if (sortedDates.length === 0) {
+    list.innerHTML = '<div class="cal-agenda-empty">🗓 ยังไม่มีงานในช่วง 30 วันก่อน – 90 วันข้างหน้า<br><span style="font-size:11px;">เพิ่มงานใหม่ผ่านปุ่ม + ด้านล่าง</span></div>';
+    return;
+  }
+
+  const THAI_DAYS = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+  const THAI_MONTHS_SHORT = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+  let html = '';
+  // If there are upcoming dates, scroll to today section
+  let todayMarkerHtml = '';
+
+  sortedDates.forEach(dateStr => {
+    const d = new Date(dateStr);
+    const isToday = d.getTime() === today.getTime();
+    const isPast = d < today;
+    const dayName = THAI_DAYS[d.getDay()];
+    const dayNum = d.getDate();
+    const monthName = THAI_MONTHS_SHORT[d.getMonth()];
+    const yr = d.getFullYear();
+    const yrSuffix = (yr !== today.getFullYear()) ? (' ' + (yr + 543)) : '';
+    const items = groups[dateStr];
+
+    let pillHtml = '';
+    if (isToday) pillHtml = '<span class="today-pill">วันนี้</span>';
+    else if (isPast) pillHtml = '<span class="past-pill">ผ่านมาแล้ว</span>';
+
+    html += '<div class="cal-agenda-group"' + (isToday ? ' id="cal-agenda-today"' : '') + '>';
+    html += '<div class="cal-agenda-date-h">' +
+      '<span class="day-num">' + dayNum + '</span>' +
+      '<span class="day-info"><strong>' + dayName + '</strong>' + monthName + yrSuffix + ' · ' + items.length + ' งาน</span>' +
+      pillHtml +
+      '</div>';
+
+    items.forEach(it => {
+      const j = it.job;
+      const s = it.session;
+      const isClosed = j.jobStatus === 'ปิดงาน';
+      const startStr = s.start || '';
+      const endStr = s.end || '';
+      const timeStr = startStr ? (startStr + (endStr ? '\n' + endStr : '')) : '—';
+      const cInfo = (j.customer && CUSTOMER_INFO[j.customer]) ? CUSTOMER_INFO[j.customer] : {};
+      const nick = cInfo.nickname || j.custNick || '';
+      const custDisplay = j.customer + (nick && nick !== j.customer ? ' (' + nick + ')' : '');
+      const loc = (j.loc && j.loc !== '-') ? j.loc : '';
+      const meta = [j.type, loc].filter(Boolean).join(' · ');
+      let pillStatus = '';
+      let pillCls = '';
+      if (isClosed) { pillStatus = 'ปิดงาน'; pillCls = 'closed'; }
+      else if (j.payStatus === 'ชำระครบ') { pillStatus = 'ครบ'; pillCls = 'paid'; }
+      else if (j.payStatus === 'มัดจำแล้ว') { pillStatus = 'มัดจำ'; pillCls = 'deposit'; }
+      else { pillStatus = 'รอ'; pillCls = 'unpaid'; }
+      const safeCode = (j.code || '').replace(/'/g, "\\'");
+      html += '<div class="cal-agenda-card' + (isClosed ? ' closed' : '') + '" onclick="openJob(\'' + safeCode + '\')">' +
+        '<div class="time">' + timeStr.replace(/\n/g, '<br>') + '</div>' +
+        '<div class="info"><div class="nm">' + custDisplay + '</div>' +
+          (meta ? '<div class="meta">' + meta + '</div>' : '') +
+        '</div>' +
+        '<span class="pill ' + pillCls + '">' + pillStatus + '</span>' +
+        '</div>';
+    });
+    html += '</div>';
+  });
+
+  list.innerHTML = html;
+
+  // Auto-scroll to today (with offset to make it visible)
+  setTimeout(function() {
+    const todayEl = document.getElementById('cal-agenda-today');
+    if (todayEl) {
+      todayEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }
+  }, 60);
+}
+
 function showDayDetail(dateStr) {
   const dayJobs = JOBS.filter(j => {
     const ss = getJobSessions(j);
@@ -15214,14 +15462,26 @@ if (document.readyState === 'loading') {
 })();
 
 // M18 · A11y patch — add aria-label to icon-only back/close buttons at startup
+// v1.9.5 · Smart-back patch — make all simple "‹" back buttons use history.back()
+// so they respect the actual navigation history (e.g. Calendar → Job → back goes to Calendar,
+// not the hardcoded "jobs"). Custom cancel handlers (cancelAddJob, backFromNewQuote etc.)
+// are left untouched since they need form-state handling.
 function applyA11yPatches() {
   try {
     document.querySelectorAll('button.back').forEach(btn => {
-      if (btn.getAttribute('aria-label')) return;
-      const txt = (btn.textContent || '').trim();
-      if (txt === '×' || txt === '✕' || txt === '✖') btn.setAttribute('aria-label', 'ปิด');
-      else if (txt === '‹' || txt === '◂' || txt === '<') btn.setAttribute('aria-label', 'ย้อนกลับ');
-      else btn.setAttribute('aria-label', 'ย้อนกลับ');
+      // Aria-label
+      if (!btn.getAttribute('aria-label')) {
+        const txt = (btn.textContent || '').trim();
+        if (txt === '×' || txt === '✕' || txt === '✖') btn.setAttribute('aria-label', 'ปิด');
+        else if (txt === '‹' || txt === '◂' || txt === '<') btn.setAttribute('aria-label', 'ย้อนกลับ');
+        else btn.setAttribute('aria-label', 'ย้อนกลับ');
+      }
+      // Smart-back patch — replace hardcoded goTo('xxx') with history.back()
+      const oc = btn.getAttribute('onclick') || '';
+      // Match only simple goTo('xxx') or goTo("xxx") — no extra args/calls
+      if (/^\s*goTo\(['"][\w-]+['"]\)\s*;?\s*$/.test(oc)) {
+        btn.setAttribute('onclick', 'history.back()');
+      }
     });
     // FAB plus button
     document.querySelectorAll('.bottom-nav .tab.fab').forEach(btn => {
