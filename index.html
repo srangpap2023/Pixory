@@ -184,6 +184,87 @@
   .chip.team-chip .team-dot { width: 8px; height: 8px; border-radius: 50%; }
   .chip.team-chip.active { color: white; }
 
+  /* Search bar (S1.3) */
+  .pxy-search-wrap {
+    margin: 0 16px 12px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.85);
+    border: 0.5px solid #e8dfd5;
+    border-radius: 12px;
+    padding: 0 12px;
+    backdrop-filter: blur(8px);
+    transition: all .15s;
+  }
+  body.dark-theme .pxy-search-wrap { background: rgba(40,40,40,0.7); border-color: #404040; }
+  .pxy-search-wrap:focus-within { border-color: #d8704a; box-shadow: 0 0 0 3px rgba(216,112,74,.15); }
+  .pxy-search-icon { font-size: 14px; opacity: 0.6; flex-shrink: 0; }
+  .pxy-search-input {
+    flex: 1; min-width: 0;
+    padding: 11px 8px;
+    background: transparent;
+    border: 0;
+    font-size: 14px;
+    font-family: inherit;
+    color: inherit;
+    outline: none;
+  }
+  .pxy-search-input::placeholder { color: #9ca3af; }
+  .pxy-search-clear {
+    background: rgba(0,0,0,0.06);
+    border: 0;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    flex-shrink: 0;
+  }
+  body.dark-theme .pxy-search-clear { background: rgba(255,255,255,0.1); color: #d4d4d4; }
+
+  /* Empty state (S1.5) */
+  .pxy-empty {
+    text-align: center;
+    padding: 50px 24px 32px;
+    color: #6b7280;
+  }
+  .pxy-empty .pxy-empty-icon {
+    font-size: 52px;
+    margin-bottom: 12px;
+    opacity: 0.7;
+    line-height: 1;
+  }
+  .pxy-empty .pxy-empty-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #3a2f25;
+    margin-bottom: 4px;
+  }
+  body.dark-theme .pxy-empty .pxy-empty-title { color: #f3f4f6; }
+  .pxy-empty .pxy-empty-sub {
+    font-size: 12.5px;
+    color: #7c7066;
+    margin-bottom: 16px;
+    line-height: 1.55;
+  }
+  .pxy-empty .pxy-empty-cta {
+    display: inline-block;
+    background: #1a1a1a;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 0;
+    font-family: inherit;
+  }
+  .pxy-empty .pxy-empty-cta:active { transform: scale(.97); }
+
   /* Customer Type Inline Pill (Tax T4) */
   .ctype-inline { margin: 6px 0 0; }
   .ctype-pill {
@@ -398,8 +479,33 @@
   .action-grid .act .ico { font-size: 22px; display: block; margin-bottom: 4px; }
   .action-grid .act .lbl { font-size: 10px; color: #4b5563; }
 
-  .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: white; padding: 12px 20px; border-radius: 24px; font-size: 13px; opacity: 0; transition: all .3s; z-index: 200; pointer-events: none; }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast {
+    position: fixed; bottom: 100px; left: 50%;
+    transform: translateX(-50%) translateY(20px) scale(.95);
+    background: #1a1a1a; color: white;
+    padding: 12px 20px 12px 16px;
+    border-radius: 14px; font-size: 13.5px; font-weight: 500;
+    opacity: 0;
+    transition: all .25s cubic-bezier(.2,.7,.2,1);
+    z-index: 200; pointer-events: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25), 0 2px 8px rgba(0,0,0,.15);
+    display: flex; align-items: center; gap: 9px;
+    max-width: calc(100vw - 32px);
+  }
+  .toast::before {
+    content: '✓';
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px;
+    background: #10b981; color: white;
+    border-radius: 50%; font-size: 13px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .toast.toast-error::before { content: '!'; background: #dc2626; }
+  .toast.toast-info::before { content: 'i'; background: #5e7ce4; font-style: italic; font-family: serif; }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
 
   /* Dashboard specific */
   .year-select { background: white; border: 0.5px solid #d1d5db; border-radius: 10px; padding: 8px 14px; font-size: 14px; font-family: inherit; cursor: pointer; }
@@ -2712,6 +2818,13 @@
         </div>
       </div>
 
+      <!-- S1.4 — งานที่กำลังทำอยู่ (active jobs, max 3) -->
+      <div class="section-title" id="home-active-section" style="display:none;">
+        <h2>📌 งานกำลังทำ</h2>
+        <a onclick="goTo('jobs')">ดูทั้งหมด ›</a>
+      </div>
+      <div id="home-active"></div>
+
       <div class="section-title" id="home-notifs-section" style="display:none;">
         <h2 data-i18n="home.todayJobs">🔔 ต้องทำวันนี้</h2>
         <a onclick="goTo('notifications')" data-i18n="home.viewAll">ดูทั้งหมด ›</a>
@@ -2850,6 +2963,13 @@
         <div class="seg-tab" id="seg-quotes" onclick="switchJobsTab('quotes')">📄 <span data-i18n="jobs.tabQuotes">ใบเสนอ</span> <span class="seg-count">7</span></div>
       </div>
 
+      <!-- Search bar (S1.3) -->
+      <div class="pxy-search-wrap">
+        <span class="pxy-search-icon">🔎</span>
+        <input type="text" id="jobs-search" class="pxy-search-input" placeholder="ค้นหา · ชื่อลูกค้า · เลขงาน · สถานที่" oninput="if(typeof reRenderJobsOrQuotes==='function')reRenderJobsOrQuotes()">
+        <button class="pxy-search-clear" onclick="document.getElementById('jobs-search').value='';reRenderJobsOrQuotes();this.style.display='none';" style="display:none;">×</button>
+      </div>
+
       <!-- Jobs filters -->
       <div id="jobs-filter-row" style="display: flex; gap: 6px; padding: 0 16px 12px; overflow-x: auto;">
         <div class="chip active" onclick="filterJobs('all', this)" data-i18n="filter.all">ทั้งหมด</div>
@@ -2934,13 +3054,16 @@
 
       <!-- Tax breakdown block (Tax T2/T3) — shown only if job.taxEnabled -->
       <div class="detail-block" id="job-tax-block" style="display:none;">
-        <h3>📋 <span data-i18n="tax.section">ภาษี</span> <span style="font-size:10px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:1px 6px; border-radius:6px; font-weight:800; letter-spacing:0.3px; margin-left:4px; vertical-align:middle;">PRO</span></h3>
+        <h3>📋 <span data-i18n="tax.section">ภาษี</span></h3>
         <div id="job-tax-breakdown" style="padding:10px 12px; border-radius:10px; background:linear-gradient(135deg, #fef3c7, #fde68a); border:1px solid #fbbf24; font-size:13px;"></div>
-        <!-- Tax T3 — Selective filing -->
-        <div style="margin-top:10px; padding:10px 12px; border-radius:10px; background:#f7f4ef; border:1px solid #e8dfd5; display:flex; align-items:center; gap:10px;">
+      </div>
+
+      <!-- Filing toggle (Tax T3 v2) — always visible for every job, even without tax -->
+      <div class="detail-block" id="job-filing-block">
+        <h3>🧾 <span data-i18n="tax.filingLabel">สถานะการยื่นภาษี</span></h3>
+        <div style="padding:10px 12px; border-radius:10px; background:#f7f4ef; border:1px solid #e8dfd5; display:flex; align-items:center; gap:10px;">
           <div style="flex:1; min-width:0;">
-            <div style="font-size:12.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.filingLabel">สถานะการยื่นภาษี</div>
-            <div style="font-size:11px; color:#7c7066; margin-top:2px;" id="job-filing-hint">—</div>
+            <div style="font-size:11.5px; color:#7c7066;" id="job-filing-hint">—</div>
           </div>
           <select id="job-filing-select" onchange="onJobFilingChange(this.value)" style="font-size:12px; padding:6px 8px; border-radius:8px; border:1px solid #d6cabc; background:white; cursor:pointer;">
             <option value="auto" data-i18n="tax.filingAuto">อัตโนมัติ</option>
@@ -3810,6 +3933,12 @@
         <h1>ลูกค้า</h1>
         <span style="font-size: 13px; color: #6b7280;" id="customers-count">0 ราย</span>
       </div>
+      <!-- Search (S1.3) -->
+      <div class="pxy-search-wrap">
+        <span class="pxy-search-icon">🔎</span>
+        <input type="text" id="cust-search" class="pxy-search-input" placeholder="ค้นหาลูกค้า · ชื่อ · เบอร์ · LINE" oninput="renderCustomers()">
+        <button class="pxy-search-clear" onclick="document.getElementById('cust-search').value='';renderCustomers();this.style.display='none';" style="display:none;">×</button>
+      </div>
       <div id="customer-list"></div>
     </div>
 
@@ -4157,9 +4286,18 @@
           <div class="form-group">
             <label>เริ่มต้นปีงบของคุณ</label>
             <select id="tax-year-start">
-              <option value="1">มกราคม (ปฏิทินสากล)</option>
+              <option value="1">มกราคม (ปฏิทินสากล · ส่วนใหญ่ใช้)</option>
+              <option value="2">กุมภาพันธ์</option>
+              <option value="3">มีนาคม</option>
               <option value="4">เมษายน</option>
+              <option value="5">พฤษภาคม</option>
+              <option value="6">มิถุนายน</option>
+              <option value="7">กรกฎาคม</option>
+              <option value="8">สิงหาคม</option>
+              <option value="9">กันยายน</option>
               <option value="10">ตุลาคม (ปีงบประมาณราชการ)</option>
+              <option value="11">พฤศจิกายน</option>
+              <option value="12">ธันวาคม</option>
             </select>
             <div style="font-size:11px; color:#9ca3af; margin-top:4px;">ใช้สำหรับรายงานสรุปประจำปี · บุคคลธรรมดาใช้ ม.ค.-ธ.ค.</div>
           </div>
@@ -5020,12 +5158,44 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.8.4';
+const PIXORY_VERSION = '1.8.5';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.8.5': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'Sprint 1 · Search · Active Jobs · Filing toggle · Polish',
+    items: [
+      {
+        icon: '🔎',
+        title: 'ค้นหาในทุก list — ลูกค้า · งาน · ใบเสนอราคา',
+        desc: 'Search bar เด่นชัดที่ด้านบนของทุกหน้า list · กรองทันทีจากชื่อ · เบอร์ · LINE · เลขเอกสาร · สถานที่ · ไม่ต้องเลื่อนหาแบบเดิม'
+      },
+      {
+        icon: '📌',
+        title: 'งานกำลังทำ · แสดงในหน้าหลัก',
+        desc: '3 งานล่าสุดที่ active อยู่ (กำลังจะถึง หรือยังไม่ปิด) โผล่บน Home · พร้อม countdown "อีก X วัน" และเตือนงานเก่าที่ยังไม่ปิด'
+      },
+      {
+        icon: '🧾',
+        title: 'Filing toggle ออกมาเห็นชัด',
+        desc: 'สถานะการยื่นภาษีย้ายออกมาเป็น section ของตัวเอง · เห็นทุกงาน ไม่ผูกกับเปิดภาษีอีกต่อไป · ตั้ง "ไม่นับในรายงาน" ได้แม้กับงานเงินสด'
+      },
+      {
+        icon: '📆',
+        title: 'ปีงบประมาณ · 12 เดือนเต็ม',
+        desc: 'รองรับการเลือกเดือนเริ่มปีงบของบริษัทได้ครบทั้ง 12 เดือน · ม.ค. (default), เม.ย., ต.ค., และทุกเดือนระหว่าง'
+      },
+      {
+        icon: '✨',
+        title: 'หน้าว่างสวยขึ้น + Toast animation',
+        desc: 'Empty states ของ Customers · Jobs · Quotes ได้ icon + คำแนะนำ + CTA ปุ่ม "สร้างเลย" · Toast notification มีไอคอน ✓ และ animation นุ่มขึ้น'
+      }
+    ]
+  },
   '1.8.4': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory เรียบร้อยแล้ว',
@@ -7016,7 +7186,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.8.4 · Build 2026-05-22 · ใบเสนอราคา 4 รูปแบบ', en: 'v1.8.4 · Build 2026-05-22 · 4 PDF cases' },
+  'ab.version':         { th: 'v1.8.5 · Build 2026-05-22 · Search · งานกำลังทำ · Polish', en: 'v1.8.5 · Build 2026-05-22 · Search · Active jobs · Polish' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -7189,6 +7359,7 @@ function applyLang(lang) {
   if (typeof updateGreeting === 'function') updateGreeting();
   if (typeof renderHomeHero === 'function') renderHomeHero();
   if (typeof renderHomeUpcoming === 'function') renderHomeUpcoming();
+  if (typeof renderHomeActive === 'function') renderHomeActive();
   if (typeof updateHomeKPIs === 'function') updateHomeKPIs();
   if (typeof renderHomeNotifs === 'function') renderHomeNotifs();
   if (typeof renderJobs === 'function' && typeof JOBS !== 'undefined') renderJobs(JOBS, 'jobs-list');
@@ -7574,10 +7745,46 @@ function jobsForFilter(f) {
 
 // Re-render with the currently active filter — used after edit/save/delete/etc.
 function renderJobsWithCurrentFilter() {
-  const filtered = jobsForFilter(_currentJobFilter);
+  let filtered = jobsForFilter(_currentJobFilter);
+  // S1.3 — apply search filter
+  const searchEl = document.getElementById('jobs-search');
+  const q = searchEl ? (searchEl.value || '').trim().toLowerCase() : '';
+  const clearBtn = searchEl ? searchEl.parentElement.querySelector('.pxy-search-clear') : null;
+  if (clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
+  if (q) {
+    filtered = filtered.filter(j => {
+      const haystack = [j.code, j.customer, j.custNick, j.type, j.loc].filter(Boolean).join(' ').toLowerCase();
+      return haystack.indexOf(q) > -1;
+    });
+  }
   const cntEl = document.getElementById('jobs-count');
   if (cntEl) cntEl.textContent = filtered.length + ' ' + t('home.jobsCount');
   renderJobs(filtered, 'jobs-list');
+}
+
+// S1.3 — Re-render whichever tab is active (called by search input)
+function reRenderJobsOrQuotes() {
+  const segJobs = document.getElementById('seg-jobs');
+  const isJobsActive = segJobs && segJobs.classList.contains('active');
+  if (isJobsActive) {
+    renderJobsWithCurrentFilter();
+  } else {
+    // Re-render quotes with current filter + search
+    if (typeof renderQuotesList === 'function') {
+      const searchEl = document.getElementById('jobs-search');
+      const q = searchEl ? (searchEl.value || '').trim().toLowerCase() : '';
+      const clearBtn = searchEl ? searchEl.parentElement.querySelector('.pxy-search-clear') : null;
+      if (clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
+      let list = QUOTES.slice();
+      if (q) {
+        list = list.filter(qt => {
+          const hay = [qt.code, qt.customer, qt.custNick, qt.type, qt.loc].filter(Boolean).join(' ').toLowerCase();
+          return hay.indexOf(q) > -1;
+        });
+      }
+      renderQuotesList(list);
+    }
+  }
 }
 
 // Sync the chip UI to match current filter state (used when entering Jobs page)
@@ -7591,9 +7798,25 @@ function renderJobs(list, container) {
   const c = document.getElementById(container);
   c.innerHTML = '';
   if (list.length === 0) {
-    c.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#9ca3af; font-size:13px;">' +
-      (container === 'jobs-list' ? t('jobs.empty') : (LANG === 'en' ? 'No jobs in this range' : 'ไม่มีงานในช่วงนี้')) +
-      '</div>';
+    // S1.5 — beautiful empty state
+    const searchEl = document.getElementById('jobs-search');
+    const q = searchEl ? (searchEl.value || '').trim() : '';
+    if (container === 'jobs-list') {
+      if (q) {
+        c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">🔍</div><div class="pxy-empty-title">ไม่พบงานที่ตรงกับ "' + q + '"</div><div class="pxy-empty-sub">ลองค้นด้วยชื่อลูกค้า · เลขงาน · หรือสถานที่</div></div>';
+      } else if (JOBS.length === 0) {
+        c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">📸</div><div class="pxy-empty-title">ยังไม่มีงานในระบบ</div><div class="pxy-empty-sub">สร้างงานแรกเพื่อเริ่มจัดการลูกค้า · ตารางถ่าย · ติดตามเงิน</div><button class="pxy-empty-cta" onclick="openNewJob()">+ สร้างงานแรก</button></div>';
+      } else {
+        c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">🗂</div><div class="pxy-empty-title">ไม่มีงานในตัวกรองนี้</div><div class="pxy-empty-sub">ลองเลือกตัวกรองอื่น หรือล้างตัวกรอง</div></div>';
+      }
+    } else {
+      // Quotes list
+      if (q) {
+        c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">🔍</div><div class="pxy-empty-title">ไม่พบใบเสนอราคา "' + q + '"</div><div class="pxy-empty-sub">ลองค้นด้วยชื่อลูกค้าหรือเลขเอกสาร</div></div>';
+      } else {
+        c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">📄</div><div class="pxy-empty-title">ยังไม่มีใบเสนอราคา</div><div class="pxy-empty-sub">เสนอราคาให้ลูกค้าได้สวยๆ ผ่าน PDF · ส่ง LINE ได้ทันที</div><button class="pxy-empty-cta" onclick="openNewQuote()">+ สร้างใบเสนอราคา</button></div>';
+      }
+    }
     return;
   }
   list = list.slice().sort((a,b) => new Date(a.date) - new Date(b.date));
@@ -8395,7 +8618,7 @@ function saveTaxSettings() {
   const wht = parseFloat(getVal('tax-default-wht') || '3');
   PROFILE.defaultWHT = isNaN(wht) ? 3 : Math.max(0, Math.min(100, wht));
   const yearStart = parseInt(getVal('tax-year-start') || '1', 10);
-  PROFILE.taxYearStart = [1, 4, 10].includes(yearStart) ? yearStart : 1;
+  PROFILE.taxYearStart = (yearStart >= 1 && yearStart <= 12) ? yearStart : 1;
   const vatChk = document.getElementById('tax-vat-registered');
   PROFILE.vatRegistered = vatChk ? vatChk.checked : false;
 
@@ -9836,6 +10059,7 @@ function saveAddJob() {
   renderJobsWithCurrentFilter();
   updateCounts();
   renderHomeUpcoming();
+  if (typeof renderHomeActive === 'function') renderHomeActive();
   renderCalendar();
   renderCustomers();
   updateHomeKPIs();
@@ -9882,6 +10106,7 @@ function deleteCurrentJob() {
   renderJobsWithCurrentFilter();
   updateCounts();
   renderHomeUpcoming();
+  if (typeof renderHomeActive === 'function') renderHomeActive();
   renderCalendar();
   renderCustomers();
   updateHomeKPIs();
@@ -12833,12 +13058,30 @@ function renderCustomers() {
       ? 'รวม ' + JOBS.length + ' งาน · ยอดรวม ' + fmt(totalRev)
       : 'ยังไม่มีงานในระบบ';
   }
-  // Empty state
-  if (dynCustomers.length === 0) {
-    c.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#9ca3af; font-size:13px;">' + t('cust.emptyState') + '</div>';
+  // Search filter (S1.3)
+  const searchEl = document.getElementById('cust-search');
+  const q = searchEl ? (searchEl.value || '').trim().toLowerCase() : '';
+  const clearBtn = searchEl ? searchEl.parentElement.querySelector('.pxy-search-clear') : null;
+  if (clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
+  let filtered = dynCustomers;
+  if (q) {
+    filtered = dynCustomers.filter(cu => {
+      const info = CUSTOMER_INFO[cu.name] || {};
+      const haystack = [cu.name, info.phone, info.line, info.nickname, info.email, info.companyName].filter(Boolean).join(' ').toLowerCase();
+      return haystack.indexOf(q) > -1;
+    });
+  }
+  // Empty state (S1.5)
+  if (filtered.length === 0) {
+    if (q) {
+      // No matches
+      c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">🔍</div><div class="pxy-empty-title">ไม่พบลูกค้า "' + q + '"</div><div class="pxy-empty-sub">ลองค้นหาด้วยชื่อ · เบอร์ · LINE · หรือชื่อบริษัท</div></div>';
+    } else {
+      c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">👥</div><div class="pxy-empty-title">ยังไม่มีลูกค้าในระบบ</div><div class="pxy-empty-sub">ลูกค้าจะถูกเพิ่มอัตโนมัติเมื่อสร้างงานหรือใบเสนอราคา</div><button class="pxy-empty-cta" onclick="openNewJob()">+ สร้างงานแรก</button></div>';
+    }
     return;
   }
-  dynCustomers.sort((a,b) => b.total - a.total).forEach((cu, i) => {
+  filtered.sort((a,b) => b.total - a.total).forEach((cu, i) => {
     const [bg, fg] = AVATAR_COLORS[i % AVATAR_COLORS.length].split('-');
     const initials = cu.name.replace(/[^a-zA-Zก-๙ ]/g,'').split(/\s+/).map(s => s[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
     // Customer Type pill (Tax T1) — pulls from CUSTOMER_INFO, defaults to B2C silently
@@ -13294,6 +13537,66 @@ function renderHomeUpcoming() {
   const today = new Date();
   const upcoming = JOBS.filter(j => new Date(j.date) >= today).sort((a,b) => new Date(a.date) - new Date(b.date)).slice(0, 4);
   renderJobs(upcoming, 'home-upcoming');
+}
+
+// S1.4 — งานกำลังทำ (active jobs from past or near future, max 3)
+function renderHomeActive() {
+  const sec = document.getElementById('home-active-section');
+  const list = document.getElementById('home-active');
+  if (!sec || !list) return;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  // "Active" = jobStatus='จอง' AND (date upcoming within 30 days OR already passed but delivery not done)
+  const active = JOBS.filter(j => {
+    if (j.jobStatus === 'ปิดงาน') return false;
+    const jd = new Date(j.date);
+    const days = Math.round((jd - today) / 86400000);
+    // upcoming within 30 days, OR overdue (past date but not closed)
+    if (days >= -90 && days <= 30) return true;
+    return false;
+  }).sort((a,b) => {
+    // sort by closest to today (negative days first, then positive)
+    const da = Math.abs(Math.round((new Date(a.date) - today) / 86400000));
+    const db = Math.abs(Math.round((new Date(b.date) - today) / 86400000));
+    return da - db;
+  }).slice(0, 3);
+  if (active.length === 0) {
+    sec.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+  sec.style.display = '';
+  list.innerHTML = '';
+  active.forEach(j => {
+    const dp = dateParts(j.date);
+    const jd = new Date(j.date);
+    const daysAway = Math.round((jd - today) / 86400000);
+    let pill = '';
+    if (j.payStatus === 'ชำระครบ') pill = '<span class="pill paid">' + t('status.paid') + '</span>';
+    else if (j.payStatus === 'มัดจำแล้ว') pill = '<span class="pill deposit">' + t('status.deposit') + '</span>';
+    else pill = '<span class="pill unpaid">' + t('status.unpaid') + '</span>';
+    let countdown = '';
+    if (daysAway === 0) countdown = '<span style="color:#dc2626; font-size:11px; font-weight:600;">วันนี้!</span>';
+    else if (daysAway > 0 && daysAway <= 7) countdown = '<span style="color:#d97706; font-size:11px; font-weight:600;">อีก ' + daysAway + ' วัน</span>';
+    else if (daysAway < 0) countdown = '<span style="color:#7c2d12; font-size:11px; font-weight:600;">ผ่านมา ' + Math.abs(daysAway) + ' วัน · ยังไม่ปิด</span>';
+    else countdown = '<span style="color:#6b7280; font-size:11px;">อีก ' + daysAway + ' วัน</span>';
+    let cls = 'date-block';
+    if (daysAway >= 0 && daysAway <= 30) cls += ' upcoming';
+    if (j.remain > 0 && daysAway < 7) cls += ' warn';
+    const row = document.createElement('div');
+    row.className = 'job-row';
+    row.onclick = () => openJob(j.code);
+    row.innerHTML = `
+      <div class="${cls}"><div class="day">${dp.d}</div><div class="month">${MONTHS_TH_SHORT[dp.m]}</div></div>
+      <div class="info">
+        <p class="customer">${j.customer}</p>
+        <p class="meta">${j.type} · ${j.loc}</p>
+        <div class="price">${fmt(j.sell)} ${j.remain > 0 ? `<span style="color:#dc2626; font-size:11px;">· เหลือ ${fmt(j.remain)}</span>` : ''} ${countdown}</div>
+      </div>
+      <div style="display:flex; align-items:flex-start;">${pill}</div>
+    `;
+    list.appendChild(row);
+  });
 }
 
 // ========== SETTINGS LISTS ==========
