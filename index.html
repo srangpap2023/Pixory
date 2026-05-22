@@ -3124,8 +3124,8 @@
 
         <!-- Tax panel (hidden until toggle ON) -->
         <div id="add-tax-panel" style="display:none; margin-top:12px;">
-          <!-- VAT row -->
-          <div style="padding:12px 14px; border-radius:10px; background:#fefcf9; border:1px solid #e8dfd5; margin-bottom:10px;">
+          <!-- VAT row (hidden if studio not VAT-registered) -->
+          <div id="add-tax-vat-wrap" style="padding:12px 14px; border-radius:10px; background:#fefcf9; border:1px solid #e8dfd5; margin-bottom:10px;">
             <label style="display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none;">
               <input type="checkbox" id="add-tax-vat" onchange="updateAddTaxCalc()" style="width:18px; height:18px; cursor:pointer;">
               <span style="font-size:13.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.includeVat">รวม VAT (ภาษีมูลค่าเพิ่ม)</span>
@@ -3134,6 +3134,10 @@
               <span style="font-size:12px; color:#7c7066;" data-i18n="tax.vatRate">อัตรา VAT (%)</span>
               <input type="number" id="add-tax-vat-rate" value="7" min="0" max="20" step="0.5" oninput="updateAddTaxCalc()" style="text-align:center;">
             </div>
+          </div>
+          <!-- Compliance note when studio not VAT-registered (hidden by default) -->
+          <div id="add-tax-novat-note" style="display:none; padding:10px 12px; border-radius:10px; background:#eff6ff; border:1px solid #bfd0fe; margin-bottom:10px; font-size:11.5px; color:#1e3a8a; line-height:1.5;">
+            📌 สตูดิโอยังไม่ได้จดทะเบียน VAT · ระบบจึงซ่อนตัวเลือก VAT 7% ไว้ · ลูกค้าบริษัทยังหักภาษี ณ ที่จ่ายได้ตามปกติ — <span style="font-weight:600; text-decoration:underline; cursor:pointer;" onclick="goTo('settings-tax')">เปิดในตั้งค่า ▸</span>
           </div>
 
           <!-- WHT row -->
@@ -3346,9 +3350,17 @@
             <div class="detail-row" id="q-wht-row" style="display:none; margin-top:3px;"><span class="k" id="q-wht-label">− WHT 3%</span><span class="v" style="color:#dc2626; font-weight:600;" id="q-wht-val">-฿0</span></div>
             <div class="total" id="q-net-row" style="display:none; font-size:13px; background:#d1fae5; border-radius:4px; padding:5px 8px; margin-top:3px; border-left:3px solid #10b981;"><span style="color:#0f6e56;" data-i18n="tax.netReceived">ยอดสุทธิที่ได้รับ</span><span id="q-net-val" style="color:#0f6e56;">฿0</span></div>
           </div>
+          <!-- Amount in words (Tax T5) — shown for b2bNoVat / vatB2c / fullPro -->
+          <div id="q-amount-in-words" style="display:none; margin-top:6px; padding:5px 10px; font-size:10px; color:#6b7280; font-style:italic; background:#fafaf9; border-radius:4px; border-left:2px solid #d1d5db;"></div>
           <div id="q-deposit-block" style="display:none; margin-top:6px; padding:6px 10px; background:#fef3c7; border-radius:6px; border-left:3px solid #f59e0b;">
-            <div style="font-size:10px; color:#92400e;" data-i18n="q.depositJob">มัดจำจองคิว</div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
+              <span style="font-size:10px; color:#92400e;" data-i18n="q.depositJob">มัดจำจองคิว</span>
+              <span style="font-size:9px; color:#a06402;" id="q-deposit-due"></span>
+            </div>
             <div style="font-size:14px; font-weight:700; color:#92400e;" id="q-deposit-amount">฿0</div>
+            <div style="font-size:9.5px; color:#92400e; margin-top:3px;" id="q-balance-due-row" style="display:none;">
+              <span data-i18n="q.balanceDue">ยอดคงเหลือ</span>: <strong id="q-balance-amount">฿0</strong> <span id="q-balance-due-date" style="color:#a06402;"></span>
+            </div>
           </div>
 
           <div id="q-bank-block" style="display:none; margin-top:6px; padding:6px 10px; background:#e6f1fb; border-radius:6px; border-left:3px solid #2E75B6;">
@@ -3363,6 +3375,10 @@
             <div id="q-terms" style="white-space: pre-line;">• มัดจำเพื่อยืนยันการจอง
 • ชำระส่วนที่เหลือก่อนหรือในวันงาน
 • โอนเข้าบัญชีที่ระบุด้านบน</div>
+          </div>
+          <!-- No-VAT compliance note (Tax T5) — for b2bNoVat case -->
+          <div id="q-novat-note" style="display:none; margin-top:8px; padding:7px 10px; background:#eff6ff; border-radius:6px; border-left:3px solid #5e7ce4; font-size:9.5px; color:#1e3a8a; line-height:1.5;">
+            📌 ผู้ขายเป็นบุคคลธรรมดา ไม่ได้จดทะเบียนภาษีมูลค่าเพิ่ม จึงไม่สามารถออกใบกำกับภาษีตามมาตรา 86 ได้ · ราคาเป็นยอดก่อนหัก ภาษี ณ ที่จ่าย
           </div>
           <div style="margin-top: 6px; text-align: center; font-size: 9px; color: #6b7280; line-height:1.4;" id="q-footer">
             ขอบคุณที่ไว้วางใจ SRANGPAP WEDDING<br>
@@ -3735,7 +3751,8 @@
         </div>
 
         <div id="nq-tax-panel" style="display:none; margin-top:12px;">
-          <div style="padding:12px 14px; border-radius:10px; background:#fefcf9; border:1px solid #e8dfd5; margin-bottom:10px;">
+          <!-- VAT row (hidden if studio not VAT-registered) -->
+          <div id="nq-tax-vat-wrap" style="padding:12px 14px; border-radius:10px; background:#fefcf9; border:1px solid #e8dfd5; margin-bottom:10px;">
             <label style="display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none;">
               <input type="checkbox" id="nq-tax-vat" onchange="updateNQTaxCalc()" style="width:18px; height:18px; cursor:pointer;">
               <span style="font-size:13.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.includeVat">รวม VAT (ภาษีมูลค่าเพิ่ม)</span>
@@ -3744,6 +3761,10 @@
               <span style="font-size:12px; color:#7c7066;" data-i18n="tax.vatRate">อัตรา VAT (%)</span>
               <input type="number" id="nq-tax-vat-rate" value="7" min="0" max="20" step="0.5" oninput="updateNQTaxCalc()" style="text-align:center;">
             </div>
+          </div>
+          <!-- Compliance note when studio not VAT-registered (hidden by default) -->
+          <div id="nq-tax-novat-note" style="display:none; padding:10px 12px; border-radius:10px; background:#eff6ff; border:1px solid #bfd0fe; margin-bottom:10px; font-size:11.5px; color:#1e3a8a; line-height:1.5;">
+            📌 สตูดิโอยังไม่ได้จดทะเบียน VAT · ระบบจึงซ่อนตัวเลือก VAT 7% ไว้ · ลูกค้าบริษัทยังหักภาษี ณ ที่จ่ายได้ตามปกติ — <span style="font-weight:600; text-decoration:underline; cursor:pointer;" onclick="goTo('settings-tax')">เปิดในตั้งค่า ▸</span>
           </div>
 
           <div style="padding:12px 14px; border-radius:10px; background:#fefcf9; border:1px solid #e8dfd5; margin-bottom:10px;">
@@ -4089,6 +4110,10 @@
           <div class="form-group">
             <label>เลขประจำตัวผู้เสียภาษี (13 หลัก) <span style="color:#9ca3af; font-weight:400; font-size:11px;">— แสดงในใบกำกับภาษี</span></label>
             <input type="text" id="tax-id" inputmode="numeric" maxlength="13" placeholder="1234567890123">
+          </div>
+          <div class="form-group">
+            <label>สาขา <span style="color:#9ca3af; font-weight:400; font-size:11px;">— "สำนักงานใหญ่" หรือเลขสาขา 5 หลัก</span></label>
+            <input type="text" id="tax-branch" placeholder="สำนักงานใหญ่" value="สำนักงานใหญ่">
           </div>
           <div class="form-group">
             <label>ที่อยู่จดทะเบียน <span style="color:#9ca3af; font-weight:400; font-size:11px;">— สำหรับเอกสารภาษี (ถ้าต่างจากที่อยู่ทั่วไป)</span></label>
@@ -4623,6 +4648,8 @@
       <div class="form-group"><label data-i18n="lbl.shopName">ชื่อร้าน</label><input type="text" id="profile-shop"></div>
       <div class="form-group"><label data-i18n="lbl.tagline">สโลแกน / Tagline</label><input type="text" id="profile-tagline"></div>
       <div class="form-group"><label data-i18n="lbl.phone">เบอร์โทร</label><input type="tel" id="profile-phone"></div>
+      <div class="form-group"><label data-i18n="lbl.email">📧 อีเมล</label><input type="email" id="profile-email" placeholder="pixory.studio@gmail.com"></div>
+      <div class="form-group"><label data-i18n="lbl.website">🌐 เว็บไซต์</label><input type="text" id="profile-website" placeholder="pixory.studio (ถ้ามี)"></div>
       <div class="form-group"><label>LINE Official</label><input type="text" id="profile-line"></div>
       <div class="form-group"><label data-i18n="lbl.instagram">Instagram</label><input type="text" id="profile-ig"></div>
       <div class="form-group"><label data-i18n="lbl.facebook">Facebook Page</label><input type="text" id="profile-fb"></div>
@@ -4993,12 +5020,44 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.8.3';
+const PIXORY_VERSION = '1.8.4';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.8.4': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'ใบเสนอราคา PDF · ปรับ 4 รูปแบบอัตโนมัติตามสถานะภาษี',
+    items: [
+      {
+        icon: '🎨',
+        title: 'PDF ปรับตัวเองตาม "จด VAT × ประเภทลูกค้า"',
+        desc: 'ระบบเลือกรูปแบบใบเสนอราคาอัตโนมัติจาก 4 case: Casual (ไม่จด × B2C), B2B No-VAT, VAT+B2C, Full Pro · เนื้อหา & ภาษา & label เปลี่ยนตามอัตโนมัติ · ลูกค้าทั่วไปได้ใบสบายๆ ลูกค้าบริษัทได้ใบเต็มยศ'
+      },
+      {
+        icon: '🛡',
+        title: 'ซ่อนตัวเลือก VAT ถ้าสตูดิโอไม่ได้จด VAT',
+        desc: 'ฟอร์มสร้างงาน + ใบเสนอราคา · ถ้ายังไม่จด VAT จะซ่อน checkbox "รวม VAT" ออก พร้อมเตือนว่าออกใบกำกับภาษีตามมาตรา 86 ไม่ได้ · WHT ยังใช้กับลูกค้าบริษัทได้ตามปกติ'
+      },
+      {
+        icon: '📝',
+        title: 'Amount in words ภาษาไทย · auto',
+        desc: 'PDF แสดง "(สามหมื่นหนึ่งพันสามสิบบาทถ้วน)" อัตโนมัติเมื่อมีการเก็บภาษี · ไม่ต้องกรอก ไม่ต้องจ้าง · ระบบแปลงให้'
+      },
+      {
+        icon: '📅',
+        title: 'ตารางชำระเงิน · auto-compute',
+        desc: 'PDF แสดงวันชำระมัดจำ (= วันหมดอายุใบเสนอ) และยอดคงเหลือ + วันชำระ (= วันงาน +1) · ลูกค้าเห็นชัดเจน · ตามที่พี่โจระบุ'
+      },
+      {
+        icon: '⚙',
+        title: 'เพิ่มฟิลด์สำคัญใน Profile + Tax Settings',
+        desc: 'Studio Profile เพิ่ม email + website · Tax Settings เพิ่มสาขา (สำนักงานใหญ่/เลขสาขา) · Wizard step Profile เพิ่ม email + tax-setup hint'
+      }
+    ]
+  },
   '1.8.3': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory เรียบร้อยแล้ว',
@@ -5868,11 +5927,15 @@ let STORAGE_KEY = 'srangpap_wedding_data_v2';
 // Profile, Bank, Template storage
 const PROFILE = {
   shop:'', tagline:'', phone:'', line:'', ig:'', fb:'', address:'',
-  // === Tax (added v1.8.0) ===
+  // === Studio extras (added v1.8.4) ===
+  email:'',              // อีเมลสตูดิโอ — โผล่ใน PDF header
+  website:'',            // เว็บไซต์ (optional)
+  // === Tax (added v1.8.0, expanded v1.8.4) ===
   taxId:'',              // เลขผู้เสียภาษี 13 หลัก ของสตูดิโอ
   vatRegistered:false,   // จดทะเบียน VAT?
   vatNumber:'',          // เลขผู้ประกอบการ VAT (ถ้าจด)
   taxAddress:'',         // ที่อยู่จดทะเบียนสำหรับเอกสารภาษี
+  branch:'สำนักงานใหญ่',  // สาขา (v1.8.4) — สำหรับใบกำกับ
   defaultWHT:3,          // อัตรา WHT ปกติ (3% สำหรับบริการ)
   taxYearStart:1         // เดือนที่เริ่มปีงบ (1=ม.ค., 10=ต.ค. เป็นต้น)
 };
@@ -6953,7 +7016,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.8.3 · Build 2026-05-22 · เลือกประเภทลูกค้าในฟอร์ม', en: 'v1.8.3 · Build 2026-05-22 · Inline customer type picker' },
+  'ab.version':         { th: 'v1.8.4 · Build 2026-05-22 · ใบเสนอราคา 4 รูปแบบ', en: 'v1.8.4 · Build 2026-05-22 · 4 PDF cases' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -8178,6 +8241,8 @@ function populateProfileForm() {
   document.getElementById('profile-shop').value = PROFILE.shop || '';
   document.getElementById('profile-tagline').value = PROFILE.tagline || '';
   document.getElementById('profile-phone').value = PROFILE.phone || '';
+  const _emEl = document.getElementById('profile-email'); if (_emEl) _emEl.value = PROFILE.email || '';
+  const _webEl = document.getElementById('profile-website'); if (_webEl) _webEl.value = PROFILE.website || '';
   document.getElementById('profile-line').value = PROFILE.line || '';
   document.getElementById('profile-ig').value = PROFILE.ig || '';
   document.getElementById('profile-fb').value = PROFILE.fb || '';
@@ -8261,6 +8326,8 @@ function saveProfile() {
   PROFILE.shop = document.getElementById('profile-shop').value;
   PROFILE.tagline = document.getElementById('profile-tagline').value;
   PROFILE.phone = document.getElementById('profile-phone').value;
+  const _emSave = document.getElementById('profile-email'); if (_emSave) PROFILE.email = _emSave.value;
+  const _webSave = document.getElementById('profile-website'); if (_webSave) PROFILE.website = _webSave.value;
   PROFILE.line = document.getElementById('profile-line').value;
   PROFILE.ig = document.getElementById('profile-ig').value;
   PROFILE.fb = document.getElementById('profile-fb').value;
@@ -8274,6 +8341,7 @@ function saveProfile() {
 function populateTaxSettings() {
   const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
   setVal('tax-id', PROFILE.taxId);
+  setVal('tax-branch', PROFILE.branch || 'สำนักงานใหญ่');
   setVal('tax-address', PROFILE.taxAddress);
   setVal('tax-vat-number', PROFILE.vatNumber);
   setVal('tax-default-wht', PROFILE.defaultWHT || 3);
@@ -8321,6 +8389,7 @@ function updateTaxHubSub() {
 function saveTaxSettings() {
   const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
   PROFILE.taxId = getVal('tax-id');
+  PROFILE.branch = getVal('tax-branch') || 'สำนักงานใหญ่';
   PROFILE.taxAddress = getVal('tax-address');
   PROFILE.vatNumber = getVal('tax-vat-number');
   const wht = parseFloat(getVal('tax-default-wht') || '3');
@@ -8720,8 +8789,14 @@ const WIZARD_STEPS = [
         <div class="form-group"><label>ชื่อร้าน <span class="req">*</span></label><input type="text" id="wiz-shop" placeholder="เช่น สตูดิโอใจดี"></div>
         <div class="form-group"><label>สโลแกน / Tagline</label><input type="text" id="wiz-tagline" placeholder="เช่น Wedding & Portrait Studio"></div>
         <div class="form-group"><label>📱 เบอร์โทร</label><input type="tel" id="wiz-phone" placeholder="08X-XXX-XXXX"></div>
+        <div class="form-group"><label>📧 อีเมล</label><input type="email" id="wiz-email" placeholder="studio@example.com"></div>
         <div class="form-group"><label>💬 LINE Official</label><input type="text" id="wiz-line" placeholder="@yourstudio"></div>
         <div class="form-group"><label>📸 Instagram</label><input type="text" id="wiz-ig" placeholder="@yourstudio"></div>
+        <!-- Tax setup hint (Tax T5) — subtle, optional -->
+        <div style="margin-top:14px; padding:12px 14px; border-radius:12px; background:#fef3eb; border:0.5px solid rgba(216,112,74,.25); font-size:12.5px; line-height:1.55; color:#7c2d12;">
+          <div style="font-weight:700; font-size:13px; margin-bottom:3px;">📋 จดทะเบียน VAT แล้วหรือยัง?</div>
+          <div>ส่วนใหญ่ของช่างภาพ <strong>ยังไม่จด</strong> (รายได้ &lt; 1.8 ล้าน/ปี) — ไม่ต้องตั้งค่าตอนนี้ก็ได้ · เปิดในตั้งค่า → ภาษี เมื่อพร้อม</div>
+        </div>
       </div>
     `,
     onEnter: () => {
@@ -8730,6 +8805,7 @@ const WIZARD_STEPS = [
       document.getElementById('wiz-shop').value = PROFILE.shop || fallbackShop || '';
       document.getElementById('wiz-tagline').value = PROFILE.tagline || '';
       document.getElementById('wiz-phone').value = PROFILE.phone || '';
+      const _wizEm = document.getElementById('wiz-email'); if (_wizEm) _wizEm.value = PROFILE.email || '';
       document.getElementById('wiz-line').value = PROFILE.line || '';
       document.getElementById('wiz-ig').value = PROFILE.ig || '';
     },
@@ -8737,6 +8813,7 @@ const WIZARD_STEPS = [
       PROFILE.shop = document.getElementById('wiz-shop').value.trim();
       PROFILE.tagline = document.getElementById('wiz-tagline').value;
       PROFILE.phone = document.getElementById('wiz-phone').value;
+      const _wizEmSv = document.getElementById('wiz-email'); if (_wizEmSv) PROFILE.email = _wizEmSv.value.trim();
       PROFILE.line = document.getElementById('wiz-line').value;
       PROFILE.ig = document.getElementById('wiz-ig').value;
       saveData();
@@ -10112,29 +10189,48 @@ function showQuoteScreen(data, source) {
   document.querySelector('#q-disc .v').textContent = data.discount > 0 ? '-' + fmt(data.discount) : '฿0';
   document.getElementById('q-final').textContent = fmt(data.sell);
 
-  // === Tax T2 · PDF tax block ============================================
-  const _qDocTitle    = document.getElementById('q-doc-title');
-  const _qTaxRows     = document.getElementById('q-tax-rows');
-  const _qStudioTaxRow = document.getElementById('q-studio-tax-row');
-  const _qCustTaxRows = document.getElementById('q-customer-tax-rows');
+  // === Tax T5 · 4-case PDF rendering ======================================
+  // Compute document case from studio.vatRegistered × customer.type
+  const _studioVat = !!(typeof PROFILE !== 'undefined' && PROFILE.vatRegistered);
+  const _cType = data.customerType || 'B2C';
+  const _docCase = (typeof pickDocCase === 'function') ? pickDocCase(_studioVat, _cType) : 'casual';
+  const _vis = (typeof getDocCaseVisibility === 'function') ? getDocCaseVisibility(_docCase) : null;
   const _taxOn = !!data.taxEnabled;
-  // Studio tax id row — show whenever PROFILE has a taxId AND doc is tax-mode
+  // Smart title: only "ใบกำกับภาษี" for VAT-registered studios with tax mode on
+  const _qDocTitle    = document.getElementById('q-doc-title');
+  const _qDocTitleTxt = document.getElementById('q-doc-title-text');
+  if (_qDocTitle && _qDocTitleTxt) {
+    const title = (typeof pickDocTitle === 'function')
+      ? pickDocTitle(_docCase, _taxOn && _studioVat)
+      : (_taxOn ? 'ใบเสนอราคา / ใบกำกับภาษี' : 'ใบเสนอราคา');
+    _qDocTitleTxt.textContent = title;
+    // Show title pill when:
+    //  - Tax invoice mode (VAT studio + tax on) → strong pill
+    //  - OR b2bNoVat (still want a subtle header for business client)
+    const showPill = (_studioVat && _taxOn) || _docCase === 'b2bNoVat' || _docCase === 'fullPro';
+    _qDocTitle.style.display = showPill ? '' : 'none';
+  }
+
+  // Studio tax id row — show per visibility rule
+  const _qStudioTaxRow = document.getElementById('q-studio-tax-row');
   if (_qStudioTaxRow) {
     const studioTaxId = (typeof PROFILE !== 'undefined' && PROFILE.taxId) ? PROFILE.taxId : '';
-    if (_taxOn && studioTaxId) {
+    if (_vis && _vis.showStudioTaxId && studioTaxId) {
       const el = document.getElementById('q-studio-tax-id');
-      if (el) el.textContent = studioTaxId;
+      if (el) {
+        const branchSfx = (PROFILE.branch ? ' · ' + PROFILE.branch : '');
+        el.textContent = studioTaxId + branchSfx;
+      }
       _qStudioTaxRow.style.display = '';
     } else {
       _qStudioTaxRow.style.display = 'none';
     }
   }
-  // Title pill
-  if (_qDocTitle) _qDocTitle.style.display = _taxOn ? '' : 'none';
-  // Customer tax info rows
+
+  // Customer tax info rows — show for b2bNoVat + fullPro
+  const _qCustTaxRows = document.getElementById('q-customer-tax-rows');
   if (_qCustTaxRows) {
-    const hasCustTax = _taxOn && (data.customerType === 'B2B' || data.customerType === 'Gov');
-    if (hasCustTax) {
+    if (_vis && _vis.showCustomerTaxBlock) {
       const setText = (id, v, hideIfEmpty) => {
         const el = document.getElementById(id);
         if (!el) return;
@@ -10154,35 +10250,38 @@ function showQuoteScreen(data, source) {
       _qCustTaxRows.style.display = 'none';
     }
   }
-  // Tax breakdown rows in totals area
+
+  // Tax breakdown rows — case-driven visibility
+  const _qTaxRows = document.getElementById('q-tax-rows');
   if (_qTaxRows) {
-    if (_taxOn && data.tax) {
+    const showAnyTaxBlock = _vis && (_vis.showVatRow || _vis.showWhtRow);
+    if (showAnyTaxBlock && data.tax) {
       const breakdown = data.taxBreakdown || (typeof calcTax === 'function' ? calcTax(data.sell || 0, data.tax) : null);
       if (breakdown) {
-        // VAT row
+        // VAT row — only for vatB2c and fullPro
         const vatRow = document.getElementById('q-vat-row');
-        if (breakdown.includeVat) {
+        if (_vis.showVatRow && breakdown.includeVat) {
           document.getElementById('q-vat-label').textContent = '+ VAT ' + breakdown.vatRate + '%';
           document.getElementById('q-vat-val').textContent = fmt(breakdown.vatAmount);
           vatRow.style.display = '';
         } else vatRow.style.display = 'none';
-        // Grand total — only meaningful if VAT actually adds anything
+        // Grand total — only if VAT shown and adds value
         const grandRow = document.getElementById('q-grand-row');
-        if (breakdown.includeVat) {
+        if (_vis.showVatRow && breakdown.includeVat) {
           document.getElementById('q-grand-val').textContent = fmt(breakdown.grandTotal);
           grandRow.style.display = '';
         } else grandRow.style.display = 'none';
-        // WHT row
+        // WHT row — for b2bNoVat and fullPro
         const whtRow = document.getElementById('q-wht-row');
-        if (breakdown.includeWht) {
+        if (_vis.showWhtRow && breakdown.includeWht) {
           const basisHint = breakdown.whtBasis === 'total' ? ' (รวม VAT)' : '';
           document.getElementById('q-wht-label').textContent = '− WHT ' + breakdown.whtRate + '%' + basisHint;
           document.getElementById('q-wht-val').textContent = '-' + fmt(breakdown.whtAmount);
           whtRow.style.display = '';
         } else whtRow.style.display = 'none';
-        // Net received — only show if WHT was withheld
+        // Net received — only when WHT visible
         const netRow = document.getElementById('q-net-row');
-        if (breakdown.includeWht) {
+        if (_vis.showWhtRow && breakdown.includeWht) {
           document.getElementById('q-net-val').textContent = fmt(breakdown.netReceived);
           netRow.style.display = '';
         } else netRow.style.display = 'none';
@@ -10190,14 +10289,65 @@ function showQuoteScreen(data, source) {
       } else _qTaxRows.style.display = 'none';
     } else _qTaxRows.style.display = 'none';
   }
-  // === /Tax T2 ============================================================
 
-  // Show deposit block if quote has deposit > 0
+  // Amount in words (Tax T5)
+  const _qAmtWords = document.getElementById('q-amount-in-words');
+  if (_qAmtWords) {
+    if (_vis && _vis.showAmountInWords && typeof numberToThaiText === 'function') {
+      // Use grand total (after VAT) if VAT shown, else sell
+      let amt = data.sell || 0;
+      if (_vis.showVatRow && data.taxBreakdown && data.taxBreakdown.grandTotal) {
+        amt = data.taxBreakdown.grandTotal;
+      }
+      _qAmtWords.textContent = '(' + numberToThaiText(amt) + ')';
+      _qAmtWords.style.display = '';
+    } else _qAmtWords.style.display = 'none';
+  }
+
+  // No-VAT compliance note (Tax T5) — only for b2bNoVat
+  const _qNoVatNote = document.getElementById('q-novat-note');
+  if (_qNoVatNote) _qNoVatNote.style.display = (_vis && _vis.showNoVatNote) ? '' : 'none';
+  // === /Tax T5 ============================================================
+
+  // Show deposit block if quote has deposit > 0 (Tax T5 — with due dates)
   const depBlock = document.getElementById('q-deposit-block');
   if (depBlock) {
     if (data.deposit && data.deposit > 0) {
       depBlock.style.display = '';
       document.getElementById('q-deposit-amount').textContent = fmt(data.deposit);
+      // Deposit due date = quote expiry (per Joe's rule)
+      const depDueEl = document.getElementById('q-deposit-due');
+      if (depDueEl && data.dateExpire) {
+        const ed = new Date(data.dateExpire);
+        const _ms3 = monthsShortArray();
+        depDueEl.textContent = '· ภายใน ' + ed.getDate() + ' ' + _ms3[ed.getMonth()] + ' ' + displayYear(ed.getFullYear());
+      } else if (depDueEl) depDueEl.textContent = '';
+      // Balance due date = event date + 1 day (per Joe's rule)
+      const balRow = document.getElementById('q-balance-due-row');
+      const balAmtEl = document.getElementById('q-balance-amount');
+      const balDateEl = document.getElementById('q-balance-due-date');
+      if (balRow && balAmtEl) {
+        // Balance = grandTotal (with VAT) − deposit, OR sell − deposit if no tax
+        let chargeable = data.sell || 0;
+        if (data.taxBreakdown && data.taxBreakdown.includeVat && data.taxBreakdown.grandTotal) {
+          chargeable = data.taxBreakdown.grandTotal;
+        }
+        const balance = Math.max(0, chargeable - (data.deposit || 0));
+        if (balance > 0) {
+          balAmtEl.textContent = fmt(balance);
+          balRow.style.display = '';
+          // Event date + 1 day
+          const evDate = data.dateEvent || data.date;
+          if (balDateEl && evDate) {
+            const ev = new Date(evDate);
+            ev.setDate(ev.getDate() + 1);
+            const _ms4 = monthsShortArray();
+            balDateEl.textContent = '· ภายใน ' + ev.getDate() + ' ' + _ms4[ev.getMonth()] + ' ' + displayYear(ev.getFullYear());
+          }
+        } else {
+          balRow.style.display = 'none';
+        }
+      }
     } else {
       depBlock.style.display = 'none';
     }
@@ -11649,6 +11799,8 @@ function populateAddTaxFromJob(j) {
     else if (cType === 'Gov') hint.textContent = (typeof t === 'function') ? t('tax.custHintGov') : '🏛 Gov';
     else hint.textContent = '';
   }
+  // Tax T5 — apply VAT visibility (saved jobs from when studio was/wasn't VAT-registered)
+  if (typeof applyVatVisibilityToForm === 'function') applyVatVisibilityToForm('add');
   updateAddTaxCalc();
 }
 
@@ -11668,6 +11820,8 @@ function resetAddTaxUI() {
   if (sum) sum.innerHTML = '';
   const hint = document.getElementById('add-tax-cust-hint');
   if (hint) hint.textContent = '';
+  // Tax T5 — apply VAT visibility based on studio.vatRegistered
+  if (typeof applyVatVisibilityToForm === 'function') applyVatVisibilityToForm('add');
 }
 
 // Mark "user touched" the toggle so we don't overwrite their intent
@@ -11764,6 +11918,8 @@ function populateNQTaxFromQuote(q) {
   setChk('nq-tax-wht',  tax ? tax.includeWht : false);
   setVal('nq-tax-wht-rate', tax && tax.whtRate != null ? tax.whtRate : 3);
   setVal('nq-tax-wht-basis', tax && tax.whtBasis ? tax.whtBasis : 'base');
+  // Tax T5 — apply VAT visibility based on studio.vatRegistered
+  if (typeof applyVatVisibilityToForm === 'function') applyVatVisibilityToForm('nq');
   updateNQTaxCalc();
 }
 
@@ -11783,6 +11939,8 @@ function resetNQTaxUI() {
   if (sum) sum.innerHTML = '';
   const hint = document.getElementById('nq-tax-cust-hint');
   if (hint) hint.textContent = '';
+  // Tax T5 — apply VAT visibility based on studio.vatRegistered
+  if (typeof applyVatVisibilityToForm === 'function') applyVatVisibilityToForm('nq');
 }
 
 function _markNQTaxTouched() {
@@ -11805,6 +11963,166 @@ function buildTaxSnapshot(base, opts, enabled) {
     },
     taxBreakdown: breakdown
   };
+}
+
+// ============================================================================
+// === TAX T5 · numberToThaiText + pickDocCase (v1.8.4) ========================
+// ============================================================================
+
+// Convert a positive number to Thai text (บาท) — pure JS, no deps
+// 31030 → "สามหมื่นหนึ่งพันสามสิบบาทถ้วน"
+// 31030.50 → "สามหมื่นหนึ่งพันสามสิบบาทห้าสิบสตางค์"
+function numberToThaiText(num) {
+  num = Number(num) || 0;
+  if (num < 0) return 'ลบ' + numberToThaiText(-num);
+  if (num === 0) return 'ศูนย์บาทถ้วน';
+  const digits = ['', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า'];
+  const places = ['', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน', 'ล้าน'];
+
+  function _readChunk(chunkStr) {
+    // chunkStr = up to 7 digits, reads as Thai
+    let result = '';
+    const len = chunkStr.length;
+    for (let i = 0; i < len; i++) {
+      const d = parseInt(chunkStr[i], 10);
+      const pos = len - i - 1;
+      if (d === 0) continue;
+      // Special rules for "สิบ" position
+      if (pos === 1) {
+        if (d === 1) result += 'สิบ';
+        else if (d === 2) result += 'ยี่สิบ';
+        else result += digits[d] + 'สิบ';
+      } else if (pos === 0 && d === 1 && len > 1) {
+        // last digit = 1, after สิบ → "เอ็ด"
+        result += 'เอ็ด';
+      } else {
+        result += digits[d] + places[pos];
+      }
+    }
+    return result;
+  }
+
+  // Split into baht and satang
+  const rounded = Math.round(num * 100) / 100;
+  const baht = Math.floor(rounded);
+  const satang = Math.round((rounded - baht) * 100);
+
+  // Handle baht part — split by million groups
+  let bahtText = '';
+  if (baht === 0) {
+    bahtText = '';
+  } else {
+    // Process in groups of 6 digits (millions)
+    let bStr = String(baht);
+    const groups = [];
+    while (bStr.length > 6) {
+      groups.unshift(bStr.slice(-6));
+      bStr = bStr.slice(0, -6);
+    }
+    groups.unshift(bStr);
+    for (let i = 0; i < groups.length; i++) {
+      const g = groups[i];
+      const chunk = _readChunk(g);
+      bahtText += chunk;
+      if (i < groups.length - 1) bahtText += 'ล้าน';
+    }
+  }
+
+  let result = '';
+  if (bahtText) result += bahtText + 'บาท';
+  if (satang === 0) {
+    result += (bahtText ? 'ถ้วน' : 'ศูนย์บาทถ้วน');
+  } else {
+    result += _readChunk(String(satang)) + 'สตางค์';
+  }
+  return result;
+}
+
+// Apply VAT visibility to a form's tax section
+// If studio is NOT VAT-registered → hide VAT checkbox + show non-VAT note
+// WHT stays visible regardless (works for both)
+function applyVatVisibilityToForm(ctx) {
+  // ctx = 'add' (Add Job) or 'nq' (New Quote)
+  const isVatStudio = !!(typeof PROFILE !== 'undefined' && PROFILE.vatRegistered);
+  const vatWrap = document.getElementById(ctx + '-tax-vat-wrap');
+  const noteEl  = document.getElementById(ctx + '-tax-novat-note');
+  if (vatWrap) vatWrap.style.display = isVatStudio ? '' : 'none';
+  if (noteEl)  noteEl.style.display = isVatStudio ? 'none' : '';
+  // If hidden, force-uncheck VAT to prevent stale state
+  if (!isVatStudio) {
+    const vatChk = document.getElementById(ctx + '-tax-vat');
+    if (vatChk) vatChk.checked = false;
+  }
+}
+
+// Pick PDF document case — 1 of 4 scenarios
+// 'casual'    = Studio not VAT × B2C/VIP → simple, no tax
+// 'b2bNoVat'  = Studio not VAT × B2B/Gov → WHT only, no VAT, no tax invoice
+// 'vatB2c'    = Studio VAT     × B2C/VIP → VAT, no WHT
+// 'fullPro'   = Studio VAT     × B2B/Gov → VAT + WHT + tax invoice
+function pickDocCase(studioVatRegistered, customerType) {
+  const isVat = !!studioVatRegistered;
+  const isBiz = (customerType === 'B2B' || customerType === 'Gov');
+  if (isVat && isBiz)   return 'fullPro';
+  if (isVat && !isBiz)  return 'vatB2c';
+  if (!isVat && isBiz)  return 'b2bNoVat';
+  return 'casual';
+}
+
+// Smart title: returns the PDF document title based on case + tax toggle state
+function pickDocTitle(docCase, taxInvoiceMode) {
+  // Only studios that are VAT-registered can issue "ใบกำกับภาษี"
+  if (docCase === 'fullPro' && taxInvoiceMode) return 'ใบเสนอราคา / ใบกำกับภาษี';
+  if (docCase === 'vatB2c'   && taxInvoiceMode) return 'ใบเสนอราคา / ใบกำกับภาษี';
+  return 'ใบเสนอราคา';
+}
+
+// Returns visibility rules for the PDF based on case
+function getDocCaseVisibility(docCase) {
+  // For each case, decide whether to show: VAT row · WHT row · Tax IDs · amount-in-words · noVAT note
+  const rules = {
+    casual: {
+      showVatRow: false,
+      showWhtRow: false,
+      showStudioTaxId: false,    // hide subtle Tax ID for casual
+      showCustomerTaxBlock: false,
+      showAmountInWords: false,
+      showNoVatNote: false,
+      colorAccent: '#d8704a',     // warm orange (Pixory)
+      tone: 'warm'
+    },
+    b2bNoVat: {
+      showVatRow: false,
+      showWhtRow: true,
+      showStudioTaxId: true,
+      showCustomerTaxBlock: true,
+      showAmountInWords: true,
+      showNoVatNote: true,         // shown: "ไม่ได้จดทะเบียน VAT"
+      colorAccent: '#5e7ce4',
+      tone: 'business'
+    },
+    vatB2c: {
+      showVatRow: true,
+      showWhtRow: false,
+      showStudioTaxId: true,
+      showCustomerTaxBlock: false,
+      showAmountInWords: true,
+      showNoVatNote: false,
+      colorAccent: '#15803d',
+      tone: 'vat-casual'
+    },
+    fullPro: {
+      showVatRow: true,
+      showWhtRow: true,
+      showStudioTaxId: true,
+      showCustomerTaxBlock: true,
+      showAmountInWords: true,
+      showNoVatNote: false,
+      colorAccent: '#3a2f25',
+      tone: 'pro'
+    }
+  };
+  return rules[docCase] || rules.casual;
 }
 
 // ============================================================================
