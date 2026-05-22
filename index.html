@@ -368,6 +368,116 @@
     font-size: 14px; color: #6b7280; cursor: pointer;
   }
 
+  /* PIT Helper screen (Tax T6) */
+  .pit-mode-btn {
+    padding: 12px 10px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #fefcf9;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    color: #3a2f25;
+    transition: all .15s;
+  }
+  .pit-mode-btn:active { transform: scale(.98); }
+  .pit-mode-btn.active {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: #d8704a;
+    box-shadow: 0 2px 6px rgba(216,112,74,.15);
+  }
+  body.dark-theme .pit-mode-btn { background: #2a2a2a; border-color: #404040; color: #f3f4f6; }
+  body.dark-theme .pit-mode-btn.active { background: #422006; border-color: #d8704a; }
+
+  .pit-result-card {
+    background: #fefcf9;
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 14px;
+    border: 0.5px solid #e8dfd5;
+  }
+  body.dark-theme .pit-result-card { background: #2a2a2a; border-color: #404040; }
+  .pit-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 0;
+    font-size: 12.5px;
+  }
+  .pit-row strong { font-weight: 600; }
+  .pit-row-divider {
+    border-top: 1px dashed #d6cabc;
+    padding-top: 10px; margin-top: 4px;
+    font-weight: 600;
+  }
+  .pit-brackets {
+    background: #fef3eb;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin: 4px 0;
+    border-left: 2px solid #d8704a;
+  }
+  body.dark-theme .pit-brackets { background: #3a2f25; }
+  .pit-bracket-row {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: #7c7066;
+    padding: 2px 0;
+  }
+  body.dark-theme .pit-bracket-row { color: #d4d4d4; }
+  .pit-final {
+    margin-top: 14px;
+    padding: 16px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    text-align: center;
+    font-size: 13.5px; font-weight: 600;
+    border: 1px solid #fbbf24;
+  }
+  body.dark-theme .pit-final { background: linear-gradient(135deg, #422006, #57321b); border-color: #d97706; color: #fde68a; }
+  .pit-summary-line {
+    text-align: center;
+    font-size: 11px;
+    color: #7c7066;
+    margin-top: 6px;
+  }
+  .pit-compare-card {
+    background: #f0f9ff;
+    border: 0.5px solid #93c5fd;
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: 12px;
+  }
+  body.dark-theme .pit-compare-card { background: #1e293b; border-color: #475569; }
+  .pit-compare-title {
+    font-size: 12.5px; font-weight: 700; color: #1e40af; margin-bottom: 8px;
+  }
+  body.dark-theme .pit-compare-title { color: #93c5fd; }
+  .pit-compare-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .pit-cc {
+    background: white;
+    border: 0.5px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+  }
+  body.dark-theme .pit-cc { background: #0f172a; border-color: #475569; }
+  .pit-cc-label { font-size: 11px; color: #1e40af; font-weight: 600; }
+  body.dark-theme .pit-cc-label { color: #93c5fd; }
+  .pit-cc-val { font-size: 13px; font-weight: 700; color: #1e3a8a; margin-top: 2px; }
+  body.dark-theme .pit-cc-val { color: #dbeafe; }
+  .pit-compare-hint { font-size: 11.5px; color: #1e40af; margin-top: 8px; line-height: 1.5; }
+  body.dark-theme .pit-compare-hint { color: #93c5fd; }
+  .pit-disclaimer {
+    background: #f7f4ef;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: #7c7066;
+    line-height: 1.5;
+  }
+  body.dark-theme .pit-disclaimer { background: #2a2a2a; color: #9ca3af; }
+
   /* Quick-Start type cards (S3) */
   .qs-type-card {
     display: flex; align-items: center; gap: 12px;
@@ -4433,6 +4543,19 @@
               </div>
               <div class="right">›</div>
             </div>
+            <!-- Tax T6 — PIT Helper link -->
+            <div class="settings-row" onclick="goTo('pit-helper')">
+              <div class="left">
+                <div class="ico-wrap svg-icon">
+                  <svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-orange)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="22" fill="#fff"/><text x="44" y="55" fill="#d8704a" font-size="32" font-weight="800" text-anchor="middle" font-family="-apple-system,Inter,sans-serif">฿</text></svg>
+                </div>
+                <div>
+                  <div class="row-title">ภาษีเงินได้ประจำปี (ภ.ง.ด.90/94)</div>
+                  <div class="row-sub">PIT Helper · คำนวณ + Export Excel · สำหรับช่างภาพอิสระ</div>
+                </div>
+              </div>
+              <div class="right">›</div>
+            </div>
           </div>
         </div>
       </div>
@@ -4501,6 +4624,103 @@
         <button class="btn" onclick="exportTaxExcel()" style="margin:0; background:linear-gradient(135deg, #15803d, #166534);">
           <span style="margin-right:6px;">📊</span><span data-i18n="tax.exportExcelBtn">บันทึก Excel · ภ.พ.30 · ภ.ง.ด. 3</span>
         </button>
+      </div>
+    </div>
+
+    <!-- ====== SCREEN: PIT HELPER (ภ.ง.ด.90/94) — Tax T6 ====== -->
+    <div class="screen" id="screen-pit-helper">
+      <div class="header">
+        <button class="back" onclick="goTo('settings-tax')">‹</button>
+        <h1><span style="margin-right:6px;">📊</span><span>ภาษีเงินได้ประจำปี</span></h1>
+        <span style="width: 22px;"></span>
+      </div>
+
+      <div style="padding: 0 16px 16px;">
+        <div style="background:#fef3eb; border:0.5px solid rgba(216,112,74,.25); border-radius:12px; padding:12px 14px; margin-bottom:14px; font-size:12.5px; color:#7c2d12; line-height:1.55;">
+          ✨ <strong>PIT Helper</strong> — ช่วยคำนวณภาษีเงินได้บุคคลธรรมดา (ภ.ง.ด.90/94) สำหรับช่างภาพที่ไม่ได้จดบริษัท · ใช้ข้อมูลจาก Pixory ทั้งหมด · กรอกแค่ 3-5 ช่องนี้
+        </div>
+
+        <!-- Year selector -->
+        <div class="form-group" style="margin: 0 0 14px;">
+          <label>ปีภาษี</label>
+          <select id="pit-year" onchange="refreshPITCalc()"></select>
+        </div>
+
+        <!-- Personal info -->
+        <div class="settings-section" style="margin: 0 0 14px;">
+          <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px;">ข้อมูลผู้เสียภาษี</div>
+          <div class="form-group" style="margin: 0 0 10px;">
+            <label>สถานะ</label>
+            <select id="pit-marital" onchange="refreshPITCalc()">
+              <option value="single">โสด</option>
+              <option value="married">สมรส</option>
+              <option value="widowed">หม้าย</option>
+              <option value="divorced">หย่า</option>
+            </select>
+          </div>
+          <div class="form-group" id="pit-spouse-row" style="margin: 0 0 10px; display:none;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="pit-spouse-no-income" onchange="refreshPITCalc()" style="width:18px; height:18px;">
+              <span style="font-size:13.5px;">คู่สมรสไม่มีรายได้ (ได้ลดหย่อน 60,000)</span>
+            </label>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label>จำนวนบุตร <span style="color:#9ca3af; font-size:11px;">(ลดหย่อน 30,000/คน)</span></label>
+            <input type="number" id="pit-children" min="0" max="20" value="0" oninput="refreshPITCalc()">
+          </div>
+        </div>
+
+        <!-- Expense mode toggle -->
+        <div class="settings-section" style="margin: 0 0 14px;">
+          <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px;">โหมดค่าใช้จ่าย</div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <button id="pit-mode-flat" class="pit-mode-btn active" onclick="setPITExpenseMode('flat60')">
+              <div style="font-size:13.5px; font-weight:700;">หักเหมา 60%</div>
+              <div style="font-size:10.5px; color:#7c7066; margin-top:2px;">ง่าย · ไม่ต้องเก็บบิล</div>
+            </button>
+            <button id="pit-mode-actual" class="pit-mode-btn" onclick="setPITExpenseMode('actual')">
+              <div style="font-size:13.5px; font-weight:700;">หักตามจริง</div>
+              <div style="font-size:10.5px; color:#7c7066; margin-top:2px;">จาก Pixory · cost จริง</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Optional deductions (collapsible) -->
+        <details class="settings-section" style="margin: 0 0 14px;">
+          <summary style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; cursor:pointer; padding:4px 0;">▸ ค่าลดหย่อนเพิ่มเติม (optional)</summary>
+          <div style="margin-top:10px;">
+            <div class="form-group" style="margin: 0 0 10px;">
+              <label>ประกันชีวิต <span style="color:#9ca3af; font-size:11px;">(max 100,000)</span></label>
+              <input type="number" id="pit-life-ins" min="0" value="0" oninput="refreshPITCalc()">
+            </div>
+            <div class="form-group" style="margin: 0 0 10px;">
+              <label>ประกันสุขภาพ <span style="color:#9ca3af; font-size:11px;">(max 25,000)</span></label>
+              <input type="number" id="pit-health-ins" min="0" value="0" oninput="refreshPITCalc()">
+            </div>
+            <div class="form-group" style="margin: 0 0 10px;">
+              <label>กองทุน RMF/SSF <span style="color:#9ca3af; font-size:11px;">(max 200,000)</span></label>
+              <input type="number" id="pit-rmf-ssf" min="0" value="0" oninput="refreshPITCalc()">
+            </div>
+            <div class="form-group" style="margin: 0 0 10px;">
+              <label>บริจาค</label>
+              <input type="number" id="pit-donation" min="0" value="0" oninput="refreshPITCalc()">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label>ดอกเบี้ยกู้บ้าน <span style="color:#9ca3af; font-size:11px;">(max 100,000)</span></label>
+              <input type="number" id="pit-mortgage" min="0" value="0" oninput="refreshPITCalc()">
+            </div>
+          </div>
+        </details>
+
+        <!-- Results (live) -->
+        <div id="pit-results"></div>
+
+        <!-- Export -->
+        <div style="padding: 14px 0 32px;">
+          <button class="btn" onclick="exportPITExcel()" style="margin:0; background:linear-gradient(135deg, #15803d, #166534);">
+            <span style="margin-right:6px;">📥</span>บันทึก Excel · ภ.ง.ด.90 / 94
+          </button>
+        </div>
       </div>
     </div>
 
@@ -5242,6 +5462,7 @@ function goTo(name) {
   if (name === 'jobs') { if (typeof renderJobsWithCurrentFilter === 'function') { renderJobsWithCurrentFilter(); syncJobFilterChips(); } }
   if (name === 'settings-tax') { if (typeof populateTaxSettings === 'function') { populateTaxSettings(); setupTaxToggleListener(); updateTaxHubSub(); } }
   if (name === 'tax-report')   { if (typeof renderTaxReport === 'function') renderTaxReport(); }
+  if (name === 'pit-helper')   { if (typeof renderPITHelper === 'function') renderPITHelper(); }
   // Toggle wizard-mode on body (hides topbar + bottom-nav during onboarding)
   document.body.classList.toggle('wizard-mode', name === 'wizard');
   if (name === 'settings-hub-packages') renderServicesList();
@@ -5269,12 +5490,44 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.8.6';
+const PIXORY_VERSION = '1.8.7';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.8.7': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'PIT Helper · คำนวณภาษีเงินได้บุคคลธรรมดา (ภ.ง.ด.90/94)',
+    items: [
+      {
+        icon: '📊',
+        title: 'PIT Helper · ช่วยคำนวณภาษีเงินได้ปลายปี',
+        desc: 'สำหรับช่างภาพอิสระที่ไม่ได้จดบริษัท · เข้าได้ใน Settings → ภาษี → "ภาษีเงินได้ประจำปี" · กรอกแค่ 3-5 ช่อง (สถานะ · บุตร · โหมดค่าใช้จ่าย) · Pixory ดึงรายได้ + WHT จากระบบให้อัตโนมัติ'
+      },
+      {
+        icon: '⚖️',
+        title: 'เทียบ "หักเหมา 60%" vs "หักตามจริง"',
+        desc: 'แสดงผลทั้ง 2 โหมดข้างกัน · พร้อมแนะนำว่าโหมดไหนประหยัดกว่า · ช่วยตัดสินใจก่อนยื่นจริง'
+      },
+      {
+        icon: '🧮',
+        title: 'คำนวณภาษีตามขั้นบันได (Progressive)',
+        desc: 'อัตราภาษี 0-35% ตาม 8 ขั้น · แสดงรายละเอียดแต่ละช่วง · หักลดหย่อนบุคคล + คู่สมรส + บุตร + ประกัน + RMF/SSF · เห็นชัดว่า "ต้องจ่ายเพิ่ม" หรือ "ขอคืนได้"'
+      },
+      {
+        icon: '📥',
+        title: 'Export Excel ภ.ง.ด.90',
+        desc: 'บันทึก worksheet ที่พร้อมใช้ยื่นภาษีเงินได้ปลายปี · มี breakdown ทุกขั้นตอน · ส่งให้ผู้ตรวจสอบบัญชีดูได้ทันที'
+      },
+      {
+        icon: '🎯',
+        title: 'ไม่รบกวนส่วนอื่นของแอป',
+        desc: 'ฟิลด์ทั้งหมด (สถานะสมรส · บุตร · ค่าลดหย่อน) แสดงเฉพาะในหน้า PIT Helper เท่านั้น · ฟอร์มสร้างงาน · ใบเสนอราคา · Settings อื่นไม่กระทบ'
+      }
+    ]
+  },
   '1.8.6': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory เรียบร้อยแล้ว',
@@ -6245,7 +6498,21 @@ const PROFILE = {
   taxAddress:'',         // ที่อยู่จดทะเบียนสำหรับเอกสารภาษี
   branch:'สำนักงานใหญ่',  // สาขา (v1.8.4) — สำหรับใบกำกับ
   defaultWHT:3,          // อัตรา WHT ปกติ (3% สำหรับบริการ)
-  taxYearStart:1         // เดือนที่เริ่มปีงบ (1=ม.ค., 10=ต.ค. เป็นต้น)
+  taxYearStart:1,        // เดือนที่เริ่มปีงบ (1=ม.ค., 10=ต.ค. เป็นต้น)
+  // === PIT Helper (Tax T6, v1.8.7) — แสดงเฉพาะในหน้า PIT Helper ไม่กระทบฟอร์มอื่น ===
+  pit: {
+    enabled: false,           // ผู้ใช้เปิดใช้หน้า PIT ครั้งแรกหรือยัง
+    maritalStatus: 'single',  // 'single' | 'married' | 'widowed' | 'divorced'
+    spouseHasIncome: true,    // สมรส + คู่สมรสไม่มีรายได้ = ลดหย่อนได้
+    numChildren: 0,           // จำนวนบุตร
+    expenseMode: 'flat60',    // 'flat60' | 'actual'
+    // Optional deductions
+    lifeInsurance: 0,
+    healthInsurance: 0,
+    rmfSsf: 0,
+    donation: 0,
+    mortgageInterest: 0
+  }
 };
 const CUSTOMER_TYPES = ['B2C','B2B','Gov','VIP'];  // Customer Type tags
 const BANKS = [];
@@ -7324,7 +7591,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.8.6 · Build 2026-05-22 · Quick-Start · Templates · Polish', en: 'v1.8.6 · Build 2026-05-22 · Quick-Start · Templates · Polish' },
+  'ab.version':         { th: 'v1.8.7 · Build 2026-05-22 · PIT Helper · ภ.ง.ด.90/94', en: 'v1.8.7 · Build 2026-05-22 · PIT Helper' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -12557,6 +12824,344 @@ function buildTaxSnapshot(base, opts, enabled) {
     },
     taxBreakdown: breakdown
   };
+}
+
+// ============================================================================
+// === TAX T6 · PIT Helper (Personal Income Tax) — ภ.ง.ด. 90/94 ================
+// ============================================================================
+
+// Thai PIT progressive brackets (2025-2026, ม.40(8))
+// [up_to_amount, rate] — last bracket has up_to = Infinity
+const PIT_BRACKETS = [
+  { upTo: 150000,    rate: 0.00,  label: '0 - 150,000' },
+  { upTo: 300000,    rate: 0.05,  label: '150,001 - 300,000' },
+  { upTo: 500000,    rate: 0.10,  label: '300,001 - 500,000' },
+  { upTo: 750000,    rate: 0.15,  label: '500,001 - 750,000' },
+  { upTo: 1000000,   rate: 0.20,  label: '750,001 - 1,000,000' },
+  { upTo: 2000000,   rate: 0.25,  label: '1,000,001 - 2,000,000' },
+  { upTo: 5000000,   rate: 0.30,  label: '2,000,001 - 5,000,000' },
+  { upTo: Infinity,  rate: 0.35,  label: '5,000,001+' }
+];
+
+// Calculate tax owed from net taxable income using progressive brackets
+// Returns { totalTax, breakdownByBracket: [{ from, to, rate, amount, tax }] }
+function calcProgressiveTax(netIncome) {
+  netIncome = Math.max(0, Number(netIncome) || 0);
+  const breakdown = [];
+  let totalTax = 0;
+  let lastUpTo = 0;
+  for (const b of PIT_BRACKETS) {
+    if (netIncome <= lastUpTo) break;
+    const segUpper = Math.min(netIncome, b.upTo);
+    const amountInBracket = segUpper - lastUpTo;
+    const tax = amountInBracket * b.rate;
+    if (amountInBracket > 0) {
+      breakdown.push({
+        from: lastUpTo + (lastUpTo > 0 ? 1 : 0),
+        to: segUpper,
+        rate: b.rate,
+        amount: amountInBracket,
+        tax: tax
+      });
+      totalTax += tax;
+    }
+    lastUpTo = b.upTo;
+  }
+  return { totalTax: Math.round(totalTax * 100) / 100, brackets: breakdown };
+}
+
+// Compute the PIT calculation for a given year
+// Returns full breakdown: revenue, expenses, deductions, net, tax, WHT credit, payable/refund
+function computePIT(year, opts) {
+  opts = opts || (PROFILE.pit || {});
+  // 1. Revenue — sum of all filed JOBS in this tax year (use existing helpers)
+  const period = (typeof getTaxYearPeriod === 'function') ? getTaxYearPeriod(year) : null;
+  let revenue = 0;
+  let actualExpenses = 0;
+  let whtWithheld = 0;
+  const filedJobs = [];
+  (JOBS || []).forEach(j => {
+    if (typeof isJobInTaxReport === 'function' && !isJobInTaxReport(j)) return;
+    // Date filter
+    if (period && j.date) {
+      const d = new Date(j.date);
+      if (period.start && d < period.start) return;
+      if (period.end && d > period.end) return;
+    }
+    revenue += (j.sell || 0);
+    // Actual expenses from job: team wages + travel + other
+    let teamCost = 0;
+    Object.values(j.teamWages || {}).forEach(w => teamCost += (Number(w) || 0));
+    actualExpenses += teamCost + (Number(j.travelCost) || 0) + (Number(j.otherCost) || 0);
+    // WHT
+    if (j.taxBreakdown && j.taxBreakdown.includeWht) {
+      whtWithheld += (j.taxBreakdown.whtAmount || 0);
+    }
+    filedJobs.push(j);
+  });
+  // Also include standalone EXPENSES that fall in the tax year
+  (EXPENSES || []).forEach(ex => {
+    if (period && ex.date) {
+      const d = new Date(ex.date);
+      if (period.start && d < period.start) return;
+      if (period.end && d > period.end) return;
+    }
+    actualExpenses += (Number(ex.amount) || 0);
+  });
+
+  // 2. Expense — flat 60% or actual
+  const expenseMode = opts.expenseMode || 'flat60';
+  const flat60Expense = revenue * 0.60;
+  const usedExpense = (expenseMode === 'actual') ? actualExpenses : flat60Expense;
+  const incomeAfterExpense = Math.max(0, revenue - usedExpense);
+
+  // 3. Deductions
+  const personalAllowance = 60000;  // ม.42(1)
+  const spouseAllowance = (opts.maritalStatus === 'married' && !opts.spouseHasIncome) ? 60000 : 0;
+  const childAllowance = Math.max(0, Number(opts.numChildren) || 0) * 30000;
+  const lifeIns = Math.min(100000, Number(opts.lifeInsurance) || 0);
+  const healthIns = Math.min(25000, Number(opts.healthInsurance) || 0);
+  const rmfSsf = Math.min(200000, Number(opts.rmfSsf) || 0);
+  const donation = Math.max(0, Number(opts.donation) || 0);  // capped at 10% of net later
+  const mortgage = Math.min(100000, Number(opts.mortgageInterest) || 0);
+  const totalDeductions = personalAllowance + spouseAllowance + childAllowance + lifeIns + healthIns + rmfSsf + donation + mortgage;
+  const netTaxable = Math.max(0, incomeAfterExpense - totalDeductions);
+
+  // 4. Tax owed
+  const taxCalc = calcProgressiveTax(netTaxable);
+  const taxOwed = taxCalc.totalTax;
+
+  // 5. Payable / Refund
+  const balance = taxOwed - whtWithheld;
+  const status = balance > 0 ? 'payable' : (balance < 0 ? 'refund' : 'balanced');
+
+  return {
+    year,
+    period,
+    revenue: Math.round(revenue * 100) / 100,
+    expenseMode,
+    flat60Expense: Math.round(flat60Expense * 100) / 100,
+    actualExpenses: Math.round(actualExpenses * 100) / 100,
+    usedExpense: Math.round(usedExpense * 100) / 100,
+    incomeAfterExpense: Math.round(incomeAfterExpense * 100) / 100,
+    deductions: {
+      personal: personalAllowance,
+      spouse: spouseAllowance,
+      children: childAllowance,
+      lifeIns, healthIns, rmfSsf, donation, mortgage,
+      total: totalDeductions
+    },
+    netTaxable: Math.round(netTaxable * 100) / 100,
+    taxOwed,
+    taxBrackets: taxCalc.brackets,
+    whtWithheld: Math.round(whtWithheld * 100) / 100,
+    balance: Math.round(balance * 100) / 100,
+    status,
+    filedJobCount: filedJobs.length
+  };
+}
+
+// Render the PIT Helper screen — pulls values from PROFILE.pit + computePIT result
+function renderPITHelper() {
+  // Year selector — default current year
+  const yearSel = document.getElementById('pit-year');
+  if (yearSel && !yearSel.dataset.filled) {
+    yearSel.innerHTML = '';
+    const cur = new Date().getFullYear();
+    for (let y = cur + 1; y >= cur - 4; y--) {
+      const o = document.createElement('option');
+      o.value = y;
+      o.textContent = displayYear(y) + (y === cur ? ' (ปีปัจจุบัน)' : '');
+      yearSel.appendChild(o);
+    }
+    yearSel.value = cur;
+    yearSel.dataset.filled = '1';
+  }
+
+  // Sync input values from PROFILE.pit
+  const pit = PROFILE.pit || {};
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v == null ? '' : v; };
+  const setChk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
+  setVal('pit-marital', pit.maritalStatus || 'single');
+  setChk('pit-spouse-no-income', pit.maritalStatus === 'married' && !pit.spouseHasIncome);
+  setVal('pit-children', Number(pit.numChildren) || 0);
+  setVal('pit-life-ins', pit.lifeInsurance || 0);
+  setVal('pit-health-ins', pit.healthInsurance || 0);
+  setVal('pit-rmf-ssf', pit.rmfSsf || 0);
+  setVal('pit-donation', pit.donation || 0);
+  setVal('pit-mortgage', pit.mortgageInterest || 0);
+  // Expense mode toggle visual
+  const isFlat = (pit.expenseMode || 'flat60') === 'flat60';
+  const tFlat = document.getElementById('pit-mode-flat');
+  const tAct = document.getElementById('pit-mode-actual');
+  if (tFlat) tFlat.classList.toggle('active', isFlat);
+  if (tAct) tAct.classList.toggle('active', !isFlat);
+  // Spouse-no-income field visibility
+  const sp = document.getElementById('pit-spouse-row');
+  if (sp) sp.style.display = (pit.maritalStatus === 'married') ? '' : 'none';
+
+  refreshPITCalc();
+}
+
+// Read inputs, save to PROFILE.pit, recompute, render results
+function refreshPITCalc() {
+  const yearEl = document.getElementById('pit-year');
+  const year = yearEl ? parseInt(yearEl.value, 10) : new Date().getFullYear();
+  // Read inputs
+  const getVal = (id) => { const e = document.getElementById(id); return e ? e.value : ''; };
+  const getNum = (id) => { const v = parseFloat(getVal(id)); return isNaN(v) ? 0 : v; };
+  const getChk = (id) => { const e = document.getElementById(id); return e ? !!e.checked : false; };
+  const marital = getVal('pit-marital') || 'single';
+  const spouseNoInc = getChk('pit-spouse-no-income');
+  const tFlat = document.getElementById('pit-mode-flat');
+  const expenseMode = (tFlat && tFlat.classList.contains('active')) ? 'flat60' : 'actual';
+  // Save to PROFILE
+  if (!PROFILE.pit) PROFILE.pit = {};
+  PROFILE.pit.enabled = true;
+  PROFILE.pit.maritalStatus = marital;
+  PROFILE.pit.spouseHasIncome = !spouseNoInc;
+  PROFILE.pit.numChildren = Math.max(0, getNum('pit-children'));
+  PROFILE.pit.expenseMode = expenseMode;
+  PROFILE.pit.lifeInsurance = getNum('pit-life-ins');
+  PROFILE.pit.healthInsurance = getNum('pit-health-ins');
+  PROFILE.pit.rmfSsf = getNum('pit-rmf-ssf');
+  PROFILE.pit.donation = getNum('pit-donation');
+  PROFILE.pit.mortgageInterest = getNum('pit-mortgage');
+  if (typeof saveData === 'function') saveData();
+
+  // Show/hide spouse-no-income field based on marital
+  const sp = document.getElementById('pit-spouse-row');
+  if (sp) sp.style.display = (marital === 'married') ? '' : 'none';
+
+  // Compute + render
+  const r = computePIT(year, PROFILE.pit);
+  const out = document.getElementById('pit-results');
+  if (!out) return;
+
+  // Build result HTML
+  const expHint = expenseMode === 'flat60'
+    ? '(หักเหมา 60%)'
+    : '(ตามจริง — จาก Pixory)';
+  const balanceColor = r.status === 'refund' ? '#15803d' : (r.status === 'payable' ? '#b91c1c' : '#3a2f25');
+  const balanceLabel = r.status === 'refund' ? '💚 ขอคืนได้' : (r.status === 'payable' ? '⚠️ ต้องจ่ายเพิ่ม' : '✓ ครบพอดี');
+  let html = '';
+  html += '<div class="pit-result-card">';
+  html += '<div class="pit-row"><span>รายได้รวม</span><strong>฿' + fmt(r.revenue) + '</strong></div>';
+  html += '<div class="pit-row"><span>− ค่าใช้จ่าย ' + expHint + '</span><strong style="color:#b91c1c;">−฿' + fmt(r.usedExpense) + '</strong></div>';
+  html += '<div class="pit-row pit-row-divider"><span>รายได้หลังหักค่าใช้จ่าย</span><strong>฿' + fmt(r.incomeAfterExpense) + '</strong></div>';
+  // Deductions detail
+  html += '<div class="pit-row"><span>− ลดหย่อนบุคคล</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.personal) + '</strong></div>';
+  if (r.deductions.spouse > 0)   html += '<div class="pit-row"><span>− ลดหย่อนคู่สมรส (ไม่มีรายได้)</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.spouse) + '</strong></div>';
+  if (r.deductions.children > 0) html += '<div class="pit-row"><span>− ลดหย่อนบุตร × ' + PROFILE.pit.numChildren + '</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.children) + '</strong></div>';
+  if (r.deductions.lifeIns > 0)   html += '<div class="pit-row"><span>− ประกันชีวิต</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.lifeIns) + '</strong></div>';
+  if (r.deductions.healthIns > 0) html += '<div class="pit-row"><span>− ประกันสุขภาพ</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.healthIns) + '</strong></div>';
+  if (r.deductions.rmfSsf > 0)    html += '<div class="pit-row"><span>− กองทุน RMF/SSF</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.rmfSsf) + '</strong></div>';
+  if (r.deductions.donation > 0)  html += '<div class="pit-row"><span>− บริจาค</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.donation) + '</strong></div>';
+  if (r.deductions.mortgage > 0)  html += '<div class="pit-row"><span>− ดอกเบี้ยกู้บ้าน</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.mortgage) + '</strong></div>';
+  html += '<div class="pit-row pit-row-divider"><span><strong>รายได้สุทธิที่ต้องเสียภาษี</strong></span><strong style="font-size:15px;">฿' + fmt(r.netTaxable) + '</strong></div>';
+  html += '<div class="pit-row pit-row-divider"><span>📊 ภาษีตามขั้นบันได</span><strong style="font-size:15px;">฿' + fmt(r.taxOwed) + '</strong></div>';
+  if (r.taxBrackets.length > 0) {
+    html += '<div class="pit-brackets">';
+    r.taxBrackets.forEach(b => {
+      html += '<div class="pit-bracket-row"><span>' + fmt(b.amount) + ' × ' + (b.rate * 100).toFixed(0) + '%</span><span>฿' + fmt(b.tax) + '</span></div>';
+    });
+    html += '</div>';
+  }
+  html += '<div class="pit-row"><span>− WHT ถูกหักไว้แล้ว</span><strong style="color:#15803d;">−฿' + fmt(r.whtWithheld) + '</strong></div>';
+  html += '<div class="pit-final" style="color:' + balanceColor + ';">' + balanceLabel + '<br><span style="font-size:24px; font-weight:800;">฿' + fmt(Math.abs(r.balance)) + '</span></div>';
+  html += '<div class="pit-summary-line">' + r.filedJobCount + ' งาน · ปี ' + displayYear(r.year) + '</div>';
+  html += '</div>';
+
+  // Comparison panel — flat vs actual
+  const altMode = expenseMode === 'flat60' ? 'actual' : 'flat60';
+  const altOpts = Object.assign({}, PROFILE.pit, { expenseMode: altMode });
+  const altR = computePIT(year, altOpts);
+  const altLabel = altMode === 'flat60' ? 'หักเหมา 60%' : 'หักตามจริง';
+  const myLabel = expenseMode === 'flat60' ? 'หักเหมา 60% (เลือกอยู่)' : 'หักตามจริง (เลือกอยู่)';
+  const diff = altR.balance - r.balance;
+  let recommendNote = '';
+  if (altR.taxOwed < r.taxOwed) {
+    const saved = r.taxOwed - altR.taxOwed;
+    recommendNote = '💡 ลองสลับเป็น "' + altLabel + '" จะประหยัดได้ ฿' + fmt(saved);
+  } else if (altR.taxOwed === r.taxOwed) {
+    recommendNote = '✓ 2 โหมดให้ผลเท่ากัน';
+  } else {
+    recommendNote = '✓ โหมดปัจจุบันคุ้มที่สุดแล้ว';
+  }
+  html += '<div class="pit-compare-card"><div class="pit-compare-title">⚖️ เทียบ 2 โหมดค่าใช้จ่าย</div>';
+  html += '<div class="pit-compare-grid">';
+  html += '<div class="pit-cc"><div class="pit-cc-label">' + myLabel + '</div><div class="pit-cc-val">ภาษี ฿' + fmt(r.taxOwed) + '</div></div>';
+  html += '<div class="pit-cc"><div class="pit-cc-label">' + altLabel + '</div><div class="pit-cc-val">ภาษี ฿' + fmt(altR.taxOwed) + '</div></div>';
+  html += '</div>';
+  html += '<div class="pit-compare-hint">' + recommendNote + '</div></div>';
+
+  // Disclaimer
+  html += '<div class="pit-disclaimer">📌 <strong>หมายเหตุ:</strong> ตัวเลขนี้เป็นการประมาณการเท่านั้น · ยังไม่รวมรายได้อื่นนอกเหนือจากงานถ่ายภาพ · แนะนำให้ consult กับนักบัญชีก่อนยื่นจริง</div>';
+
+  out.innerHTML = html;
+}
+
+// Export to Excel as 5th sheet on the existing Tax Excel
+function exportPITExcel() {
+  const yearEl = document.getElementById('pit-year');
+  const year = yearEl ? parseInt(yearEl.value, 10) : new Date().getFullYear();
+  const r = computePIT(year, PROFILE.pit);
+  if (typeof XLSX === 'undefined') {
+    toast('SheetJS ยังโหลดไม่เสร็จ · ลองอีกครั้ง');
+    return;
+  }
+  const wb = XLSX.utils.book_new();
+  const data = [
+    ['สรุปภาษีเงินได้บุคคลธรรมดา (ภ.ง.ด.90/94) — ปี ' + displayYear(year)],
+    [],
+    ['รายการ', 'จำนวนเงิน (บาท)'],
+    ['1. รายได้รวม (Gross Revenue)', r.revenue],
+    ['2. ค่าใช้จ่าย (' + (r.expenseMode === 'flat60' ? 'หักเหมา 60%' : 'หักตามจริง') + ')', -r.usedExpense],
+    ['3. รายได้หลังหักค่าใช้จ่าย', r.incomeAfterExpense],
+    [],
+    ['ค่าลดหย่อน:'],
+    ['  ลดหย่อนบุคคล (ม.42(1))', -r.deductions.personal],
+    ['  ลดหย่อนคู่สมรส (ไม่มีรายได้)', -r.deductions.spouse],
+    ['  ลดหย่อนบุตร × ' + PROFILE.pit.numChildren, -r.deductions.children],
+    ['  ประกันชีวิต', -r.deductions.lifeIns],
+    ['  ประกันสุขภาพ', -r.deductions.healthIns],
+    ['  กองทุน RMF/SSF', -r.deductions.rmfSsf],
+    ['  บริจาค', -r.deductions.donation],
+    ['  ดอกเบี้ยกู้บ้าน', -r.deductions.mortgage],
+    ['รวมค่าลดหย่อน', -r.deductions.total],
+    [],
+    ['4. รายได้สุทธิที่ต้องเสียภาษี', r.netTaxable],
+    [],
+    ['ภาษีตามขั้นบันได (Progressive)']
+  ];
+  r.taxBrackets.forEach(b => {
+    data.push(['  ' + fmt(b.amount) + ' × ' + (b.rate * 100).toFixed(0) + '%', b.tax]);
+  });
+  data.push(['5. ภาษีที่ต้องจ่าย (รวม)', r.taxOwed]);
+  data.push([]);
+  data.push(['6. WHT ที่ถูกหักไว้แล้ว', -r.whtWithheld]);
+  data.push([]);
+  const statusLabel = r.status === 'refund' ? 'ขอคืนได้' : (r.status === 'payable' ? 'ต้องจ่ายเพิ่ม' : 'ครบพอดี');
+  data.push(['สรุป: ' + statusLabel, Math.abs(r.balance)]);
+  data.push([]);
+  data.push(['*** เป็นการประมาณการเท่านั้น · แนะนำ consult กับนักบัญชี ***']);
+
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{ wch: 50 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, ws, 'PIT ภ.ง.ด.90');
+  const studio = (PROFILE.shop || 'Pixory').replace(/[^a-zA-Z0-9ก-๙]/g, '_');
+  const fname = 'Pixory_PIT_' + studio + '_' + year + '.xlsx';
+  XLSX.writeFile(wb, fname);
+  toast('บันทึก Excel ภ.ง.ด.90 แล้ว');
+}
+
+// Expense mode toggle (segmented)
+function setPITExpenseMode(mode) {
+  const tFlat = document.getElementById('pit-mode-flat');
+  const tAct = document.getElementById('pit-mode-actual');
+  if (tFlat) tFlat.classList.toggle('active', mode === 'flat60');
+  if (tAct) tAct.classList.toggle('active', mode === 'actual');
+  refreshPITCalc();
 }
 
 // ============================================================================
