@@ -3447,22 +3447,11 @@
     <div class="screen" id="screen-calendar">
       <div class="header">
         <h1 data-i18n="header.calendar">ปฏิทินทีม</h1>
-        <button class="icon-btn" id="cal-legend-btn" onclick="toggleLegend()" style="display:none;">🎨</button>
+        <button class="icon-btn" onclick="toggleLegend()">🎨</button>
       </div>
 
-      <!-- v1.9.5 · View toggle · Agenda (default) / Month -->
-      <div class="cal-view-tabs" style="display:flex; gap:6px; background:#e8dfd5; border-radius:100px; padding:3px; margin:0 16px 14px;">
-        <div class="cal-view-tab active" id="cal-tab-agenda" onclick="setCalendarView('agenda')" style="flex:1; text-align:center; padding:8px 0; font-size:13px; font-weight:700; border-radius:100px; color:#7c7066; cursor:pointer; transition:all .15s;">📋 รายการ</div>
-        <div class="cal-view-tab" id="cal-tab-month" onclick="setCalendarView('month')" style="flex:1; text-align:center; padding:8px 0; font-size:13px; font-weight:700; border-radius:100px; color:#7c7066; cursor:pointer; transition:all .15s;">🗓 เดือน</div>
-      </div>
-
-      <!-- Agenda view -->
-      <div id="cal-agenda-view">
-        <div id="cal-agenda-list" style="padding: 0 16px;"></div>
-      </div>
-
-      <!-- Month view -->
-      <div id="cal-month-view" style="display:none;">
+      <!-- v1.9.8 · Month view เท่านั้น (รื้อ agenda ออก) · swipe ซ้ายขวาเปลี่ยนเดือนได้ -->
+      <div id="cal-month-view">
         <div class="cal-header">
           <div class="nav-btn" onclick="changeMonth(-1)">‹</div>
           <div class="month-title" id="cal-month">พฤศจิกายน 2026</div>
@@ -5642,11 +5631,9 @@ function goTo(name) {
   if (name === 'home') { renderHomeNotifs(); renderHomeHero(); if (typeof renderHomeBirthdays === 'function') renderHomeBirthdays(); }
   if (name === 'calendar') {
     CAL_YEAR = new Date().getFullYear(); CAL_MONTH = new Date().getMonth();
-    // v1.9.5 · Restore last view (default: agenda)
-    let view = 'agenda';
-    try { view = localStorage.getItem('pixory.calView') || 'agenda'; } catch (e) {}
-    if (typeof setCalendarView === 'function') setCalendarView(view);
-    else renderCalendar();
+    renderCalendar();
+    // v1.9.7 · Wire up swipe gesture (idempotent)
+    if (typeof attachMonthSwipeGesture === 'function') attachMonthSwipeGesture();
   }
   if (name === 'settings-account') { updateAccountUI(); if (typeof updateSyncIndicatorUI === 'function') updateSyncIndicatorUI(); }
   if (name === 'jobs') { if (typeof renderJobsWithCurrentFilter === 'function') { renderJobsWithCurrentFilter(); syncJobFilterChips(); } }
@@ -5675,12 +5662,24 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.7';
+const PIXORY_VERSION = '1.9.8';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.8': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory · ปฏิทินเรียบง่ายขึ้น',
+    subtitle: 'เหลือ Month view + Swipe',
+    items: [
+      {
+        icon: '🗓',
+        title: 'หน้าปฏิทินเหลือมุมมองเดือน',
+        desc: 'ลบ tab "รายการ" ออกจากหน้าปฏิทินทีม · เหลือ Month view เป็นหลัก · ยังคงปัดซ้ายขวาเปลี่ยนเดือนได้เหมือนเดิม'
+      }
+    ]
+  },
   '1.9.7': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory · ปฏิทินใช้ง่ายขึ้น',
@@ -7927,7 +7926,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.9.7 · Build 2026-05-22 · Agenda Compact + Swipe Month', en: 'v1.9.7 · Build 2026-05-22 · Agenda Compact + Swipe Month' },
+  'ab.version':         { th: 'v1.9.8 · Build 2026-05-22 · Calendar Month Only', en: 'v1.9.8 · Build 2026-05-22 · Calendar Month Only' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
