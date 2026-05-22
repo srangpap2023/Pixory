@@ -5675,12 +5675,29 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.6';
+const PIXORY_VERSION = '1.9.7';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.7': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory · ปฏิทินใช้ง่ายขึ้น',
+    subtitle: 'Agenda กระชับ + Swipe เปลี่ยนเดือน',
+    items: [
+      {
+        icon: '📋',
+        title: 'รายการ Agenda กระชับขึ้น',
+        desc: 'หน้ารายการในปฏิทินแสดงงานต่อ ๆ ไปแค่ 5 รายการแรก · ถ้ามีมากกว่านั้น กดปุ่ม "ดูทั้งหมด N รายการ" เพื่อขยาย · scroll สั้นลง อ่านง่าย'
+      },
+      {
+        icon: '👈',
+        title: 'Swipe เปลี่ยนเดือน',
+        desc: 'หน้าปฏิทินมุมมองเดือน · ปัดซ้าย → เดือนถัดไป · ปัดขวา → เดือนก่อนหน้า · มี slide animation นุ่ม ๆ · ปุ่ม ‹ › ยังใช้ได้เหมือนเดิม'
+      }
+    ]
+  },
   '1.9.6': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory · Hero Agenda + Expense %',
@@ -7910,7 +7927,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.9.6 · Build 2026-05-22 · Hero Agenda + Expense %', en: 'v1.9.6 · Build 2026-05-22 · Hero Agenda + Expense %' },
+  'ab.version':         { th: 'v1.9.7 · Build 2026-05-22 · Agenda Compact + Swipe Month', en: 'v1.9.7 · Build 2026-05-22 · Agenda Compact + Swipe Month' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -12719,7 +12736,54 @@ function setCalendarView(mode) {
     if (tabMonth) tabMonth.classList.add('active');
     if (legendBtn) legendBtn.style.display = '';
     renderCalendar();
+    // v1.9.7 · Wire up swipe gesture once (idempotent via _wired flag)
+    attachMonthSwipeGesture();
   }
+}
+
+// v1.9.7 · Swipe left/right on month view to change month
+function attachMonthSwipeGesture() {
+  const monthView = document.getElementById('cal-month-view');
+  if (!monthView || monthView.dataset.swipeWired === '1') return;
+  monthView.dataset.swipeWired = '1';
+  let startX = 0, startY = 0, startT = 0;
+  monthView.addEventListener('touchstart', function(e) {
+    if (!e.touches || !e.touches[0]) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    startT = Date.now();
+  }, { passive: true });
+  monthView.addEventListener('touchend', function(e) {
+    if (!e.changedTouches || !e.changedTouches[0]) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    const dt = Date.now() - startT;
+    // Detect horizontal swipe: at least 60px horizontal, mostly horizontal (|dx| > 2*|dy|), within 600ms
+    if (Math.abs(dx) < 60) return;
+    if (Math.abs(dx) < Math.abs(dy) * 2) return;
+    if (dt > 600) return;
+    // Subtle slide-out animation then change month
+    const grid = document.getElementById('cal-days');
+    if (grid) {
+      grid.style.transition = 'transform .18s ease, opacity .18s ease';
+      grid.style.transform = dx > 0 ? 'translateX(40px)' : 'translateX(-40px)';
+      grid.style.opacity = '0';
+      setTimeout(function() {
+        if (dx > 0) changeMonth(-1); else changeMonth(1);
+        grid.style.transition = 'none';
+        grid.style.transform = dx > 0 ? 'translateX(-40px)' : 'translateX(40px)';
+        grid.style.opacity = '0';
+        // force reflow then animate in
+        // eslint-disable-next-line no-unused-expressions
+        grid.offsetHeight;
+        grid.style.transition = 'transform .2s ease, opacity .2s ease';
+        grid.style.transform = 'translateX(0)';
+        grid.style.opacity = '1';
+      }, 180);
+    } else {
+      if (dx > 0) changeMonth(-1); else changeMonth(1);
+    }
+  }, { passive: true });
 }
 
 // v1.9.6 · Agenda Style B "Hero + Stack"
@@ -12833,11 +12897,14 @@ function renderAgenda() {
     '</div>';
   html += '</div>';  // hero end
 
-  // ── STACK · รายการที่เหลือ ──
+  // ── STACK · รายการที่เหลือ (จำกัด 5 รายการ พร้อม expand) ──
   const rest = upcoming.slice(1);
+  const MINI_LIMIT = 5;
+  const showAll = window._calAgendaExpanded === true;
+  const visibleRest = showAll ? rest : rest.slice(0, MINI_LIMIT);
   if (rest.length > 0) {
     html += '<div class="cal-agenda-list-h"><span>📅 งานต่อ ๆ ไป</span><span class="count">' + rest.length + ' รายการ</span></div>';
-    rest.forEach(it => {
+    visibleRest.forEach(it => {
       const j = it.job;
       const s = it.session;
       const dt = it.dt;
@@ -12862,9 +12929,22 @@ function renderAgenda() {
         '<span class="time">' + startStr + '</span>' +
         '</div>';
     });
+    // v1.9.7 · Expand/Collapse button if more than 5 items
+    if (rest.length > MINI_LIMIT) {
+      if (!showAll) {
+        html += '<button onclick="toggleAgendaExpanded()" class="cal-agenda-expand" style="display:block; width:100%; margin:8px 0 4px; padding:11px; background:#f7f4ef; border:0.5px dashed #d8704a; border-radius:12px; color:#d8704a; font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;">ดูทั้งหมด ' + rest.length + ' รายการ ↓</button>';
+      } else {
+        html += '<button onclick="toggleAgendaExpanded()" class="cal-agenda-expand" style="display:block; width:100%; margin:8px 0 4px; padding:11px; background:#f7f4ef; border:0.5px dashed #a89a8c; border-radius:12px; color:#7c7066; font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;">ย่อรายการ ↑</button>';
+      }
+    }
   }
 
   list.innerHTML = html;
+}
+
+function toggleAgendaExpanded() {
+  window._calAgendaExpanded = !window._calAgendaExpanded;
+  if (typeof renderAgenda === 'function') renderAgenda();
 }
 
 function showDayDetail(dateStr) {
