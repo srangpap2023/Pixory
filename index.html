@@ -368,6 +368,48 @@
     font-size: 14px; color: #6b7280; cursor: pointer;
   }
 
+  /* Quick-Start type cards (S3) */
+  .qs-type-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 12px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    background: #fefcf9;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: all .15s;
+  }
+  body.dark-theme .qs-type-card { background: #2a2a2a; border-color: #404040; color: #f3f4f6; }
+  .qs-type-card:hover { border-color: #d8704a; }
+  .qs-type-card:active { transform: scale(.98); }
+  .qs-type-card[data-code="B2C"]:hover { background: #dbeafe; border-color: #5fc4f4; }
+  .qs-type-card[data-code="B2B"]:hover { background: #fde6dc; border-color: #d8704a; }
+  .qs-type-card[data-code="Gov"]:hover { background: #dcfce7; border-color: #15803d; }
+  .qs-type-card[data-code="VIP"]:hover { background: #ede4ff; border-color: #aa7df5; }
+  .qs-type-card .qs-ico { font-size: 28px; line-height: 1; flex-shrink: 0; }
+  .qs-type-card .qs-body { flex: 1; min-width: 0; }
+  .qs-type-card .qs-name { font-size: 14px; font-weight: 700; color: #3a2f25; }
+  body.dark-theme .qs-type-card .qs-name { color: #f3f4f6; }
+  .qs-type-card .qs-desc { font-size: 11px; color: #7c7066; margin-top: 2px; }
+
+  /* Quick-Start search match rows */
+  .qs-match-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f7f4ef;
+    border: 0.5px solid #e8dfd5;
+    margin-bottom: 5px;
+    cursor: pointer;
+  }
+  .qs-match-row:hover { background: #fef3eb; border-color: #d8704a; }
+  .qs-match-row:active { transform: scale(.99); }
+  .qs-match-row .qm-name { flex: 1; font-size: 13px; font-weight: 600; color: #3a2f25; }
+  .qs-match-row .qm-meta { font-size: 11px; color: #7c7066; }
+  body.dark-theme .qs-match-row { background: #2a2a2a; border-color: #404040; color: #f3f4f6; }
+  body.dark-theme .qs-match-row .qm-name { color: #f3f4f6; }
+
   /* Tax ID Fill modal — same sheet pattern, just a custom panel */
   .tax-fill-sheet .cs-panel { max-height: 88vh; overflow-y: auto; }
   .tax-fill-sheet .tf-input-row { margin-top: 10px; }
@@ -2583,6 +2625,67 @@
   </div>
 </div>
 
+<!-- ====== QUICK-START MODAL (S3) — pre-pick customer type before form ====== -->
+<div id="quickstart-modal" class="ctype-sheet quickstart-modal" role="dialog" aria-modal="true">
+  <div class="cs-backdrop" onclick="closeQuickStart()"></div>
+  <div class="cs-panel" style="max-height: 88vh; overflow-y: auto;">
+    <div class="cs-grabber"></div>
+    <div class="cs-title" id="qs-title">เริ่มสร้างงานใหม่</div>
+    <div class="cs-sub">ค้นหาลูกค้าเดิม หรือเลือกประเภทลูกค้าใหม่</div>
+
+    <!-- Search existing customer -->
+    <div style="margin: 12px 0 0;">
+      <div class="pxy-search-wrap" style="margin: 0;">
+        <span class="pxy-search-icon">🔎</span>
+        <input type="text" id="qs-search" class="pxy-search-input" placeholder="พิมพ์ชื่อลูกค้าเดิม..." oninput="renderQuickStartMatches()">
+      </div>
+      <div id="qs-matches" style="margin-top: 8px;"></div>
+    </div>
+
+    <!-- Workflow Templates (S4.1) -->
+    <div id="qs-templates"></div>
+
+    <div style="display:flex; align-items:center; gap:10px; margin: 14px 0 10px;">
+      <div style="flex:1; height:0.5px; background:#e8dfd5;"></div>
+      <div style="font-size: 11px; color: #9ca3af; font-weight: 600;">หรือเลือกประเภทลูกค้าใหม่</div>
+      <div style="flex:1; height:0.5px; background:#e8dfd5;"></div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <button class="qs-type-card" data-code="B2C" onclick="quickStartPickType('B2C')">
+        <div class="qs-ico">👤</div>
+        <div class="qs-body">
+          <div class="qs-name">บุคคล</div>
+          <div class="qs-desc">ทั่วไป · ไม่มีภาษี</div>
+        </div>
+      </button>
+      <button class="qs-type-card" data-code="B2B" onclick="quickStartPickType('B2B')">
+        <div class="qs-ico">🏢</div>
+        <div class="qs-body">
+          <div class="qs-name">บริษัท</div>
+          <div class="qs-desc">มีใบกำกับ / VAT / WHT</div>
+        </div>
+      </button>
+      <button class="qs-type-card" data-code="Gov" onclick="quickStartPickType('Gov')">
+        <div class="qs-ico">🏛</div>
+        <div class="qs-body">
+          <div class="qs-name">ราชการ</div>
+          <div class="qs-desc">มี WHT 3% · ภ.ง.ด. 3</div>
+        </div>
+      </button>
+      <button class="qs-type-card" data-code="VIP" onclick="quickStartPickType('VIP')">
+        <div class="qs-ico">💎</div>
+        <div class="qs-body">
+          <div class="qs-name">VIP</div>
+          <div class="qs-desc">ลูกค้าพิเศษ · ไม่มีภาษี</div>
+        </div>
+      </button>
+    </div>
+
+    <button class="cs-cancel" onclick="closeQuickStart()" style="margin-top: 12px;">ยกเลิก</button>
+  </div>
+</div>
+
 <!-- ====== TAX ID FILL SHEET (Tax T4) ====== -->
 <div id="tax-fill-sheet" class="ctype-sheet tax-fill-sheet" role="dialog" aria-modal="true">
   <div class="cs-backdrop" onclick="closeTaxFillSheet()"></div>
@@ -3028,6 +3131,14 @@
         <button class="btn" id="job-invoice-btn" onclick="openJobInvoice()" style="margin: 12px 0 0; padding: 10px 14px; font-size: 13px; width: 100%; background: linear-gradient(135deg, #1D9E75, #0d7b5a);" data-i18n="inv.btnIssue">
           📋 ออกใบเรียกเก็บยอดชำระเพิ่มเติม
         </button>
+        <!-- S2.1 — Quote from Job action -->
+        <button class="btn secondary" onclick="openQuoteFromJob()" style="margin: 8px 0 0; padding: 10px 14px; font-size: 13px; width: 100%;">
+          📄 ออกใบเสนอราคาจากงานนี้
+        </button>
+        <!-- S4.1 — Save as template -->
+        <button class="btn secondary" onclick="saveCurrentJobAsTemplate()" style="margin: 8px 0 0; padding: 10px 14px; font-size: 13px; width: 100%;">
+          💾 บันทึกเป็นเทมเพลตงาน
+        </button>
       </div>
 
       <div class="detail-block">
@@ -3230,7 +3341,7 @@
       <div class="settings-section" id="add-tax-section">
         <div class="sec-title" style="display:flex; align-items:center; gap:8px;">
           <span>📋 <span data-i18n="tax.section">ภาษี</span></span>
-          <span style="font-size:9px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:1px 6px; border-radius:6px; font-weight:800; letter-spacing:0.3px;">PRO</span>
+          <span style="display:none;">PRO</span>
           <span id="add-tax-cust-hint" style="margin-left:auto; font-size:11px; color:#9ca3af; font-weight:500;"></span>
         </div>
 
@@ -3859,7 +3970,7 @@
       <div class="settings-section" id="nq-tax-section">
         <div class="sec-title" style="display:flex; align-items:center; gap:8px;">
           <span>📋 <span data-i18n="tax.section">ภาษี</span></span>
-          <span style="font-size:9px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:1px 6px; border-radius:6px; font-weight:800; letter-spacing:0.3px;">PRO</span>
+          <span style="display:none;">PRO</span>
           <span id="nq-tax-cust-hint" style="margin-left:auto; font-size:11px; color:#9ca3af; font-weight:500;"></span>
         </div>
 
@@ -3973,7 +4084,7 @@
         </div>
         <div id="cust-b2b-fields" style="display:none;">
           <div class="form-group" style="margin: 0 0 10px;">
-            <label><span data-i18n="cust.taxId">เลขประจำตัวผู้เสียภาษี (13 หลัก)</span> <span style="font-size:9px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:1px 6px; border-radius:6px; font-weight:800; letter-spacing:0.3px; margin-left:4px;">PRO</span></label>
+            <label><span data-i18n="cust.taxId">เลขประจำตัวผู้เสียภาษี (13 หลัก)</span> <span style="display:none;">PRO</span></label>
             <input type="text" id="cust-tax-id" inputmode="numeric" maxlength="13" placeholder="1234567890123">
           </div>
           <div class="form-group" style="margin: 0 0 10px;">
@@ -4107,7 +4218,7 @@
             <div class="right">›</div>
           </div>
           <div class="settings-row" onclick="goTo('settings-tax')">
-            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-indigo)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="20" y="20" width="48" height="54" rx="4" fill="#fff"/><line x1="26" y1="32" x2="62" y2="32" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round"/><line x1="26" y1="42" x2="58" y2="42" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="26" y1="52" x2="62" y2="52" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round" opacity="0.7"/><line x1="26" y1="62" x2="48" y2="62" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round" opacity="0.6"/><circle cx="62" cy="62" r="4" fill="#d8704a"/></svg></div><div><div class="row-title"><span data-i18n="set.tax">ภาษี</span> <span style="font-size:9px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:1px 6px; border-radius:6px; font-weight:800; letter-spacing:0.3px; margin-left:4px;">PRO</span></div><div class="row-sub" id="hub-tax-sub" data-i18n="set.taxSub">เลข 13 หลัก · VAT · ที่อยู่ออกใบกำกับ</div></div></div>
+            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-indigo)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="20" y="20" width="48" height="54" rx="4" fill="#fff"/><line x1="26" y1="32" x2="62" y2="32" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round"/><line x1="26" y1="42" x2="58" y2="42" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="26" y1="52" x2="62" y2="52" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round" opacity="0.7"/><line x1="26" y1="62" x2="48" y2="62" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round" opacity="0.6"/><circle cx="62" cy="62" r="4" fill="#d8704a"/></svg></div><div><div class="row-title"><span data-i18n="set.tax">ภาษี</span> <span style="display:none;">PRO</span></div><div class="row-sub" id="hub-tax-sub" data-i18n="set.taxSub">เลข 13 หลัก · VAT · ที่อยู่ออกใบกำกับ</div></div></div>
             <div class="right">›</div>
           </div>
           <div class="settings-row" onclick="goTo('settings-notif')">
@@ -4225,7 +4336,7 @@
     <div class="screen" id="screen-settings-tax">
       <div class="header">
         <button class="back" onclick="goTo('settings')">‹</button>
-        <h1><span style="margin-right:6px;">📋</span><span data-i18n="header.tax">ภาษี</span> <span style="font-size:11px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:2px 7px; border-radius:7px; font-weight:800; letter-spacing:0.3px; margin-left:4px; vertical-align:middle;">PRO</span></h1>
+        <h1><span style="margin-right:6px;">📋</span><span data-i18n="header.tax">ภาษี</span> <span style="display:none;">PRO</span></h1>
         <button class="icon-btn" onclick="saveTaxSettings()" style="color:#2563eb;font-size:14px;" data-i18n="btn.save">บันทึก</button>
       </div>
 
@@ -4331,7 +4442,7 @@
     <div class="screen" id="screen-tax-report">
       <div class="header">
         <button class="back" onclick="goTo('settings-tax')">‹</button>
-        <h1><span style="margin-right:6px;">📊</span><span data-i18n="tax.reportHeader">รายงานปีภาษี</span> <span style="font-size:11px; background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#7c2d12; padding:2px 7px; border-radius:7px; font-weight:800; letter-spacing:0.3px; margin-left:4px; vertical-align:middle;">PRO</span></h1>
+        <h1><span style="margin-right:6px;">📊</span><span data-i18n="tax.reportHeader">รายงานปีภาษี</span> <span style="display:none;">PRO</span></h1>
         <button class="icon-btn" onclick="exportTaxExcel()" style="color:#15803d;font-size:14px;" title="Export Excel">⬇</button>
       </div>
 
@@ -5000,11 +5111,11 @@
     <!-- FAB action menu -->
     <div class="fab-menu" id="fab-menu" onclick="closeFabMenu()">
       <div class="fab-options" onclick="event.stopPropagation()">
-        <div class="fab-option" onclick="closeFabMenu(); openNewJob();">
+        <div class="fab-option" onclick="closeFabMenu(); openQuickStart('job');">
           <div class="fo-ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="#fff"/><path d="M6 28 L6 28 Q6 6 28 6 L60 6 Q82 6 82 28 L82 30 L6 30 Z" fill="url(#ic-cal-header)"/><text x="44" y="22" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">JOB</text><text x="44" y="68" fill="#1a1a1a" font-size="36" font-weight="300" text-anchor="middle" font-family="-apple-system,sans-serif">+</text></svg></div>
           <div><div class="fo-title" data-i18n="fab.newJob">งานใหม่</div><div class="fo-sub" data-i18n="fab.newJobSub">ลูกค้าจองแล้ว + มัดจำ</div></div>
         </div>
-        <div class="fab-option" onclick="closeFabMenu(); openNewQuote();">
+        <div class="fab-option" onclick="closeFabMenu(); openQuickStart('quote');">
           <div class="fo-ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-jobs)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M26 14 L54 14 L66 26 L66 70 Q66 74 62 74 L26 74 Q22 74 22 70 L22 18 Q22 14 26 14 Z" fill="#fff"/><line x1="30" y1="40" x2="58" y2="40" stroke="#f5a623" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="50" x2="50" y2="50" stroke="#f5a623" stroke-width="3" stroke-linecap="round" opacity="0.75"/><text x="44" y="68" fill="#f5a623" font-size="14" font-weight="700" text-anchor="middle" font-family="-apple-system,Inter,sans-serif">฿</text></svg></div>
           <div><div class="fo-title" data-i18n="fab.newQuote">ใบเสนอราคา</div><div class="fo-sub" data-i18n="fab.newQuoteSub">ส่งให้ลูกค้าดูก่อนตัดสินใจ</div></div>
         </div>
@@ -5158,12 +5269,39 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.8.5';
+const PIXORY_VERSION = '1.8.6';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.8.6': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'Sprint 2+3+4 รวบ · Quick-Start · Templates · Quote-from-Job',
+    items: [
+      {
+        icon: '⚡',
+        title: 'Quick-Start Modal · เลือกประเภทลูกค้าก่อนเข้าฟอร์ม',
+        desc: 'กด FAB → "งานใหม่/ใบเสนอราคา" → modal สวยๆ ขึ้น · ค้นหาลูกค้าเดิมได้ทันที · หรือเลือกประเภทใหม่ (B2C/B2B/Gov/VIP) จาก 4 ปุ่มสี · ฟอร์มเปิดขึ้นพร้อมตั้งค่าให้แล้ว'
+      },
+      {
+        icon: '📋',
+        title: 'Workflow Templates · บันทึกงานเป็นเทมเพลต',
+        desc: 'ในหน้า Job Detail · ปุ่ม "บันทึกเป็นเทมเพลตงาน" · เก็บแพคเกจ/บริการที่ใช้บ่อย · ครั้งหน้ากด FAB เลือก template เดิม → ฟอร์มจะเติมบริการให้ทันที · ลด click ครึ่งหนึ่ง'
+      },
+      {
+        icon: '📄',
+        title: 'ออกใบเสนอราคาจากงานนี้',
+        desc: 'ในหน้า Job Detail · ปุ่ม "ออกใบเสนอราคาจากงานนี้" · เปิดดู PDF ใบเสนอราคาของงานนั้นได้ทันที · ใช้กรณีลูกค้าขอใบเสนอย้อนหลัง'
+      },
+      {
+        icon: '🎚',
+        title: 'PRO badge ลดลง',
+        desc: 'ซ่อน PRO badge ทุกที่ใน app ไว้ก่อน · จะกลับมาเฉพาะตอนเปิดระบบ tier paid · ลูกค้าทดลองใช้เต็มที่ ไม่กลัวเสียค่า'
+      }
+    ]
+  },
   '1.8.5': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory เรียบร้อยแล้ว',
@@ -7186,7 +7324,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.8.5 · Build 2026-05-22 · Search · งานกำลังทำ · Polish', en: 'v1.8.5 · Build 2026-05-22 · Search · Active jobs · Polish' },
+  'ab.version':         { th: 'v1.8.6 · Build 2026-05-22 · Quick-Start · Templates · Polish', en: 'v1.8.6 · Build 2026-05-22 · Quick-Start · Templates · Polish' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -7760,6 +7898,237 @@ function renderJobsWithCurrentFilter() {
   const cntEl = document.getElementById('jobs-count');
   if (cntEl) cntEl.textContent = filtered.length + ' ' + t('home.jobsCount');
   renderJobs(filtered, 'jobs-list');
+}
+
+// S4.1 — Workflow Templates (saved jobs as quick-fill templates)
+// Stored in localStorage under 'pixory.workflowTemplates'
+const WORKFLOW_TEMPLATES_KEY = 'pixory.workflowTemplates';
+
+function loadWorkflowTemplates() {
+  try {
+    const raw = localStorage.getItem(WORKFLOW_TEMPLATES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+function saveWorkflowTemplates(list) {
+  try {
+    localStorage.setItem(WORKFLOW_TEMPLATES_KEY, JSON.stringify(list || []));
+  } catch (e) {}
+}
+
+// Save current Job (or Quote draft) as a template
+function saveCurrentJobAsTemplate() {
+  const j = window._currentJob;
+  if (!j) { toast(LANG === 'en' ? 'No job selected' : 'ยังไม่ได้เลือกงาน'); return; }
+  const defaultName = (j.type || 'Job') + ' · ' + (j.sessions && j.sessions.length ? j.sessions.length + ' ช่วง' : 'งาน');
+  const name = window.prompt(LANG === 'en' ? 'Template name:' : 'ตั้งชื่อเทมเพลต:', defaultName);
+  if (!name || !name.trim()) return;
+  const tpl = {
+    id: 'tpl-' + Date.now(),
+    name: name.trim(),
+    type: j.type,
+    selectedServices: JSON.parse(JSON.stringify(j.selectedServices || {})),
+    extraTime: j.extraTime || 0,
+    qr: j.qr || null,
+    other: j.other || null,
+    note: '',
+    createdAt: new Date().toISOString()
+  };
+  const list = loadWorkflowTemplates();
+  list.unshift(tpl);
+  saveWorkflowTemplates(list);
+  toast(LANG === 'en' ? 'Template saved' : 'บันทึกเทมเพลตแล้ว');
+}
+
+// Apply a template — fill Add Job form with services from template
+function applyWorkflowTemplate(tplId) {
+  const list = loadWorkflowTemplates();
+  const tpl = list.find(t => t.id === tplId);
+  if (!tpl) return;
+  closeQuickStart();
+  openNewJob();
+  setTimeout(() => {
+    // Apply template's services
+    ADD_SELECTED = JSON.parse(JSON.stringify(tpl.selectedServices || {}));
+    if (typeof renderAddJobScreen === 'function') renderAddJobScreen();
+    // Apply job type
+    if (tpl.type) {
+      const chips = document.querySelectorAll('#add-type-row .chip');
+      chips.forEach(c => {
+        c.classList.toggle('active', c.textContent.trim() === tpl.type);
+      });
+    }
+    // Apply extra time
+    const exEl = document.getElementById('addExtraTime');
+    if (exEl && tpl.extraTime) exEl.value = tpl.extraTime;
+    toast(LANG === 'en' ? 'Template applied · fill in customer + date' : 'ใช้เทมเพลตแล้ว · กรอกลูกค้า + วันที่');
+  }, 100);
+}
+
+function deleteWorkflowTemplate(tplId) {
+  if (!confirm(LANG === 'en' ? 'Delete this template?' : 'ลบเทมเพลตนี้?')) return;
+  const list = loadWorkflowTemplates().filter(t => t.id !== tplId);
+  saveWorkflowTemplates(list);
+  renderQuickStartTemplates();
+}
+
+function renderQuickStartTemplates() {
+  const container = document.getElementById('qs-templates');
+  if (!container) return;
+  const list = loadWorkflowTemplates();
+  if (list.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+  let html = '<div style="font-size: 11px; color: #9ca3af; font-weight: 600; margin: 14px 0 6px;">📋 เทมเพลตที่บันทึกไว้</div>';
+  list.slice(0, 5).forEach(tpl => {
+    html += '<div class="qs-match-row" onclick="applyWorkflowTemplate(\'' + tpl.id + '\')"><div style="font-size:18px;">📋</div><div style="flex:1; min-width:0;"><div class="qm-name">' + tpl.name + '</div><div class="qm-meta">' + (tpl.type || 'งาน') + '</div></div><button onclick="event.stopPropagation();deleteWorkflowTemplate(\'' + tpl.id + '\')" style="background:transparent;border:0;color:#dc2626;cursor:pointer;font-size:14px;padding:4px 8px;">✕</button></div>';
+  });
+  container.innerHTML = html;
+}
+
+// S3 — Quick-Start Modal (pre-pick customer type before form)
+let _quickStartMode = 'job'; // 'job' or 'quote'
+
+function openQuickStart(mode) {
+  _quickStartMode = mode || 'job';
+  const modal = document.getElementById('quickstart-modal');
+  if (!modal) return;
+  // Set title
+  const ttl = document.getElementById('qs-title');
+  if (ttl) ttl.textContent = (_quickStartMode === 'job') ? 'เริ่มสร้างงานใหม่' : 'เริ่มสร้างใบเสนอราคา';
+  // Clear search
+  const s = document.getElementById('qs-search');
+  if (s) s.value = '';
+  const m = document.getElementById('qs-matches');
+  if (m) m.innerHTML = '';
+  // Render templates (S4.1) — only for job mode
+  if (_quickStartMode === 'job' && typeof renderQuickStartTemplates === 'function') {
+    renderQuickStartTemplates();
+  } else {
+    const tplC = document.getElementById('qs-templates');
+    if (tplC) tplC.innerHTML = '';
+  }
+  modal.classList.add('open');
+  // Focus search on next tick
+  setTimeout(() => { if (s) s.focus(); }, 200);
+}
+
+function closeQuickStart() {
+  const modal = document.getElementById('quickstart-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+function renderQuickStartMatches() {
+  const s = document.getElementById('qs-search');
+  const matches = document.getElementById('qs-matches');
+  if (!s || !matches) return;
+  const q = (s.value || '').trim().toLowerCase();
+  if (!q) { matches.innerHTML = ''; return; }
+  // Build customer list from CUSTOMER_INFO + JOBS
+  const seen = new Set();
+  const list = [];
+  Object.keys(CUSTOMER_INFO || {}).forEach(name => {
+    if (seen.has(name)) return;
+    seen.add(name);
+    const info = CUSTOMER_INFO[name] || {};
+    const hay = [name, info.phone, info.line, info.nickname, info.email, info.companyName].filter(Boolean).join(' ').toLowerCase();
+    if (hay.indexOf(q) > -1) {
+      list.push({ name, info });
+    }
+  });
+  // Also include customers from JOBS that may not be in CUSTOMER_INFO yet
+  (JOBS || []).forEach(j => {
+    if (!j.customer || seen.has(j.customer)) return;
+    if (j.customer.toLowerCase().indexOf(q) > -1) {
+      seen.add(j.customer);
+      list.push({ name: j.customer, info: {} });
+    }
+  });
+  if (list.length === 0) {
+    matches.innerHTML = '<div style="font-size:11.5px; color:#9ca3af; text-align:center; padding:8px;">ไม่พบลูกค้าเดิม · เลือกประเภทด้านล่างเพื่อเริ่มสร้าง</div>';
+    return;
+  }
+  matches.innerHTML = '';
+  list.slice(0, 5).forEach(item => {
+    const meta = getCustomerTypeMeta ? getCustomerTypeMeta(item.info.type || 'B2C') : null;
+    const typeBadge = meta ? '<span style="font-size:14px;">' + meta.icon + '</span>' : '';
+    const phone = item.info.phone ? ' · ' + item.info.phone : '';
+    const row = document.createElement('div');
+    row.className = 'qs-match-row';
+    row.innerHTML = '<div style="font-size:18px;">' + (meta ? meta.icon : '👤') + '</div><div style="flex:1; min-width:0;"><div class="qm-name">' + item.name + '</div><div class="qm-meta">' + (item.info.type || 'B2C') + phone + '</div></div><div style="color:#9ca3af;">›</div>';
+    row.onclick = () => quickStartPickExisting(item.name);
+    matches.appendChild(row);
+  });
+}
+
+function quickStartPickType(code) {
+  // Open the appropriate form, then preset the customer type pill (no name yet)
+  closeQuickStart();
+  if (_quickStartMode === 'job') {
+    openNewJob();
+  } else {
+    openNewQuote();
+  }
+  // Preset pending type on the pill after form opens
+  setTimeout(() => {
+    const ctx = (_quickStartMode === 'job') ? 'add' : 'nq';
+    if (typeof renderFormCustomerTypePill === 'function') {
+      renderFormCustomerTypePill(ctx, code);
+    }
+    // Apply tax defaults
+    if (ctx === 'add' && typeof populateAddTaxFromCustomer === 'function') populateAddTaxFromCustomer('');
+    if (ctx === 'nq' && typeof populateNQTaxFromCustomer === 'function') populateNQTaxFromCustomer('');
+    // Force tax UI update with the type's default
+    if (typeof getDefaultTaxOpts === 'function') {
+      const defaults = getDefaultTaxOpts(code);
+      if (ctx === 'add') {
+        const knob = document.getElementById('add-tax-knob');
+        if (knob && knob.dataset.touched !== '1') {
+          if (typeof _setAddTaxEnabled === 'function') _setAddTaxEnabled(!!defaults.enabled);
+        }
+      } else {
+        const knob = document.getElementById('nq-tax-knob');
+        if (knob && knob.dataset.touched !== '1') {
+          if (typeof _setNQTaxEnabled === 'function') _setNQTaxEnabled(!!defaults.enabled);
+        }
+      }
+    }
+  }, 60);
+}
+
+function quickStartPickExisting(name) {
+  closeQuickStart();
+  if (_quickStartMode === 'job') {
+    openNewJob();
+  } else {
+    openNewQuote();
+  }
+  // Pre-fill customer name + trigger autofill flow
+  setTimeout(() => {
+    const ctx = (_quickStartMode === 'job') ? 'add' : 'nq';
+    const inputId = (ctx === 'add') ? 'addCustomer' : 'nq-customer';
+    const el = document.getElementById(inputId);
+    if (el) {
+      el.value = name;
+      // Trigger blur to auto-fill phone/LINE/etc + set tax + pill
+      if (ctx === 'add' && typeof autofillCustomerOnBlur === 'function') {
+        autofillCustomerOnBlur();
+      } else if (ctx === 'nq' && typeof onNQCustomerBlur === 'function') {
+        onNQCustomerBlur(name);
+      }
+    }
+  }, 60);
+}
+
+// S2.1 — Open the Quote PDF view from a saved Job (re-use showQuoteScreen with source='job')
+function openQuoteFromJob() {
+  const j = window._currentJob;
+  if (!j) { toast(LANG === 'en' ? 'No job selected' : 'ยังไม่ได้เลือกงาน'); return; }
+  if (typeof showQuoteScreen === 'function') {
+    showQuoteScreen(j, 'job');
+  }
 }
 
 // S1.3 — Re-render whichever tab is active (called by search input)
