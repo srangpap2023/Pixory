@@ -23,7 +23,7 @@
   body.fs-s  .screen { zoom: 0.93; }
   body.fs-l  .screen { zoom: 1.10; }
   body.fs-xl .screen { zoom: 1.22; }
-  html, body { margin: 0; padding: 0; font-family: 'IBM Plex Sans Thai', system-ui, -apple-system, sans-serif; background: #e8eaef; color: #1a1a1a; }
+  html, body { margin: 0; padding: 0; font-family: 'IBM Plex Sans Thai', system-ui, -apple-system, sans-serif; background: #e8eaef; color: #3a2f25; }
   /* Defensive: never render head-only elements as visible text (fixes Safari source bleed) */
   style, script, link, meta, title { display: none !important; visibility: hidden !important; height: 0 !important; width: 0 !important; font-size: 0 !important; line-height: 0 !important; color: transparent !important; opacity: 0 !important; position: fixed !important; left: -99999px !important; top: -99999px !important; pointer-events: none !important; }
   /* Lock viewport — html+body fill exactly viewport, no scroll past, no bounce */
@@ -33,7 +33,7 @@
   .phone-wrap { overflow: hidden; height: 100%; width: 100%; position: relative; }
 
   .phone-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 12px; }
-  .phone { width: 100%; max-width: 400px; height: min(880px, 95vh); background: #f7f8fa; border-radius: 36px; box-shadow: 0 20px 60px rgba(0,0,0,.15), 0 0 0 10px #1a1a1a, 0 0 0 11px #2a2a2a; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+  .phone { width: 100%; max-width: 400px; height: min(880px, 95vh); background: #f7f8fa; border-radius: 36px; box-shadow: 0 20px 60px rgba(0,0,0,.15), 0 0 0 10px #3a2f25, 0 0 0 11px #2a2a2a; overflow: hidden; position: relative; display: flex; flex-direction: column; }
   @media (max-width: 460px) {
     .phone-wrap { padding: 0; }
     .phone { max-width: 100%; height: 100dvh; min-height: 100vh; border-radius: 0; box-shadow: none; }
@@ -52,7 +52,7 @@
   /* ===== PIXORY GLOBAL TOPBAR ===== */
   .pixory-topbar {
     background: #ffffff;
-    color: #1a1a1a;
+    color: #3a2f25;
     padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px;
     display: flex;
     align-items: center;
@@ -103,9 +103,9 @@
 
   .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 4px 16px 12px; }
   .kpi { background: white; border-radius: 14px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
-  .kpi .label { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+  .kpi .label { font-size: 12px; color: #7c7066; margin-bottom: 4px; }
   .kpi .value { font-size: 22px; font-weight: 600; }
-  .kpi .sub { font-size: 11px; color: #6b7280; margin-top: 2px; }
+  .kpi .sub { font-size: 11px; color: #7c7066; margin-top: 2px; }
   .kpi.warn { background: linear-gradient(135deg,#fef2f2,#fff); }
   .kpi.warn .label { color: #b91c1c; }
   .kpi.income { background: linear-gradient(135deg,#f0fdf4,#fff); }
@@ -123,13 +123,13 @@
   .job-row .date-block.upcoming { background: #e1f5ee; }
   .job-row .date-block.warn { background: #fef2f2; }
   .job-row .date-block .day { font-size: 18px; font-weight: 600; line-height: 1; }
-  .job-row .date-block .month { font-size: 10px; color: #6b7280; margin-top: 2px; text-transform: uppercase; }
+  .job-row .date-block .month { font-size: 10px; color: #7c7066; margin-top: 2px; text-transform: uppercase; }
   .job-row .date-block.upcoming .month { color: #0f6e56; }
   .job-row .date-block.warn .month { color: #b91c1c; }
   .job-row .info { flex: 1; min-width: 0; }
   .job-row .customer { font-size: 14px; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .job-row .meta { font-size: 12px; color: #6b7280; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .job-row .price { font-size: 13px; color: #1a1a1a; margin-top: 4px; font-weight: 500; }
+  .job-row .meta { font-size: 12px; color: #7c7066; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .job-row .price { font-size: 13px; color: #3a2f25; margin-top: 4px; font-weight: 500; }
 
   .pill { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 8px; font-weight: 500; }
   .pill.paid { background: #d1fae5; color: #065f46; }
@@ -139,15 +139,15 @@
   .pill.booked { background: #dbeafe; color: #1e40af; }
 
   .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background: white; border-top: 0.5px solid #e5e7eb; display: flex; align-items: center; justify-content: space-around; padding: 6px 8px 6px; z-index: 10; }
-  .bottom-nav .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 2px; cursor: pointer; color: #9ca3af; transition: color .15s; user-select: none; min-width: 0; }
-  .bottom-nav .tab.active { color: #1a1a1a; }
+  .bottom-nav .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 2px; cursor: pointer; color: #a89a8c; transition: color .15s; user-select: none; min-width: 0; }
+  .bottom-nav .tab.active { color: #3a2f25; }
   .bottom-nav .tab .icon { font-size: 22px; line-height: 1; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; transition: transform .15s ease; }
   .bottom-nav .tab .icon svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1)); }
   .bottom-nav .tab.active .icon { transform: translateY(-1px) scale(1.08); }
   .bottom-nav .tab.active .icon svg { filter: drop-shadow(0 3px 5px rgba(0,0,0,0.18)); }
   .bottom-nav .tab:not(.active):not(.fab) .icon svg { opacity: 0.78; }
   .bottom-nav .tab .label { font-size: 10px; margin-top: 3px; }
-  .bottom-nav .tab.fab { background: #1a1a1a; color: white !important; width: 54px; height: 54px; border-radius: 27px; flex: 0 0 54px; justify-content: center; align-self: center; margin: 0 10px; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+  .bottom-nav .tab.fab { background: #3a2f25; color: white !important; width: 54px; height: 54px; border-radius: 27px; flex: 0 0 54px; justify-content: center; align-self: center; margin: 0 10px; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
   .bottom-nav .tab.fab .icon { font-size: 26px; width: 30px; height: 30px; }
   .bottom-nav .tab.fab .icon svg { filter: none; }
   .bottom-nav .tab.fab .label { display: none; }
@@ -157,12 +157,12 @@
   .cal-header .nav-btn { width: 32px; height: 32px; border-radius: 16px; background: white; border: 0.5px solid #e5e7eb; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
   .cal-header .month-title { font-size: 16px; font-weight: 600; }
   .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; padding: 0 16px; }
-  .cal-grid .weekday { text-align: center; font-size: 11px; color: #6b7280; padding: 6px 0; font-weight: 500; }
+  .cal-grid .weekday { text-align: center; font-size: 11px; color: #7c7066; padding: 6px 0; font-weight: 500; }
   .cal-day { aspect-ratio: 1; background: white; border-radius: 10px; padding: 6px 4px; display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
   .cal-day.empty { background: transparent; box-shadow: none; cursor: default; }
   .cal-day.has-jobs { background: #ef4444; font-weight: 700; color: white; box-shadow: 0 2px 8px rgba(220,38,38,.4); }
-  .cal-day.has-jobs.today { background: #1a1a1a; color: white; box-shadow: 0 2px 10px rgba(0,0,0,.3); outline: 2px solid #ef4444; outline-offset: -2px; }
-  .cal-day.today { background: #1a1a1a; color: white; }
+  .cal-day.has-jobs.today { background: #3a2f25; color: white; box-shadow: 0 2px 10px rgba(0,0,0,.3); outline: 2px solid #ef4444; outline-offset: -2px; }
+  .cal-day.today { background: #3a2f25; color: white; }
   .cal-day .num { font-size: 13px; }
   .cal-day .dots { display: flex; gap: 2px; margin-top: 2px; flex-wrap: wrap; justify-content: center; }
   .cal-day .dot { width: 5px; height: 5px; border-radius: 50%; }
@@ -170,15 +170,15 @@
 
   /* Form */
   .form-group { margin: 0 16px 12px; }
-  .form-group label { display: block; font-size: 12px; color: #6b7280; margin-bottom: 6px; font-weight: 500; }
+  .form-group label { display: block; font-size: 12px; color: #7c7066; margin-bottom: 6px; font-weight: 500; }
   .form-group label .req { color: #dc2626; }
   .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 0.5px solid #d1d5db; background: white; font-size: 14px; font-family: inherit; }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #1a1a1a; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #d8704a; box-shadow: 0 0 0 3px rgba(216,112,74,0.15); }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip { padding: 7px 12px; border-radius: 16px; background: white; border: 0.5px solid #d1d5db; font-size: 12px; cursor: pointer; user-select: none; transition: all .1s; }
-  .chip.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
-  .chip .price { color: #6b7280; margin-left: 6px; font-size: 11px; }
+  .chip.active { background: #3a2f25; color: white; border-color: #3a2f25; }
+  .chip .price { color: #7c7066; margin-left: 6px; font-size: 11px; }
   .chip.active .price { color: #d1d5db; }
   .chip.team-chip { display: flex; align-items: center; gap: 5px; }
   .chip.team-chip .team-dot { width: 8px; height: 8px; border-radius: 50%; }
@@ -210,7 +210,7 @@
     color: inherit;
     outline: none;
   }
-  .pxy-search-input::placeholder { color: #9ca3af; }
+  .pxy-search-input::placeholder { color: #a89a8c; }
   .pxy-search-clear {
     background: rgba(0,0,0,0.06);
     border: 0;
@@ -221,7 +221,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #6b7280;
+    color: #7c7066;
     flex-shrink: 0;
   }
   body.dark-theme .pxy-search-clear { background: rgba(255,255,255,0.1); color: #d4d4d4; }
@@ -230,7 +230,7 @@
   .pxy-empty {
     text-align: center;
     padding: 50px 24px 32px;
-    color: #6b7280;
+    color: #7c7066;
   }
   .pxy-empty .pxy-empty-icon {
     font-size: 52px;
@@ -253,7 +253,7 @@
   }
   .pxy-empty .pxy-empty-cta {
     display: inline-block;
-    background: #1a1a1a;
+    background: #3a2f25;
     color: #fff;
     padding: 10px 20px;
     border-radius: 12px;
@@ -278,12 +278,12 @@
   }
   .ctype-pill:active { transform: scale(0.97); }
   .ctype-pill .ctype-chev { font-size: 10px; opacity: 0.7; margin-left: 2px; }
-  .ctype-pill.ctype-unset { background:#f3f4f6; color:#6b7280; border-color:#d1d5db; border-style:dashed; }
+  .ctype-pill.ctype-unset { background:#f3f4f6; color:#7c7066; border-color:#d1d5db; border-style:dashed; }
   .ctype-pill.ctype-b2c { background:#dbeafe; color:#1e40af; border-color:#bfdbfe; }
   .ctype-pill.ctype-b2b { background:#fde6dc; color:#7c2d12; border-color:#fbcfb8; }
   .ctype-pill.ctype-gov { background:#dcfce7; color:#14532d; border-color:#bbf7d0; }
   .ctype-pill.ctype-vip { background:#ede4ff; color:#5b21b6; border-color:#ddd0fa; }
-  body.dark-theme .ctype-pill.ctype-unset { background:#3a3a3a; color:#9ca3af; border-color:#525252; }
+  body.dark-theme .ctype-pill.ctype-unset { background:#3a3a3a; color:#a89a8c; border-color:#525252; }
 
   /* Tax ID warning chip (Tax T4) */
   .ctype-warn {
@@ -329,8 +329,8 @@
     margin: 0 auto 10px;
   }
   .ctype-sheet .cs-title { font-size: 16px; font-weight: 700; text-align: center; }
-  .ctype-sheet .cs-sub { font-size: 12px; color:#6b7280; text-align: center; margin-top: 4px; }
-  body.dark-theme .ctype-sheet .cs-sub { color: #9ca3af; }
+  .ctype-sheet .cs-sub { font-size: 12px; color:#7c7066; text-align: center; margin-top: 4px; }
+  body.dark-theme .ctype-sheet .cs-sub { color: #a89a8c; }
   .ctype-sheet .cs-options { display: grid; gap: 8px; margin-top: 14px; }
   .ctype-sheet .cs-opt {
     display: flex; align-items: center; gap: 12px;
@@ -341,23 +341,23 @@
   }
   body.dark-theme .ctype-sheet .cs-opt { background: #2a2a2a; border-color: #404040; color: #f3f4f6; }
   .ctype-sheet .cs-opt:active { transform: scale(0.99); }
-  .ctype-sheet .cs-opt.is-current { border-color: #1a1a1a; background: #fafaf9; }
+  .ctype-sheet .cs-opt.is-current { border-color: #3a2f25; background: #fafaf9; }
   body.dark-theme .ctype-sheet .cs-opt.is-current { border-color: #f5f5f5; background: #333; }
   .ctype-sheet .cs-opt .cs-icon { font-size: 22px; flex-shrink: 0; }
   .ctype-sheet .cs-opt .cs-body { flex: 1; min-width: 0; }
   .ctype-sheet .cs-opt .cs-name { font-size: 14.5px; font-weight: 700; }
-  .ctype-sheet .cs-opt .cs-desc { font-size: 11.5px; color: #6b7280; margin-top: 2px; }
-  body.dark-theme .ctype-sheet .cs-opt .cs-desc { color: #9ca3af; }
+  .ctype-sheet .cs-opt .cs-desc { font-size: 11.5px; color: #7c7066; margin-top: 2px; }
+  body.dark-theme .ctype-sheet .cs-opt .cs-desc { color: #a89a8c; }
   .ctype-sheet .cs-opt .cs-check {
     width: 22px; height: 22px; border-radius: 50%;
     border: 2px solid #d1d5db;
     flex-shrink: 0; display: flex; align-items: center; justify-content: center;
   }
   .ctype-sheet .cs-opt.is-current .cs-check {
-    border-color: #1a1a1a; background: #1a1a1a; color: #fff;
+    border-color: #3a2f25; background: #3a2f25; color: #fff;
   }
   body.dark-theme .ctype-sheet .cs-opt.is-current .cs-check {
-    border-color: #f5f5f5; background: #f5f5f5; color: #1a1a1a;
+    border-color: #f5f5f5; background: #f5f5f5; color: #3a2f25;
   }
   .ctype-sheet .cs-opt .cs-check::after { content: ''; }
   .ctype-sheet .cs-opt.is-current .cs-check::after { content: '✓'; font-size: 13px; font-weight: 800; }
@@ -365,7 +365,7 @@
     margin-top: 10px; width: 100%;
     padding: 12px; border-radius: 12px;
     background: transparent; border: 0;
-    font-size: 14px; color: #6b7280; cursor: pointer;
+    font-size: 14px; color: #7c7066; cursor: pointer;
   }
 
   /* PIT Helper screen (Tax T6) */
@@ -476,7 +476,7 @@
     color: #7c7066;
     line-height: 1.5;
   }
-  body.dark-theme .pit-disclaimer { background: #2a2a2a; color: #9ca3af; }
+  body.dark-theme .pit-disclaimer { background: #2a2a2a; color: #a89a8c; }
 
   /* Quick-Start type cards (S3) */
   .qs-type-card {
@@ -523,8 +523,8 @@
   /* Tax ID Fill modal — same sheet pattern, just a custom panel */
   .tax-fill-sheet .cs-panel { max-height: 88vh; overflow-y: auto; }
   .tax-fill-sheet .tf-input-row { margin-top: 10px; }
-  .tax-fill-sheet .tf-input-row label { display:block; font-size:12px; color:#6b7280; margin-bottom:4px; font-weight:500; }
-  body.dark-theme .tax-fill-sheet .tf-input-row label { color: #9ca3af; }
+  .tax-fill-sheet .tf-input-row label { display:block; font-size:12px; color:#7c7066; margin-bottom:4px; font-weight:500; }
+  body.dark-theme .tax-fill-sheet .tf-input-row label { color: #a89a8c; }
   .tax-fill-sheet .tf-input-row input,
   .tax-fill-sheet .tf-input-row textarea {
     width: 100%; padding: 10px 12px; border-radius: 10px;
@@ -538,40 +538,40 @@
   .tax-fill-sheet .tf-actions { display:flex; gap:8px; margin-top:14px; }
   .tax-fill-sheet .tf-actions .btn-save {
     flex:1; padding:12px; border-radius:12px;
-    background:#1a1a1a; color:#fff; border:0; font-size:14px; font-weight:700; cursor:pointer;
+    background:#3a2f25; color:#fff; border:0; font-size:14px; font-weight:700; cursor:pointer;
   }
   .tax-fill-sheet .tf-actions .btn-skip {
     flex:1; padding:12px; border-radius:12px;
-    background:transparent; color:#6b7280; border:0; font-size:14px; cursor:pointer;
+    background:transparent; color:#7c7066; border:0; font-size:14px; cursor:pointer;
   }
 
   /* Package card (for add job) */
   .pkg-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
   .pkg-card { background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 8px 6px; text-align: center; cursor: pointer; transition: all .15s; }
   .pkg-card .pkg-name { font-size: 12px; font-weight: 600; }
-  .pkg-card .pkg-price { font-size: 11px; color: #6b7280; margin-top: 2px; }
-  .pkg-card.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+  .pkg-card .pkg-price { font-size: 11px; color: #7c7066; margin-top: 2px; }
+  .pkg-card.active { background: #3a2f25; color: white; border-color: #3a2f25; }
   .pkg-card.active .pkg-price { color: rgba(255,255,255,.7); }
   .pkg-card.theme-photo.active { background: #BA7517; border-color: #BA7517; }
   .pkg-card.theme-photobooth.active { background: #534AB7; border-color: #534AB7; }
   .pkg-card.theme-video.active { background: #1D9E75; border-color: #1D9E75; }
   .pkg-card.theme-pre.active { background: #D4537E; border-color: #D4537E; }
 
-  .btn { display: block; width: calc(100% - 32px); margin: 12px 16px; padding: 13px; border-radius: 12px; background: #1a1a1a; color: white; border: none; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn { display: block; width: calc(100% - 32px); margin: 12px 16px; padding: 13px; border-radius: 12px; background: #3a2f25; color: white; border: none; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
 
   /* Elegant "Add" tile — dashed outline, subtle */
   .add-tile { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 11px 14px; border-radius: 12px; background: transparent; border: 1.5px dashed #c9cdd5; color: #4b5563; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all .15s; }
-  .add-tile:hover { border-color: #1a1a1a; color: #1a1a1a; background: rgba(0,0,0,0.02); }
+  .add-tile:hover { border-color: #3a2f25; color: #3a2f25; background: rgba(0,0,0,0.02); }
   .add-tile:active { transform: scale(0.99); }
-  .add-tile-icon { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f3f4f6; color: #1a1a1a; font-size: 16px; font-weight: 500; line-height: 1; }
-  body.dark-theme .add-tile { border-color: #3a3a3a; color: #9ca3af; }
+  .add-tile-icon { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f3f4f6; color: #3a2f25; font-size: 16px; font-weight: 500; line-height: 1; }
+  body.dark-theme .add-tile { border-color: #3a3a3a; color: #a89a8c; }
   body.dark-theme .add-tile:hover { border-color: #f5f5f5; color: #f5f5f5; background: rgba(255,255,255,0.03); }
   body.dark-theme .add-tile-icon { background: #2a2a2a; color: #f5f5f5; }
 
   /* Session block */
   .session-block { border: 0.5px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; background: #fafafa; }
   .session-block-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .session-block-label { font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
+  .session-block-label { font-size: 11px; color: #7c7066; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
   .session-block-delete { background: none; border: none; color: #dc2626; font-size: 14px; cursor: pointer; padding: 2px 6px; }
   .session-block-fields { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 6px; margin-bottom: 6px; }
   .session-block-fields input { padding: 7px 8px; font-size: 12px; border: 0.5px solid #d1d5db; border-radius: 6px; background: white; }
@@ -579,28 +579,28 @@
   body.dark-theme .session-block { background: #1f1f1f; border-color: #2a2a2a; }
   body.dark-theme .session-block-fields input,
   body.dark-theme .session-block-note { background: #2a2a2a; color: #f5f5f5; border-color: #3a3a3a; }
-  .btn.secondary { background: white; color: #1a1a1a; border: 0.5px solid #d1d5db; }
+  .btn.secondary { background: white; color: #3a2f25; border: 0.5px solid #d1d5db; }
   .btn.danger { background: #dc2626; }
 
   .progress { height: 8px; border-radius: 4px; background: #f3f4f6; overflow: hidden; margin: 6px 0; }
   .progress .fill { height: 100%; background: linear-gradient(90deg,#10b981,#34d399); }
 
-  .notif { background: white; border-radius: 12px; padding: 12px 14px; margin: 0 16px 8px; display: flex; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.04); border-left: 3px solid #6b7280; }
+  .notif { background: white; border-radius: 12px; padding: 12px 14px; margin: 0 16px 8px; display: flex; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.04); border-left: 3px solid #7c7066; }
   .notif.urgent { border-left-color: #dc2626; }
   .notif.warn { border-left-color: #f59e0b; }
   .notif.info { border-left-color: #2563eb; }
   .notif .ico { font-size: 22px; }
   .notif .body { flex: 1; }
   .notif .title { font-size: 13px; font-weight: 600; margin: 0; }
-  .notif .desc { font-size: 12px; color: #6b7280; margin: 2px 0 0; }
-  .notif .time { font-size: 11px; color: #9ca3af; }
+  .notif .desc { font-size: 12px; color: #7c7066; margin: 2px 0 0; }
+  .notif .time { font-size: 11px; color: #a89a8c; }
 
   .cust-row { background: white; padding: 12px 16px; margin: 0 16px 8px; border-radius: 12px; display: flex; align-items: center; gap: 12px; }
   .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; flex-shrink: 0; }
 
   /* Quote PDF preview */
   .pdf-paper { background: white; margin: 0 12px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.08); overflow: hidden; color: #1f2937; }
-  .pdf-paper .pdf-header { background: #1a1a1a; color: white; padding: 10px 14px; }
+  .pdf-paper .pdf-header { background: #3a2f25; color: white; padding: 10px 14px; }
   .pdf-paper .pdf-header .brand { font-size: 15px; font-weight: 700; letter-spacing: 1px; }
   .pdf-paper .pdf-header .tag { font-size: 10px; opacity: .85; margin-top: 1px; }
   .pdf-body { padding: 10px 14px 12px; font-size: 11px; color: #1f2937; line-height: 1.35; }
@@ -608,22 +608,22 @@
   .pdf-body table th { text-align: left; padding: 4px 0; border-bottom: 1px solid #d1d5db; font-weight: 600; color: #374151; font-size: 10px; }
   .pdf-body table td { padding: 4px 0; border-bottom: 0.5px solid #e5e7eb; color: #1f2937; }
   .pdf-body table td.right { text-align: right; }
-  .pdf-body .total { font-weight: 700; font-size: 14px; padding-top: 6px; display: flex; justify-content: space-between; border-top: 1.5px solid #1a1a1a; margin-top: 4px; color: #0f172a; }
+  .pdf-body .total { font-weight: 700; font-size: 14px; padding-top: 6px; display: flex; justify-content: space-between; border-top: 1.5px solid #3a2f25; margin-top: 4px; color: #0f172a; }
   .pdf-body .detail-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 11px; }
   .pdf-body .detail-row .k { color: #374151; }
   .pdf-body .detail-row .v { font-weight: 600; color: #111827; }
   /* Make all light-gray labels readable on white */
-  .pdf-body div[style*="color:#6b7280"], .pdf-body div[style*="color: #6b7280"] { color: #374151 !important; }
-  .pdf-body div[style*="color:#9ca3af"], .pdf-body div[style*="color: #9ca3af"] { color: #4b5563 !important; }
+  .pdf-body div[style*="color:#7c7066"], .pdf-body div[style*="color: #7c7066"] { color: #374151 !important; }
+  .pdf-body div[style*="color:#a89a8c"], .pdf-body div[style*="color: #a89a8c"] { color: #4b5563 !important; }
 
   .legend { display: flex; flex-wrap: wrap; gap: 6px 10px; padding: 8px 20px 12px; font-size: 11px; }
-  .legend span { display: flex; align-items: center; gap: 4px; color: #6b7280; }
+  .legend span { display: flex; align-items: center; gap: 4px; color: #7c7066; }
   .legend .lg-dot { width: 8px; height: 8px; border-radius: 50%; }
 
   .detail-block { background: white; margin: 0 16px 12px; border-radius: 14px; padding: 14px 16px; }
-  .detail-block h3 { font-size: 13px; font-weight: 600; margin: 0 0 10px; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; }
+  .detail-block h3 { font-size: 13px; font-weight: 600; margin: 0 0 10px; color: #7c7066; text-transform: uppercase; letter-spacing: .5px; }
   .detail-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
-  .detail-row .k { color: #6b7280; }
+  .detail-row .k { color: #7c7066; }
   .detail-row .v { font-weight: 500; text-align: right; }
 
   .action-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; padding: 0 16px 14px; }
@@ -634,7 +634,7 @@
   .toast {
     position: fixed; bottom: 100px; left: 50%;
     transform: translateX(-50%) translateY(20px) scale(.95);
-    background: #1a1a1a; color: white;
+    background: #3a2f25; color: white;
     padding: 12px 20px 12px 16px;
     border-radius: 14px; font-size: 13.5px; font-weight: 500;
     opacity: 0;
@@ -663,29 +663,29 @@
   .year-select { background: white; border: 0.5px solid #d1d5db; border-radius: 10px; padding: 8px 14px; font-size: 14px; font-family: inherit; cursor: pointer; }
   .chart-card { background: white; margin: 0 16px 12px; border-radius: 14px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
   .chart-card .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-  .chart-card .chart-sub { font-size: 11px; color: #6b7280; margin-bottom: 10px; }
+  .chart-card .chart-sub { font-size: 11px; color: #7c7066; margin-bottom: 10px; }
   .chart-wrap { position: relative; height: 200px; }
   .chart-wrap.tall { height: 240px; }
 
   /* Segmented tabs (used in Jobs page for Jobs/Quotes switch) */
   .seg-tabs { display: flex; background: #f3f4f6; padding: 4px; margin: 0 16px 12px; border-radius: 12px; gap: 4px; }
-  .seg-tab { flex: 1; text-align: center; padding: 8px 10px; font-size: 13px; font-weight: 500; color: #6b7280; cursor: pointer; border-radius: 9px; transition: all .15s; }
-  .seg-tab.active { background: white; color: #1a1a1a; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-  .seg-count { display: inline-block; margin-left: 4px; font-size: 11px; color: #9ca3af; font-weight: 400; }
-  .seg-tab.active .seg-count { color: #6b7280; }
+  .seg-tab { flex: 1; text-align: center; padding: 8px 10px; font-size: 13px; font-weight: 500; color: #7c7066; cursor: pointer; border-radius: 9px; transition: all .15s; }
+  .seg-tab.active { background: white; color: #3a2f25; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .seg-count { display: inline-block; margin-left: 4px; font-size: 11px; color: #a89a8c; font-weight: 400; }
+  .seg-tab.active .seg-count { color: #7c7066; }
   body.dark-theme .seg-tabs { background: #1c1c1c; }
-  body.dark-theme .seg-tab { color: #9ca3af; }
+  body.dark-theme .seg-tab { color: #a89a8c; }
   body.dark-theme .seg-tab.active { background: #2a2a2a; color: #f5f5f5; }
 
   /* Quote-specific pills */
   .pill.q-pending { background: #dbeafe; color: #1e40af; }
   .pill.q-approved { background: #d1fae5; color: #065f46; }
   .pill.q-rejected { background: #fee2e2; color: #991b1b; }
-  .pill.q-expired { background: #f3f4f6; color: #6b7280; }
+  .pill.q-expired { background: #f3f4f6; color: #7c7066; }
   body.dark-theme .pill.q-pending { background: #0c4a6e; color: #93c5fd; }
   body.dark-theme .pill.q-approved { background: #064e3b; color: #6ee7b7; }
   body.dark-theme .pill.q-rejected { background: #3f1212; color: #fca5a5; }
-  body.dark-theme .pill.q-expired { background: #262626; color: #9ca3af; }
+  body.dark-theme .pill.q-expired { background: #262626; color: #a89a8c; }
 
   /* FAB menu overlay */
   .fab-menu { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: none; z-index: 50; align-items: flex-end; padding-bottom: 90px; padding-left: 12px; padding-right: 12px; animation: fadein .15s; }
@@ -697,16 +697,16 @@
   .fab-option:active { background: #f9fafb; }
   .fab-option .fo-ico { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
   .fab-option .fo-title { font-size: 15px; font-weight: 500; }
-  .fab-option .fo-sub { font-size: 12px; color: #6b7280; margin-top: 1px; }
+  .fab-option .fo-sub { font-size: 12px; color: #7c7066; margin-top: 1px; }
   .fab-cancel { padding: 14px; text-align: center; font-size: 15px; font-weight: 500; color: #dc2626; cursor: pointer; }
   body.dark-theme .fab-options { background: #1c1c1c; }
   body.dark-theme .fab-option { border-bottom-color: #262626; }
   body.dark-theme .fab-option .fo-title { color: #f5f5f5; }
-  body.dark-theme .fab-option .fo-sub { color: #9ca3af; }
+  body.dark-theme .fab-option .fo-sub { color: #a89a8c; }
 
   /* Team breakdown rows in Job Detail */
   .team-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; font-size: 13px; }
-  .team-row .tr-left { display: flex; align-items: center; gap: 8px; color: #1a1a1a; }
+  .team-row .tr-left { display: flex; align-items: center; gap: 8px; color: #3a2f25; }
   .team-row .tr-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .team-row .tr-wage { font-weight: 500; }
   .team-sum-row { border-top: 0.5px dashed #d1d5db; padding-top: 8px; margin-top: 4px; }
@@ -716,13 +716,13 @@
   /* Notification rule row */
   .notif-rule { display: flex; align-items: center; gap: 8px; padding: 12px 14px; font-size: 13px; border-bottom: 0.5px solid #f3f4f6; flex-wrap: wrap; }
   .notif-rule:last-child { border-bottom: none; }
-  .notif-rule input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; accent-color: #1a1a1a; }
+  .notif-rule input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; accent-color: #3a2f25; }
   .notif-rule input[type="number"] { background: #f9fafb; border: 0.5px solid #d1d5db; border-radius: 6px; font-size: 13px; }
   body.dark-theme .notif-rule { background: #1c1c1c; border-bottom-color: #262626; color: #e5e7eb; }
   body.dark-theme .notif-rule input[type="number"] { background: #262626; border-color: #3a3a3a; color: #f5f5f5; }
 
   /* Readonly auto-calculated input */
-  .readonly-input { background: #f3f4f6 !important; cursor: not-allowed; color: #1a1a1a; }
+  .readonly-input { background: #f3f4f6 !important; cursor: not-allowed; color: #3a2f25; }
   body.dark-theme .readonly-input { background: #262626 !important; color: #f5f5f5; border-color: #2a2a2a !important; }
 
   /* Per-person wage rows (Add Job) */
@@ -731,12 +731,12 @@
   .wage-row:last-child { border-bottom: none; }
   .wage-row .wage-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
   .wage-row .wage-name { flex: 1; font-size: 14px; font-weight: 500; }
-  .wage-row .wage-currency { font-size: 12px; color: #9ca3af; }
+  .wage-row .wage-currency { font-size: 12px; color: #a89a8c; }
   .wage-row input { width: 96px; padding: 7px 10px; font-size: 13px; text-align: right; border-radius: 8px; border: 0.5px solid #d1d5db; }
   .wage-total { display: flex; justify-content: space-between; padding: 8px 0 4px; border-top: 1px solid #e5e7eb; margin-top: 4px; font-size: 13px; }
-  .wage-total .wt-label { color: #6b7280; }
+  .wage-total .wt-label { color: #7c7066; }
   .wage-total .wt-val { font-weight: 600; }
-  .wage-empty { text-align: center; font-size: 12px; color: #9ca3af; padding: 12px 0; }
+  .wage-empty { text-align: center; font-size: 12px; color: #a89a8c; padding: 12px 0; }
   body.dark-theme .wage-list { background: #1c1c1c; border-color: #2a2a2a; }
   body.dark-theme .wage-row { border-bottom-color: #262626; }
   body.dark-theme .wage-row .wage-name { color: #f5f5f5; }
@@ -763,14 +763,14 @@
   .ebar-list { display: flex; flex-direction: column; gap: 12px; padding-top: 4px; }
   .ebar-row { font-size: 12px; }
   .ebar-head { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 12px; }
-  .ebar-head .ebar-name { color: #1a1a1a; font-weight: 500; }
-  .ebar-head .ebar-val { color: #6b7280; font-weight: 500; }
+  .ebar-head .ebar-name { color: #3a2f25; font-weight: 500; }
+  .ebar-head .ebar-val { color: #7c7066; font-weight: 500; }
   .ebar-track { background: #f3f4f6; border-radius: 4px; height: 10px; overflow: hidden; }
   .ebar-fill { height: 100%; border-radius: 4px; transition: width .3s; }
 
   /* Settings */
   .settings-section { margin: 0 16px 16px; }
-  .settings-section .sec-title { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; padding-left: 4px; font-weight: 600; }
+  .settings-section .sec-title { font-size: 11px; color: #7c7066; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; padding-left: 4px; font-weight: 600; }
   .settings-row { background: white; padding: 13px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border-bottom: 0.5px solid #f3f4f6; }
   .settings-row:first-child { border-radius: 12px 12px 0 0; }
   .settings-row:last-child { border-radius: 0 0 12px 12px; border-bottom: none; }
@@ -786,13 +786,13 @@
   .action-grid .act .ico.svg-icon { background: transparent !important; padding: 0; }
   .action-grid .act .ico.svg-icon { width: 32px; height: 32px; margin: 0 auto 4px; display: block; font-size: 0; }
   .settings-row .row-title { font-size: 14px; }
-  .settings-row .row-sub { font-size: 11px; color: #6b7280; }
-  .settings-row .right { display: flex; align-items: center; gap: 6px; color: #9ca3af; font-size: 12px; }
+  .settings-row .row-sub { font-size: 11px; color: #7c7066; }
+  .settings-row .right { display: flex; align-items: center; gap: 6px; color: #a89a8c; font-size: 12px; }
 
   .item-row { background: white; padding: 12px 14px; margin: 0 16px 6px; border-radius: 12px; display: flex; align-items: center; gap: 12px; }
   .item-row .item-name { font-size: 14px; font-weight: 500; }
-  .item-row .item-sub { font-size: 11px; color: #6b7280; margin-top: 1px; }
-  .item-row .item-action { color: #9ca3af; font-size: 18px; cursor: pointer; }
+  .item-row .item-sub { font-size: 11px; color: #7c7066; margin-top: 1px; }
+  .item-row .item-action { color: #a89a8c; font-size: 18px; cursor: pointer; }
 
   .proto-tag { display: none !important; }  /* Permanently hidden — Pixory is production now */
 
@@ -864,16 +864,16 @@
   body.dark-theme .cal-day { background: #1c1c1c; }
   body.dark-theme .cal-day.empty { background: transparent; }
   body.dark-theme .cal-day.has-jobs { background: #dc2626; color: white; font-weight: 700; box-shadow: 0 2px 8px rgba(220,38,38,.5); }
-  body.dark-theme .cal-day.has-jobs.today { background: #1a1a1a; color: white; outline: 2px solid #dc2626; outline-offset: -2px; }
-  body.dark-theme .cal-day.today { background: #f5f5f5; color: #1a1a1a; }
+  body.dark-theme .cal-day.has-jobs.today { background: #3a2f25; color: white; outline: 2px solid #dc2626; outline-offset: -2px; }
+  body.dark-theme .cal-day.today { background: #f5f5f5; color: #3a2f25; }
 
-  body.dark-theme .btn { background: #f5f5f5; color: #1a1a1a; }
+  body.dark-theme .btn { background: #f5f5f5; color: #3a2f25; }
   body.dark-theme .btn.secondary { background: #1c1c1c; color: #e5e7eb; border-color: #3a3a3a; }
   body.dark-theme .btn.danger { background: #dc2626; color: white; }
 
-  body.dark-theme .chip.active { background: #f5f5f5; color: #1a1a1a; border-color: #f5f5f5; }
+  body.dark-theme .chip.active { background: #f5f5f5; color: #3a2f25; border-color: #f5f5f5; }
   body.dark-theme .chip.team-chip.active { color: white; }
-  body.dark-theme .pkg-card.active { background: #f5f5f5; color: #1a1a1a; border-color: #f5f5f5; }
+  body.dark-theme .pkg-card.active { background: #f5f5f5; color: #3a2f25; border-color: #f5f5f5; }
   body.dark-theme .pkg-card.theme-photo.active { background: #BA7517; color: white; border-color: #BA7517; }
   body.dark-theme .pkg-card.theme-photobooth.active { background: #534AB7; color: white; border-color: #534AB7; }
   body.dark-theme .pkg-card.theme-video.active { background: #1D9E75; color: white; border-color: #1D9E75; }
@@ -927,9 +927,9 @@
   body.dark-theme .kpi .sub,
   body.dark-theme .form-group label,
   body.dark-theme .chart-card .chart-sub,
-  body.dark-theme .sec-title { color: #9ca3af; }
+  body.dark-theme .sec-title { color: #a89a8c; }
 
-  body.dark-theme .notif .time { color: #6b7280; }
+  body.dark-theme .notif .time { color: #7c7066; }
   body.dark-theme .section-title a { color: #60a5fa; }
 
   body.dark-theme .pill.paid { background: #064e3b; color: #6ee7b7; }
@@ -938,25 +938,25 @@
   body.dark-theme .pill.closed { background: #2a2a2a; color: #d1d5db; }
   body.dark-theme .pill.booked { background: #0c4a6e; color: #93c5fd; }
 
-  body.dark-theme .legend span { color: #9ca3af; }
+  body.dark-theme .legend span { color: #a89a8c; }
   body.dark-theme .pdf-paper .pdf-header { background: #0a0a0a; }
   body.dark-theme .pdf-body table th,
   body.dark-theme .pdf-body table td { color: #e5e7eb; border-color: #2a2a2a; }
   body.dark-theme .pdf-body .total { border-color: #f5f5f5; color: #f5f5f5; }
-  body.dark-theme .toast { background: #f5f5f5; color: #1a1a1a; }
+  body.dark-theme .toast { background: #f5f5f5; color: #3a2f25; }
   body.dark-theme .switch { background: #444; }
 
   body.dark-theme .bottom-nav { background: #1c1c1c; border-top-color: #262626; }
-  body.dark-theme .bottom-nav .tab { color: #6b7280; }
+  body.dark-theme .bottom-nav .tab { color: #7c7066; }
   body.dark-theme .bottom-nav .tab.active { color: #f5f5f5; }
-  body.dark-theme .bottom-nav .tab.fab { background: #f5f5f5; color: #1a1a1a !important; }
+  body.dark-theme .bottom-nav .tab.fab { background: #f5f5f5; color: #3a2f25 !important; }
 
   body.dark-theme .action-grid .act { background: #1c1c1c; }
   body.dark-theme .action-grid .act .lbl { color: #d1d5db; }
   body.dark-theme .avatar { filter: brightness(0.85); }
-  body.dark-theme .proto-tag { background: rgba(245,245,245,.9); color: #1a1a1a; }
+  body.dark-theme .proto-tag { background: rgba(245,245,245,.9); color: #3a2f25; }
 
-  body.dark-theme .notif { border-left-color: #6b7280; }
+  body.dark-theme .notif { border-left-color: #7c7066; }
   body.dark-theme .notif.urgent { border-left-color: #ef4444; }
   body.dark-theme .notif.warn { border-left-color: #f59e0b; }
   body.dark-theme .notif.info { border-left-color: #3b82f6; }
@@ -1004,7 +1004,7 @@
       var(--wallpaper) !important;
     background-size: auto, cover !important;
     background-position: center, center !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,.25), 0 0 0 10px #1a1a1a, 0 0 0 11px #2a2a2a !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25), 0 0 0 10px #3a2f25, 0 0 0 11px #2a2a2a !important;
   }
   body.dark-theme .phone {
     background-image:
@@ -1130,13 +1130,13 @@
     border: 0.5px solid rgba(255,255,255,.1);
   }
   body:not(.dark-theme) .chip.active {
-    background: #1a1a1a;
+    background: #3a2f25;
     color: white;
-    border-color: #1a1a1a;
+    border-color: #3a2f25;
   }
   body.dark-theme .chip.active {
     background: #f5f5f5;
-    color: #1a1a1a;
+    color: #3a2f25;
     border-color: #f5f5f5;
   }
 
@@ -1185,7 +1185,7 @@
   }
   .cal-day.has-jobs.today,
   .cal-day.today {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%) !important;
+    background: linear-gradient(135deg, #3a2f25 0%, #2a2a2a 100%) !important;
     border-color: rgba(255,255,255,.2) !important;
     color: white !important;
     box-shadow: 0 4px 16px rgba(0,0,0,.18) !important;
@@ -1203,7 +1203,7 @@
   body.dark-theme .cal-day.today,
   body.dark-theme .cal-day.has-jobs.today {
     background: linear-gradient(135deg, #f5f5f5 0%, #d8d8d8 100%) !important;
-    color: #1a1a1a !important;
+    color: #3a2f25 !important;
     box-shadow: 0 4px 16px rgba(255,255,255,.15) !important;
   }
 
@@ -1262,7 +1262,7 @@
 
   /* === FAB BUTTON ENHANCEMENT === */
   .bottom-nav .tab.fab {
-    background: linear-gradient(135deg, #1a1a1a 0%, #333 100%) !important;
+    background: linear-gradient(135deg, #3a2f25 0%, #333 100%) !important;
     box-shadow:
       0 8px 24px rgba(0,0,0,.25),
       0 2px 4px rgba(0,0,0,.1),
@@ -1275,7 +1275,7 @@
   }
   body.dark-theme .bottom-nav .tab.fab {
     background: linear-gradient(135deg, #f5f5f5 0%, #d5d5d5 100%) !important;
-    color: #1a1a1a !important;
+    color: #3a2f25 !important;
     box-shadow:
       0 8px 24px rgba(255,255,255,.15),
       0 2px 4px rgba(0,0,0,.4),
@@ -1346,8 +1346,8 @@
   body.dark-theme .section-title h2 { color: #f5f5f5; }
 
   /* === SETTINGS SUB ROW HOVER === */
-  .settings-row .row-title { color: #1a1a1a; font-weight: 500; font-size: 14px; }
-  .settings-row .row-sub { color: #6b7280; font-size: 11px; margin-top: 1px; }
+  .settings-row .row-title { color: #3a2f25; font-weight: 500; font-size: 14px; }
+  .settings-row .row-sub { color: #7c7066; font-size: 11px; margin-top: 1px; }
   body.dark-theme .settings-row .row-title { color: #f5f5f5; }
   body.dark-theme .settings-row .row-sub { color: #999; }
 
@@ -1362,21 +1362,32 @@
     -webkit-appearance: none;
   }
 
-  /* Calendar — make has-jobs MORE visible (darker) */
+  /* Calendar — has-jobs strong Pixory orange (v1.9.4 · was too pale) */
   .cal-day.has-jobs {
-    background: rgba(232, 154, 118, .55) !important;
-    border-color: rgba(232, 154, 118, .7) !important;
-    color: #6e2e10 !important;
-    font-weight: 700;
+    background: linear-gradient(135deg, #d8704a 0%, #b85a36 100%) !important;
+    border-color: rgba(216, 112, 74, .9) !important;
+    color: #fefcf9 !important;
+    font-weight: 800 !important;
+    box-shadow: 0 3px 10px rgba(216,112,74,0.35), inset 0 1px 1px rgba(255,255,255,0.18) !important;
   }
   body.dark-theme .cal-day.has-jobs {
-    background: rgba(232, 154, 118, .4) !important;
-    border-color: rgba(232, 154, 118, .5) !important;
-    color: #ffc794 !important;
+    background: linear-gradient(135deg, #d8704a 0%, #b85a36 100%) !important;
+    border-color: rgba(216, 112, 74, .8) !important;
+    color: #fefcf9 !important;
+    box-shadow: 0 0 14px rgba(216,112,74,0.45), inset 0 1px 1px rgba(255,255,255,0.15) !important;
   }
-  /* Dot inside cal-day — bigger and clearer */
-  .cal-day .dots { display: flex; gap: 2px; margin-top: 3px; flex-wrap: wrap; justify-content: center; }
-  .cal-day .dot { width: 5px; height: 5px; border-radius: 50%; box-shadow: 0 0 0 0.5px rgba(255,255,255,.6); }
+  /* Today cell that ALSO has jobs — keep brown but with strong orange ring so still readable */
+  .cal-day.has-jobs.today {
+    outline: 2.5px solid #d8704a !important;
+    outline-offset: -2px !important;
+    background: linear-gradient(135deg, #3a2f25 0%, #2a2118 100%) !important;
+    color: #fefcf9 !important;
+    box-shadow: 0 4px 14px rgba(58,47,37,0.45), 0 0 16px rgba(216,112,74,0.35) !important;
+  }
+  /* Dot inside cal-day — bigger and clearer (white when on orange bg) */
+  .cal-day .dots { display: flex; gap: 3px; margin-top: 3px; flex-wrap: wrap; justify-content: center; }
+  .cal-day .dot { width: 5px; height: 5px; border-radius: 50%; }
+  .cal-day.has-jobs .dot { background: rgba(255,255,255,0.95) !important; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.15); }
 
   /* === FORM PAGES: remove individual glass card frames, single page blur === */
   #screen-add .settings-section,
@@ -1417,7 +1428,7 @@
   #screen-add-expense .sec-title {
     font-size: 12px;
     font-weight: 600;
-    color: #6b7280;
+    color: #7c7066;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 14px 0 6px !important;
@@ -1468,11 +1479,11 @@
   /* === PDF/Quote always white bg + dark text (regardless of theme) === */
   .pdf-paper {
     background: white !important;
-    color: #1a1a1a !important;
+    color: #3a2f25 !important;
   }
   .pdf-paper * { color: inherit; }
-  .pdf-paper [style*="color:#6b7280"],
-  .pdf-paper [style*="color: #6b7280"] { color: #374151 !important; }
+  .pdf-paper [style*="color:#7c7066"],
+  .pdf-paper [style*="color: #7c7066"] { color: #374151 !important; }
   .pdf-paper [style*="color:#4a4a4a"],
   .pdf-paper [style*="color: #4a4a4a"] { color: #374151 !important; }
   .pdf-paper [style*="color:#111827"],
@@ -1480,11 +1491,11 @@
   .pdf-paper [style*="color:#374151"],
   .pdf-paper [style*="color: #374151"] { color: #374151 !important; }
   /* Force dark theme PDF to stay light */
-  body.dark-theme .pdf-paper { background: white !important; color: #1a1a1a !important; }
-  body.dark-theme .pdf-paper .pdf-header { background: #1a1a1a !important; color: white !important; }
+  body.dark-theme .pdf-paper { background: white !important; color: #3a2f25 !important; }
+  body.dark-theme .pdf-paper .pdf-header { background: #3a2f25 !important; color: white !important; }
   body.dark-theme .pdf-paper .pdf-body table th { color: #374151 !important; }
   body.dark-theme .pdf-paper .pdf-body table td { color: #1f2937 !important; }
-  body.dark-theme .pdf-paper .pdf-body .total { color: #0f172a !important; border-color: #1a1a1a !important; }
+  body.dark-theme .pdf-paper .pdf-body .total { color: #0f172a !important; border-color: #3a2f25 !important; }
   body.dark-theme .pdf-paper .pdf-body .detail-row .k { color: #374151 !important; }
   body.dark-theme .pdf-paper .pdf-body .detail-row .v { color: #111827 !important; }
   body.dark-theme #q-customer { color: #111827 !important; }
@@ -1521,7 +1532,7 @@
     font-size: 30px;
     font-weight: 700;
     letter-spacing: -.5px;
-    color: #1a1a1a;
+    color: #3a2f25;
     line-height: 1.1;
   }
   body.dark-theme .home-hero-amount { color: #f5f5f5; }
@@ -1547,7 +1558,7 @@
   body.dark-theme .home-hero-delta.neutral { color: #ddd; background: rgba(255,255,255,.08); }
   .home-hero-year {
     font-size: 11px;
-    color: #1a1a1a;
+    color: #3a2f25;
     background: rgba(255,255,255,.6);
     padding: 5px 10px;
     border-radius: 12px;
@@ -1558,7 +1569,7 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, #6b7280 50%), linear-gradient(135deg, #6b7280 50%, transparent 50%);
+    background-image: linear-gradient(45deg, transparent 50%, #7c7066 50%), linear-gradient(135deg, #7c7066 50%, transparent 50%);
     background-position: calc(100% - 9px) 50%, calc(100% - 5px) 50%;
     background-size: 4px 4px;
     background-repeat: no-repeat;
@@ -1603,7 +1614,7 @@
     transition: all .35s ease;
   }
   body.dark-theme .wiz-dot { background: rgba(255,255,255,.12); }
-  .wiz-dot.done   { background: #1a1a1a; }
+  .wiz-dot.done   { background: #3a2f25; }
   body.dark-theme .wiz-dot.done { background: #f5f5f5; }
   .wiz-dot.active { background: linear-gradient(90deg, #e89a76, #d878a8); flex: 1.5; }
 
@@ -1614,7 +1625,7 @@
     padding: 10px 18px;
     background: none;
     border: none;
-    color: #6b7280;
+    color: #7c7066;
     font-size: 13px;
     font-weight: 400;
     cursor: pointer;
@@ -1679,7 +1690,7 @@
     font-weight: 700;
     letter-spacing: -.3px;
     margin-bottom: 8px;
-    background: linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%);
+    background: linear-gradient(135deg, #3a2f25 0%, #4a4a4a 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1751,9 +1762,9 @@
   .wiz-feature-ico.pink  { background: rgba(248, 199, 199, .85); }
   .wiz-feature-ico.purple{ background: rgba(220, 200, 230, .9); }
   .wiz-feature-text { flex: 1; }
-  .wiz-feature-title { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .wiz-feature-title { font-size: 14px; font-weight: 600; color: #3a2f25; }
   body.dark-theme .wiz-feature-title { color: #f5f5f5; }
-  .wiz-feature-sub { font-size: 12px; color: #6b7280; margin-top: 1px; }
+  .wiz-feature-sub { font-size: 12px; color: #7c7066; margin-top: 1px; }
   body.dark-theme .wiz-feature-sub { color: #999; }
 
   /* === Wizard Carousel (Welcome — A/B/C rotating slides) === */
@@ -1788,7 +1799,7 @@
     transform: translateY(8px);
     transition: opacity .55s ease, transform .55s ease;
     pointer-events: none;
-    color: #1a1a1a;
+    color: #3a2f25;
   }
   body.dark-theme .wiz-slide { color: #f0f0f0; }
   .wiz-slide.active {
@@ -1857,7 +1868,7 @@
   }
   body.dark-theme .wiz-car-dot { background: rgba(255,255,255,.25); }
   .wiz-car-dot.active {
-    width: 24px; border-radius: 6px; background: #1a1a1a;
+    width: 24px; border-radius: 6px; background: #3a2f25;
   }
   body.dark-theme .wiz-car-dot.active { background: #f5f5f5; }
   .wiz-car-label {
@@ -1919,7 +1930,7 @@
   .wiz-bigbtn {
     margin: 12px 16px;
     padding: 16px 18px;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    background: linear-gradient(135deg, #3a2f25 0%, #2a2a2a 100%);
     color: white;
     border-radius: 18px;
     display: flex; align-items: center; gap: 14px;
@@ -1931,7 +1942,7 @@
     text-align: left;
   }
   .wiz-bigbtn:active { transform: scale(0.98); }
-  body.dark-theme .wiz-bigbtn { background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); color: #1a1a1a; }
+  body.dark-theme .wiz-bigbtn { background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); color: #3a2f25; }
   .wiz-bigbtn-ico {
     width: 42px; height: 42px; border-radius: 50%;
     background: rgba(255,255,255,.15);
@@ -2005,7 +2016,7 @@
     width: 56px;
     height: 56px;
     flex-shrink: 0;
-    color: #1a1a1a;
+    color: #3a2f25;
   }
   body.dark-theme .pixory-icon { color: #f5f5f5; }
   .pixory-text { flex: 1; min-width: 0; }
@@ -2015,12 +2026,12 @@
     font-weight: 700;
     letter-spacing: -1.3px;
     line-height: 1;
-    color: #1a1a1a;
+    color: #3a2f25;
   }
   body.dark-theme .pixory-wordmark { color: #f5f5f5; }
   .pixory-tagline {
     font-size: 13px;
-    color: #6b7280;
+    color: #7c7066;
     margin-top: 4px;
     font-style: italic;
     letter-spacing: 0.3px;
@@ -2033,7 +2044,7 @@
     text-align: center;
     padding: 4px 24px 12px;
     font-size: 13px;
-    color: #6b7280;
+    color: #7c7066;
     line-height: 1.6;
   }
   body.dark-theme .wiz-welcome-sub { color: #aaa; }
@@ -2050,18 +2061,18 @@
     font-weight: 600 !important;
   }
   #wizard-nav-row .btn:not(.secondary) {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%) !important;
+    background: linear-gradient(135deg, #3a2f25 0%, #2a2a2a 100%) !important;
     box-shadow: 0 4px 16px rgba(0,0,0,.15) !important;
   }
   body.dark-theme #wizard-nav-row .btn:not(.secondary) {
     background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%) !important;
-    color: #1a1a1a !important;
+    color: #3a2f25 !important;
   }
   #wizard-nav-row .btn.secondary {
     background: rgba(255,255,255,.6) !important;
     backdrop-filter: blur(15px);
     border: 0.5px solid rgba(0,0,0,.06) !important;
-    color: #6b7280 !important;
+    color: #7c7066 !important;
   }
   body.dark-theme #wizard-nav-row .btn.secondary {
     background: rgba(255,255,255,.08) !important;
@@ -2135,14 +2146,14 @@
   .auth-title {
     font-size: 22px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #3a2f25;
     margin: 0 0 6px;
     text-align: center;
   }
   body.dark-theme .auth-title { color: #fff; }
   .auth-sub {
     font-size: 13px;
-    color: #6b7280;
+    color: #7c7066;
     text-align: center;
     margin-bottom: 20px;
     line-height: 1.5;
@@ -2167,7 +2178,7 @@
     font-size: 15px;
     box-sizing: border-box;
     background: #fff;
-    color: #1a1a1a;
+    color: #3a2f25;
     transition: border-color .15s, box-shadow .15s;
     -webkit-appearance: none;
   }
@@ -2199,7 +2210,7 @@
   .auth-btn:active { transform: translateY(0); }
   .auth-btn:disabled {
     background: #d1d5db;
-    color: #9ca3af;
+    color: #a89a8c;
     box-shadow: none;
     cursor: not-allowed;
     transform: none;
@@ -2249,7 +2260,7 @@
     text-align: center;
     margin-top: 18px;
     font-size: 13px;
-    color: #6b7280;
+    color: #7c7066;
   }
   body.dark-theme .auth-links { color: #aaa; }
   .auth-links a {
@@ -2317,13 +2328,13 @@
   #pwa-install-banner .pwa-title {
     font-size: 13px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #3a2f25;
     line-height: 1.2;
   }
   body.dark-theme #pwa-install-banner .pwa-title { color: #f5f0e8; }
   #pwa-install-banner .pwa-sub {
     font-size: 11px;
-    color: #6b7280;
+    color: #7c7066;
     margin-top: 1px;
     line-height: 1.3;
   }
@@ -2345,7 +2356,7 @@
   #pwa-install-banner .pwa-close {
     background: none;
     border: none;
-    color: #9ca3af;
+    color: #a89a8c;
     font-size: 18px;
     padding: 4px 6px;
     cursor: pointer;
@@ -2384,7 +2395,7 @@
   }
   #pwa-ios-modal .pwa-modal-sub {
     font-size: 13px;
-    color: #6b7280;
+    color: #7c7066;
     text-align: center;
     margin-bottom: 18px;
     line-height: 1.5;
@@ -2399,7 +2410,7 @@
     gap: 12px;
     font-size: 13.5px;
     margin-bottom: 8px;
-    color: #1a1a1a;
+    color: #3a2f25;
   }
   body.dark-theme #pwa-ios-modal .pwa-step { background: #1f1812; color: #f5f0e8; }
   #pwa-ios-modal .pwa-step .num {
@@ -2544,7 +2555,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    color: #9ca3af;
+    color: #a89a8c;
     margin-bottom: 12px;
   }
   body.dark-theme #whatsnew-modal .wn-section-label { color: #807870; }
@@ -2577,13 +2588,13 @@
   #whatsnew-modal .wn-item .item-title {
     font-size: 13.5px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #3a2f25;
     line-height: 1.35;
   }
   body.dark-theme #whatsnew-modal .wn-item .item-title { color: #f5f0e8; }
   #whatsnew-modal .wn-item .item-desc {
     font-size: 11.5px;
-    color: #6b7280;
+    color: #7c7066;
     line-height: 1.45;
     margin-top: 2px;
   }
@@ -2608,7 +2619,7 @@
   #whatsnew-modal .wn-primary:active { transform: scale(0.98); }
   #whatsnew-modal .wn-footer-note {
     font-size: 10.5px;
-    color: #9ca3af;
+    color: #a89a8c;
     text-align: center;
     margin-top: 10px;
   }
@@ -2688,7 +2699,7 @@
 </div>
 
 <!-- ====== CLOUD SYNC DOT INDICATOR ====== -->
-<div id="cloud-sync-dot" title="ไม่ได้เชื่อมต่อ" style="position:fixed; top:env(safe-area-inset-top, 8px); right:8px; width:8px; height:8px; border-radius:50%; background:#9ca3af; z-index:8500; box-shadow:0 0 8px rgba(0,0,0,.15); transition:background .25s; pointer-events:none;"></div>
+<div id="cloud-sync-dot" title="ไม่ได้เชื่อมต่อ" style="position:fixed; top:env(safe-area-inset-top, 8px); right:8px; width:8px; height:8px; border-radius:50%; background:#a89a8c; z-index:8500; box-shadow:0 0 8px rgba(0,0,0,.15); transition:background .25s; pointer-events:none;"></div>
 
 <!-- ====== CUSTOMER TYPE BOTTOM SHEET (Tax T4) ====== -->
 <div id="ctype-sheet" class="ctype-sheet" role="dialog" aria-modal="true">
@@ -2757,7 +2768,7 @@
 
     <div style="display:flex; align-items:center; gap:10px; margin: 14px 0 10px;">
       <div style="flex:1; height:0.5px; background:#e8dfd5;"></div>
-      <div style="font-size: 11px; color: #9ca3af; font-weight: 600;">หรือเลือกประเภทลูกค้าใหม่</div>
+      <div style="font-size: 11px; color: #a89a8c; font-weight: 600;">หรือเลือกประเภทลูกค้าใหม่</div>
       <div style="flex:1; height:0.5px; background:#e8dfd5;"></div>
     </div>
 
@@ -2891,11 +2902,11 @@
         <input type="email" id="signup-email" autocomplete="email" inputmode="email" placeholder="you@example.com">
       </div>
       <div class="auth-field">
-        <label data-i18n="auth.password">รหัสผ่าน <span style="color:#9ca3af; font-weight:400;">(อย่างน้อย 6 ตัวอักษร)</span></label>
+        <label data-i18n="auth.password">รหัสผ่าน <span style="color:#a89a8c; font-weight:400;">(อย่างน้อย 6 ตัวอักษร)</span></label>
         <input type="password" id="signup-password" autocomplete="new-password" placeholder="••••••••">
       </div>
       <div class="auth-field">
-        <label data-i18n="auth.studioName">ชื่อสตูดิโอ <span style="color:#9ca3af; font-weight:400;">(ไม่บังคับ)</span></label>
+        <label data-i18n="auth.studioName">ชื่อสตูดิโอ <span style="color:#a89a8c; font-weight:400;">(ไม่บังคับ)</span></label>
         <input type="text" id="signup-studio" autocomplete="organization" placeholder="เช่น SRANGPAP WEDDING">
       </div>
       <button class="auth-btn" id="signup-btn" onclick="doSignup()" data-i18n="auth.signupBtn">สมัครสมาชิก</button>
@@ -2978,7 +2989,7 @@
             <div id="home-profile-avatar" style="width:48px; height:48px; border-radius:50%; flex-shrink:0; background:linear-gradient(135deg,#fde7c8,#e8b288); display:flex; align-items:center; justify-content:center; font-size:22px; box-shadow: 0 2px 8px rgba(0,0,0,.08), inset 0 1px 1px rgba(255,255,255,.5); background-size:cover; background-position:center;">🏪</div>
             <div style="flex:1; min-width:0;">
               <h1 id="home-greeting" style="font-size:18px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">SRANGPAP WEDDING</h1>
-              <div id="home-greeting-sub" style="font-size:12px; color:#6b7280; margin-top:2px;">สวัสดีครับ 👋</div>
+              <div id="home-greeting-sub" style="font-size:12px; color:#7c7066; margin-top:2px;">สวัสดีครับ 👋</div>
             </div>
           </div>
           <div class="header-actions">
@@ -3044,6 +3055,13 @@
       </div>
       <div id="home-notifs"></div>
 
+      <!-- M5 · Upcoming birthday reminders -->
+      <div class="section-title" id="home-birthdays-section" style="display:none;">
+        <h2>🎂 วันเกิดลูกค้า</h2>
+        <a onclick="goTo('customers')">ดูทั้งหมด ›</a>
+      </div>
+      <div id="home-birthdays"></div>
+
       <div class="section-title">
         <h2 data-i18n="home.upcoming">📅 งานใกล้ถึง</h2>
         <a onclick="goTo('jobs')" data-i18n="home.viewAll">ดูทั้งหมด ›</a>
@@ -3058,25 +3076,25 @@
           <div class="avatar" style="background:#dbeafe;color:#1e40af" id="home-customer-avatar">0</div>
           <div style="flex:1">
             <div style="font-size:14px;font-weight:500;" id="home-customer-title" data-i18n="home.customersTitle">ลูกค้าทั้งหมด</div>
-            <div style="font-size:12px;color:#6b7280;" id="home-customer-sub" data-i18n="home.noJobsYet">ยังไม่มีงานในระบบ</div>
+            <div style="font-size:12px;color:#7c7066;" id="home-customer-sub" data-i18n="home.noJobsYet">ยังไม่มีงานในระบบ</div>
           </div>
-          <div style="color:#9ca3af">›</div>
+          <div style="color:#a89a8c">›</div>
         </div>
         <div class="cust-row" onclick="goTo('expense-list')" style="margin: 0 0 8px;">
           <div class="avatar" style="background:#fee2e2;color:#991b1b">🧾</div>
           <div style="flex:1">
             <div style="font-size:14px;font-weight:500;" data-i18n="home.expenseTitle">ค่าใช้จ่ายทั้งหมด</div>
-            <div style="font-size:12px;color:#6b7280;" id="home-expense-sum" data-i18n="home.expenseSub">ปีนี้ — รวมจะคำนวณให้</div>
+            <div style="font-size:12px;color:#7c7066;" id="home-expense-sum" data-i18n="home.expenseSub">ปีนี้ — รวมจะคำนวณให้</div>
           </div>
-          <div style="color:#9ca3af">›</div>
+          <div style="color:#a89a8c">›</div>
         </div>
         <div class="cust-row" onclick="goTo('equipment')" style="margin: 0;">
           <div class="avatar" style="background:#e0e7ff;color:#3730a3">🎒</div>
           <div style="flex:1">
             <div style="font-size:14px;font-weight:500;" data-i18n="home.equipTitle">คลังอุปกรณ์</div>
-            <div style="font-size:12px;color:#6b7280;" id="home-equipment-sum" data-i18n="home.equipSub">ดูอุปกรณ์ที่มีในคลัง</div>
+            <div style="font-size:12px;color:#7c7066;" id="home-equipment-sum" data-i18n="home.equipSub">ดูอุปกรณ์ที่มีในคลัง</div>
           </div>
-          <div style="color:#9ca3af">›</div>
+          <div style="color:#a89a8c">›</div>
         </div>
       </div>
     </div>
@@ -3167,7 +3185,7 @@
     <div class="screen" id="screen-jobs">
       <div class="header">
         <h1 id="jobs-title" data-i18n="jobs.title">งาน</h1>
-        <span style="font-size: 13px; color: #6b7280;" id="jobs-count">23</span>
+        <span style="font-size: 13px; color: #7c7066;" id="jobs-count">23</span>
       </div>
 
       <!-- Tabs: Jobs / Quotes -->
@@ -3217,7 +3235,7 @@
       </div>
 
       <div style="padding: 0 20px 12px;">
-        <div style="font-size: 13px; color: #6b7280;" id="job-code">JOB-2026-012</div>
+        <div style="font-size: 13px; color: #7c7066;" id="job-code">JOB-2026-012</div>
         <div style="font-size: 24px; font-weight: 600; margin-top: 4px;" id="job-customer">Nam Thanya</div>
         <div style="font-size: 15px; color: #4b5563; margin-top: 6px; line-height: 1.5;" id="job-meta">Wedding · ปากคาด · 26 มิ.ย. 2026</div>
         <div id="job-contact-row" style="margin-top: 8px; display:flex; gap:8px; flex-wrap:wrap;"></div>
@@ -3234,20 +3252,12 @@
       <div class="detail-block">
         <h3 data-i18n="job.payment">การชำระเงิน</h3>
         <div class="progress"><div class="fill" id="job-pay-fill" style="width:18%"></div></div>
-        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #6b7280;">
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #7c7066;">
           <span id="job-paid-text">มัดจำ ฿3,000</span>
           <span><span data-i18n="job.remainingShort">คงเหลือ</span> <strong style="color:#dc2626" id="job-remaining">฿22,000</strong></span>
         </div>
         <button class="btn" id="job-invoice-btn" onclick="openJobInvoice()" style="margin: 12px 0 0; padding: 10px 14px; font-size: 13px; width: 100%; background: linear-gradient(135deg, #1D9E75, #0d7b5a);" data-i18n="inv.btnIssue">
           📋 ออกใบเรียกเก็บยอดชำระเพิ่มเติม
-        </button>
-        <!-- S2.1 — Quote from Job action -->
-        <button class="btn secondary" onclick="openQuoteFromJob()" style="margin: 8px 0 0; padding: 10px 14px; font-size: 13px; width: 100%;">
-          📄 ออกใบเสนอราคาจากงานนี้
-        </button>
-        <!-- S4.1 — Save as template -->
-        <button class="btn secondary" onclick="saveCurrentJobAsTemplate()" style="margin: 8px 0 0; padding: 10px 14px; font-size: 13px; width: 100%;">
-          💾 บันทึกเป็นเทมเพลตงาน
         </button>
       </div>
 
@@ -3308,7 +3318,7 @@
 
       <div class="detail-block">
         <h3 data-i18n="job.pnl">กำไรขาดทุน</h3>
-        <div class="detail-row"><span class="k" data-i18n="job.income">รายได้</span><span class="v">+฿25,000</span></div>
+        <div class="detail-row"><span class="k" data-i18n="job.income">รายได้</span><span class="v" id="job-income">+฿0</span></div>
         <div class="detail-row"><span class="k" data-i18n="job.teamCost">ค่าแรงทีม</span><span class="v" style="color:#dc2626" id="job-team-cost">-฿4,500</span></div>
         <div class="detail-row"><span class="k" data-i18n="job.travelCost">ค่าที่พัก/เดินทาง</span><span class="v" style="color:#dc2626" id="job-travel-cost">-฿0</span></div>
         <div class="detail-row"><span class="k" data-i18n="job.otherCost">ค่าใช้จ่ายอื่น</span><span class="v" style="color:#dc2626" id="job-other-cost">-฿0</span></div>
@@ -3343,7 +3353,7 @@
       <div class="header">
         <button class="back" onclick="cancelAddJob()">×</button>
         <h1 id="add-screen-title" data-i18n="header.addJob">งานใหม่</h1>
-        <span style="font-size: 12px; color: #6b7280;" id="new-job-code">JOB-2026-024</span>
+        <span style="font-size: 12px; color: #7c7066;" id="new-job-code">JOB-2026-024</span>
       </div>
 
       <!-- Section 1: ข้อมูลงาน -->
@@ -3351,7 +3361,7 @@
         <div class="sec-title" data-i18n="aj.jobInfo">📋 ข้อมูลงาน</div>
         <div class="form-group" style="margin: 0 0 10px;">
           <label><span data-i18n="lbl.customer">ลูกค้า</span> <span class="req">*</span></label>
-          <input type="text" id="addCustomer" data-i18n-attr="placeholder" data-i18n="aj.placeholderCustomerSearch" placeholder="พิมพ์ชื่อ หรือเลือกจากรายชื่อ" value="" onblur="autofillCustomerOnBlur()">
+          <input type="text" id="addCustomer" list="customer-names-list" autocomplete="off" data-i18n-attr="placeholder" data-i18n="aj.placeholderCustomerSearch" placeholder="พิมพ์ชื่อ หรือเลือกจากรายชื่อ" value="" onblur="autofillCustomerOnBlur()" oninput="if(typeof onCustomerNameInput==='function')onCustomerNameInput(this,'add')">
           <div class="ctype-inline">
             <span id="add-ctype-pill" class="ctype-pill ctype-unset" onclick="openCustTypeSheet('add')">
               <span class="ctype-icon">👤</span>
@@ -3452,7 +3462,7 @@
         <div class="sec-title" style="display:flex; align-items:center; gap:8px;">
           <span>📋 <span data-i18n="tax.section">ภาษี</span></span>
           <span style="display:none;">PRO</span>
-          <span id="add-tax-cust-hint" style="margin-left:auto; font-size:11px; color:#9ca3af; font-weight:500;"></span>
+          <span id="add-tax-cust-hint" style="margin-left:auto; font-size:11px; color:#a89a8c; font-weight:500;"></span>
         </div>
 
         <!-- Master toggle -->
@@ -3566,7 +3576,7 @@
       </div>
 
       <div style="padding: 0 20px 12px;">
-        <div style="font-size: 12px; color: #6b7280;" id="pay-job-code">—</div>
+        <div style="font-size: 12px; color: #7c7066;" id="pay-job-code">—</div>
         <div style="font-size: 16px; font-weight: 500;" id="pay-job-customer">—</div>
       </div>
 
@@ -3579,6 +3589,7 @@
       <div class="form-group" style="margin: 0 16px 10px;">
         <label><span data-i18n="pay.amount">จำนวนเงินที่รับ</span> <span class="req">*</span></label>
         <input type="number" id="pay-amount" placeholder="0" oninput="updatePayPreview()">
+        <div id="pay-preview" style="margin-top: 6px; font-size: 12.5px; color: #7c7066; min-height: 16px;"></div>
         <div style="margin-top: 6px; display: flex; gap: 6px;">
           <div class="chip" onclick="document.getElementById('pay-amount').value=document.getElementById('pay-remain-raw').value; updatePayPreview();" data-i18n="pay.full">รับเต็มยอด</div>
         </div>
@@ -3627,7 +3638,7 @@
       <div id="quote-status-bar" style="display:none; padding: 0 16px 12px;">
         <div style="background: white; border-radius: 12px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <div style="font-size:11px; color:#6b7280;" data-i18n="q.status">สถานะ</div>
+            <div style="font-size:11px; color:#7c7066;" data-i18n="q.status">สถานะ</div>
             <div style="margin-top:3px;"><span class="pill" id="quote-status-pill"></span></div>
           </div>
           <div style="display:flex; gap:6px;" id="quote-status-actions"></div>
@@ -3672,9 +3683,9 @@
             <div style="font-weight:600; font-size:12px; color:#111827;" id="q-customer">คุณ Nam Thanya</div>
             <!-- Customer tax info (Tax T2) — only shown if B2B/Gov with taxEnabled -->
             <div id="q-customer-tax-rows" style="display:none; margin-top:3px; font-size:9.5px; color:#374151; line-height:1.45;">
-              <div id="q-cust-company-row"><span style="color:#6b7280;" data-i18n="cust.companyName">ชื่อบริษัท / หน่วยงาน</span>: <span style="color:#111827; font-weight:600;" id="q-cust-company">—</span></div>
-              <div id="q-cust-tax-id-row"><span style="color:#6b7280;" data-i18n="tax.regNo">เลขผู้เสียภาษี</span>: <span style="color:#111827; font-weight:600;" id="q-cust-tax-id">—</span><span id="q-cust-branch-suffix"></span></div>
-              <div id="q-cust-tax-addr-row" style="margin-top:2px;"><span style="color:#6b7280;" data-i18n="cust.taxAddress">ที่อยู่ออกใบกำกับภาษี</span>: <span style="color:#111827;" id="q-cust-tax-addr">—</span></div>
+              <div id="q-cust-company-row"><span style="color:#7c7066;" data-i18n="cust.companyName">ชื่อบริษัท / หน่วยงาน</span>: <span style="color:#111827; font-weight:600;" id="q-cust-company">—</span></div>
+              <div id="q-cust-tax-id-row"><span style="color:#7c7066;" data-i18n="tax.regNo">เลขผู้เสียภาษี</span>: <span style="color:#111827; font-weight:600;" id="q-cust-tax-id">—</span><span id="q-cust-branch-suffix"></span></div>
+              <div id="q-cust-tax-addr-row" style="margin-top:2px;"><span style="color:#7c7066;" data-i18n="cust.taxAddress">ที่อยู่ออกใบกำกับภาษี</span>: <span style="color:#111827;" id="q-cust-tax-addr">—</span></div>
             </div>
             <div style="font-size:10px; color:#374151; margin-top: 1px;" id="q-event">งาน Wedding · 26 มิถุนายน 2026 · ปากคาด</div>
           </div>
@@ -3695,7 +3706,7 @@
             <div class="total" id="q-net-row" style="display:none; font-size:13px; background:#d1fae5; border-radius:4px; padding:5px 8px; margin-top:3px; border-left:3px solid #10b981;"><span style="color:#0f6e56;" data-i18n="tax.netReceived">ยอดสุทธิที่ได้รับ</span><span id="q-net-val" style="color:#0f6e56;">฿0</span></div>
           </div>
           <!-- Amount in words (Tax T5) — shown for b2bNoVat / vatB2c / fullPro -->
-          <div id="q-amount-in-words" style="display:none; margin-top:6px; padding:5px 10px; font-size:10px; color:#6b7280; font-style:italic; background:#fafaf9; border-radius:4px; border-left:2px solid #d1d5db;"></div>
+          <div id="q-amount-in-words" style="display:none; margin-top:6px; padding:5px 10px; font-size:10px; color:#7c7066; font-style:italic; background:#fafaf9; border-radius:4px; border-left:2px solid #d1d5db;"></div>
           <div id="q-deposit-block" style="display:none; margin-top:6px; padding:6px 10px; background:#fef3c7; border-radius:6px; border-left:3px solid #f59e0b;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
               <span style="font-size:10px; color:#92400e;" data-i18n="q.depositJob">มัดจำจองคิว</span>
@@ -3724,7 +3735,7 @@
           <div id="q-novat-note" style="display:none; margin-top:8px; padding:7px 10px; background:#eff6ff; border-radius:6px; border-left:3px solid #5e7ce4; font-size:9.5px; color:#1e3a8a; line-height:1.5;">
             📌 ผู้ขายเป็นบุคคลธรรมดา ไม่ได้จดทะเบียนภาษีมูลค่าเพิ่ม จึงไม่สามารถออกใบกำกับภาษีตามมาตรา 86 ได้ · ราคาเป็นยอดก่อนหัก ภาษี ณ ที่จ่าย
           </div>
-          <div style="margin-top: 6px; text-align: center; font-size: 9px; color: #6b7280; line-height:1.4;" id="q-footer">
+          <div style="margin-top: 6px; text-align: center; font-size: 9px; color: #7c7066; line-height:1.4;" id="q-footer">
             ขอบคุณที่ไว้วางใจ SRANGPAP WEDDING<br>
             LINE: @srangpap · IG: @srangpap_wedding
           </div>
@@ -3753,7 +3764,7 @@
       <div style="padding: 0 16px 12px;">
         <div style="background: white; border-radius: 12px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <div style="font-size:11px; color:#6b7280;" data-i18n="q.status">สถานะ</div>
+            <div style="font-size:11px; color:#7c7066;" data-i18n="q.status">สถานะ</div>
             <div style="margin-top:3px;"><span class="pill" id="inv-status-pill"></span></div>
           </div>
           <div style="display:flex; gap:6px;" id="inv-status-actions"></div>
@@ -3855,7 +3866,7 @@
         <div class="form-group" style="margin: 0 0 10px;">
           <label data-i18n="inv.editExtraTime">⏱ Extra time / ค่าโอที หลังถ่าย (บาท)</label>
           <input type="number" id="inv-edit-extratime" placeholder="0" min="0" onchange="saveInvoiceField('extraTime', parseFloat(this.value)||0)">
-          <div style="font-size:11px; color:#6b7280; margin-top:4px;" data-i18n="inv.editExtraTimeHint">เผื่อมีเวลาเกินที่ระบุในใบเสนอ</div>
+          <div style="font-size:11px; color:#7c7066; margin-top:4px;" data-i18n="inv.editExtraTimeHint">เผื่อมีเวลาเกินที่ระบุในใบเสนอ</div>
         </div>
 
         <div class="form-group" style="margin: 0 0 10px;">
@@ -3870,7 +3881,7 @@
         <div class="form-group" style="margin: 0;">
           <label data-i18n="inv.editMessage">📝 ข้อความท้ายใบ (แก้ไขได้)</label>
           <textarea rows="4" id="inv-edit-message" data-i18n-attr="placeholder" data-i18n="inv.editMessagePlaceholder" placeholder="เช่น ขอบคุณที่ให้เราเก็บความทรงจำของวันสำคัญ..." onchange="saveInvoiceField('message', this.value)"></textarea>
-          <div style="font-size:11px; color:#6b7280; margin-top:4px;" data-i18n="inv.editMessageHint">ปรับข้อความเองได้ สามารถใส่ขึ้นบรรทัดใหม่ได้</div>
+          <div style="font-size:11px; color:#7c7066; margin-top:4px;" data-i18n="inv.editMessageHint">ปรับข้อความเองได้ สามารถใส่ขึ้นบรรทัดใหม่ได้</div>
         </div>
       </div>
 
@@ -3963,7 +3974,7 @@
       <div class="header">
         <button class="back" onclick="backFromNewQuote()">×</button>
         <h1 data-i18n="header.newQuote" id="new-quote-title">ใบเสนอราคาใหม่</h1>
-        <span style="font-size: 12px; color: #6b7280;" id="new-quote-code">QT-2026-008</span>
+        <span style="font-size: 12px; color: #7c7066;" id="new-quote-code">QT-2026-008</span>
       </div>
 
       <!-- ลูกค้า -->
@@ -3972,7 +3983,7 @@
         <div class="form-row" style="margin-bottom: 10px;">
           <div class="form-group" style="margin: 0; flex:1.4;">
             <label><span data-i18n="lbl.customerName">ชื่อ</span> <span class="req">*</span></label>
-            <input type="text" id="nq-customer" data-i18n-attr="placeholder" data-i18n="aj.placeholderName" placeholder="คุณ..." onblur="if(typeof onNQCustomerBlur==='function')onNQCustomerBlur(this.value.trim());">
+            <input type="text" id="nq-customer" list="customer-names-list" autocomplete="off" data-i18n-attr="placeholder" data-i18n="aj.placeholderName" placeholder="คุณ..." onblur="if(typeof onNQCustomerBlur==='function')onNQCustomerBlur(this.value.trim());" oninput="if(typeof onCustomerNameInput==='function')onCustomerNameInput(this,'nq')">
           </div>
           <div class="form-group" style="margin: 0; flex:1;">
             <label data-i18n="lbl.nickname">ชื่อเล่น</label>
@@ -4081,7 +4092,7 @@
         <div class="sec-title" style="display:flex; align-items:center; gap:8px;">
           <span>📋 <span data-i18n="tax.section">ภาษี</span></span>
           <span style="display:none;">PRO</span>
-          <span id="nq-tax-cust-hint" style="margin-left:auto; font-size:11px; color:#9ca3af; font-weight:500;"></span>
+          <span id="nq-tax-cust-hint" style="margin-left:auto; font-size:11px; color:#a89a8c; font-weight:500;"></span>
         </div>
 
         <div id="nq-tax-master" onclick="toggleNQTax()" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:10px; cursor:pointer; background:#f7f4ef; border:1px solid #e8dfd5; transition:all .15s;">
@@ -4152,7 +4163,7 @@
       <div class="header">
         <button class="back" onclick="goTo('home')">‹</button>
         <h1>ลูกค้า</h1>
-        <span style="font-size: 13px; color: #6b7280;" id="customers-count">0 ราย</span>
+        <span style="font-size: 13px; color: #7c7066;" id="customers-count">0 ราย</span>
       </div>
       <!-- Search (S1.3) -->
       <div class="pxy-search-wrap">
@@ -4176,7 +4187,7 @@
           <div id="cust-avatar" style="width:62px; height:62px; border-radius:50%; background:#dbeafe; color:#1e40af; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:22px;">?</div>
           <div style="flex:1;">
             <div style="font-size:22px; font-weight:600;" id="cust-name">—</div>
-            <div style="font-size:13px; color:#6b7280; margin-top:2px;" id="cust-stats">0 งาน · ฿0</div>
+            <div style="font-size:13px; color:#7c7066; margin-top:2px;" id="cust-stats">0 งาน · ฿0</div>
           </div>
         </div>
       </div>
@@ -4188,7 +4199,7 @@
           <div id="cust-type-picker" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px;">
             <!-- Populated by renderCustomerTypePicker() -->
           </div>
-          <div style="font-size:11px; color:#9ca3af; margin-top:6px; line-height:1.5;">
+          <div style="font-size:11px; color:#a89a8c; margin-top:6px; line-height:1.5;">
             👤 บุคคล (ปกติ) · 🏢 บริษัท (มีภาษี) · 🏛 ราชการ · 💎 VIP
           </div>
         </div>
@@ -4224,7 +4235,7 @@
 
       <div class="settings-section">
         <div class="sec-title">🎂 ข้อมูลส่วนตัว</div>
-        <div class="form-group" style="margin: 0 0 10px;"><label>วันเกิด (สำหรับแจ้งเตือนส่งคำอวยพร)</label><input type="date" id="cust-birthday"></div>
+        <div class="form-group" style="margin: 0 0 10px;"><label>วันเกิด <span style="color:#a89a8c; font-size:11px;">(แอพจะแจ้งเตือนล่วงหน้า 7 วันที่หน้าหลัก)</span></label><input type="date" id="cust-birthday"></div>
         <div class="form-group" style="margin: 0 0 10px;"><label>Source — รู้จักจาก</label><select id="cust-source"></select></div>
       </div>
 
@@ -4247,7 +4258,7 @@
         <button class="icon-btn" onclick="openEquipmentEdit(null)" style="color:#2563eb">+</button>
       </div>
 
-      <div style="padding: 0 16px 12px; font-size: 12px; color: #6b7280;" data-i18n="equip.subTitle">ดูคลังอุปกรณ์ของคุณตามหมวด — เพิ่ม/แก้/ลบได้</div>
+      <div style="padding: 0 16px 12px; font-size: 12px; color: #7c7066;" data-i18n="equip.subTitle">ดูคลังอุปกรณ์ของคุณตามหมวด — เพิ่ม/แก้/ลบได้</div>
 
       <div class="kpi-grid" style="grid-template-columns: 1fr 1fr; gap: 8px;">
         <div class="kpi" style="padding: 10px 12px;">
@@ -4354,17 +4365,17 @@
       <div class="settings-section">
         <div style="border-radius: 12px; overflow: hidden;">
           <div class="settings-row" data-theme-row onclick="toggleTheme()">
-            <div class="left"><div class="ico-wrap svg-icon" id="theme-ico"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-gray)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="20" fill="#fff"/><path d="M44 24 A20 20 0 0 1 44 64 Z" fill="#1a1a1a"/></svg></div><div><div class="row-title" data-i18n="set.theme">ธีม</div></div></div>
-            <div class="right"><span id="theme-sub" style="font-size:13px; color:#9ca3af; margin-right:6px;">Light</span><span style="color:#9ca3af;">›</span></div>
+            <div class="left"><div class="ico-wrap svg-icon" id="theme-ico"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-gray)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="20" fill="#fff"/><path d="M44 24 A20 20 0 0 1 44 64 Z" fill="#3a2f25"/></svg></div><div><div class="row-title" data-i18n="set.theme">ธีม</div></div></div>
+            <div class="right"><span id="theme-sub" style="font-size:13px; color:#a89a8c; margin-right:6px;">Light</span><span style="color:#a89a8c;">›</span></div>
             <div class="switch" id="theme-switch" style="display:none;"><div class="knob"></div></div>
           </div>
           <div class="settings-row" onclick="toggleLang()">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-home)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="20" fill="none" stroke="#fff" stroke-width="3.5"/><ellipse cx="44" cy="44" rx="10" ry="20" fill="none" stroke="#fff" stroke-width="3.5"/><line x1="24" y1="44" x2="64" y2="44" stroke="#fff" stroke-width="3.5"/></svg></div><div><div class="row-title" data-i18n="set.language">ภาษา / Language</div></div></div>
-            <div class="right"><span id="lang-sub" style="font-size:13px; color:#9ca3af; margin-right:6px;">ไทย</span><span style="color:#9ca3af;">›</span></div>
+            <div class="right"><span id="lang-sub" style="font-size:13px; color:#a89a8c; margin-right:6px;">ไทย</span><span style="color:#a89a8c;">›</span></div>
           </div>
           <div class="settings-row" onclick="goTo('settings-font-size')">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-indigo)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><text x="28" y="58" fill="#fff" font-size="36" font-weight="700" text-anchor="middle" font-family="-apple-system,Inter,sans-serif">A</text><text x="60" y="62" fill="#fff" font-size="24" font-weight="600" text-anchor="middle" font-family="-apple-system,Inter,sans-serif">a</text></svg></div><div><div class="row-title" data-i18n="set.fontSize">ขนาดตัวอักษร</div></div></div>
-            <div class="right"><span id="fontsize-sub" style="font-size:13px; color:#9ca3af; margin-right:6px;">ปกติ</span><span style="color:#9ca3af;">›</span></div>
+            <div class="right"><span id="fontsize-sub" style="font-size:13px; color:#a89a8c; margin-right:6px;">ปกติ</span><span style="color:#a89a8c;">›</span></div>
           </div>
           <div class="settings-row" onclick="goTo('settings-wallpaper')">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-pink)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="18" y="22" width="52" height="44" rx="4" fill="#fff"/><circle cx="30" cy="34" r="4" fill="#ffd966"/><path d="M18 56 L34 42 L46 52 L58 38 L70 50 L70 66 L18 66 Z" fill="#e94e8d"/></svg></div><div><div class="row-title" data-i18n="set.wallpaper">พื้นหลังแอป</div><div class="row-sub" id="wallpaper-sub">ภาพ default</div></div></div>
@@ -4389,12 +4400,12 @@
         <h1><span style="margin-right:6px;">🔤</span><span data-i18n="header.font">ขนาดตัวอักษร</span></h1>
         <span style="width: 22px;"></span>
       </div>
-      <div style="padding: 0 16px 20px; font-size:13px; color:#6b7280;" data-i18n="fs.subTitle">เลือกขนาดที่อ่านสบายตา ใช้กับทุกหน้าในแอพ</div>
+      <div style="padding: 0 16px 20px; font-size:13px; color:#7c7066;" data-i18n="fs.subTitle">เลือกขนาดที่อ่านสบายตา ใช้กับทุกหน้าในแอพ</div>
       <div id="fontsize-options" style="padding: 0 16px;"></div>
-      <div style="padding: 20px 16px; font-size: 13px; color: #6b7280;">
+      <div style="padding: 20px 16px; font-size: 13px; color: #7c7066;">
         <div style="background: white; border-radius: 12px; padding: 14px;">
-          <div style="font-size: var(--app-font-base, 14px); margin-bottom: 6px; font-weight: 600; color:#1a1a1a;" data-i18n="fs.preview">ตัวอย่าง</div>
-          <div style="font-size: var(--app-font-base, 14px); line-height: 1.6; color:#1a1a1a;" id="fs-sample">นาง สมหญิง ใจดี · งาน Wedding<br>วันที่ 20 มิ.ย. 2026 · โรงแรมเลคัส</div>
+          <div style="font-size: var(--app-font-base, 14px); margin-bottom: 6px; font-weight: 600; color:#3a2f25;" data-i18n="fs.preview">ตัวอย่าง</div>
+          <div style="font-size: var(--app-font-base, 14px); line-height: 1.6; color:#3a2f25;" id="fs-sample">นาง สมหญิง ใจดี · งาน Wedding<br>วันที่ 20 มิ.ย. 2026 · โรงแรมเลคัส</div>
         </div>
       </div>
     </div>
@@ -4406,39 +4417,39 @@
         <h1>🖼 พื้นหลังแอป</h1>
         <span style="width: 22px;"></span>
       </div>
-      <div style="padding: 0 16px 16px; font-size:13px; color:#6b7280;">เลือกภาพพื้นหลังของแอพ — Glass cards จะโปร่งใสซ้อนทับ ภาพ wedding ส่วนตัวจะทำให้แอพดูเป็นของพี่</div>
+      <div style="padding: 0 16px 16px; font-size:13px; color:#7c7066;">เลือกภาพพื้นหลังของแอพ — Glass cards จะโปร่งใสซ้อนทับ ภาพ wedding ส่วนตัวจะทำให้แอพดูเป็นของพี่</div>
 
       <div class="settings-section">
-        <div style="font-size:12px; color:#6b7280; margin-bottom:8px; font-weight:500;">ภาพปัจจุบัน</div>
+        <div style="font-size:12px; color:#7c7066; margin-bottom:8px; font-weight:500;">ภาพปัจจุบัน</div>
         <div id="wp-preview" style="width:100%; height:180px; border-radius:14px; background:var(--wallpaper); box-shadow: inset 0 0 0 0.5px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.06);"></div>
       </div>
 
       <div class="settings-section">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <div style="font-size:12px; color:#6b7280; font-weight:500;">🎨 Pixory Presets</div>
-          <div style="font-size:10.5px; color:#9ca3af;">ออกแบบมาเฉพาะสำหรับช่างภาพ</div>
+          <div style="font-size:12px; color:#7c7066; font-weight:500;">🎨 Pixory Presets</div>
+          <div style="font-size:10.5px; color:#a89a8c;">ออกแบบมาเฉพาะสำหรับช่างภาพ</div>
         </div>
         <div id="wp-presets" style="display:grid; grid-template-columns:1fr; gap:10px;"></div>
       </div>
 
       <div class="settings-section">
-        <div style="font-size:12px; color:#6b7280; margin-bottom:8px; font-weight:500;">📷 ภาพของคุณ</div>
+        <div style="font-size:12px; color:#7c7066; margin-bottom:8px; font-weight:500;">📷 ภาพของคุณ</div>
         <div style="display:flex; gap:8px;">
           <label for="wp-file-input" class="btn secondary" style="flex:1; margin:0; cursor:pointer; text-align:center;">อัพโหลดรูปใหม่</label>
           <input type="file" id="wp-file-input" accept="image/*" style="display:none;" onchange="handleWallpaperUpload(event)">
         </div>
-        <div style="font-size:11px; color:#9ca3af; margin-top:10px; line-height:1.5;">
+        <div style="font-size:11px; color:#a89a8c; margin-top:10px; line-height:1.5;">
           💡 <strong>แนะนำ:</strong> ใช้ภาพแนวตั้ง ขนาดไม่เกิน 3MB · โทนสีนุ่มไม่ฉูดฉาด เพื่ออ่านตัวหนังสือบน Glass ได้ชัด
         </div>
       </div>
 
       <div class="settings-section">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <div style="font-size:12px; color:#6b7280; font-weight:500;">คลังภาพของคุณ</div>
-          <button class="icon-btn" onclick="resetWallpaper()" style="font-size:14px; color:#6b7280; background:none; border:none; cursor:pointer;" title="คืนค่าเริ่มต้น">↻ เริ่มต้น</button>
+          <div style="font-size:12px; color:#7c7066; font-weight:500;">คลังภาพของคุณ</div>
+          <button class="icon-btn" onclick="resetWallpaper()" style="font-size:14px; color:#7c7066; background:none; border:none; cursor:pointer;" title="คืนค่าเริ่มต้น">↻ เริ่มต้น</button>
         </div>
         <div id="wp-library" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
-        <div id="wp-library-empty" style="text-align:center; padding:24px 12px; color:#9ca3af; font-size:12px; line-height:1.6;">ยังไม่มีภาพในคลัง<br><span style="font-size:10px;">อัพโหลดภาพ จะถูกเก็บไว้ที่นี่</span></div>
+        <div id="wp-library-empty" style="text-align:center; padding:24px 12px; color:#a89a8c; font-size:12px; line-height:1.6;">ยังไม่มีภาพในคลัง<br><span style="font-size:10px;">อัพโหลดภาพ จะถูกเก็บไว้ที่นี่</span></div>
       </div>
     </div>
 
@@ -4451,24 +4462,24 @@
       </div>
 
       <div style="padding: 0 20px 16px;">
-        <div style="font-size:13px; color:#6b7280; line-height:1.5; margin-bottom:14px;">
+        <div style="font-size:13px; color:#7c7066; line-height:1.5; margin-bottom:14px;">
           ข้อมูลเหล่านี้จะแสดงในใบเสนอราคา · ใบกำกับภาษี · ใบเสร็จรับเงิน · ใช้สำหรับลูกค้าองค์กรและการยื่นภาษี
         </div>
 
         <div class="settings-section">
           <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; padding: 0 4px;">ข้อมูลผู้เสียภาษี · สตูดิโอ</div>
           <div class="form-group">
-            <label>เลขประจำตัวผู้เสียภาษี (13 หลัก) <span style="color:#9ca3af; font-weight:400; font-size:11px;">— แสดงในใบกำกับภาษี</span></label>
+            <label>เลขประจำตัวผู้เสียภาษี (13 หลัก) <span style="color:#a89a8c; font-weight:400; font-size:11px;">— แสดงในใบกำกับภาษี</span></label>
             <input type="text" id="tax-id" inputmode="numeric" maxlength="13" placeholder="1234567890123">
           </div>
           <div class="form-group">
-            <label>สาขา <span style="color:#9ca3af; font-weight:400; font-size:11px;">— "สำนักงานใหญ่" หรือเลขสาขา 5 หลัก</span></label>
+            <label>สาขา <span style="color:#a89a8c; font-weight:400; font-size:11px;">— "สำนักงานใหญ่" หรือเลขสาขา 5 หลัก</span></label>
             <input type="text" id="tax-branch" placeholder="สำนักงานใหญ่" value="สำนักงานใหญ่">
           </div>
           <div class="form-group">
-            <label>ที่อยู่จดทะเบียน <span style="color:#9ca3af; font-weight:400; font-size:11px;">— สำหรับเอกสารภาษี (ถ้าต่างจากที่อยู่ทั่วไป)</span></label>
+            <label>ที่อยู่จดทะเบียน <span style="color:#a89a8c; font-weight:400; font-size:11px;">— สำหรับเอกสารภาษี (ถ้าต่างจากที่อยู่ทั่วไป)</span></label>
             <textarea id="tax-address" rows="3" placeholder="เลขที่ ... ถนน ... แขวง ... เขต ... จังหวัด ... รหัสไปรษณีย์"></textarea>
-            <div style="font-size:11px; color:#9ca3af; margin-top:4px;">เว้นว่างไว้ = ใช้ที่อยู่จากโปรไฟล์ร้าน</div>
+            <div style="font-size:11px; color:#a89a8c; margin-top:4px;">เว้นว่างไว้ = ใช้ที่อยู่จากโปรไฟล์ร้าน</div>
           </div>
         </div>
 
@@ -4485,7 +4496,7 @@
             </label>
           </div>
           <div class="form-group" id="tax-vat-number-wrap" style="margin-top:12px;">
-            <label>เลขผู้ประกอบการ VAT <span style="color:#9ca3af; font-weight:400; font-size:11px;">— ถ้ามี (ปกติเหมือนเลข 13 หลัก)</span></label>
+            <label>เลขผู้ประกอบการ VAT <span style="color:#a89a8c; font-weight:400; font-size:11px;">— ถ้ามี (ปกติเหมือนเลข 13 หลัก)</span></label>
             <input type="text" id="tax-vat-number" inputmode="numeric" maxlength="13" placeholder="กรอกถ้าต่างจาก 13 หลัก">
           </div>
         </div>
@@ -4493,12 +4504,12 @@
         <div class="settings-section">
           <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; padding: 0 4px;">ภาษีหัก ณ ที่จ่าย (WHT)</div>
           <div class="form-group">
-            <label>อัตรา WHT ปกติ <span style="color:#9ca3af; font-weight:400; font-size:11px;">— สำหรับลูกค้าบริษัท</span></label>
+            <label>อัตรา WHT ปกติ <span style="color:#a89a8c; font-weight:400; font-size:11px;">— สำหรับลูกค้าบริษัท</span></label>
             <div style="display:flex; gap:8px; align-items:center;">
               <input type="number" id="tax-default-wht" min="0" max="100" step="0.1" style="width:100px;" value="3">
-              <span style="color:#6b7280; font-size:14px;">% (ปกติ 3%)</span>
+              <span style="color:#7c7066; font-size:14px;">% (ปกติ 3%)</span>
             </div>
-            <div style="font-size:11px; color:#9ca3af; margin-top:4px;">บริการช่างภาพปกติ = 3% · ลูกค้า B2B จะหักจากยอดก่อน VAT</div>
+            <div style="font-size:11px; color:#a89a8c; margin-top:4px;">บริการช่างภาพปกติ = 3% · ลูกค้า B2B จะหักจากยอดก่อน VAT</div>
           </div>
         </div>
 
@@ -4520,7 +4531,7 @@
               <option value="11">พฤศจิกายน</option>
               <option value="12">ธันวาคม</option>
             </select>
-            <div style="font-size:11px; color:#9ca3af; margin-top:4px;">ใช้สำหรับรายงานสรุปประจำปี · บุคคลธรรมดาใช้ ม.ค.-ธ.ค.</div>
+            <div style="font-size:11px; color:#a89a8c; margin-top:4px;">ใช้สำหรับรายงานสรุปประจำปี · บุคคลธรรมดาใช้ ม.ค.-ธ.ค.</div>
           </div>
         </div>
 
@@ -4573,13 +4584,13 @@
       <div style="padding: 0 16px 12px;">
         <div style="background: white; border-radius: 12px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); display:flex; gap:10px; align-items:center;">
           <div style="flex:1;">
-            <div style="font-size:11px; color:#6b7280;" data-i18n="tax.reportYearLabel">ปีภาษี</div>
-            <select id="tax-report-year" onchange="renderTaxReport()" style="border:none; background:transparent; font-size:16px; font-weight:700; color:#1a1a1a; padding:2px 0; outline:none; cursor:pointer; width:100%;"></select>
+            <div style="font-size:11px; color:#7c7066;" data-i18n="tax.reportYearLabel">ปีภาษี</div>
+            <select id="tax-report-year" onchange="renderTaxReport()" style="border:none; background:transparent; font-size:16px; font-weight:700; color:#3a2f25; padding:2px 0; outline:none; cursor:pointer; width:100%;"></select>
             <div id="tax-report-period" style="font-size:11px; color:#7c7066; margin-top:2px;">—</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:11px; color:#6b7280;" data-i18n="tax.reportJobs">จำนวนงานที่ยื่น</div>
-            <div style="font-size:20px; font-weight:700; color:#1a1a1a;" id="tax-report-count">0</div>
+            <div style="font-size:11px; color:#7c7066;" data-i18n="tax.reportJobs">จำนวนงานที่ยื่น</div>
+            <div style="font-size:20px; font-weight:700; color:#3a2f25;" id="tax-report-count">0</div>
           </div>
         </div>
       </div>
@@ -4615,7 +4626,7 @@
       <div style="padding: 0 16px 16px;">
         <div style="background: white; border-radius: 12px; overflow:hidden; box-shadow: 0 1px 3px rgba(0,0,0,.04);" id="tr-table-wrap">
           <div id="tr-table"></div>
-          <div id="tr-empty" style="padding:40px 20px; text-align:center; color:#9ca3af; font-size:13px; display:none;" data-i18n="tax.reportEmpty">ยังไม่มีงานที่ยื่นภาษีในปีนี้</div>
+          <div id="tr-empty" style="padding:40px 20px; text-align:center; color:#a89a8c; font-size:13px; display:none;" data-i18n="tax.reportEmpty">ยังไม่มีงานที่ยื่นภาษีในปีนี้</div>
         </div>
       </div>
 
@@ -4664,9 +4675,13 @@
               <span style="font-size:13.5px;">คู่สมรสไม่มีรายได้ (ได้ลดหย่อน 60,000)</span>
             </label>
           </div>
-          <div class="form-group" style="margin: 0;">
-            <label>จำนวนบุตร <span style="color:#9ca3af; font-size:11px;">(ลดหย่อน 30,000/คน)</span></label>
+          <div class="form-group" style="margin: 0 0 10px;">
+            <label>จำนวนบุตรทั้งหมด <span style="color:#a89a8c; font-size:11px;">(ลดหย่อน 30,000/คน)</span></label>
             <input type="number" id="pit-children" min="0" max="20" value="0" oninput="refreshPITCalc()">
+          </div>
+          <div class="form-group" id="pit-children2018-row" style="margin: 0; display:none;">
+            <label>ในจำนวนนี้ เป็นบุตรเกิดตั้งแต่ปี 2561 ขึ้นไป <span style="color:#a89a8c; font-size:11px;">(บุตรคนที่ 2+ ได้ ฿60,000)</span></label>
+            <input type="number" id="pit-children-2018-plus" min="0" max="20" value="0" oninput="refreshPITCalc()">
           </div>
         </div>
 
@@ -4690,15 +4705,15 @@
           <summary style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; cursor:pointer; padding:4px 0;">▸ ค่าลดหย่อนเพิ่มเติม (optional)</summary>
           <div style="margin-top:10px;">
             <div class="form-group" style="margin: 0 0 10px;">
-              <label>ประกันชีวิต <span style="color:#9ca3af; font-size:11px;">(max 100,000)</span></label>
+              <label>ประกันชีวิต <span style="color:#a89a8c; font-size:11px;">(max 100,000)</span></label>
               <input type="number" id="pit-life-ins" min="0" value="0" oninput="refreshPITCalc()">
             </div>
             <div class="form-group" style="margin: 0 0 10px;">
-              <label>ประกันสุขภาพ <span style="color:#9ca3af; font-size:11px;">(max 25,000)</span></label>
+              <label>ประกันสุขภาพ <span style="color:#a89a8c; font-size:11px;">(max 25,000)</span></label>
               <input type="number" id="pit-health-ins" min="0" value="0" oninput="refreshPITCalc()">
             </div>
             <div class="form-group" style="margin: 0 0 10px;">
-              <label>กองทุน RMF/SSF <span style="color:#9ca3af; font-size:11px;">(max 200,000)</span></label>
+              <label>กองทุน RMF/SSF <span style="color:#a89a8c; font-size:11px;">(max 200,000)</span></label>
               <input type="number" id="pit-rmf-ssf" min="0" value="0" oninput="refreshPITCalc()">
             </div>
             <div class="form-group" style="margin: 0 0 10px;">
@@ -4706,7 +4721,7 @@
               <input type="number" id="pit-donation" min="0" value="0" oninput="refreshPITCalc()">
             </div>
             <div class="form-group" style="margin: 0;">
-              <label>ดอกเบี้ยกู้บ้าน <span style="color:#9ca3af; font-size:11px;">(max 100,000)</span></label>
+              <label>ดอกเบี้ยกู้บ้าน <span style="color:#a89a8c; font-size:11px;">(max 100,000)</span></label>
               <input type="number" id="pit-mortgage" min="0" value="0" oninput="refreshPITCalc()">
             </div>
           </div>
@@ -4757,7 +4772,7 @@
         <span style="width: 22px;"></span>
       </div>
 
-      <div style="padding: 0 16px 12px; font-size: 12px; color: #6b7280;">บริการที่คุณขายลูกค้า — เพิ่ม/ลบ/แก้ได้ทุกอย่าง</div>
+      <div style="padding: 0 16px 12px; font-size: 12px; color: #7c7066;">บริการที่คุณขายลูกค้า — เพิ่ม/ลบ/แก้ได้ทุกอย่าง</div>
 
       <div style="padding: 0 16px 12px;">
         <button class="add-tile" onclick="openServiceEdit(-1)">
@@ -4769,7 +4784,7 @@
       <div id="services-list" style="padding: 0 16px;"></div>
 
       <div class="settings-section" style="margin-top: 16px;">
-        <div style="font-size:11px; color:#6b7280; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; padding-left:4px; font-weight:600;">รายการอื่นๆ</div>
+        <div style="font-size:11px; color:#7c7066; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; padding-left:4px; font-weight:600;">รายการอื่นๆ</div>
         <div style="border-radius: 12px; overflow: hidden;">
           <div class="settings-row" onclick="goTo('settings-addons')">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-rep)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="40" y="22" width="8" height="44" rx="4" fill="#fff"/><rect x="22" y="40" width="44" height="8" rx="4" fill="#fff"/></svg></div><div><div class="row-title">บริการเสริม</div><div class="row-sub" id="hub-addons-sub">QR · Profile · etc.</div></div></div>
@@ -4824,6 +4839,13 @@
       <div class="form-group" style="margin: 0 16px 10px;">
         <label>เลือกสี</label>
         <div class="chip-row" id="svc-color-row"></div>
+      </div>
+      <!-- v1.9.4 · Default Job Type · auto-applied when this service's package picked on Add Job -->
+      <div class="form-group" style="margin: 0 16px 10px;">
+        <label>ประเภทงานเริ่มต้น <span style="color:#a89a8c; font-size:11px;">(เลือก package ในหมวดนี้ตอนสร้างงาน → set ให้ทันที)</span></label>
+        <select id="svc-default-jobtype">
+          <option value="">— ไม่ระบุ —</option>
+        </select>
       </div>
       <button class="btn" onclick="saveServiceEdit()">บันทึก</button>
       <button class="btn secondary" onclick="cancelServiceEdit()">ยกเลิก</button>
@@ -4906,7 +4928,7 @@
             <div class="pixory-tagline">Studio in your pocket</div>
           </div>
         </div>
-        <div style="text-align:center; font-size:11px; color:#9ca3af;" data-i18n="ab.version">เวอร์ชั่น 1.0.0 (Prototype)</div>
+        <div style="text-align:center; font-size:11px; color:#a89a8c;" data-i18n="ab.version">เวอร์ชั่น 1.0.0 (Prototype)</div>
       </div>
       <div class="settings-section">
         <div style="border-radius: 12px; overflow: hidden;">
@@ -4915,11 +4937,11 @@
           </div>
           <div class="settings-row">
             <div class="left"><div class="row-title" data-i18n="ab.developer">ผู้พัฒนา</div></div>
-            <div class="right" style="font-size:13px; color:#6b7280;">SRANGPAP</div>
+            <div class="right" style="font-size:13px; color:#7c7066;">SRANGPAP</div>
           </div>
           <div class="settings-row">
             <div class="left"><div class="row-title" data-i18n="ab.contactAdmin">ติดต่อแอดมิน</div></div>
-            <div class="right" style="font-size:13px; color:#6b7280;">@srangpap</div>
+            <div class="right" style="font-size:13px; color:#7c7066;">@srangpap</div>
           </div>
           <div class="settings-row" onclick="showCurrentVersionNotes()">
             <div class="left"><div class="row-title" data-i18n="ab.releaseNotes">รายการพัฒนาเวอร์ชันนี้</div><div class="row-sub" data-i18n="ab.releaseNotesSub">ดูสิ่งที่เปลี่ยนแปลงล่าสุด</div></div>
@@ -4927,7 +4949,7 @@
           </div>
         </div>
       </div>
-      <div style="font-size:11px; color:#9ca3af; text-align:center; padding:20px;" data-i18n="ab.copyright">
+      <div style="font-size:11px; color:#a89a8c; text-align:center; padding:20px;" data-i18n="ab.copyright">
         © 2026 · Prototype Version
       </div>
     </div>
@@ -4943,11 +4965,11 @@
         <div style="border-radius: 12px; overflow: hidden;">
           <div class="settings-row">
             <div class="left"><div class="row-title" data-i18n="acc.email">อีเมล</div></div>
-            <div class="right" id="acc-email-display" style="font-size:13px; color:#6b7280;">—</div>
+            <div class="right" id="acc-email-display" style="font-size:13px; color:#7c7066;">—</div>
           </div>
           <div class="settings-row">
             <div class="left"><div class="row-title" data-i18n="acc.userId">User ID</div></div>
-            <div class="right" id="acc-userid-display" style="font-size:11px; color:#9ca3af; font-family:monospace;">—</div>
+            <div class="right" id="acc-userid-display" style="font-size:11px; color:#a89a8c; font-family:monospace;">—</div>
           </div>
           <div class="settings-row">
             <div class="left"><div class="row-title" data-i18n="acc.status">สถานะ</div></div>
@@ -4957,7 +4979,7 @@
       </div>
       <!-- ====== CLOUD SYNC SECTION ====== -->
       <div class="settings-section">
-        <div style="padding: 0 16px 8px; font-size:12px; color:#9ca3af; font-weight:600; text-transform:uppercase; letter-spacing:.5px;" data-i18n="acc.cloudHeader">ซิงค์ Cloud</div>
+        <div style="padding: 0 16px 8px; font-size:12px; color:#a89a8c; font-weight:600; text-transform:uppercase; letter-spacing:.5px;" data-i18n="acc.cloudHeader">ซิงค์ Cloud</div>
         <div style="border-radius: 12px; overflow: hidden;">
           <div class="settings-row">
             <div class="left"><div class="row-title" data-i18n="acc.syncStatus">สถานะการซิงค์</div></div>
@@ -4973,7 +4995,7 @@
           </div>
           <div class="settings-row">
             <div class="left"><div class="row-title" data-i18n="acc.deviceId">Device ID</div></div>
-            <div class="right" id="acc-device-id" style="font-size:10px; color:#9ca3af; font-family:monospace;">—</div>
+            <div class="right" id="acc-device-id" style="font-size:10px; color:#a89a8c; font-family:monospace;">—</div>
           </div>
         </div>
       </div>
@@ -4985,7 +5007,7 @@
           </div>
         </div>
       </div>
-      <div style="font-size:11px; color:#9ca3af; text-align:center; padding:20px;" data-i18n="acc.note">
+      <div style="font-size:11px; color:#a89a8c; text-align:center; padding:20px;" data-i18n="acc.note">
         ระบบล็อกอินใช้ Supabase · ข้อมูลของคุณยังเก็บในเครื่องนี้ (จะ sync cloud ในเวอร์ชันถัดไป)
       </div>
     </div>
@@ -5057,7 +5079,7 @@
         <h1><span style="margin-right:6px;">👥</span><span data-i18n="header.team">ทีมงาน</span></h1>
         <button class="icon-btn" onclick="openEdit('team',-1)" style="color:#2563eb">+</button>
       </div>
-      <div style="padding: 0 16px 12px; font-size: 12px; color: #6b7280;">แตะที่ชื่อเพื่อแก้ไขสีและอัตราค่าจ้าง</div>
+      <div style="padding: 0 16px 12px; font-size: 12px; color: #7c7066;">แตะที่ชื่อเพื่อแก้ไขสีและอัตราค่าจ้าง</div>
       <div id="list-team"></div>
     </div>
 
@@ -5106,13 +5128,13 @@
           <div id="profile-photo" style="width:110px; height:110px; border-radius:50%; background:linear-gradient(135deg,#fde7c8,#e8b288); display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 20px rgba(0,0,0,.1), inset 0 2px 2px rgba(255,255,255,.6); overflow:hidden;">
             <span id="profile-photo-fallback" style="font-size:42px;">🏪</span>
           </div>
-          <label for="profile-photo-input" style="position:absolute; bottom:0; right:0; width:34px; height:34px; border-radius:50%; background:#1a1a1a; color:white; display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; box-shadow: 0 2px 8px rgba(0,0,0,.2);">📷</label>
+          <label for="profile-photo-input" style="position:absolute; bottom:0; right:0; width:34px; height:34px; border-radius:50%; background:#3a2f25; color:white; display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; box-shadow: 0 2px 8px rgba(0,0,0,.2);">📷</label>
           <input type="file" id="profile-photo-input" accept="image/*" style="display:none;" onchange="handleProfilePhotoUpload(event)">
         </div>
         <div style="display:flex; gap:10px;">
           <button id="profile-photo-remove" onclick="removeProfilePhoto()" style="display:none; background:none; border:none; color:#dc2626; font-size:12px; cursor:pointer; padding:4px 10px; font-family:inherit;">ลบรูป</button>
         </div>
-        <div style="font-size:11px; color:#6b7280; text-align:center;">รูปนี้จะแสดงในใบเสนอราคาและหน้าหลัก</div>
+        <div style="font-size:11px; color:#7c7066; text-align:center;">รูปนี้จะแสดงในใบเสนอราคาและหน้าหลัก</div>
       </div>
       <div class="form-group"><label data-i18n="lbl.shopName">ชื่อร้าน</label><input type="text" id="profile-shop"></div>
       <div class="form-group"><label data-i18n="lbl.tagline">สโลแกน / Tagline</label><input type="text" id="profile-tagline"></div>
@@ -5133,7 +5155,7 @@
         <h1><span style="margin-right:6px;">🏦</span><span data-i18n="header.banks">บัญชีรับโอน</span></h1>
         <button class="icon-btn" onclick="openEdit('bank',-1)" style="color:#2563eb">+</button>
       </div>
-      <div style="padding: 0 16px 12px; font-size: 12px; color: #6b7280;">บัญชีเหล่านี้จะใช้ในใบเสนอราคา — ลูกค้าโอนเงินมาที่บัญชีนี้</div>
+      <div style="padding: 0 16px 12px; font-size: 12px; color: #7c7066;">บัญชีเหล่านี้จะใช้ในใบเสนอราคา — ลูกค้าโอนเงินมาที่บัญชีนี้</div>
       <div id="list-bank"></div>
     </div>
 
@@ -5159,7 +5181,7 @@
         <span style="width: 22px;"></span>
       </div>
 
-      <div style="padding: 0 16px 12px; font-size: 12px; color: #6b7280;">ปรับจำนวนวันได้ตามสไตล์การทำงาน — บางคน brief 2 อาทิตย์ บางคน 3 วัน</div>
+      <div style="padding: 0 16px 12px; font-size: 12px; color: #7c7066;">ปรับจำนวนวันได้ตามสไตล์การทำงาน — บางคน brief 2 อาทิตย์ บางคน 3 วัน</div>
 
       <div class="settings-section">
         <div class="sec-title">📅 งานที่กำลังจะถึง</div>
@@ -5311,7 +5333,7 @@
           <rect x="6" y="6" width="76" height="76" rx="22" fill="#fff"/>
           <path d="M6 28 L6 28 Q6 6 28 6 L60 6 Q82 6 82 28 L82 30 L6 30 Z" fill="url(#ic-cal-header)"/>
           <text x="44" y="22" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">พ.ค.</text>
-          <text x="44" y="68" fill="#1a1a1a" font-size="36" font-weight="300" text-anchor="middle" font-family="-apple-system,SF Pro Display,sans-serif" letter-spacing="-1">17</text>
+          <text x="44" y="68" fill="#3a2f25" font-size="36" font-weight="300" text-anchor="middle" font-family="-apple-system,SF Pro Display,sans-serif" letter-spacing="-1">17</text>
         </svg></span>
         <span class="label" data-i18n="nav.calendar">ปฏิทิน</span>
       </div>
@@ -5332,7 +5354,7 @@
     <div class="fab-menu" id="fab-menu" onclick="closeFabMenu()">
       <div class="fab-options" onclick="event.stopPropagation()">
         <div class="fab-option" onclick="closeFabMenu(); openQuickStart('job');">
-          <div class="fo-ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="#fff"/><path d="M6 28 L6 28 Q6 6 28 6 L60 6 Q82 6 82 28 L82 30 L6 30 Z" fill="url(#ic-cal-header)"/><text x="44" y="22" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">JOB</text><text x="44" y="68" fill="#1a1a1a" font-size="36" font-weight="300" text-anchor="middle" font-family="-apple-system,sans-serif">+</text></svg></div>
+          <div class="fo-ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="#fff"/><path d="M6 28 L6 28 Q6 6 28 6 L60 6 Q82 6 82 28 L82 30 L6 30 Z" fill="url(#ic-cal-header)"/><text x="44" y="22" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">JOB</text><text x="44" y="68" fill="#3a2f25" font-size="36" font-weight="300" text-anchor="middle" font-family="-apple-system,sans-serif">+</text></svg></div>
           <div><div class="fo-title" data-i18n="fab.newJob">งานใหม่</div><div class="fo-sub" data-i18n="fab.newJobSub">ลูกค้าจองแล้ว + มัดจำ</div></div>
         </div>
         <div class="fab-option" onclick="closeFabMenu(); openQuickStart('quote');">
@@ -5436,7 +5458,29 @@ function dateParts(s) {
   };
 }
 
+// v1.9.4 · Auto-set Job Type chip when first package picked (uses service.defaultJobType)
+function autoSetJobTypeFromService(ctx, jobType) {
+  if (!jobType) return;
+  const rowId = ctx === 'add' ? 'add-type-row' : 'nq-type-row';
+  const row = document.getElementById(rowId);
+  if (!row) return;
+  const chips = row.querySelectorAll('.chip');
+  let matched = false;
+  chips.forEach(c => {
+    if (c.textContent.trim() === jobType) {
+      chips.forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      matched = true;
+    }
+  });
+  if (matched && typeof toast === 'function') toast('ตั้งประเภทงานเป็น "' + jobType + '" ตามแพคเกจให้ครับ');
+}
+
 // ========== NAV ==========
+// v1.9.2 · Back-button manager state (used by goTo + popstate handler at bottom of script)
+let _navStack = ['home'];
+let _navIgnorePop = false;
+
 function goTo(name) {
   // Wizard interception: while wizard is active, back to "settings" or "home" goes to wizard
   if (_wizardActive && (name === 'settings' || name === 'home')) {
@@ -5446,6 +5490,14 @@ function goTo(name) {
   const sc = document.getElementById('screen-' + name);
   if (!sc) { console.warn('No screen', name); return; }
   sc.classList.add('active');
+  // v1.9.2 · Push to history stack so hardware Back works (Android)
+  if (!_navIgnorePop) {
+    const top = _navStack[_navStack.length - 1];
+    if (top !== name) {
+      _navStack.push(name);
+      try { history.pushState({ pixoryScreen: name, idx: _navStack.length }, '', '#' + name); } catch (e) {}
+    }
+  }
   document.querySelectorAll('.bottom-nav .tab').forEach(t => t.classList.remove('active'));
   const matchTab = document.querySelector('.bottom-nav .tab[data-tab="' + name + '"]');
   if (matchTab) matchTab.classList.add('active');
@@ -5456,7 +5508,7 @@ function goTo(name) {
   if (name === 'settings-notif') populateNotifSettings();
   if (name === 'settings-wallpaper') loadWallpaper();
   if (name === 'notifications') renderAllNotifs();
-  if (name === 'home') { renderHomeNotifs(); renderHomeHero(); }
+  if (name === 'home') { renderHomeNotifs(); renderHomeHero(); if (typeof renderHomeBirthdays === 'function') renderHomeBirthdays(); }
   if (name === 'calendar') { CAL_YEAR = new Date().getFullYear(); CAL_MONTH = new Date().getMonth(); renderCalendar(); }
   if (name === 'settings-account') { updateAccountUI(); if (typeof updateSyncIndicatorUI === 'function') updateSyncIndicatorUI(); }
   if (name === 'jobs') { if (typeof renderJobsWithCurrentFilter === 'function') { renderJobsWithCurrentFilter(); syncJobFilterChips(); } }
@@ -5479,23 +5531,128 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('show'), 1800);
 }
 
-function toggleSwitch(row) {
-  const sw = row.querySelector('.switch');
-  if (sw) sw.classList.toggle('on');
-}
-
 function selectOne(el, group) {
   el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.8.7';
+const PIXORY_VERSION = '1.9.4';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.4': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory · 4 รายการ',
+    subtitle: 'Job Type อัตโนมัติ · ปฏิทินสีชัด · ลบปุ่มซ้ำ · ป้องกันงานซ้ำ',
+    items: [
+      {
+        icon: '🎯',
+        title: 'เลือกแพคเกจ → ตั้งประเภทงานให้อัตโนมัติ',
+        desc: 'ใน Settings → บริการ → ตั้ง "ประเภทงานเริ่มต้น" ครั้งเดียว · พอตอนสร้างงาน/ใบเสนอ คุณเลือก package ตัวแรกในหมวดนั้น Pixory ตั้งประเภทงานให้ทันที · ลด 1 คลิกทุกครั้ง · ยังเปลี่ยน type เองได้ทีหลัง'
+      },
+      {
+        icon: '🗓',
+        title: 'ปฏิทินสีชัดขึ้น',
+        desc: 'ช่องที่มีงานเปลี่ยนเป็นสีส้ม Pixory เต็ม ๆ + glow shadow ตัวอักษรขาว · เห็นชัดในระยะไกล · today ที่มีงานมีกรอบส้มเรืองรอบนอก'
+      },
+      {
+        icon: '🧹',
+        title: 'หน้ารายละเอียดงานสะอาดขึ้น',
+        desc: 'ลบปุ่ม "ออกใบเสนอจากงานนี้" และ "บันทึกเป็นเทมเพลตงาน" ออก · เหลือเฉพาะ "ออกใบเรียกเก็บยอดเพิ่ม" ที่ใช้บ่อย'
+      },
+      {
+        icon: '🛡',
+        title: 'ป้องกันสร้างงานซ้ำจากใบเสนอเดียว',
+        desc: 'ถ้าใบเสนอแปลงเป็นงานไปแล้ว · กดแปลงซ้ำจะเตือนและเปิดงานเดิมให้ · ไม่สร้างซ้ำซ้อนแม้คุณเปลี่ยน status ใบเสนอกลับ'
+      }
+    ]
+  },
+  '1.9.3': {
+    date: '2026-05-22',
+    title: 'Hotfix · รายได้ในรายละเอียดงาน',
+    subtitle: 'แก้บั๊กรายได้แสดง ฿25,000 ตลอด',
+    items: [
+      {
+        icon: '💰',
+        title: 'รายได้ในกำไรขาดทุนแสดงตามจริงแล้ว',
+        desc: 'เดิม row "รายได้" ในกล่องกำไรขาดทุน hardcode เป็น ฿25,000 ตลอด ไม่ว่าราคาขายเท่าไหร่ · ตอนนี้ดึงจากราคาขายจริงของงานนั้น'
+      }
+    ]
+  },
+  '1.9.2': {
+    date: '2026-05-22',
+    title: 'Hotfix · Back button รอบสอง',
+    subtitle: 'แก้ครั้งแรกยังไม่ครบ Android ยังเด้งออก',
+    items: [
+      {
+        icon: '🔁',
+        title: 'แก้ Back button ของ Android (รอบสอง)',
+        desc: 'เพิ่ม buffer history entry · ย้าย pushState ไปอยู่ในตัว goTo() โดยตรง · ทุกการนำทางในแอพ track history ถูกต้อง · กดครั้งแรกที่หน้าหลักไม่ exit อีก'
+      }
+    ]
+  },
+  '1.9.1': {
+    date: '2026-05-22',
+    title: 'Hotfix · ปุ่ม Back บน Android',
+    subtitle: 'แก้บั๊ก กดปุ่มย้อนกลับแล้วแอพปิด',
+    items: [
+      {
+        icon: '🔙',
+        title: 'ปุ่ม Back ของ Android ใช้งานได้แล้ว',
+        desc: 'กดปุ่ม back ของระบบ → ย้อนหน้าในแอพ (ไม่ปิดแอพอีกต่อไป) · ที่หน้าหลัก: กดอีกครั้งใน 2 วินาทีเพื่อปิดแอพ · Modal/Sheet ที่เปิดอยู่จะปิดก่อนเป็นอันดับแรก'
+      }
+    ]
+  },
+  '1.9.0': {
+    date: '2026-05-22',
+    title: 'อัปเดต Pixory เรียบร้อยแล้ว',
+    subtitle: 'Quality release · บั๊กฟิกซ์ + Birthday Reminder + ภาษีตรงขึ้น',
+    items: [
+      {
+        icon: '🎂',
+        title: 'แจ้งเตือนวันเกิดลูกค้า',
+        desc: 'หน้าหลักโชว์ลูกค้าวันเกิดล่วงหน้า 7 วัน · กดส่งคำอวยพรทาง LINE ได้ในคลิกเดียว · กรอกวันเกิดในหน้ารายละเอียดลูกค้า'
+      },
+      {
+        icon: '📄',
+        title: '"ออกใบเสนอจากงานนี้" สร้างใบใหม่จริง',
+        desc: 'ปุ่มนี้ตอนนี้เปิดฟอร์มใบเสนอใหม่ที่ pre-fill จากงาน · ปรับราคา เพิ่ม-ลบรายการได้ทันที (เดิมแค่ดู PDF เก่า)'
+      },
+      {
+        icon: '🔄',
+        title: 'ข้อมูลลูกค้าตรงทุกหน้า',
+        desc: 'แก้เบอร์-LINE ในหน้าลูกค้า → ทุกงานของลูกค้าคนนั้นเห็นข้อมูลใหม่ทันที · ไม่ต้องไล่แก้รายงาน'
+      },
+      {
+        icon: '🧮',
+        title: 'คำนวณภาษีตรงตามกฎหมายขึ้น',
+        desc: 'ค่าลดหย่อนบุตรแยกก่อน/หลังปี 2561 (บุตร 2018+ ได้ ฿60,000) · บริจาคจำกัด 10% ของรายได้สุทธิ · หักเหมา 60% มี cap ฿600,000 · ใช้วันรับเงิน (cash basis) ตามจริง'
+      },
+      {
+        icon: '🔎',
+        title: 'ค้นหาลูกค้าตอนสร้างงาน',
+        desc: 'พิมพ์ชื่อ → ตัวเลือกลูกค้าเก่าเด้งขึ้นทันที (datalist) · เลือกแล้ว auto-fill ข้อมูลเก่าให้'
+      },
+      {
+        icon: '💰',
+        title: 'พรีวิวยอดคงเหลือตอนรับเงิน',
+        desc: 'พิมพ์จำนวนเงินที่รับ → เห็นทันทีว่าเหลืออีกเท่าไหร่ · เตือนถ้าจ่ายเกิน'
+      },
+      {
+        icon: '🎨',
+        title: 'สีและ UI สม่ำเสมอขึ้น',
+        desc: 'รวบสีตัวอักษรหลักให้ตรงกัน · เพิ่ม focus ring สีส้ม Pixory · ปรับ aria-label เพื่อ accessibility'
+      },
+      {
+        icon: '🛡️',
+        title: 'ปลอดภัยขึ้น',
+        desc: 'กัน localStorage corrupt · ล้าง console.log ใน production · cleanup โค้ดตายและ dead UI handlers'
+      }
+    ]
+  },
   '1.8.7': {
     date: '2026-05-22',
     title: 'อัปเดต Pixory เรียบร้อยแล้ว',
@@ -5923,7 +6080,6 @@ function pwaInstall() {
   if (_pwaDeferredPrompt) {
     _pwaDeferredPrompt.prompt();
     _pwaDeferredPrompt.userChoice.then((choice) => {
-      console.log('PWA install choice:', choice.outcome);
       if (choice.outcome === 'accepted') {
         hidePwaBanner();
       }
@@ -5973,16 +6129,13 @@ function registerSW() {
   if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') return;
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').then((reg) => {
-      console.log('SW registered, scope:', reg.scope);
       // Listen for updates
       reg.addEventListener('updatefound', () => {
         const nw = reg.installing;
         if (!nw) return;
         nw.addEventListener('statechange', () => {
           if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-            // New version ready
-            console.log('New Pixory version available');
-            // Could show "Reload to update" banner here in future
+            // New version ready — could show "Reload to update" banner here in future
           }
         });
       });
@@ -5996,7 +6149,6 @@ function registerSW() {
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   _pwaDeferredPrompt = e;
-  console.log('PWA install prompt deferred');
   // Show banner if appropriate
   if (pwaShouldShowBanner()) {
     setTimeout(showPwaBanner, 800);
@@ -6005,7 +6157,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 // Listen for app installed
 window.addEventListener('appinstalled', () => {
-  console.log('PWA installed');
   _pwaDeferredPrompt = null;
   hidePwaBanner();
   if (typeof toast === 'function') toast('🎉 ติดตั้ง Pixory สำเร็จ — เปิดจาก Home Screen ได้เลย');
@@ -6263,11 +6414,11 @@ function updateSyncIndicatorUI(detail) {
   // Floating dot indicator
   const dot = document.getElementById('cloud-sync-dot');
   if (dot) {
-    let color = '#9ca3af', title = 'ไม่ได้เชื่อมต่อ';
+    let color = '#a89a8c', title = 'ไม่ได้เชื่อมต่อ';
     if (_cloudSyncState === 'syncing') { color = '#f59e0b'; title = 'กำลังซิงค์...'; }
     else if (_cloudSyncState === 'synced') { color = '#22c55e'; title = 'ซิงค์แล้ว · ' + fmtSyncTime(_cloudLastSyncAt); }
     else if (_cloudSyncState === 'error') { color = '#ef4444'; title = 'ซิงค์ไม่สำเร็จ — ' + (detail || ''); }
-    else if (_cloudSyncState === 'offline') { color = '#9ca3af'; title = 'ออฟไลน์'; }
+    else if (_cloudSyncState === 'offline') { color = '#a89a8c'; title = 'ออฟไลน์'; }
     dot.style.background = color;
     dot.title = title;
   }
@@ -6377,10 +6528,11 @@ async function syncOnStartup() {
   setSyncState('syncing');
   const remote = await pullFromCloud();
   const localRaw = localStorage.getItem(STORAGE_KEY);
-  const localObj = localRaw ? JSON.parse(localRaw) : null;
-
-  console.log('[Pixory sync] startup — local items:', countMeaningfulItems(localObj),
-              '· remote items:', remote ? countMeaningfulItems(remote.data) : 'none');
+  let localObj = null;
+  if (localRaw) {
+    try { localObj = JSON.parse(localRaw); }
+    catch (e) { console.warn('[Pixory sync] localStorage parse failed, treating as empty', e); }
+  }
 
   if (!remote && !localRaw) {
     // Both empty — fresh new account, nothing to sync yet
@@ -6392,7 +6544,6 @@ async function syncOnStartup() {
 
   if (remote && !localRaw) {
     // Only cloud has data → restore to local
-    console.log('[Pixory sync] cloud → local (fresh device)');
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
     _cloudLastSyncAt = remote.updated_at;
     _cloudInitialSyncDone = true;
@@ -6402,7 +6553,6 @@ async function syncOnStartup() {
 
   if (!remote && localRaw) {
     // Only local has data → push to cloud (first-time migration to cloud)
-    console.log('[Pixory sync] local → cloud (first push)');
     _cloudInitialSyncDone = true;
     await pushToCloud();
     return;
@@ -6422,17 +6572,14 @@ async function syncOnStartup() {
   }
 
   if (remoteUpdated > localUpdated) {
-    console.log('[Pixory sync] cloud → local (cloud newer, local-from-other-device or no-meta)');
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
     _cloudLastSyncAt = remote.updated_at;
     _cloudInitialSyncDone = true;
     setSyncState('synced');
   } else if (localUpdated > remoteUpdated) {
-    console.log('[Pixory sync] local → cloud (local newer)');
     _cloudInitialSyncDone = true;
     await pushToCloud();
   } else {
-    console.log('[Pixory sync] in sync (equal timestamps)');
     _cloudLastSyncAt = remote.updated_at;
     _cloudInitialSyncDone = true;
     setSyncState('synced');
@@ -6574,7 +6721,7 @@ function loadData() {
       if (!Array.isArray(src)) return;
       const explicitlyCleared = d._cleared && d._cleared[key] === true;
       if (src.length === 0 && !explicitlyCleared) {
-        console.log('[Pixory load] guarded ' + key + ' — empty source rejected, keeping defaults');
+        // guarded — empty source rejected, keeping defaults
         return;
       }
       replace(target, src);
@@ -6653,7 +6800,6 @@ function migrateBackfillPayments() {
     }
   });
   if (migrated > 0) {
-    console.log('Backfilled ' + migrated + ' old payment records');
     saveData();
   }
 }
@@ -6777,7 +6923,7 @@ function renderFontSizeOptions() {
       applyFontSize(f.val);
       toast(t('fs.changed') + ' "' + label + '"');
     };
-    row.innerHTML = `<div class="left"><div style="font-size:14px; color:#1a1a1a; font-weight:500;">${label}</div></div>
+    row.innerHTML = `<div class="left"><div style="font-size:14px; color:#3a2f25; font-weight:500;">${label}</div></div>
       <div class="right">${isActive ? '<span style="color:#10b981; font-weight:600;">✓</span>' : ''}</div>`;
     c.appendChild(row);
   });
@@ -7049,7 +7195,6 @@ const I18N = {
   'btn.send':           { th: 'ส่งให้ลูกค้า',      en: 'Send to Customer' },
   'btn.convert':        { th: 'แปลงเป็นงาน',      en: 'Convert to Job' },
   'btn.markPaid':       { th: 'รับเงิน',          en: 'Mark Paid' },
-  'btn.closeJob':       { th: 'ปิดงาน',          en: 'Close Job' },
   'btn.reopenJob':      { th: 'เปิดงานใหม่',      en: 'Reopen Job' },
   'btn.reset':          { th: 'คืนค่าเริ่มต้น',     en: 'Reset Defaults' },
   'btn.hardReset':      { th: 'ล้างข้อมูลทั้งหมด',  en: 'Erase All Data' },
@@ -7593,7 +7738,7 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.8.7 · Build 2026-05-22 · PIT Helper · ภ.ง.ด.90/94', en: 'v1.8.7 · Build 2026-05-22 · PIT Helper' },
+  'ab.version':         { th: 'v1.9.4 · Build 2026-05-22 · Job Type + Calendar + Cleanup', en: 'v1.9.4 · Build 2026-05-22 · Job Type + Calendar + Cleanup' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -7769,6 +7914,7 @@ function applyLang(lang) {
   if (typeof renderHomeActive === 'function') renderHomeActive();
   if (typeof updateHomeKPIs === 'function') updateHomeKPIs();
   if (typeof renderHomeNotifs === 'function') renderHomeNotifs();
+  if (typeof renderHomeBirthdays === 'function') renderHomeBirthdays();
   if (typeof renderJobs === 'function' && typeof JOBS !== 'undefined') renderJobs(JOBS, 'jobs-list');
   if (typeof renderQuotesList === 'function' && typeof QUOTES !== 'undefined') renderQuotesList(QUOTES);
   if (typeof renderCalendar === 'function' && document.getElementById('screen-calendar') && document.getElementById('screen-calendar').classList.contains('active')) renderCalendar();
@@ -8250,7 +8396,7 @@ function renderQuickStartTemplates() {
     container.innerHTML = '';
     return;
   }
-  let html = '<div style="font-size: 11px; color: #9ca3af; font-weight: 600; margin: 14px 0 6px;">📋 เทมเพลตที่บันทึกไว้</div>';
+  let html = '<div style="font-size: 11px; color: #a89a8c; font-weight: 600; margin: 14px 0 6px;">📋 เทมเพลตที่บันทึกไว้</div>';
   list.slice(0, 5).forEach(tpl => {
     html += '<div class="qs-match-row" onclick="applyWorkflowTemplate(\'' + tpl.id + '\')"><div style="font-size:18px;">📋</div><div style="flex:1; min-width:0;"><div class="qm-name">' + tpl.name + '</div><div class="qm-meta">' + (tpl.type || 'งาน') + '</div></div><button onclick="event.stopPropagation();deleteWorkflowTemplate(\'' + tpl.id + '\')" style="background:transparent;border:0;color:#dc2626;cursor:pointer;font-size:14px;padding:4px 8px;">✕</button></div>';
   });
@@ -8316,7 +8462,7 @@ function renderQuickStartMatches() {
     }
   });
   if (list.length === 0) {
-    matches.innerHTML = '<div style="font-size:11.5px; color:#9ca3af; text-align:center; padding:8px;">ไม่พบลูกค้าเดิม · เลือกประเภทด้านล่างเพื่อเริ่มสร้าง</div>';
+    matches.innerHTML = '<div style="font-size:11.5px; color:#a89a8c; text-align:center; padding:8px;">ไม่พบลูกค้าเดิม · เลือกประเภทด้านล่างเพื่อเริ่มสร้าง</div>';
     return;
   }
   matches.innerHTML = '';
@@ -8326,7 +8472,7 @@ function renderQuickStartMatches() {
     const phone = item.info.phone ? ' · ' + item.info.phone : '';
     const row = document.createElement('div');
     row.className = 'qs-match-row';
-    row.innerHTML = '<div style="font-size:18px;">' + (meta ? meta.icon : '👤') + '</div><div style="flex:1; min-width:0;"><div class="qm-name">' + item.name + '</div><div class="qm-meta">' + (item.info.type || 'B2C') + phone + '</div></div><div style="color:#9ca3af;">›</div>';
+    row.innerHTML = '<div style="font-size:18px;">' + (meta ? meta.icon : '👤') + '</div><div style="flex:1; min-width:0;"><div class="qm-name">' + item.name + '</div><div class="qm-meta">' + (item.info.type || 'B2C') + phone + '</div></div><div style="color:#a89a8c;">›</div>';
     row.onclick = () => quickStartPickExisting(item.name);
     matches.appendChild(row);
   });
@@ -8391,13 +8537,89 @@ function quickStartPickExisting(name) {
   }, 60);
 }
 
-// S2.1 — Open the Quote PDF view from a saved Job (re-use showQuoteScreen with source='job')
+// C1 · Open a NEW quote form pre-filled from a saved Job (was: showed job's PDF)
 function openQuoteFromJob() {
   const j = window._currentJob;
   if (!j) { toast(LANG === 'en' ? 'No job selected' : 'ยังไม่ได้เลือกงาน'); return; }
-  if (typeof showQuoteScreen === 'function') {
-    showQuoteScreen(j, 'job');
+
+  // Reset to create-mode (new quote — not edit)
+  _editingQuoteCode = null;
+  if (typeof _setQuoteFormMode === 'function') _setQuoteFormMode('create');
+
+  // Pre-fill service selections, add-ons, sessions from the job
+  NQ_SELECTED = j.selectedServices ? JSON.parse(JSON.stringify(j.selectedServices)) : {};
+  NQ_ADDONS = {};
+  if (j.qr) NQ_ADDONS.qr = j.qr;
+  if (j.other) NQ_ADDONS.profile = j.other;
+  NQ_SESSIONS.length = 0;
+  if (Array.isArray(j.sessions) && j.sessions.length) {
+    j.sessions.forEach(s => NQ_SESSIONS.push({...s}));
+  } else {
+    NQ_SESSIONS.push({ date: j.date || j.dateEvent || new Date().toISOString().slice(0,10), start: '14:00', end: '22:00', label: '' });
   }
+
+  // Generate new quote code
+  document.getElementById('new-quote-code').textContent = 'QT-' + new Date().getFullYear() + '-' + String(QUOTES.length + 1).padStart(3, '0');
+
+  // Customer block — read from CUSTOMER_INFO master (C2 fix) with job snapshot fallback
+  const cInfo = (j.customer && CUSTOMER_INFO[j.customer]) ? CUSTOMER_INFO[j.customer] : {};
+  document.getElementById('nq-customer').value = j.customer || '';
+  const nickEl = document.getElementById('nq-nick'); if (nickEl) nickEl.value = cInfo.nick || j.custNick || '';
+  document.getElementById('nq-phone').value = cInfo.phone || j.custPhone || '';
+  document.getElementById('nq-line').value = cInfo.line || j.custLine || '';
+
+  // Form fields from the job
+  document.getElementById('nq-loc').value = (j.loc && j.loc !== '-') ? j.loc : '';
+  document.getElementById('nq-discount').value = j.discount || 0;
+  document.getElementById('nq-deposit').value = j.deposit || 0;
+  document.getElementById('nq-note').value = j.note || '';
+  const exEl = document.getElementById('nq-extratime'); if (exEl) exEl.value = j.extraTime || 0;
+
+  // Bank dropdown — default to job's bank if it had one, else first bank
+  const bankSel = document.getElementById('nq-bank');
+  bankSel.innerHTML = '<option value="">' + t('aj.bankNoneOption') + '</option>';
+  BANKS.forEach((b, i) => {
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = (b.bank || '?') + ' · ' + (b.name || '') + ' · ' + (b.acc || '');
+    bankSel.appendChild(o);
+  });
+  if (j.bankIdx != null && j.bankIdx !== '') bankSel.value = j.bankIdx;
+  else if (BANKS.length > 0) bankSel.value = '0';
+
+  // Expire — new quote starts fresh: +1 month from today
+  const expire = new Date(); expire.setMonth(expire.getMonth() + 1);
+  document.getElementById('nq-expire').value = expire.toISOString().slice(0, 10);
+
+  // Job type chips — pre-select the job's type
+  populateJobTypeChipsForNQ();
+  const typeRow = document.getElementById('nq-type-row');
+  if (typeRow && j.type) {
+    typeRow.querySelectorAll('.chip').forEach(c => {
+      if (c.textContent.trim() === j.type) {
+        typeRow.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+        c.classList.add('active');
+      }
+    });
+  }
+
+  renderSessions('nq');
+  renderNQPackages();
+
+  // Tax — populate from job's tax settings (job has .tax + .taxEnabled like a quote)
+  if (typeof populateNQTaxFromQuote === 'function') {
+    populateNQTaxFromQuote(j);
+  } else if (typeof resetNQTaxUI === 'function') {
+    resetNQTaxUI();
+  }
+  // Customer type pill
+  if (typeof renderFormCustomerTypePill === 'function') {
+    renderFormCustomerTypePill('nq', j.customerType || cInfo.type || '');
+  }
+  if (typeof refreshCustTaxIdWarning === 'function') refreshCustTaxIdWarning('nq');
+
+  toast(LANG === 'en' ? 'New quote pre-filled from job · adjust as needed' : 'สร้างใบเสนอราคาใหม่จากงานนี้ · ปรับได้ตามต้องการ');
+  goTo('quote-new');
 }
 
 // S1.3 — Re-render whichever tab is active (called by search input)
@@ -8512,13 +8734,13 @@ function renderJobSessionsList(j) {
       </div>
       <div style="flex:1; min-width:0;">
         <div style="font-size:13px; font-weight:500;">${ico} ${s.label || 'ช่วงที่ ' + (idx+1)}</div>
-        <div style="font-size:12px; color:#6b7280; margin-top:2px;">${s.start} – ${s.end} · ${hrs} ชม.</div>
+        <div style="font-size:12px; color:#7c7066; margin-top:2px;">${s.start} – ${s.end} · ${hrs} ชม.</div>
       </div>
     </div>`;
   });
   if (sessions.length > 1) {
     html += `<div style="padding-top:8px; margin-top:4px; border-top:0.5px solid #e5e7eb; display:flex; justify-content:space-between; font-size:12px;">
-      <span style="color:#6b7280;">รวมเวลาทำงาน</span>
+      <span style="color:#7c7066;">รวมเวลาทำงาน</span>
       <span style="font-weight:600;">${totalHours} ชั่วโมง · ${sessions.length} ช่วง</span>
     </div>`;
   }
@@ -8529,7 +8751,7 @@ function renderJobTeamList(j) {
   const el = document.getElementById('job-team-list');
   if (!el) return;
   if (!j.team || j.team.length === 0) {
-    el.innerHTML = '<div class="detail-row"><span class="k">ทีมช่าง</span><span class="v" style="color:#9ca3af;">ยังไม่กำหนด · กด ✏ มุมขวาบนเพื่อเพิ่ม</span></div>';
+    el.innerHTML = '<div class="detail-row"><span class="k">ทีมช่าง</span><span class="v" style="color:#a89a8c;">ยังไม่กำหนด · กด ✏ มุมขวาบนเพื่อเพิ่ม</span></div>';
     return;
   }
   let total = 0;
@@ -8543,8 +8765,8 @@ function renderJobTeamList(j) {
     if (wage == null) hasUnset = true;
     else total += wage;
     html += `<div class="team-row">
-      <span class="tr-left"><span class="tr-dot" style="background:${color}"></span>${name}${t && t.role ? ' <span style="color:#9ca3af; font-size:11px;">· '+t.role+'</span>' : ''}</span>
-      <span class="tr-wage">${wage != null ? fmt(wage) : '<span style="color:#9ca3af; font-size:11px;">— กรอกที่ ✏ แก้ไขงาน</span>'}</span>
+      <span class="tr-left"><span class="tr-dot" style="background:${color}"></span>${name}${t && t.role ? ' <span style="color:#a89a8c; font-size:11px;">· '+t.role+'</span>' : ''}</span>
+      <span class="tr-wage">${wage != null ? fmt(wage) : '<span style="color:#a89a8c; font-size:11px;">— กรอกที่ ✏ แก้ไขงาน</span>'}</span>
     </div>`;
   });
   html += `<div class="team-row team-sum-row">
@@ -8559,13 +8781,13 @@ function openJob(code) {
   if (!j) return;
   goTo('job');
   document.getElementById('job-code').textContent = j.code;
-  // Customer name + nickname
+  // Customer name + nickname — C2 · Master first, then snapshot fallback
   const _info = (j.customer && CUSTOMER_INFO[j.customer]) ? CUSTOMER_INFO[j.customer] : {};
-  const _nick = j.custNick || _info.nickname || '';
+  const _nick = _info.nickname || j.custNick || '';
   document.getElementById('job-customer').textContent = j.customer + (_nick ? ' (' + _nick + ')' : '');
-  // Contact row
-  const _phone = j.custPhone || _info.phone || '';
-  const _lineId = j.custLine || _info.line || '';
+  // Contact row — C2 · Master first
+  const _phone = _info.phone || j.custPhone || '';
+  const _lineId = _info.line || j.custLine || '';
   // Customer Type — prefer denormalized job-level value, fallback to CUSTOMER_INFO (Tax T1)
   const _cType = j.customerType || _info.type || '';
   const cr = document.getElementById('job-contact-row');
@@ -8601,6 +8823,7 @@ function openJob(code) {
   document.getElementById('job-sell').innerHTML = '<strong>' + fmt(j.sell) + '</strong>';
   document.getElementById('job-remaining').textContent = fmt(j.remain);
   document.getElementById('job-paid-text').textContent = t('job.paidShort') + ' ' + fmt(j.sell - j.remain);
+  document.getElementById('job-income').textContent = '+' + fmt(j.sell || 0);
   document.getElementById('job-team-cost').textContent = '-' + fmt(j.teamCost || 0);
   document.getElementById('job-travel-cost').textContent = '-' + fmt(j.travelCost || 0);
   document.getElementById('job-other-cost').textContent = '-' + fmt(j.otherCost || 0);
@@ -8663,7 +8886,7 @@ function openJob(code) {
             ? (LANG === 'en' ? 'Auto: included (taxEnabled)' : 'อัตโนมัติ: นับ (เปิดภาษีไว้)')
             : (LANG === 'en' ? 'Auto: excluded (no tax)' : 'อัตโนมัติ: ไม่นับ (ไม่มีภาษี)'));
     _fHint.textContent = reason;
-    _fHint.style.color = inReport ? '#15803d' : '#9ca3af';
+    _fHint.style.color = inReport ? '#15803d' : '#a89a8c';
   }
 
   window._currentJob = j;
@@ -8675,7 +8898,7 @@ function openJob(code) {
       const paidLabel = j.invoice.balancePaid ? ' · ' + t('inv.paidBadge') : '';
       invBtn.innerHTML = t('inv.btnView') + ' (' + j.invoice.code + ')' + paidLabel;
       invBtn.style.background = j.invoice.balancePaid
-        ? 'linear-gradient(135deg, #6b7280, #4b5563)'
+        ? 'linear-gradient(135deg, #7c7066, #4b5563)'
         : 'linear-gradient(135deg, #1D9E75, #0d7b5a)';
     } else {
       invBtn.innerHTML = t('inv.btnIssue');
@@ -8852,7 +9075,7 @@ function renderExpenseList() {
   document.getElementById('ex-list-total').textContent = fmt(total);
   document.getElementById('ex-list-count').textContent = list.length;
   if (sorted.length === 0) {
-    c.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#9ca3af; font-size:13px;">' + t('exp.emptyInCat') + '</div>';
+    c.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#a89a8c; font-size:13px;">' + t('exp.emptyInCat') + '</div>';
     return;
   }
   sorted.forEach(e => {
@@ -9282,7 +9505,7 @@ function updateGreeting() {
       greetEl.style.textOverflow = 'ellipsis';
     } else {
       // Placeholder — allow wrapping, no truncation (won't overlap icons)
-      greetEl.innerHTML = '<span style="font-size:14px; color:#9ca3af; font-weight:500;">' + t('home.setupShop') + '</span>';
+      greetEl.innerHTML = '<span style="font-size:14px; color:#a89a8c; font-weight:500;">' + t('home.setupShop') + '</span>';
       greetEl.style.whiteSpace = 'normal';
       greetEl.style.overflow = 'visible';
       greetEl.style.textOverflow = 'clip';
@@ -9325,7 +9548,7 @@ function renderServicesList() {
   if (!c) return;
   c.innerHTML = '';
   if (SERVICES.length === 0) {
-    c.innerHTML = '<div style="text-align:center; padding:30px 20px; color:#9ca3af; font-size:13px;">ยังไม่มีบริการ — กด + มุมขวาบนเพื่อเพิ่มบริการแรก<br><span style="font-size:11px;">เช่น "ภาพนิ่งวันงาน", "Video", "Photobooth", "Drone" ฯลฯ</span></div>';
+    c.innerHTML = '<div style="text-align:center; padding:30px 20px; color:#a89a8c; font-size:13px;">ยังไม่มีบริการ — กด + มุมขวาบนเพื่อเพิ่มบริการแรก<br><span style="font-size:11px;">เช่น "ภาพนิ่งวันงาน", "Video", "Photobooth", "Drone" ฯลฯ</span></div>';
     return;
   }
   SERVICES.forEach(svc => {
@@ -9358,7 +9581,7 @@ function renderServiceDetail() {
   const c = document.getElementById('svc-package-list');
   c.innerHTML = '';
   if (svc.packages.length === 0) {
-    c.innerHTML = '<div style="text-align:center; padding:30px 20px; color:#9ca3af; font-size:13px;">ยังไม่มีแพคเกจ — กด "+ เพิ่มแพคเกจย่อย" ด้านบน</div>';
+    c.innerHTML = '<div style="text-align:center; padding:30px 20px; color:#a89a8c; font-size:13px;">ยังไม่มีแพคเกจ — กด "+ เพิ่มแพคเกจย่อย" ด้านบน</div>';
     return;
   }
   svc.packages.forEach((p, idx) => {
@@ -9368,7 +9591,7 @@ function renderServiceDetail() {
     row.onclick = () => openPackageEdit(p.id);
     row.innerHTML = `
       <div style="flex:1; min-width:0;">
-        <div class="item-name">${p.name} <span style="color:#6b7280; font-size:13px; font-weight:400; margin-left:8px;">${fmt(p.price)}</span></div>
+        <div class="item-name">${p.name} <span style="color:#7c7066; font-size:13px; font-weight:400; margin-left:8px;">${fmt(p.price)}</span></div>
         <div class="item-sub">${p.desc || ''}</div>
       </div>
       <button onclick="event.stopPropagation(); quickDeletePackage('${p.id}')" style="background:none; border:none; color:#dc2626; font-size:16px; cursor:pointer; padding:6px;">🗑</button>
@@ -9378,6 +9601,16 @@ function renderServiceDetail() {
 }
 
 function openServiceEdit(idOrNew) {
+  // v1.9.4 · Populate Job Type dropdown from JOB_TYPES
+  const jtSel = document.getElementById('svc-default-jobtype');
+  if (jtSel) {
+    jtSel.innerHTML = '<option value="">— ไม่ระบุ —</option>';
+    (JOB_TYPES || []).forEach(jt => {
+      const o = document.createElement('option');
+      o.value = jt; o.textContent = jt;
+      jtSel.appendChild(o);
+    });
+  }
   if (idOrNew === -1 || !idOrNew) {
     _editServiceId = null;
     _editServiceTempIcon = SERVICE_ICONS[0];
@@ -9385,6 +9618,7 @@ function openServiceEdit(idOrNew) {
     document.getElementById('edit-svc-title').textContent = 'เพิ่มบริการใหม่';
     document.getElementById('edit-svc-delete-btn').style.display = 'none';
     document.getElementById('svc-name-input').value = '';
+    if (jtSel) jtSel.value = '';
   } else {
     _editServiceId = idOrNew;
     const svc = SERVICES.find(s => s.id === idOrNew);
@@ -9394,6 +9628,7 @@ function openServiceEdit(idOrNew) {
     document.getElementById('edit-svc-title').textContent = 'แก้ไข ' + svc.name;
     document.getElementById('edit-svc-delete-btn').style.display = '';
     document.getElementById('svc-name-input').value = svc.name;
+    if (jtSel) jtSel.value = svc.defaultJobType || '';
   }
   renderServiceIconPicker();
   renderServiceColorPicker();
@@ -9437,19 +9672,23 @@ function cancelServiceEdit() {
 function saveServiceEdit() {
   const name = document.getElementById('svc-name-input').value.trim();
   if (!name) { toast(t('toast.errNameShop')); return; }
+  // v1.9.4 · Read default job type
+  const jtEl = document.getElementById('svc-default-jobtype');
+  const defaultJobType = jtEl ? (jtEl.value || '') : '';
   if (_editServiceId) {
     const svc = SERVICES.find(s => s.id === _editServiceId);
     if (svc) {
       svc.name = name;
       svc.icon = _editServiceTempIcon;
       svc.color = _editServiceTempColor;
+      svc.defaultJobType = defaultJobType;
     }
     saveData();
     toast(t('toast.saved'));
     _currentServiceId = _editServiceId;
     goTo('service-detail');
   } else {
-    const newSvc = { id: uid(), name, icon: _editServiceTempIcon, color: _editServiceTempColor, packages: [] };
+    const newSvc = { id: uid(), name, icon: _editServiceTempIcon, color: _editServiceTempColor, packages: [], defaultJobType: defaultJobType };
     SERVICES.push(newSvc);
     saveData();
     toast('เพิ่มบริการ "' + name + '" แล้ว');
@@ -9559,14 +9798,6 @@ function quickDeletePackage(pkgId) {
 let WIZARD_STEP = 0;
 let _wizardActive = false;  // true while wizard is in use
 
-// Smart back — returns to wizard if user came from there, else default
-function smartBack(defaultTarget) {
-  if (_wizardActive) {
-    goTo('wizard');
-  } else {
-    goTo(defaultTarget);
-  }
-}
 const WIZARD_STEPS = [
   {
     title: 'Pixory',
@@ -9699,7 +9930,7 @@ const WIZARD_STEPS = [
         </div>
         <div style="font-size: 18px; opacity:.6;">›</div>
       </button>
-      <div style="font-size:11px; color:#9ca3af; text-align:center; padding:4px 0;">ข้ามและกลับมาตั้งทีหลังได้</div>
+      <div style="font-size:11px; color:#a89a8c; text-align:center; padding:4px 0;">ข้ามและกลับมาตั้งทีหลังได้</div>
     `,
   },
   {
@@ -9721,7 +9952,7 @@ const WIZARD_STEPS = [
         </div>
         <div style="font-size: 18px; opacity:.6;">›</div>
       </button>
-      <div style="font-size:11px; color:#9ca3af; text-align:center; padding:4px 0;">ข้ามและกลับมาตั้งทีหลังได้</div>
+      <div style="font-size:11px; color:#a89a8c; text-align:center; padding:4px 0;">ข้ามและกลับมาตั้งทีหลังได้</div>
     `,
   },
   {
@@ -9743,7 +9974,7 @@ const WIZARD_STEPS = [
         </div>
         <div style="font-size: 18px; opacity:.6;">›</div>
       </button>
-      <div style="font-size:11px; color:#9ca3af; text-align:center; padding:4px 0;">ข้ามและกลับมาตั้งทีหลังได้</div>
+      <div style="font-size:11px; color:#a89a8c; text-align:center; padding:4px 0;">ข้ามและกลับมาตั้งทีหลังได้</div>
     `,
   },
   {
@@ -9784,7 +10015,7 @@ const WIZARD_STEPS = [
         <span class="wiz-confetti" style="left:70%; top:12%; animation-delay:.7s;">✺</span>
         <span class="wiz-confetti" style="left:50%; top:10%; animation-delay:.9s;">✦</span>
         <span class="wiz-confetti" style="left:20%; top:18%; animation-delay:1.1s;">✶</span>
-        <div style="font-size:13px; color:#6b7280; line-height:1.8; max-width: 280px; margin: 0 auto;">
+        <div style="font-size:13px; color:#7c7066; line-height:1.8; max-width: 280px; margin: 0 auto;">
           แก้ไขทุกอย่างได้ที่ <strong>⚙ ตั้งค่า</strong><br><br>
           เริ่มสร้างงานหรือใบเสนอราคาแรก
         </div>
@@ -10173,7 +10404,7 @@ function renderAllNotifs() {
   const el = document.getElementById('all-notifs');
   if (!el) return;
   if (all.length === 0) {
-    el.innerHTML = '<div style="text-align:center; padding:60px 20px; color:#9ca3af; font-size:14px;">🎉 ไม่มีรายการต้องทำตอนนี้<br><span style="font-size:12px;">ระบบจะเตือนเมื่อมีงานใกล้ถึง / ยอดที่ต้องเก็บ / งานต้องส่ง</span></div>';
+    el.innerHTML = '<div style="text-align:center; padding:60px 20px; color:#a89a8c; font-size:14px;">🎉 ไม่มีรายการต้องทำตอนนี้<br><span style="font-size:12px;">ระบบจะเตือนเมื่อมีงานใกล้ถึง / ยอดที่ต้องเก็บ / งานต้องส่ง</span></div>';
     return;
   }
   const groups = { urgent: [], warn: [], info: [] };
@@ -10493,11 +10724,11 @@ function editCurrentJob() {
   document.getElementById('add-save-btn').textContent = 'บันทึกการแก้ไข';
   document.getElementById('new-job-code').textContent = j.code;
   document.getElementById('addCustomer').value = j.customer || '';
-  // Pre-fill customer details from CUSTOMER_INFO (or from job if stored there)
+  // C2 · Pre-fill from CUSTOMER_INFO master first, job snapshot only as fallback
   const _ci = (j.customer && CUSTOMER_INFO[j.customer]) ? CUSTOMER_INFO[j.customer] : {};
-  document.getElementById('add-cust-nick').value = j.custNick || _ci.nickname || '';
-  document.getElementById('add-cust-phone').value = j.custPhone || _ci.phone || '';
-  document.getElementById('add-cust-line').value = j.custLine || _ci.line || '';
+  document.getElementById('add-cust-nick').value = _ci.nickname || j.custNick || '';
+  document.getElementById('add-cust-phone').value = _ci.phone || j.custPhone || '';
+  document.getElementById('add-cust-line').value = _ci.line || j.custLine || '';
   document.getElementById('add-date-deposit').value = j.dateDeposit || j.date || '';
   document.getElementById('add-location').value = j.loc || '';
   document.getElementById('addDiscount').value = j.discount || 0;
@@ -10789,7 +11020,21 @@ function openReceivePayment() {
 }
 
 function updatePayPreview() {
-  // No-op for now — could show "after payment" preview
+  // M6 · Show "after payment" preview
+  const amt = parseFloat(document.getElementById('pay-amount').value) || 0;
+  const remainRaw = parseFloat(document.getElementById('pay-remain-raw').value) || 0;
+  const preview = document.getElementById('pay-preview');
+  if (!preview) return;
+  if (amt <= 0) { preview.innerHTML = ''; return; }
+  const afterRemain = Math.max(0, remainRaw - amt);
+  const overpay = amt > remainRaw ? (amt - remainRaw) : 0;
+  if (overpay > 0) {
+    preview.innerHTML = '<span style="color:#b91c1c;">⚠ เกินยอดค้าง ฿' + fmt(overpay) + '</span>';
+  } else if (afterRemain === 0) {
+    preview.innerHTML = '<span style="color:#15803d;">✓ ชำระครบเต็มยอด</span>';
+  } else {
+    preview.innerHTML = 'หลังจ่ายเหลือ <strong style="color:#3a2f25;">฿' + fmt(afterRemain) + '</strong>';
+  }
 }
 
 function savePayment() {
@@ -10876,7 +11121,7 @@ function renderQuotesList(list) {
   c.innerHTML = '';
   list = list.slice().sort((a,b) => new Date(b.dateSent) - new Date(a.dateSent));
   if (list.length === 0) {
-    c.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#9ca3af; font-size:13px;">ยังไม่มีใบเสนอราคาในหมวดนี้</div>';
+    c.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#a89a8c; font-size:13px;">ยังไม่มีใบเสนอราคาในหมวดนี้</div>';
     return;
   }
   list.forEach(q => {
@@ -10894,7 +11139,7 @@ function renderQuotesList(list) {
       <div class="info">
         <p class="customer">${q.customer}</p>
         <p class="meta">${q.type} · งาน ${evt.full} · ${q.loc}</p>
-        <div class="price">${fmt(q.sell)} ${q.line ? `<span style="color:#6b7280; font-size:11px;">· LINE ${q.line}</span>` : ''}</div>
+        <div class="price">${fmt(q.sell)} ${q.line ? `<span style="color:#7c7066; font-size:11px;">· LINE ${q.line}</span>` : ''}</div>
       </div>
       <div style="display:flex; align-items:flex-start;"><span class="pill ${st.cls}">${st.label}</span></div>
     `;
@@ -11028,10 +11273,9 @@ function showQuoteScreen(data, source) {
 
   const items = document.getElementById('q-items');
   items.innerHTML = '';
-  function descFor(arr, name) { const x = arr.find(p => p.name === name); return x ? x.desc : ''; }
   function addItem(name, desc, price) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${name}${desc ? '<br><span style="color:#6b7280; font-size:11px;">'+desc+'</span>' : ''}</td><td class="right">${fmt(price)}</td>`;
+    tr.innerHTML = `<td>${name}${desc ? '<br><span style="color:#7c7066; font-size:11px;">'+desc+'</span>' : ''}</td><td class="right">${fmt(price)}</td>`;
     items.appendChild(tr);
   }
   // Render from selectedServices (new flexible format)
@@ -11285,9 +11529,21 @@ function logDepositPayment(job, amount, dateStr, noteStr) {
 }
 
 function convertQuoteToJob(code) {
-  if (!confirm('แปลงใบเสนอนี้เป็นงานใหม่?\n\nระบบจะสร้างงานพร้อมรายละเอียดเดิม คุณจะกรอกมัดจำและทีมในขั้นตอนถัดไป')) return;
   const q = QUOTES.find(x => x.code === code);
   if (!q) return;
+  // v1.9.4 · Block duplicate convert — guard against creating two jobs from the same quote.
+  // If the quote already has a linked job that still exists, open that job instead.
+  if (q.convertedJobCode) {
+    const existing = JOBS.find(j => j.code === q.convertedJobCode);
+    if (existing) {
+      toast('ใบเสนอนี้แปลงเป็นงาน ' + existing.code + ' ไปแล้ว · กำลังเปิดงานเดิมให้...');
+      setTimeout(function () { openJob(existing.code); }, 600);
+      return;
+    }
+    // Orphan link (job was deleted) → clear and let convert proceed
+    q.convertedJobCode = null;
+  }
+  if (!confirm('แปลงใบเสนอนี้เป็นงานใหม่?\n\nระบบจะสร้างงานพร้อมรายละเอียดเดิม คุณจะกรอกมัดจำและทีมในขั้นตอนถัดไป')) return;
   const yr = new Date().getFullYear();
   const newCode = 'JOB-' + yr + '-' + String(JOBS.length + 1).padStart(3, '0');
   const qDeposit = q.deposit || 0;
@@ -11480,7 +11736,7 @@ function renderNQPackages() {
   if (container) {
     container.innerHTML = '';
     if (SERVICES.length === 0) {
-      container.innerHTML = '<div class="settings-section"><div style="text-align:center; padding:30px 20px; color:#9ca3af; font-size:13px; background:white; border-radius:12px;">' + t('svc.emptyHint') + '</div></div>';
+      container.innerHTML = '<div class="settings-section"><div style="text-align:center; padding:30px 20px; color:#a89a8c; font-size:13px; background:white; border-radius:12px;">' + t('svc.emptyHint') + '</div></div>';
     } else {
       SERVICES.forEach(svc => {
         const section = document.createElement('div');
@@ -11488,7 +11744,7 @@ function renderNQPackages() {
         section.innerHTML = `<div class="sec-title">${svc.icon} ${svc.name}</div><div class="pkg-grid"></div>`;
         const grid = section.querySelector('.pkg-grid');
         if (svc.packages.length === 0) {
-          grid.innerHTML = '<div style="grid-column:1/-1; font-size:11px; color:#9ca3af; text-align:center; padding:8px;">ยังไม่มีแพคเกจ</div>';
+          grid.innerHTML = '<div style="grid-column:1/-1; font-size:11px; color:#a89a8c; text-align:center; padding:8px;">ยังไม่มีแพคเกจ</div>';
         } else {
           svc.packages.forEach(p => {
             const card = document.createElement('div');
@@ -11503,7 +11759,12 @@ function renderNQPackages() {
             card.innerHTML = `<div class="pkg-name">${p.name}</div><div class="pkg-price" ${isActive ? 'style="color:rgba(255,255,255,.8)"' : ''}>${fmtPkgK(p.price)}</div>`;
             card.onclick = () => {
               if (isActive) delete NQ_SELECTED[svc.id];
-              else NQ_SELECTED[svc.id] = { packageId: p.id, packageName: p.name, price: p.price, serviceName: svc.name, color: svc.color };
+              else {
+                // v1.9.4 · Auto-set Job Type if this is the first selection
+                const wasEmpty = Object.keys(NQ_SELECTED).length === 0;
+                NQ_SELECTED[svc.id] = { packageId: p.id, packageName: p.name, price: p.price, serviceName: svc.name, color: svc.color };
+                if (wasEmpty && svc.defaultJobType) autoSetJobTypeFromService('nq', svc.defaultJobType);
+              }
               renderNQPackages();
             };
             grid.appendChild(card);
@@ -11927,7 +12188,7 @@ function renderInvoicePDF(job) {
   itemsEl.innerHTML = '';
   function addItem(name, desc, price) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${name}${desc ? '<br><span style="color:#6b7280; font-size:11px;">'+desc+'</span>' : ''}</td><td class="right">${fmt(price)}</td>`;
+    tr.innerHTML = `<td>${name}${desc ? '<br><span style="color:#7c7066; font-size:11px;">'+desc+'</span>' : ''}</td><td class="right">${fmt(price)}</td>`;
     itemsEl.appendChild(tr);
   }
   if (job.selectedServices) {
@@ -12261,7 +12522,7 @@ function renderCalendar() {
     }
   }
   if (firstDateInMonth) showDayDetail(firstDateInMonth);
-  else document.getElementById('day-detail').innerHTML = '<div style="text-align:center; color:#9ca3af; padding:30px 0; font-size:13px;">' + t('cal.empty') + '</div>';
+  else document.getElementById('day-detail').innerHTML = '<div style="text-align:center; color:#a89a8c; padding:30px 0; font-size:13px;">' + t('cal.empty') + '</div>';
 }
 function showDayDetail(dateStr) {
   const dayJobs = JOBS.filter(j => {
@@ -12269,7 +12530,7 @@ function showDayDetail(dateStr) {
     return ss.some(s => s.date === dateStr);
   });
   const detail = document.getElementById('day-detail');
-  if (dayJobs.length === 0) { detail.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:20px 0; font-size:12px;">ไม่มีงานวันนี้</div>'; return; }
+  if (dayJobs.length === 0) { detail.innerHTML = '<div style="text-align:center; color:#a89a8c; padding:20px 0; font-size:12px;">ไม่มีงานวันนี้</div>'; return; }
   const dp = dateParts(dateStr);
   let html = `<div style="font-size:13px; font-weight:600; padding:8px 4px 12px;">${dp.full} · ${dayJobs.length} งาน</div>`;
   dayJobs.forEach(j => {
@@ -12347,7 +12608,7 @@ function openCustomerDetail(name) {
   const hist = document.getElementById('cust-history');
   hist.innerHTML = '';
   if (jobs.length === 0) {
-    hist.innerHTML = '<div style="text-align:center; padding:20px; color:#9ca3af; font-size:12px;">ยังไม่มีงานกับลูกค้านี้</div>';
+    hist.innerHTML = '<div style="text-align:center; padding:20px; color:#a89a8c; font-size:12px;">ยังไม่มีงานกับลูกค้านี้</div>';
   } else {
     jobs.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(j => {
       const dp = dateParts(j.date);
@@ -12878,15 +13139,22 @@ function computePIT(year, opts) {
   opts = opts || (PROFILE.pit || {});
   // 1. Revenue — sum of all filed JOBS in this tax year (use existing helpers)
   const period = (typeof getTaxYearPeriod === 'function') ? getTaxYearPeriod(year) : null;
+  const today = new Date();
   let revenue = 0;
   let actualExpenses = 0;
   let whtWithheld = 0;
   const filedJobs = [];
   (JOBS || []).forEach(j => {
     if (typeof isJobInTaxReport === 'function' && !isJobInTaxReport(j)) return;
-    // Date filter
-    if (period && j.date) {
-      const d = new Date(j.date);
+    // M11 · Cash-basis PIT — use last payment date if available, else event date
+    let dateRef = j.date;
+    if (Array.isArray(j.payments) && j.payments.length > 0) {
+      const lastPay = j.payments[j.payments.length - 1];
+      if (lastPay && lastPay.date) dateRef = lastPay.date;
+    }
+    if (period && dateRef) {
+      const d = new Date(dateRef);
+      if (d > today) return;  // M12 · Skip future-dated jobs
       if (period.start && d < period.start) return;
       if (period.end && d > period.end) return;
     }
@@ -12905,28 +13173,40 @@ function computePIT(year, opts) {
   (EXPENSES || []).forEach(ex => {
     if (period && ex.date) {
       const d = new Date(ex.date);
+      if (d > today) return;  // M12 · Skip future-dated expenses
       if (period.start && d < period.start) return;
       if (period.end && d > period.end) return;
     }
     actualExpenses += (Number(ex.amount) || 0);
   });
 
-  // 2. Expense — flat 60% or actual
+  // 2. Expense — flat 60% (capped at ฿600,000 per ม.40(8)) or actual
   const expenseMode = opts.expenseMode || 'flat60';
-  const flat60Expense = revenue * 0.60;
+  const flat60Expense = Math.min(revenue * 0.60, 600000);  // M10 · cap at ฿600k
   const usedExpense = (expenseMode === 'actual') ? actualExpenses : flat60Expense;
   const incomeAfterExpense = Math.max(0, revenue - usedExpense);
 
   // 3. Deductions
   const personalAllowance = 60000;  // ม.42(1)
   const spouseAllowance = (opts.maritalStatus === 'married' && !opts.spouseHasIncome) ? 60000 : 0;
-  const childAllowance = Math.max(0, Number(opts.numChildren) || 0) * 30000;
+  // M7 · Child allowance — บุตรเกิดตั้งแต่ปี 2561 (2018) ที่เป็นบุตรคนที่ 2 ขึ้นไป ได้ ฿60k
+  // ที่เหลือได้ ฿30k. หน้า UI ให้ user ระบุจำนวนบุตร "เกิดปี 2018+"
+  const totalChildren = Math.max(0, Number(opts.numChildren) || 0);
+  const children2018Plus = Math.max(0, Math.min(totalChildren, Number(opts.numChildren2018Plus) || 0));
+  const childrenPre2018 = Math.max(0, totalChildren - children2018Plus);
+  const childAllowance = (childrenPre2018 * 30000) + (children2018Plus * 60000);
   const lifeIns = Math.min(100000, Number(opts.lifeInsurance) || 0);
   const healthIns = Math.min(25000, Number(opts.healthInsurance) || 0);
   const rmfSsf = Math.min(200000, Number(opts.rmfSsf) || 0);
-  const donation = Math.max(0, Number(opts.donation) || 0);  // capped at 10% of net later
   const mortgage = Math.min(100000, Number(opts.mortgageInterest) || 0);
-  const totalDeductions = personalAllowance + spouseAllowance + childAllowance + lifeIns + healthIns + rmfSsf + donation + mortgage;
+
+  // M9 · Donation cap 10% of income after all OTHER deductions
+  const rawDonation = Math.max(0, Number(opts.donation) || 0);
+  const allowancesBeforeDonation = personalAllowance + spouseAllowance + childAllowance + lifeIns + healthIns + rmfSsf + mortgage;
+  const taxableBeforeDonation = Math.max(0, incomeAfterExpense - allowancesBeforeDonation);
+  const donation = Math.min(rawDonation, taxableBeforeDonation * 0.10);
+
+  const totalDeductions = allowancesBeforeDonation + donation;
   const netTaxable = Math.max(0, incomeAfterExpense - totalDeductions);
 
   // 4. Tax owed
@@ -12950,7 +13230,11 @@ function computePIT(year, opts) {
       personal: personalAllowance,
       spouse: spouseAllowance,
       children: childAllowance,
+      childrenPre2018,
+      children2018Plus,
       lifeIns, healthIns, rmfSsf, donation, mortgage,
+      donationRaw: rawDonation,
+      donationCapped: rawDonation > donation,
       total: totalDeductions
     },
     netTaxable: Math.round(netTaxable * 100) / 100,
@@ -12987,6 +13271,7 @@ function renderPITHelper() {
   setVal('pit-marital', pit.maritalStatus || 'single');
   setChk('pit-spouse-no-income', pit.maritalStatus === 'married' && !pit.spouseHasIncome);
   setVal('pit-children', Number(pit.numChildren) || 0);
+  setVal('pit-children-2018-plus', Number(pit.numChildren2018Plus) || 0);
   setVal('pit-life-ins', pit.lifeInsurance || 0);
   setVal('pit-health-ins', pit.healthInsurance || 0);
   setVal('pit-rmf-ssf', pit.rmfSsf || 0);
@@ -13001,6 +13286,9 @@ function renderPITHelper() {
   // Spouse-no-income field visibility
   const sp = document.getElementById('pit-spouse-row');
   if (sp) sp.style.display = (pit.maritalStatus === 'married') ? '' : 'none';
+  // Children-2018+ row visibility (only if has children)
+  const c2018 = document.getElementById('pit-children2018-row');
+  if (c2018) c2018.style.display = ((Number(pit.numChildren) || 0) > 0) ? '' : 'none';
 
   refreshPITCalc();
 }
@@ -13023,6 +13311,7 @@ function refreshPITCalc() {
   PROFILE.pit.maritalStatus = marital;
   PROFILE.pit.spouseHasIncome = !spouseNoInc;
   PROFILE.pit.numChildren = Math.max(0, getNum('pit-children'));
+  PROFILE.pit.numChildren2018Plus = Math.max(0, Math.min(PROFILE.pit.numChildren, getNum('pit-children-2018-plus')));
   PROFILE.pit.expenseMode = expenseMode;
   PROFILE.pit.lifeInsurance = getNum('pit-life-ins');
   PROFILE.pit.healthInsurance = getNum('pit-health-ins');
@@ -13034,6 +13323,9 @@ function refreshPITCalc() {
   // Show/hide spouse-no-income field based on marital
   const sp = document.getElementById('pit-spouse-row');
   if (sp) sp.style.display = (marital === 'married') ? '' : 'none';
+  // Show/hide children-2018+ row
+  const c2018 = document.getElementById('pit-children2018-row');
+  if (c2018) c2018.style.display = (PROFILE.pit.numChildren > 0) ? '' : 'none';
 
   // Compute + render
   const r = computePIT(year, PROFILE.pit);
@@ -13058,7 +13350,7 @@ function refreshPITCalc() {
   if (r.deductions.lifeIns > 0)   html += '<div class="pit-row"><span>− ประกันชีวิต</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.lifeIns) + '</strong></div>';
   if (r.deductions.healthIns > 0) html += '<div class="pit-row"><span>− ประกันสุขภาพ</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.healthIns) + '</strong></div>';
   if (r.deductions.rmfSsf > 0)    html += '<div class="pit-row"><span>− กองทุน RMF/SSF</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.rmfSsf) + '</strong></div>';
-  if (r.deductions.donation > 0)  html += '<div class="pit-row"><span>− บริจาค</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.donation) + '</strong></div>';
+  if (r.deductions.donation > 0)  html += '<div class="pit-row"><span>− บริจาค' + (r.deductions.donationCapped ? ' <span style="font-size:10px; color:#b91c1c;">(จำกัด 10%)</span>' : '') + '</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.donation) + '</strong></div>';
   if (r.deductions.mortgage > 0)  html += '<div class="pit-row"><span>− ดอกเบี้ยกู้บ้าน</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.mortgage) + '</strong></div>';
   html += '<div class="pit-row pit-row-divider"><span><strong>รายได้สุทธิที่ต้องเสียภาษี</strong></span><strong style="font-size:15px;">฿' + fmt(r.netTaxable) + '</strong></div>';
   html += '<div class="pit-row pit-row-divider"><span>📊 ภาษีตามขั้นบันได</span><strong style="font-size:15px;">฿' + fmt(r.taxOwed) + '</strong></div>';
@@ -13553,13 +13845,6 @@ function isJobInTaxReport(j) {
   return !!j.taxEnabled;  // auto
 }
 
-function setJobFiling(jobCode, mode) {
-  const j = JOBS.find(x => x.code === jobCode);
-  if (!j) return;
-  j.filing = (mode === 'include' || mode === 'exclude' || mode === 'auto') ? mode : 'auto';
-  saveData();
-}
-
 // Called by the Job Detail filing dropdown — updates current job & refreshes hint text
 function onJobFilingChange(mode) {
   const j = window._currentJob;
@@ -13578,7 +13863,7 @@ function onJobFilingChange(mode) {
             ? (LANG === 'en' ? 'Auto: included (taxEnabled)' : 'อัตโนมัติ: นับ (เปิดภาษีไว้)')
             : (LANG === 'en' ? 'Auto: excluded (no tax)' : 'อัตโนมัติ: ไม่นับ (ไม่มีภาษี)'));
     _fHint.textContent = reason;
-    _fHint.style.color = inReport ? '#15803d' : '#9ca3af';
+    _fHint.style.color = inReport ? '#15803d' : '#a89a8c';
   }
   toast(LANG === 'en' ? 'Filing updated' : 'อัปเดตสถานะการยื่นแล้ว');
 }
@@ -13605,10 +13890,12 @@ let _taxReportFilter = 'all';  // 'all' | 'B2B' | 'Gov' | 'excluded'
 
 function getTaxReportRows(year, filter) {
   const period = getTaxYearPeriod(year);
+  const today = new Date();
   const rows = [];
   JOBS.forEach(j => {
     const d = new Date(j.date);
     if (isNaN(d)) return;
+    if (d > today) return;  // Skip future-dated jobs
     if (d < period.start || d > period.end) return;
     // Filter by inclusion + customer type
     const included = isJobInTaxReport(j);
@@ -13743,15 +14030,15 @@ function renderTaxReport() {
             ? '<span style="font-size:9.5px; color:#0c4a6e; background:#e0f2fe; padding:1px 5px; border-radius:6px; margin-left:4px;">+ ' + t('tax.filingInclude') + '</span>'
             : '');
       html += '<div onclick="openJob(\'' + r.code + '\')" style="display:flex; gap:10px; padding:12px 14px; border-bottom:1px solid #f3f4f6; cursor:pointer; align-items:flex-start;">';
-      html += '<div style="width:42px; text-align:center; flex-shrink:0;"><div style="font-size:17px; font-weight:700; color:#1a1a1a; line-height:1.1;">' + dp.d + '</div><div style="font-size:10px; color:#9ca3af; text-transform:uppercase;">' + monShort + '</div></div>';
+      html += '<div style="width:42px; text-align:center; flex-shrink:0;"><div style="font-size:17px; font-weight:700; color:#3a2f25; line-height:1.1;">' + dp.d + '</div><div style="font-size:10px; color:#a89a8c; text-transform:uppercase;">' + monShort + '</div></div>';
       html += '<div style="flex:1; min-width:0;">';
-      html += '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span style="font-size:13px; font-weight:600; color:#1a1a1a;">' + r.customer + '</span>' + typePill + filingTag + '</div>';
-      html += '<div style="font-size:11px; color:#6b7280; margin-top:2px;">' + r.code + ' · ' + (r.type || '-') + (r.customerCompany ? ' · ' + r.customerCompany : '') + '</div>';
+      html += '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;"><span style="font-size:13px; font-weight:600; color:#3a2f25;">' + r.customer + '</span>' + typePill + filingTag + '</div>';
+      html += '<div style="font-size:11px; color:#7c7066; margin-top:2px;">' + r.code + ' · ' + (r.type || '-') + (r.customerCompany ? ' · ' + r.customerCompany : '') + '</div>';
       html += '<div style="font-size:11px; color:#7c7066; margin-top:3px;">' + (typeof t === 'function' ? t('tax.base') : 'Base') + ': <strong>' + fmt(r.base) + '</strong>';
       if (r.vatAmount > 0) html += ' · VAT: <span style="color:#15803d;">+' + fmt(r.vatAmount) + '</span>';
       if (r.whtAmount > 0) html += ' · WHT: <span style="color:#dc2626;">-' + fmt(r.whtAmount) + '</span>';
       html += '</div></div>';
-      html += '<div style="text-align:right; flex-shrink:0;"><div style="font-size:13px; font-weight:700; color:#0f6e56;">' + fmt(r.netReceived) + '</div><div style="font-size:10px; color:#9ca3af;">' + (typeof t === 'function' ? t('tax.netReceived') : 'Net') + '</div></div>';
+      html += '<div style="text-align:right; flex-shrink:0;"><div style="font-size:13px; font-weight:700; color:#0f6e56;">' + fmt(r.netReceived) + '</div><div style="font-size:10px; color:#a89a8c;">' + (typeof t === 'function' ? t('tax.netReceived') : 'Net') + '</div></div>';
       html += '</div>';
     });
     tbl.innerHTML = html;
@@ -13902,7 +14189,7 @@ function renderEquipmentList() {
   // Items
   c.innerHTML = '';
   if (list.length === 0) {
-    c.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#9ca3af; font-size:13px;">' +
+    c.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#a89a8c; font-size:13px;">' +
       (EQUIPMENT.length === 0 ? t('equip.emptyFirst') : (LANG === 'en' ? 'No equipment in this category' : 'ไม่มีอุปกรณ์ในหมวดนี้')) +
       '</div>';
     return;
@@ -13931,7 +14218,7 @@ function renderEquipmentList() {
         <div class="left">
           <div class="ico-wrap" style="background:${cat.color}22; color:${cat.color}; font-size:16px;">${condIcon}</div>
           <div>
-            <div class="row-title">${e.name} ${e.qty > 1 ? '<span style="color:#6b7280; font-weight:400;">× ' + e.qty + '</span>' : ''}</div>
+            <div class="row-title">${e.name} ${e.qty > 1 ? '<span style="color:#7c7066; font-weight:400;">× ' + e.qty + '</span>' : ''}</div>
             ${e.note ? '<div class="row-sub">' + e.note + '</div>' : ''}
           </div>
         </div>
@@ -14077,7 +14364,7 @@ function renderCustomers() {
           <span style="font-size:14px; font-weight:500;">${cu.name}</span>
           ${_typePill}
         </div>
-        <div style="font-size:12px; color:#6b7280; margin-top:2px;">${cu.jobs} งาน</div>
+        <div style="font-size:12px; color:#7c7066; margin-top:2px;">${cu.jobs} งาน</div>
       </div>
       <div style="font-size:13px; font-weight:600;">${fmt(cu.total)}</div>`;
     c.appendChild(row);
@@ -14181,7 +14468,7 @@ function renderAddJobScreen() {
   if (container) {
     container.innerHTML = '';
     if (SERVICES.length === 0) {
-      container.innerHTML = '<div class="settings-section"><div style="text-align:center; padding:30px 20px; color:#9ca3af; font-size:13px; background:white; border-radius:12px;">' + t('svc.emptyHint') + '</div></div>';
+      container.innerHTML = '<div class="settings-section"><div style="text-align:center; padding:30px 20px; color:#a89a8c; font-size:13px; background:white; border-radius:12px;">' + t('svc.emptyHint') + '</div></div>';
     } else {
       SERVICES.forEach(svc => {
         const section = document.createElement('div');
@@ -14189,7 +14476,7 @@ function renderAddJobScreen() {
         section.innerHTML = `<div class="sec-title">${svc.icon} ${svc.name}</div><div class="pkg-grid"></div>`;
         const grid = section.querySelector('.pkg-grid');
         if (svc.packages.length === 0) {
-          grid.innerHTML = '<div style="grid-column:1/-1; font-size:11px; color:#9ca3af; text-align:center; padding:8px;">ยังไม่มีแพคเกจ</div>';
+          grid.innerHTML = '<div style="grid-column:1/-1; font-size:11px; color:#a89a8c; text-align:center; padding:8px;">ยังไม่มีแพคเกจ</div>';
         } else {
           svc.packages.forEach(p => {
             const card = document.createElement('div');
@@ -14204,7 +14491,12 @@ function renderAddJobScreen() {
             card.innerHTML = `<div class="pkg-name">${p.name}</div><div class="pkg-price" ${isActive ? 'style="color:rgba(255,255,255,.8)"' : ''}>${fmtPkgK(p.price)}</div>`;
             card.onclick = () => {
               if (isActive) delete ADD_SELECTED[svc.id];
-              else ADD_SELECTED[svc.id] = { packageId: p.id, packageName: p.name, price: p.price, serviceName: svc.name, color: svc.color };
+              else {
+                // v1.9.4 · Track "first selection" so we know whether to auto-set Job Type
+                const wasEmpty = Object.keys(ADD_SELECTED).length === 0;
+                ADD_SELECTED[svc.id] = { packageId: p.id, packageName: p.name, price: p.price, serviceName: svc.name, color: svc.color };
+                if (wasEmpty && svc.defaultJobType) autoSetJobTypeFromService('add', svc.defaultJobType);
+              }
               renderAddJobScreen();
             };
             grid.appendChild(card);
@@ -14519,6 +14811,91 @@ function renderHomeUpcoming() {
   renderJobs(upcoming, 'home-upcoming');
 }
 
+// M5 · Compute customers with birthday in next N days
+function getUpcomingBirthdays(daysAhead) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const results = [];
+  Object.entries(CUSTOMER_INFO || {}).forEach(([name, info]) => {
+    if (!info || !info.birthday) return;
+    const birth = new Date(info.birthday);
+    if (isNaN(birth)) return;
+    const thisYear = today.getFullYear();
+    let next = new Date(thisYear, birth.getMonth(), birth.getDate());
+    next.setHours(0, 0, 0, 0);
+    if (next < today) next = new Date(thisYear + 1, birth.getMonth(), birth.getDate());
+    const daysUntil = Math.round((next - today) / 86400000);
+    if (daysUntil <= daysAhead) {
+      results.push({
+        name,
+        nickname: info.nickname || '',
+        phone: info.phone || '',
+        line: info.line || '',
+        daysUntil,
+        age: next.getFullYear() - birth.getFullYear()
+      });
+    }
+  });
+  results.sort((a, b) => a.daysUntil - b.daysUntil);
+  return results;
+}
+
+// M5 · Render upcoming birthdays section in Home
+function renderHomeBirthdays() {
+  const sec = document.getElementById('home-birthdays-section');
+  const list = document.getElementById('home-birthdays');
+  if (!sec || !list) return;
+  const upcoming = getUpcomingBirthdays(7);
+  if (upcoming.length === 0) {
+    sec.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+  sec.style.display = '';
+  list.innerHTML = '';
+  upcoming.forEach(c => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; align-items:center; gap:12px; margin: 0 16px 8px; padding: 12px 14px; background: linear-gradient(135deg, #fef3c7 0%, #fff 70%); border-radius: 12px; border: 0.5px solid #fde68a;';
+    const daysLabel = c.daysUntil === 0 ? '🎉 วันนี้!' : c.daysUntil === 1 ? 'พรุ่งนี้' : 'อีก ' + c.daysUntil + ' วัน';
+    const labelColor = c.daysUntil === 0 ? '#b91c1c' : '#7c2d12';
+    const safeName = c.name.replace(/'/g, "\\'");
+    const hasLine = !!c.line;
+    row.innerHTML =
+      '<div style="width:36px; height:36px; background:#fef3c7; color:#7c2d12; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">🎂</div>' +
+      '<div style="flex:1; min-width:0;">' +
+        '<div style="font-size:14px; font-weight:600; color:#3a2f25;">' + (c.nickname || c.name) + (c.nickname && c.nickname !== c.name ? ' <span style="color:#7c7066; font-weight:400; font-size:12px;">(' + c.name + ')</span>' : '') + '</div>' +
+        '<div style="font-size:12px; color:' + labelColor + '; margin-top:2px; font-weight:600;">' + daysLabel + ' · อายุ ' + c.age + ' ปี</div>' +
+      '</div>' +
+      (hasLine
+        ? '<button onclick="event.stopPropagation(); copyBirthdayGreeting(\'' + safeName + '\')" style="background:#06c755; color:white; border:0; padding:8px 12px; border-radius:100px; font-size:11px; font-weight:700; cursor:pointer; flex-shrink:0;">📩 ส่งคำอวยพร</button>'
+        : '<span style="color:#a89a8c; font-size:11px;">ไม่มี LINE</span>');
+    list.appendChild(row);
+  });
+}
+
+// M5 · Copy a birthday greeting template + open LINE chat if available
+function copyBirthdayGreeting(customerName) {
+  const info = (CUSTOMER_INFO && CUSTOMER_INFO[customerName]) || {};
+  const nick = info.nickname || customerName;
+  const studio = (PROFILE && PROFILE.studioName) ? PROFILE.studioName : 'ทีมงาน';
+  const msg = '🎂 สุขสันต์วันเกิดนะคะ คุณ' + nick + '\n' +
+              'ขอให้มีความสุขมาก ๆ สุขภาพแข็งแรง สมหวังทุกประการ ✨\n\n' +
+              '— ' + studio;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(msg).then(
+      () => { toast('คัดลอกคำอวยพรแล้ว · เปิด LINE ให้คุณ ' + nick); },
+      () => { window.prompt('คัดลอกคำอวยพร:', msg); }
+    );
+  } else {
+    window.prompt('คัดลอกคำอวยพร:', msg);
+  }
+  if (info.line) {
+    setTimeout(function () {
+      try { window.open('https://line.me/ti/p/~' + encodeURIComponent(info.line), '_blank'); } catch (e) {}
+    }, 400);
+  }
+}
+
 // S1.4 — งานกำลังทำ (active jobs from past or near future, max 3)
 function renderHomeActive() {
   const sec = document.getElementById('home-active-section');
@@ -14559,7 +14936,7 @@ function renderHomeActive() {
     if (daysAway === 0) countdown = '<span style="color:#dc2626; font-size:11px; font-weight:600;">วันนี้!</span>';
     else if (daysAway > 0 && daysAway <= 7) countdown = '<span style="color:#d97706; font-size:11px; font-weight:600;">อีก ' + daysAway + ' วัน</span>';
     else if (daysAway < 0) countdown = '<span style="color:#7c2d12; font-size:11px; font-weight:600;">ผ่านมา ' + Math.abs(daysAway) + ' วัน · ยังไม่ปิด</span>';
-    else countdown = '<span style="color:#6b7280; font-size:11px;">อีก ' + daysAway + ' วัน</span>';
+    else countdown = '<span style="color:#7c7066; font-size:11px;">อีก ' + daysAway + ' วัน</span>';
     let cls = 'date-block';
     if (daysAway >= 0 && daysAway <= 30) cls += ' upcoming';
     if (j.remain > 0 && daysAway < 7) cls += ' warn';
@@ -14584,25 +14961,25 @@ function renderSettingsLists() {
   // Photo packages
   let html = '';
   PKG_PHOTO.forEach((p, i) => {
-    html += `<div class="item-row" onclick="openEdit('photo',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${p.name} <span style="color:#6b7280; font-size:13px; font-weight:400; margin-left:8px;">${fmt(p.price)}</span></div><div class="item-sub">${p.desc || ''}</div></div><div class="item-action">›</div></div>`;
+    html += `<div class="item-row" onclick="openEdit('photo',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${p.name} <span style="color:#7c7066; font-size:13px; font-weight:400; margin-left:8px;">${fmt(p.price)}</span></div><div class="item-sub">${p.desc || ''}</div></div><div class="item-action">›</div></div>`;
   });
   document.getElementById('list-photo-pkg').innerHTML = html;
 
   html = '';
   PKG_PB.forEach((p, i) => {
-    html += `<div class="item-row" onclick="openEdit('pb',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${p.name} <span style="color:#6b7280; font-size:13px; font-weight:400; margin-left:8px;">${fmt(p.price)}</span></div><div class="item-sub">${p.desc || ''}</div></div><div class="item-action">›</div></div>`;
+    html += `<div class="item-row" onclick="openEdit('pb',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${p.name} <span style="color:#7c7066; font-size:13px; font-weight:400; margin-left:8px;">${fmt(p.price)}</span></div><div class="item-sub">${p.desc || ''}</div></div><div class="item-action">›</div></div>`;
   });
   document.getElementById('list-pb-pkg').innerHTML = html;
 
   html = '';
   PKG_VIDEO.forEach((p, i) => {
-    html += `<div class="item-row" onclick="openEdit('video',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${p.name} <span style="color:#6b7280; font-size:13px; font-weight:400; margin-left:8px;">${fmt(p.price)}</span></div><div class="item-sub">${p.desc || ''}</div></div><div class="item-action">›</div></div>`;
+    html += `<div class="item-row" onclick="openEdit('video',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${p.name} <span style="color:#7c7066; font-size:13px; font-weight:400; margin-left:8px;">${fmt(p.price)}</span></div><div class="item-sub">${p.desc || ''}</div></div><div class="item-action">›</div></div>`;
   });
   document.getElementById('list-video-pkg').innerHTML = html;
 
   html = '';
   PKG_PRE.forEach((p, i) => {
-    html += `<div class="item-row" onclick="openEdit('pre',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${p.name} <span style="color:#6b7280; font-size:13px; font-weight:400; margin-left:8px;">${fmt(p.price)}</span></div><div class="item-sub">${p.desc || ''}</div></div><div class="item-action">›</div></div>`;
+    html += `<div class="item-row" onclick="openEdit('pre',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${p.name} <span style="color:#7c7066; font-size:13px; font-weight:400; margin-left:8px;">${fmt(p.price)}</span></div><div class="item-sub">${p.desc || ''}</div></div><div class="item-action">›</div></div>`;
   });
   document.getElementById('list-pre-pkg').innerHTML = html;
 
@@ -14647,7 +15024,7 @@ function renderSettingsLists() {
   const BANK_COLORS = {SCB:'#3730A3', K:'#22C55E', BAY:'#FBB040', TTB:'#0DBDF5', BBL:'#0B4F9A', KTB:'#00A7E0', TMB:'#FF9F1C'};
   html = '';
   if (BANKS.length === 0) {
-    html = '<div style="text-align:center; padding:30px 20px; color:#9ca3af; font-size:13px;">ยังไม่มีบัญชี — กด + มุมขวาบนเพื่อเพิ่มบัญชีแรก</div>';
+    html = '<div style="text-align:center; padding:30px 20px; color:#a89a8c; font-size:13px;">ยังไม่มีบัญชี — กด + มุมขวาบนเพื่อเพิ่มบัญชีแรก</div>';
   } else {
     BANKS.forEach((b, i) => {
       const color = BANK_COLORS[b.bank] || '#888780';
@@ -14777,6 +15154,134 @@ if (document.readyState === 'loading') {
 } else {
   bootstrap();
 }
+
+// =========================================================
+// Android hardware back-button manager (v1.9.2)
+// Fixes: tapping system Back closing the PWA immediately.
+// Strategy:
+//   - Init: push a BUFFER history entry behind 'home' so first Back at home
+//     triggers popstate (instead of exiting immediately with no entries left)
+//   - goTo() pushes history (logic lives inside goTo so internal callers work)
+//   - popstate: close overlays first → in-app back → at root, tap-twice-to-exit
+// =========================================================
+(function setupBackButtonManager() {
+  let _lastBackAttemptAt = 0;
+  let _allowExit = false;
+
+  const OVERLAY_SELECTORS = '.modal.show, .sheet.show, .ctype-sheet.show, #fab-menu.show, #whatsnew-modal.show, .tf-sheet.show, .quickstart-modal.show, .pxy-bottom-sheet.show';
+
+  // Init: push BUFFER + HOME so there are 2 entries minimum (1st Back ≠ exit)
+  try {
+    history.replaceState({ pixoryScreen: '_buffer', idx: 0 }, '', location.pathname + location.search);
+    history.pushState({ pixoryScreen: 'home', idx: 1 }, '', '#home');
+  } catch (e) {}
+
+  function closeTopmostOverlay() {
+    const open = document.querySelectorAll(OVERLAY_SELECTORS);
+    if (open.length === 0) return false;
+    open[open.length - 1].classList.remove('show');
+    return true;
+  }
+
+  window.addEventListener('popstate', function (e) {
+    if (_allowExit) return;  // second tap → let browser exit naturally
+    // 1) Overlay first
+    if (closeTopmostOverlay()) {
+      const cur = _navStack[_navStack.length - 1] || 'home';
+      try { history.pushState({ pixoryScreen: cur, idx: _navStack.length }, '', '#' + cur); } catch (err) {}
+      return;
+    }
+    // 2) In-app screen navigation
+    if (_navStack.length > 1) {
+      _navStack.pop();
+      const prev = _navStack[_navStack.length - 1];
+      _navIgnorePop = true;
+      try { if (typeof goTo === 'function') goTo(prev); }
+      finally { _navIgnorePop = false; }
+      return;
+    }
+    // 3) At home (root) — tap-back-twice-to-exit pattern
+    const now = Date.now();
+    if (now - _lastBackAttemptAt < 2000) {
+      _allowExit = true;
+      // We landed on _buffer. Let user's next Back exit naturally (no more pushState).
+      return;
+    }
+    _lastBackAttemptAt = now;
+    try { history.pushState({ pixoryScreen: 'home', idx: 1 }, '', '#home'); } catch (err) {}
+    if (typeof toast === 'function') toast('กดย้อนกลับอีกครั้งเพื่อปิดแอพ');
+  });
+})();
+
+// M18 · A11y patch — add aria-label to icon-only back/close buttons at startup
+function applyA11yPatches() {
+  try {
+    document.querySelectorAll('button.back').forEach(btn => {
+      if (btn.getAttribute('aria-label')) return;
+      const txt = (btn.textContent || '').trim();
+      if (txt === '×' || txt === '✕' || txt === '✖') btn.setAttribute('aria-label', 'ปิด');
+      else if (txt === '‹' || txt === '◂' || txt === '<') btn.setAttribute('aria-label', 'ย้อนกลับ');
+      else btn.setAttribute('aria-label', 'ย้อนกลับ');
+    });
+    // FAB plus button
+    document.querySelectorAll('.bottom-nav .tab.fab').forEach(btn => {
+      if (!btn.getAttribute('aria-label')) btn.setAttribute('aria-label', 'เพิ่มงาน/ใบเสนอ');
+    });
+    // Search icons / clear buttons
+    document.querySelectorAll('.pxy-search-clear').forEach(btn => {
+      if (!btn.getAttribute('aria-label')) btn.setAttribute('aria-label', 'ล้างคำค้น');
+    });
+  } catch (e) {}
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyA11yPatches);
+else applyA11yPatches();
+
+// M4 · Customer name autocomplete — shared datalist
+function refreshCustomerNamesDatalist() {
+  let dl = document.getElementById('customer-names-list');
+  if (!dl) {
+    dl = document.createElement('datalist');
+    dl.id = 'customer-names-list';
+    document.body.appendChild(dl);
+  }
+  dl.innerHTML = '';
+  Object.keys(CUSTOMER_INFO || {}).sort().forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    const info = CUSTOMER_INFO[name];
+    if (info && (info.nickname || info.phone)) {
+      const bits = [info.nickname, info.phone].filter(Boolean).join(' · ');
+      if (bits) opt.label = bits;
+    }
+    dl.appendChild(opt);
+  });
+}
+
+// M4 · Trigger autofill immediately when typed value matches existing customer name
+function onCustomerNameInput(inputEl, ctx) {
+  if (!inputEl) return;
+  const typed = (inputEl.value || '').trim();
+  if (!typed) return;
+  if (CUSTOMER_INFO && CUSTOMER_INFO[typed]) {
+    if (ctx === 'add' && typeof autofillCustomerOnBlur === 'function') autofillCustomerOnBlur();
+    else if (ctx === 'nq' && typeof onNQCustomerBlur === 'function') onNQCustomerBlur(typed);
+  }
+}
+
+// Refresh datalist whenever data loads or changes
+(function hookDatalistRefresh() {
+  const refresh = () => { try { refreshCustomerNamesDatalist(); } catch(e) {} };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', refresh);
+  } else {
+    refresh();
+  }
+  // Patch saveData to refresh datalist on every save (cheap — just key list)
+  if (typeof saveData === 'function') {
+    const _origSave = saveData;
+    window.saveData = function () { const r = _origSave.apply(this, arguments); refresh(); return r; };
+  }
+})();
 </script>
 </body>
 </html>
