@@ -2651,68 +2651,65 @@
   }
   body.dark-theme #whatsnew-modal .wn-footer-note { color: #807870; }
 
-  /* v1.9.14 · "กำหนดรายละเอียดเอง" — custom items card */
+  /* v1.9.15 · "กำหนดรายละเอียดเอง" — match standard settings-section look */
   .custom-items-section {
-    margin: 0 16px 16px;
-    padding: 0;
-    background: rgba(254, 243, 235, 0.7);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 0.5px solid rgba(216, 112, 74, 0.18);
-    border-radius: 14px;
-    box-shadow: inset 0 1px 1px rgba(255,255,255,.6), 0 2px 10px rgba(216,112,74,0.06);
-    overflow: hidden;
-  }
-  body.dark-theme .custom-items-section {
-    background: rgba(74, 46, 28, 0.45);
-    border-color: rgba(216, 112, 74, 0.25);
+    /* uses .settings-section glass styling — no override here */
+    padding: 14px;
   }
   .custom-items-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
+    justify-content: space-between;
+    gap: 8px;
     cursor: pointer;
     user-select: none;
+    padding: 0;
   }
-  .custom-items-header .icon-bubble {
-    flex-shrink: 0;
-    width: 34px; height: 34px;
-    background: linear-gradient(135deg, #f4a36a, #d8704a);
-    color: #fff;
-    border-radius: 9px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
+  .custom-items-header .title-wrap {
+    flex: 1;
+    min-width: 0;
   }
-  .custom-items-header .info { flex: 1; min-width: 0; }
-  .custom-items-header .title {
-    font-size: 13.5px;
-    font-weight: 700;
-    color: #3a2f25;
-  }
-  body.dark-theme .custom-items-header .title { color: #f5f0e8; }
-  .custom-items-header .subtitle {
+  .custom-items-header .sec-title-inline {
     font-size: 11px;
-    color: #7c2d12;
-    margin-top: 1px;
-    opacity: 0.8;
+    color: #7c7066;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    font-weight: 600;
+    margin-bottom: 4px;
   }
-  body.dark-theme .custom-items-header .subtitle { color: #fbcaa6; }
+  body.dark-theme .custom-items-header .sec-title-inline { color: #a89a8c; }
+  .custom-items-header .subtitle {
+    font-size: 11.5px;
+    color: #a89a8c;
+    line-height: 1.4;
+  }
+  body.dark-theme .custom-items-header .subtitle { color: #8a8275; }
   .custom-items-header .arrow {
-    font-size: 14px;
-    color: #d8704a;
+    font-size: 13px;
+    color: #7c7066;
     transition: transform .2s ease;
     flex-shrink: 0;
+    padding: 4px 6px;
   }
+  body.dark-theme .custom-items-header .arrow { color: #b8b0a4; }
   .custom-items-section.open .custom-items-header .arrow { transform: rotate(180deg); }
   .custom-items-body {
-    padding: 0 14px 14px;
+    margin-top: 12px;
     display: none;
   }
   .custom-items-section.open .custom-items-body { display: block; }
   .custom-item-row {
+    margin-bottom: 12px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 0.5px solid rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+  }
+  body.dark-theme .custom-item-row {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+  .custom-item-row .row-line {
     display: grid;
     grid-template-columns: 1fr 100px 34px;
     gap: 8px;
@@ -2720,72 +2717,87 @@
     margin-bottom: 8px;
   }
   .custom-item-row input[type="text"],
-  .custom-item-row input[type="number"] {
+  .custom-item-row input[type="number"],
+  .custom-item-row textarea {
     width: 100%;
     padding: 9px 11px;
-    border: 0.5px solid rgba(216, 112, 74, 0.25);
-    border-radius: 9px;
-    background: rgba(255,255,255,0.7);
+    border: 0.5px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.85);
     font-size: 13px;
     font-family: inherit;
     color: #3a2f25;
     outline: none;
     box-sizing: border-box;
+    resize: vertical;
   }
-  body.dark-theme .custom-item-row input {
-    background: rgba(58, 47, 37, 0.6);
+  body.dark-theme .custom-item-row input,
+  body.dark-theme .custom-item-row textarea {
+    background: rgba(40, 32, 24, 0.7);
     color: #f5f0e8;
-    border-color: rgba(216, 112, 74, 0.3);
+    border-color: rgba(255, 255, 255, 0.1);
   }
-  .custom-item-row input:focus { border-color: #d8704a; }
+  .custom-item-row input:focus,
+  .custom-item-row textarea:focus { border-color: #d8704a; }
   .custom-item-row .price-input { text-align: right; }
+  .custom-item-row .desc-input {
+    font-size: 12px;
+    color: #7c7066;
+  }
+  body.dark-theme .custom-item-row .desc-input { color: #b8b0a4; }
   .custom-item-row .remove-btn {
     width: 34px; height: 34px;
-    background: rgba(220, 38, 38, 0.08);
+    background: rgba(220, 38, 38, 0.06);
     color: #dc2626;
     border: none;
-    border-radius: 9px;
-    font-size: 16px;
+    border-radius: 8px;
+    font-size: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
   }
-  .custom-item-row .remove-btn:active { background: rgba(220, 38, 38, 0.18); }
+  .custom-item-row .remove-btn:active { background: rgba(220, 38, 38, 0.16); }
   .custom-add-btn {
     width: 100%;
     background: transparent;
-    color: #d8704a;
-    border: 1px dashed rgba(216, 112, 74, 0.45);
+    color: #7c7066;
+    border: 1px dashed rgba(0, 0, 0, 0.18);
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 9px;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
     font-family: inherit;
     margin-top: 2px;
   }
-  .custom-add-btn:active { background: rgba(216, 112, 74, 0.06); }
+  body.dark-theme .custom-add-btn {
+    color: #b8b0a4;
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  .custom-add-btn:active { background: rgba(0, 0, 0, 0.03); }
   .custom-empty-hint {
     text-align: center;
     color: #a89a8c;
     font-size: 12px;
-    padding: 12px 0 10px;
+    padding: 8px 0 10px;
   }
   body.dark-theme .custom-empty-hint { color: #8a8275; }
   .custom-summary-line {
     margin-top: 10px;
     padding-top: 10px;
-    border-top: 0.5px dashed rgba(216, 112, 74, 0.25);
+    border-top: 0.5px dashed rgba(0, 0, 0, 0.08);
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 12.5px;
   }
+  body.dark-theme .custom-summary-line { border-top-color: rgba(255, 255, 255, 0.08); }
   .custom-summary-line .lbl { color: #7c7066; }
-  .custom-summary-line .val { color: #d8704a; font-weight: 700; }
+  .custom-summary-line .val { color: #3a2f25; font-weight: 700; }
   body.dark-theme .custom-summary-line .lbl { color: #b8b0a4; }
+  body.dark-theme .custom-summary-line .val { color: #f5f0e8; }
 </style>
 </head>
 <body>
@@ -3588,11 +3600,10 @@
       </div>
 
       <!-- v1.9.14 · กำหนดรายละเอียดเอง (Custom items) — pinned above main packages -->
-      <div class="custom-items-section" id="add-custom-section">
+      <div class="settings-section custom-items-section" id="add-custom-section">
         <div class="custom-items-header" onclick="toggleCustomItems('add')">
-          <div class="icon-bubble">📝</div>
-          <div class="info">
-            <div class="title">กำหนดรายละเอียดเอง</div>
+          <div class="title-wrap">
+            <div class="sec-title-inline">📝 กำหนดรายละเอียดเอง</div>
             <div class="subtitle">งานนอกแพคเกจหลัก · ตั้งราคา-บริการเอง</div>
           </div>
           <div class="arrow">▾</div>
@@ -4233,11 +4244,10 @@
       </div>
 
       <!-- v1.9.14 · กำหนดรายละเอียดเอง (Custom items) — pinned above main packages -->
-      <div class="custom-items-section" id="nq-custom-section">
+      <div class="settings-section custom-items-section" id="nq-custom-section">
         <div class="custom-items-header" onclick="toggleCustomItems('nq')">
-          <div class="icon-bubble">📝</div>
-          <div class="info">
-            <div class="title">กำหนดรายละเอียดเอง</div>
+          <div class="title-wrap">
+            <div class="sec-title-inline">📝 กำหนดรายละเอียดเอง</div>
             <div class="subtitle">งานนอกแพคเกจหลัก · ตั้งราคา-บริการเอง</div>
           </div>
           <div class="arrow">▾</div>
@@ -5760,12 +5770,29 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.14';
+const PIXORY_VERSION = '1.9.15';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.15': {
+    date: '2026-05-23',
+    title: 'ปรับ "กำหนดรายละเอียดเอง" · เพิ่มช่องรายละเอียด',
+    subtitle: 'อธิบายงานแต่ละรายการได้ละเอียดขึ้น · ดีไซน์กลืนกับ section อื่น',
+    items: [
+      {
+        icon: '📝',
+        title: 'เพิ่มช่อง "รายละเอียด" ของแต่ละรายการ',
+        desc: 'นอกจากชื่อบริการ + ราคา · ตอนนี้พิมพ์รายละเอียดได้อีก 1 บรรทัด (เช่น "ถ่าย full HD · 2 ชม.") · จะแสดงใต้ชื่อรายการในใบเสนอ/ใบกำกับ ให้ลูกค้าเห็นชัดเจน'
+      },
+      {
+        icon: '🎨',
+        title: 'ปรับสีและสไตล์ให้กลืนกับ section อื่น',
+        desc: 'การ์ด "กำหนดรายละเอียดเอง" ใช้สไตล์เดียวกับการ์ดอื่น ๆ ในฟอร์ม · ไม่โดดเด่นเกินไป · มองภาพรวมแล้วเป็นระเบียบขึ้น'
+      }
+    ]
+  },
   '1.9.14': {
     date: '2026-05-23',
     title: 'ฟีเจอร์ใหม่ · กำหนดรายละเอียดเอง',
@@ -11345,10 +11372,10 @@ function collectAddFormData() {
   total += _customTotal('add');
   const extraTime = parseFloat(document.getElementById('addExtraTime').value) || 0;
   total += extraTime;  // ← Fix: include Extra time in total
-  // v1.9.14 · snapshot of custom items, drop empty rows
+  // v1.9.14 · snapshot of custom items, drop empty rows · v1.9.15 also persist desc
   const _addCustomSnapshot = _customGetState('add')
     .filter(c => (c.name && c.name.trim()) || (parseFloat(c.price) || 0) > 0)
-    .map(c => ({ id: c.id, name: String(c.name || '').trim(), price: parseFloat(c.price) || 0 }));
+    .map(c => ({ id: c.id, name: String(c.name || '').trim(), desc: String(c.desc || '').trim(), price: parseFloat(c.price) || 0 }));
   if (total === 0) { toast(t('toast.errSelectPackage')); return null; }
 
   const discount = parseFloat(document.getElementById('addDiscount').value) || 0;
@@ -11851,11 +11878,11 @@ function showQuoteScreen(data, source) {
       addItem(s.serviceName + ' · ' + s.packageName, desc, s.price);
     });
   }
-  // v1.9.14 · render custom items as separate line items
+  // v1.9.14 · render custom items as separate line items · v1.9.15 with desc
   if (Array.isArray(data.customItems)) {
     data.customItems.forEach(ci => {
       if (!ci || (parseFloat(ci.price) || 0) <= 0) return;
-      addItem(ci.name || 'งานพิเศษ', '', parseFloat(ci.price) || 0);
+      addItem(ci.name || 'งานพิเศษ', ci.desc || '', parseFloat(ci.price) || 0);
     });
   }
   if (data.qr) addItem(t('addon.qrBackdrop'), t('addon.qrBackdropDesc'), data.qr);
@@ -12310,7 +12337,7 @@ function populateJobTypeChipsForNQ() {
 
 // ========== v1.9.14 · "กำหนดรายละเอียดเอง" (Custom items) ==========
 // State: parallel arrays for two contexts — 'add' (new job) and 'nq' (new quote).
-// Each item: { id: string, name: string, price: number }
+// Each item: { id: string, name: string, desc: string, price: number }  // v1.9.15 · added desc
 let NQ_CUSTOM = [];
 let ADD_CUSTOM = [];
 let _customItemCounter = 0;
@@ -12341,7 +12368,8 @@ function toggleCustomItems(ctx) {
 function addCustomItem(ctx) {
   _customItemCounter++;
   const id = 'c' + Date.now() + '_' + _customItemCounter;
-  _customGetState(ctx).push({ id: id, name: '', price: 0 });
+  // v1.9.15 · include desc field
+  _customGetState(ctx).push({ id: id, name: '', desc: '', price: 0 });
   renderCustomList(ctx);
   // Make sure the section is open
   const sec = document.getElementById(ctx === 'add' ? 'add-custom-section' : 'nq-custom-section');
@@ -12368,7 +12396,9 @@ function updateCustomItem(ctx, id, field, raw) {
   const arr = _customGetState(ctx);
   for (let i = 0; i < arr.length; i++) {
     if (arr[i].id === id) {
+      // v1.9.15 · support desc field
       if (field === 'price') arr[i].price = parseFloat(raw) || 0;
+      else if (field === 'desc') arr[i].desc = String(raw || '');
       else arr[i].name = String(raw || '');
       break;
     }
@@ -12391,11 +12421,15 @@ function renderCustomList(ctx) {
     listEl.innerHTML = '<div class="custom-empty-hint">ยังไม่มีรายการ · กด "เพิ่มรายการ" ด้านล่าง</div>';
   } else {
     const escAttr = function (s) { return String(s || '').replace(/"/g, '&quot;'); };
+    // v1.9.15 · two-row layout per item: name+price+remove on top, desc below
     listEl.innerHTML = arr.map(function (it) {
       return '<div class="custom-item-row" data-id="' + it.id + '">'
-        + '<input type="text" placeholder="ชื่อรายการ (เช่น ช่างวิดีโอ)" value="' + escAttr(it.name) + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'name\', this.value)">'
-        + '<input type="number" class="price-input" min="0" placeholder="ราคา" value="' + (it.price || '') + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'price\', this.value)">'
-        + '<button type="button" class="remove-btn" aria-label="ลบรายการ" onclick="removeCustomItem(\'' + ctx + '\', \'' + it.id + '\')">✕</button>'
+        + '<div class="row-line">'
+        +   '<input type="text" placeholder="ชื่อรายการ (เช่น ช่างวิดีโอ)" value="' + escAttr(it.name) + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'name\', this.value)">'
+        +   '<input type="number" class="price-input" min="0" placeholder="ราคา" value="' + (it.price || '') + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'price\', this.value)">'
+        +   '<button type="button" class="remove-btn" aria-label="ลบรายการ" onclick="removeCustomItem(\'' + ctx + '\', \'' + it.id + '\')">✕</button>'
+        + '</div>'
+        + '<input type="text" class="desc-input" placeholder="รายละเอียด (ไม่บังคับ · เช่น ถ่าย full HD · 2 ชั่วโมง)" value="' + escAttr(it.desc) + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'desc\', this.value)">'
         + '</div>';
     }).join('');
   }
@@ -12416,11 +12450,13 @@ function resetCustomItems(ctx) {
 
 function loadCustomItems(ctx, items) {
   // Used by edit flow + convert-quote-to-job
+  // v1.9.15 · also load desc field
   const cleaned = (Array.isArray(items) ? items : []).map(function (it, i) {
     _customItemCounter++;
     return {
       id: it.id || ('c' + Date.now() + '_' + _customItemCounter + '_' + i),
       name: String(it.name || ''),
+      desc: String(it.desc || ''),
       price: parseFloat(it.price) || 0
     };
   });
@@ -12526,9 +12562,10 @@ function saveNewQuote(status) {
   total += extraTime;  // ← Fix: include Extra time in total
   const disc = parseFloat(document.getElementById('nq-discount').value) || 0;
   // v1.9.14 · drop empty custom rows before save (name blank AND price 0)
+  // v1.9.15 · also persist desc
   const _customSnapshot = _customGetState('nq')
     .filter(c => (c.name && c.name.trim()) || (parseFloat(c.price) || 0) > 0)
-    .map(c => ({ id: c.id, name: String(c.name || '').trim(), price: parseFloat(c.price) || 0 }));
+    .map(c => ({ id: c.id, name: String(c.name || '').trim(), desc: String(c.desc || '').trim(), price: parseFloat(c.price) || 0 }));
   if (total === 0) { toast(t('toast.errSelectPackage')); return; }
   // v1.9.11 · M6 fix — warn if discount > total (would silently set sell to 0)
   if (disc > total) {
@@ -12918,11 +12955,11 @@ function renderInvoicePDF(job) {
       addItem(s.serviceName + ' · ' + s.packageName, desc, s.price);
     });
   }
-  // v1.9.14 · render custom items as separate line items
+  // v1.9.14 · render custom items as separate line items · v1.9.15 with desc
   if (Array.isArray(job.customItems)) {
     job.customItems.forEach(ci => {
       if (!ci || (parseFloat(ci.price) || 0) <= 0) return;
-      addItem(ci.name || 'งานพิเศษ', '', parseFloat(ci.price) || 0);
+      addItem(ci.name || 'งานพิเศษ', ci.desc || '', parseFloat(ci.price) || 0);
     });
   }
   if (job.qr) addItem(t('addon.qrBackdrop'), t('addon.qrBackdropDesc'), job.qr);
