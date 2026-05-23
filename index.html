@@ -5683,7 +5683,7 @@
             <div class="pixory-tagline">Studio in your pocket</div>
           </div>
         </div>
-        <div style="text-align:center; font-size:11px; color:#a89a8c;" data-i18n="ab.version">เวอร์ชั่น 1.0.0 (Prototype)</div>
+        <div id="ab-version-line" style="text-align:center; font-size:11px; color:#a89a8c;">เวอร์ชั่น —</div>
       </div>
       <div class="settings-section">
         <div style="border-radius: 12px; overflow: hidden;">
@@ -5696,7 +5696,7 @@
           </div>
           <div class="settings-row">
             <div class="left"><div class="row-title" data-i18n="ab.contactAdmin">ติดต่อแอดมิน</div></div>
-            <div class="right" style="font-size:13px; color:#7c7066;">@srangpap</div>
+            <div class="right" style="font-size:13px; color:#7c7066;">LINE: rubjangsrangpap</div>
           </div>
           <div class="settings-row" onclick="showCurrentVersionNotes()">
             <div class="left"><div class="row-title" data-i18n="ab.releaseNotes">รายการพัฒนาเวอร์ชันนี้</div><div class="row-sub" data-i18n="ab.releaseNotesSub">ดูสิ่งที่เปลี่ยนแปลงล่าสุด</div></div>
@@ -6297,12 +6297,34 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.31';
+const PIXORY_VERSION = '1.9.32';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.32': {
+    date: '2026-05-23',
+    title: 'Hotfix · หน้าเกี่ยวกับแอป',
+    subtitle: 'เวอร์ชั่นโชว์ตามจริง · อัพเดท Line admin · ลบ build date ที่ค้าง',
+    items: [
+      {
+        icon: '🐛',
+        title: 'แก้บั๊ก · หน้าเกี่ยวกับแอปโชว์เวอร์ชั่นค้าง',
+        desc: 'รอบก่อน · เลข version ในหน้าเกี่ยวกับเป็นค่า hardcode ใน i18n (v1.9.10 · Build 2026-05-22) · ไม่อัพตามจริงถึง v1.9.31 · ตอนนี้อ่านจาก PIXORY_VERSION โดยตรง · เวอร์ชั่นใหม่จะแสดงทันที'
+      },
+      {
+        icon: '📞',
+        title: 'อัพเดทช่องทางติดต่อแอดมิน',
+        desc: 'เปลี่ยนจาก "@srangpap" → "LINE: rubjangsrangpap"'
+      },
+      {
+        icon: '🧹',
+        title: 'ลบ build date ที่ค้าง',
+        desc: 'รอบก่อน copyright line ระบุ "Build 2026-05-20 09:00 (พ.ศ. mode)" ซึ่งไม่ตรงกับเวอร์ชั่นจริง · ตอนนี้เหลือ "© 2026 · Pixory Prototype" ตรงๆ ไม่ค้างเวลา'
+      }
+    ]
+  },
   '1.9.31': {
     date: '2026-05-23',
     title: 'ต้นทุนงาน · 3 ช่อง · ลงหมวดอัตโนมัติ',
@@ -9357,7 +9379,8 @@ const I18N = {
   // ===== ABOUT PAGE =====
   'ab.appName':         { th: 'Pixory', en: 'Pixory' },
   'ab.appTagline':      { th: 'Studio in your pocket', en: 'Studio in your pocket' },
-  'ab.version':         { th: 'v1.9.10 · Build 2026-05-22 · Cancel/Save Back Fix', en: 'v1.9.10 · Build 2026-05-22 · Cancel/Save Back Fix' },
+  'ab.version':         { th: 'เวอร์ชั่น', en: 'Version' },
+  'ab.versionLabel':    { th: 'เวอร์ชั่น', en: 'Version' },
   'ab.releaseNotes':    { th: 'รายการพัฒนาเวอร์ชันนี้', en: 'What\'s new in this version' },
   'ab.releaseNotesSub': { th: 'ดูสิ่งที่เปลี่ยนแปลงล่าสุด', en: 'See latest changes' },
   'ab.versionTag':      { th: 'v1.0 — Research Preview', en: 'v1.0 — Research Preview' },
@@ -9367,7 +9390,7 @@ const I18N = {
   'ab.systemSub':       { th: 'Wedding · Event · Portrait · Pre-wedding', en: 'Wedding · Event · Portrait · Pre-wedding' },
   'ab.developer':       { th: 'ผู้พัฒนา', en: 'Developer' },
   'ab.contactAdmin':    { th: 'ติดต่อแอดมิน', en: 'Contact admin' },
-  'ab.copyright':       { th: '© 2026 · Pixory Prototype · Build 2026-05-20 09:00 (พ.ศ. mode)', en: '© 2026 · Pixory Prototype · Build 2026-05-20 09:00 (BE mode)' },
+  'ab.copyright':       { th: '© 2026 · Pixory Prototype', en: '© 2026 · Pixory Prototype' },
 
   // ===== WALLPAPER =====
   'wp.title':           { th: '🖼 พื้นหลังแอป', en: '🖼 App Wallpaper' },
@@ -9503,6 +9526,11 @@ function applyLang(lang) {
   // Update Language settings sub-label
   const langSub = document.getElementById('lang-sub');
   if (langSub) langSub.textContent = LANG === 'en' ? 'English' : 'ไทย';
+  // v1.9.32 · About page version line · always reflect current PIXORY_VERSION
+  const _abVer = document.getElementById('ab-version-line');
+  if (_abVer && typeof PIXORY_VERSION !== 'undefined') {
+    _abVer.textContent = t('ab.versionLabel') + ' ' + PIXORY_VERSION;
+  }
   // Update font-size sample text (uses '\n' which doesn't transfer via data-i18n textContent on innerHTML)
   const fsSample = document.getElementById('fs-sample');
   if (fsSample) fsSample.innerHTML = t('fs.sampleLine').replace(/\n/g, '<br>');
