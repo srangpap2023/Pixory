@@ -6297,12 +6297,39 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.33';
+const PIXORY_VERSION = '1.9.34';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.34': {
+    date: '2026-05-23',
+    title: 'Admin Dashboard · admin.html',
+    subtitle: 'หน้ามอนิเตอร์ผู้ใช้ realtime · last seen · app version · usage stats',
+    items: [
+      {
+        icon: '🛡',
+        title: 'admin.html · หน้าใหม่แยกจากแอพ',
+        desc: 'URL: /admin.html · login ด้วย email admin (srangpap2023@gmail.com) · เห็น list ผู้ใช้ทั้งหมด · last seen (กี่นาทีที่แล้ว) · app version (highlight ถ้าเก่า) · จำนวนงาน/ใบเสนอ/ลูกค้า · device count · auto-refresh ทุก 30 วินาที'
+      },
+      {
+        icon: '📊',
+        title: '_meta เพิ่ม app_version + email',
+        desc: 'ทุกครั้งที่ sync ขึ้น cloud · ฝัง PIXORY_VERSION + email ลง _meta blob · admin จะเห็นว่าใครยังไม่อัพ + รู้ว่า user_id ไหน = email ใคร'
+      },
+      {
+        icon: '🔐',
+        title: 'Security ผ่าน RLS · ไม่ใช่ client check',
+        desc: 'ใครเปิด /admin.html ก็เห็นหน้า login · แต่จะอ่านข้อมูลได้เฉพาะ email ที่ตั้งใน Supabase RLS policy เท่านั้น · ป้องกัน leak ตั้งแต่ database level · ดู setup guide ที่ business/admin_setup_guide.md'
+      },
+      {
+        icon: '👁',
+        title: 'เห็นแค่ aggregate · ไม่เห็นรายละเอียด',
+        desc: 'แสดงเฉพาะ counts (จำนวนงาน · จำนวนลูกค้า ฯลฯ) · ไม่แสดงชื่อลูกค้า · ราคา · เบอร์ · ข้อมูลธุรกิจรายละเอียด · เคารพ privacy ผู้ใช้'
+      }
+    ]
+  },
   '1.9.33': {
     date: '2026-05-23',
     title: 'Hotfix · ปฏิทิน · swipe เลื่อนเดือนกลับมา',
@@ -8062,8 +8089,14 @@ async function pushToCloud(opts) {
       }
     }
     const now = new Date().toISOString();
-    // Stamp metadata
-    blob._meta = { updated_at: now, device_id: DEVICE_ID, version: localVersion + 1 };
+    // Stamp metadata · v1.9.34 also include app_version + email for admin dashboard
+    blob._meta = {
+      updated_at: now,
+      device_id: DEVICE_ID,
+      version: localVersion + 1,
+      app_version: (typeof PIXORY_VERSION !== 'undefined') ? PIXORY_VERSION : null,
+      email: (CURRENT_USER && CURRENT_USER.email) ? CURRENT_USER.email : null
+    };
     // Save stamped back to localStorage
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(blob)); } catch(e) {}
     const { error } = await SUPABASE
@@ -8470,7 +8503,9 @@ async function resetTransactionData() {
       updated_at: new Date().toISOString(),
       device_id: (typeof DEVICE_ID !== 'undefined' ? DEVICE_ID : 'reset_txn'),
       version: ((d._meta && d._meta.version) || 0) + 1000,
-      source: 'reset_transaction'
+      source: 'reset_transaction',
+      app_version: (typeof PIXORY_VERSION !== 'undefined') ? PIXORY_VERSION : null,
+      email: (CURRENT_USER && CURRENT_USER.email) ? CURRENT_USER.email : null
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
 
