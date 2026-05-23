@@ -2638,6 +2638,55 @@
   }
   body.dark-theme #whatsnew-modal .wn-footer-note { color: #807870; }
 
+  /* v1.9.24 · Inline tax fields block (B2B/Gov) */
+  .tax-fields-inline {
+    display: none;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 11px;
+    background: rgba(216,112,74,0.06);
+    border: 0.5px solid rgba(216,112,74,0.2);
+  }
+  .tax-fields-inline.gov {
+    background: rgba(29,158,117,0.06);
+    border-color: rgba(29,158,117,0.2);
+  }
+  body.dark-theme .tax-fields-inline {
+    background: rgba(216,112,74,0.12);
+    border-color: rgba(216,112,74,0.3);
+  }
+  body.dark-theme .tax-fields-inline.gov {
+    background: rgba(29,158,117,0.12);
+    border-color: rgba(29,158,117,0.3);
+  }
+  .tax-fields-inline .tf-title {
+    font-size: 10.5px;
+    color: #d8704a;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+  .tax-fields-inline.gov .tf-title { color: #0f6e56; }
+  body.dark-theme .tax-fields-inline .tf-title { color: #f4a36a; }
+  body.dark-theme .tax-fields-inline.gov .tf-title { color: #6ee7b7; }
+  .tax-fields-inline .form-group { margin: 0 0 8px !important; }
+  .tax-fields-inline .form-group:last-child { margin-bottom: 0 !important; }
+  .tax-fields-inline .tf-warn {
+    background: #fef3c7;
+    border-left: 2.5px solid #f59e0b;
+    padding: 6px 10px;
+    border-radius: 0 6px 6px 0;
+    font-size: 11px;
+    color: #92400e;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  body.dark-theme .tax-fields-inline .tf-warn {
+    background: rgba(245,158,11,0.18);
+    color: #fde68a;
+  }
+
   /* v1.9.22 · แพคเกจหลัก dropdown rows */
   .pkg-dd-row {
     background: rgba(255,255,255,0.7);
@@ -3846,6 +3895,48 @@
             </div>
             <div class="cw-cta" data-i18n="ctype.fillNow">กรอกเลย</div>
           </div>
+
+          <!-- v1.9.24 · Inline B2B/Gov tax fields (auto-show when type = B2B or Gov) -->
+          <div class="tax-fields-inline" id="add-tax-fields-inline">
+            <div class="tf-title" id="add-tf-title">🧾 ข้อมูลภาษี · จำเป็นสำหรับใบกำกับ</div>
+            <div class="tf-warn" id="add-tf-warn" style="display:none;">⚠️ ยังไม่ได้กรอกเลขผู้เสียภาษี + ชื่อบริษัท · ยังบันทึกได้แต่ใบเสนอจะออกแบบไม่มีภาษี</div>
+            <div class="form-group">
+              <label>ชื่อบริษัท / หน่วยงาน</label>
+              <input type="text" id="add-tf-company" oninput="onAddTaxFieldChange()" placeholder="บจก. ABC ประเทศไทย">
+            </div>
+            <div class="form-group">
+              <label>เลขผู้เสียภาษี 13 หลัก</label>
+              <input type="text" id="add-tf-taxid" inputmode="numeric" maxlength="13" oninput="onAddTaxFieldChange()" placeholder="1234567890123">
+            </div>
+            <div class="form-group">
+              <label>สาขา</label>
+              <input type="text" id="add-tf-branch" oninput="onAddTaxFieldChange()" placeholder="สำนักงานใหญ่ หรือ 00001">
+            </div>
+            <div class="form-group">
+              <label>ที่อยู่จดทะเบียน (สำหรับใบกำกับ)</label>
+              <textarea id="add-tf-address" rows="2" oninput="onAddTaxFieldChange()" placeholder="เลขที่ ... ถนน ... แขวง ... เขต ... จังหวัด ... รหัสไปรษณีย์"></textarea>
+            </div>
+            <!-- Contact person + email -->
+            <div style="display:flex; gap:6px;">
+              <div class="form-group" style="flex:1;">
+                <label>ผู้ติดต่อ (ชื่อจริง)</label>
+                <input type="text" id="add-tf-contact" oninput="onAddTaxFieldChange()" placeholder="คุณ A">
+              </div>
+              <div class="form-group" style="flex:1;">
+                <label>ตำแหน่ง</label>
+                <input type="text" id="add-tf-position" oninput="onAddTaxFieldChange()" placeholder="ผู้จัดการฯ">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>✉️ อีเมล (สำหรับส่งใบเสร็จ)</label>
+              <input type="email" id="add-tf-email" oninput="onAddTaxFieldChange()" placeholder="contact@abc.com">
+            </div>
+            <!-- Gov-only field -->
+            <div class="form-group" id="add-tf-po-row" style="display:none;">
+              <label>📋 PO Number / เลขที่ใบสั่งซื้อ</label>
+              <input type="text" id="add-tf-po" oninput="onAddTaxFieldChange()" placeholder="PO-2569-XXXXX">
+            </div>
+          </div>
         </div>
         <div style="display:flex; gap:8px; margin: 0 0 10px;">
           <div class="form-group" style="margin:0; flex:1;">
@@ -4502,6 +4593,46 @@
               <div class="cw-sub" data-i18n="ctype.warnDetail">B2B / ราชการ ต้องมีเลข 13 หลัก + ชื่อบริษัทเพื่อออกใบกำกับ</div>
             </div>
             <div class="cw-cta" data-i18n="ctype.fillNow">กรอกเลย</div>
+          </div>
+
+          <!-- v1.9.24 · Inline B2B/Gov tax fields -->
+          <div class="tax-fields-inline" id="nq-tax-fields-inline">
+            <div class="tf-title" id="nq-tf-title">🧾 ข้อมูลภาษี · จำเป็นสำหรับใบกำกับ</div>
+            <div class="tf-warn" id="nq-tf-warn" style="display:none;">⚠️ ยังไม่ได้กรอกเลขผู้เสียภาษี + ชื่อบริษัท · ยังบันทึกได้แต่ใบเสนอจะออกแบบไม่มีภาษี</div>
+            <div class="form-group">
+              <label>ชื่อบริษัท / หน่วยงาน</label>
+              <input type="text" id="nq-tf-company" oninput="onNQTaxFieldChange()" placeholder="บจก. ABC ประเทศไทย">
+            </div>
+            <div class="form-group">
+              <label>เลขผู้เสียภาษี 13 หลัก</label>
+              <input type="text" id="nq-tf-taxid" inputmode="numeric" maxlength="13" oninput="onNQTaxFieldChange()" placeholder="1234567890123">
+            </div>
+            <div class="form-group">
+              <label>สาขา</label>
+              <input type="text" id="nq-tf-branch" oninput="onNQTaxFieldChange()" placeholder="สำนักงานใหญ่ หรือ 00001">
+            </div>
+            <div class="form-group">
+              <label>ที่อยู่จดทะเบียน (สำหรับใบกำกับ)</label>
+              <textarea id="nq-tf-address" rows="2" oninput="onNQTaxFieldChange()" placeholder="เลขที่ ... ถนน ... แขวง ... เขต ... จังหวัด ... รหัสไปรษณีย์"></textarea>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <div class="form-group" style="flex:1;">
+                <label>ผู้ติดต่อ (ชื่อจริง)</label>
+                <input type="text" id="nq-tf-contact" oninput="onNQTaxFieldChange()" placeholder="คุณ A">
+              </div>
+              <div class="form-group" style="flex:1;">
+                <label>ตำแหน่ง</label>
+                <input type="text" id="nq-tf-position" oninput="onNQTaxFieldChange()" placeholder="ผู้จัดการฯ">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>✉️ อีเมล (สำหรับส่งใบเสร็จ)</label>
+              <input type="email" id="nq-tf-email" oninput="onNQTaxFieldChange()" placeholder="contact@abc.com">
+            </div>
+            <div class="form-group" id="nq-tf-po-row" style="display:none;">
+              <label>📋 PO Number / เลขที่ใบสั่งซื้อ</label>
+              <input type="text" id="nq-tf-po" oninput="onNQTaxFieldChange()" placeholder="PO-2569-XXXXX">
+            </div>
           </div>
         </div>
         <div class="form-row" style="margin-bottom: 10px;">
@@ -6074,12 +6205,71 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.22';
+const PIXORY_VERSION = '1.9.24';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.24': {
+    date: '2026-05-23',
+    title: 'B2B / Gov · ฟิลด์ข้อมูลภาษีในฟอร์ม',
+    subtitle: 'เลือก B2B/Gov → ขยายฟิลด์ทันที · บันทึก master · auto-fill ครั้งหน้า',
+    items: [
+      {
+        icon: '🏢',
+        title: 'เลือก B2B → ฟิลด์ภาษีขึ้นทันที',
+        desc: 'ในหน้าสร้างงาน + ใบเสนอ · เลือกประเภท "บริษัท" → ขยายฟิลด์ inline: ชื่อบริษัท · เลขผู้เสียภาษี 13 หลัก · สาขา · ที่อยู่จดทะเบียน · ผู้ติดต่อ · ตำแหน่ง · อีเมล'
+      },
+      {
+        icon: '🏛',
+        title: 'Gov · เพิ่ม PO Number',
+        desc: 'เลือกประเภท "ราชการ" → ฟิลด์เหมือน B2B + เพิ่มช่อง "📋 PO Number / เลขที่ใบสั่งซื้อ"'
+      },
+      {
+        icon: '💾',
+        title: 'บันทึกที่ Master · Auto-fill ครั้งหน้า',
+        desc: 'ทุกฟิลด์บันทึกใน CUSTOMER_INFO ของลูกค้า · ครั้งต่อไปพิมพ์ชื่อลูกค้าเดิม ระบบเติมข้อมูลให้อัตโนมัติ · ไม่ต้องกรอกซ้ำ'
+      },
+      {
+        icon: '⚠️',
+        title: 'เตือนแต่ไม่บล็อก',
+        desc: 'ถ้ายังไม่กรอกเลขผู้เสียภาษี + ชื่อบริษัท · ขึ้น banner เหลืองเตือน · แต่ยังบันทึกได้ · ใบเสนอจะออกแบบไม่มีภาษีให้'
+      },
+      {
+        icon: '⏳',
+        title: 'รอบหน้า · PDF Templates',
+        desc: 'ตอนนี้ฟอร์มเก็บข้อมูลครบแล้ว · v1.9.25 จะมาทำ 3 PDF templates (B2C เดิม · B2B serious + 2 signatures · Gov + PO + 3 signatures) + A4 auto-scale'
+      }
+    ]
+  },
+  '1.9.23': {
+    date: '2026-05-23',
+    title: 'Hotfix + Polish · 4 จุด',
+    subtitle: 'แก้บั๊กเด้งกลับหน้าหลัก · ย้ายการ์ดภาษีลงล่าง · แก้คำแนะนำค่าใช้จ่าย',
+    items: [
+      {
+        icon: '🐛',
+        title: 'แก้บั๊ก "เลือกประเภทลูกค้าแล้วเด้งหน้าหลัก"',
+        desc: 'ตอนแก้ tax section ก่อนหน้านี้ผมลบ section ค่าใช้จ่าย + หมายเหตุ ทิ้งโดยไม่ตั้งใจ · ทำให้ openNewJob() throw error · ไม่ไปหน้า add ค้างที่ home · ตอนนี้ restore section ครบแล้ว · ทำงานปกติ'
+      },
+      {
+        icon: '🧾',
+        title: 'ย้ายการ์ด "สถานะการยื่นภาษี" ไปท้ายสุด',
+        desc: 'หน้า Job Detail · เดิมอยู่กลาง · ตอนนี้อยู่ใต้ "กำไรขาดทุน" · ลำดับใหม่: ข้อมูลงาน → ภาษี breakdown → เวลาทำงาน → ทีม·สถานที่ → กำไรขาดทุน → สถานะการยื่นภาษี'
+      },
+      {
+        icon: '💡',
+        title: 'เปลี่ยนคำแนะนำในการ์ดค่าใช้จ่าย',
+        desc: 'เดิม "ยังไม่มีรายการ · กดเพิ่มด้านล่าง" → ใหม่ "ค่าใช้จ่ายเกี่ยวกับงานอื่น ๆ · เช่น ค่าที่พัก / ค่าเดินทาง" · ช่วยให้ผู้ใช้รู้ทันทีว่าควรกรอกอะไร'
+      },
+      {
+        icon: '📋',
+        title: 'แก้ HTML structure (orphan div · 2 รอบ)',
+        desc: 'รอบแรก: Layout C rollback ทิ้ง closing </div> ค้าง · รอบสอง: Python regex สลับ tax block ลบมากเกิน · ทั้งคู่ทำให้หน้างานพังเป็น column แคบ · ตอนนี้ตรวจ div balance หลังแก้ทุกครั้ง'
+      }
+    ]
+  },
   '1.9.22': {
     date: '2026-05-23',
     title: 'Feature · Dropdown แพคเกจหลัก + ภาษีย้ายลงล่าง',
@@ -8033,7 +8223,7 @@ const I18N = {
   'cost.namePh':         { th: 'ชื่อรายการ (เช่น ค่าเดินทาง)', en: 'Item name (e.g. Travel)' },
   'cost.descPh':         { th: 'รายละเอียด (ไม่บังคับ · เช่น กรุงเทพ-เชียงใหม่)', en: 'Details (optional · e.g. BKK-CNX)' },
   'cost.subtotal':       { th: 'รวมค่าใช้จ่าย', en: 'Total expenses' },
-  'cost.empty':          { th: 'ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง', en: 'No items yet · tap "+ Add item" below' },
+  'cost.empty':          { th: 'ค่าใช้จ่ายเกี่ยวกับงานอื่น ๆ · เช่น ค่าที่พัก / ค่าเดินทาง', en: 'Other job-related costs · e.g. travel / lodging' },
   'final.title':         { th: '💎 ราคาสุทธิ', en: '💎 Net Price' },
   'final.subtotal':      { th: 'รวมก่อนส่วนลด', en: 'Subtotal' },
   'final.discount':      { th: 'ส่วนลด', en: 'Discount' },
@@ -11764,6 +11954,8 @@ function openNewJob() {
   // Tax T4 — reset inline pill + warning
   if (typeof renderFormCustomerTypePill === 'function') renderFormCustomerTypePill('add', '');
   if (typeof refreshCustTaxIdWarning === 'function') refreshCustTaxIdWarning('add');
+  // v1.9.24 · reset inline tax fields
+  if (typeof resetTaxFieldsInline === 'function') resetTaxFieldsInline('add');
   goTo('add');
 }
 
@@ -11875,6 +12067,12 @@ function editCurrentJob() {
     const _cType = j.customerType || _cInfo.type || '';
     if (typeof renderFormCustomerTypePill === 'function') renderFormCustomerTypePill('add', _cType);
     if (typeof refreshCustTaxIdWarning === 'function') refreshCustTaxIdWarning('add');
+    // v1.9.24 · restore inline tax fields if B2B/Gov
+    if (typeof resetTaxFieldsInline === 'function') resetTaxFieldsInline('add');
+    if ((_cType === 'B2B' || _cType === 'Gov') && typeof applyTaxFieldsVisibility === 'function') {
+      applyTaxFieldsVisibility('add', _cType);
+      if (typeof populateTaxFieldsFromMaster === 'function') populateTaxFieldsFromMaster('add', j.customer);
+    }
   }
   goTo('add');
 }
@@ -11901,6 +12099,11 @@ function autofillCustomerOnBlur() {
   if (nick && !nick.value && info.nickname) nick.value = info.nickname;
   if (phone && !phone.value && info.phone) phone.value = info.phone;
   if (line && !line.value && info.line) line.value = info.line;
+  // v1.9.24 · also autofill tax fields if customer is B2B/Gov
+  if ((info.type === 'B2B' || info.type === 'Gov') && typeof populateTaxFieldsFromMaster === 'function') {
+    if (typeof applyTaxFieldsVisibility === 'function') applyTaxFieldsVisibility('add', info.type);
+    populateTaxFieldsFromMaster('add', name);
+  }
   if ((info.nickname || info.phone || info.line)) toast('เติมข้อมูลลูกค้าเดิมให้แล้ว');
 }
 
@@ -12826,6 +13029,8 @@ function openNewQuote() {
   // Tax T4 — reset inline pill + warning
   if (typeof renderFormCustomerTypePill === 'function') renderFormCustomerTypePill('nq', '');
   if (typeof refreshCustTaxIdWarning === 'function') refreshCustTaxIdWarning('nq');
+  // v1.9.24 · reset inline tax fields
+  if (typeof resetTaxFieldsInline === 'function') resetTaxFieldsInline('nq');
   goTo('quote-new');
 }
 
@@ -12891,6 +13096,12 @@ function editCurrentQuote() {
     const _cType = q.customerType || _cInfo.type || '';
     if (typeof renderFormCustomerTypePill === 'function') renderFormCustomerTypePill('nq', _cType);
     if (typeof refreshCustTaxIdWarning === 'function') refreshCustTaxIdWarning('nq');
+    // v1.9.24 · restore inline tax fields if B2B/Gov
+    if (typeof resetTaxFieldsInline === 'function') resetTaxFieldsInline('nq');
+    if ((_cType === 'B2B' || _cType === 'Gov') && typeof applyTaxFieldsVisibility === 'function') {
+      applyTaxFieldsVisibility('nq', _cType);
+      if (typeof populateTaxFieldsFromMaster === 'function') populateTaxFieldsFromMaster('nq', q.customer);
+    }
   }
   goTo('quote-new');
 }
@@ -13153,6 +13364,106 @@ function loadCustomItems(ctx, items) {
     if (cleaned.length > 0) sec.classList.add('open');
     else sec.classList.remove('open');
   }
+}
+
+// ========== v1.9.24 · Inline tax fields for B2B/Gov ==========
+// Show/hide + populate + save back to CUSTOMER_INFO master
+function _txFieldIds(ctx) {
+  const p = ctx + '-tf-';
+  return {
+    block: ctx + '-tax-fields-inline',
+    title: ctx + '-tf-title',
+    warn:  ctx + '-tf-warn',
+    company: p + 'company',
+    taxid:   p + 'taxid',
+    branch:  p + 'branch',
+    address: p + 'address',
+    contact: p + 'contact',
+    position:p + 'position',
+    email:   p + 'email',
+    po:      p + 'po',
+    poRow:   p + 'po-row',
+  };
+}
+
+// Show/hide inline tax fields based on customer type
+function applyTaxFieldsVisibility(ctx, code) {
+  const ids = _txFieldIds(ctx);
+  const block = document.getElementById(ids.block);
+  if (!block) return;
+  if (code === 'B2B' || code === 'Gov') {
+    block.style.display = 'block';
+    block.classList.toggle('gov', code === 'Gov');
+    const ttl = document.getElementById(ids.title);
+    if (ttl) ttl.textContent = (code === 'Gov')
+      ? '🏛 ข้อมูลภาษี + จัดซื้อราชการ'
+      : '🧾 ข้อมูลภาษี · จำเป็นสำหรับใบกำกับ';
+    // Show PO row only for Gov
+    const poRow = document.getElementById(ids.poRow);
+    if (poRow) poRow.style.display = (code === 'Gov') ? '' : 'none';
+    // Update warning state
+    refreshTaxFieldsWarn(ctx);
+  } else {
+    block.style.display = 'none';
+  }
+}
+
+function refreshTaxFieldsWarn(ctx) {
+  const ids = _txFieldIds(ctx);
+  const warn = document.getElementById(ids.warn);
+  if (!warn) return;
+  const company = (document.getElementById(ids.company) || {}).value || '';
+  const taxid = (document.getElementById(ids.taxid) || {}).value || '';
+  const ok = company.trim() && taxid.replace(/\D/g, '').length === 13;
+  warn.style.display = ok ? 'none' : '';
+}
+
+// Populate inline fields from CUSTOMER_INFO master
+function populateTaxFieldsFromMaster(ctx, customerName) {
+  const ids = _txFieldIds(ctx);
+  const info = (customerName && CUSTOMER_INFO && CUSTOMER_INFO[customerName]) || {};
+  const setVal = (id, v) => { const e = document.getElementById(id); if (e) e.value = v || ''; };
+  setVal(ids.company,  info.companyName);
+  setVal(ids.taxid,    info.taxId);
+  setVal(ids.branch,   info.branch);
+  setVal(ids.address,  info.taxAddress);
+  setVal(ids.contact,  info.contactPerson);
+  setVal(ids.position, info.contactPosition);
+  setVal(ids.email,    info.email);
+  setVal(ids.po,       info.poNumber);
+  refreshTaxFieldsWarn(ctx);
+}
+
+// Save inline fields back to CUSTOMER_INFO master on every input
+function saveTaxFieldsToMaster(ctx) {
+  const ids = _txFieldIds(ctx);
+  const nameInput = document.getElementById(ctx === 'add' ? 'addCustomer' : 'nq-customer');
+  const name = nameInput ? (nameInput.value || '').trim() : '';
+  if (!name) return; // need a name to save under
+  if (!CUSTOMER_INFO[name]) CUSTOMER_INFO[name] = {};
+  const get = (id) => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  CUSTOMER_INFO[name].companyName     = get(ids.company);
+  CUSTOMER_INFO[name].taxId           = get(ids.taxid);
+  CUSTOMER_INFO[name].branch          = get(ids.branch);
+  CUSTOMER_INFO[name].taxAddress      = get(ids.address);
+  CUSTOMER_INFO[name].contactPerson   = get(ids.contact);
+  CUSTOMER_INFO[name].contactPosition = get(ids.position);
+  CUSTOMER_INFO[name].email           = get(ids.email);
+  CUSTOMER_INFO[name].poNumber        = get(ids.po);
+  if (typeof saveData === 'function') saveData();
+}
+
+function onAddTaxFieldChange() { saveTaxFieldsToMaster('add'); refreshTaxFieldsWarn('add'); }
+function onNQTaxFieldChange()  { saveTaxFieldsToMaster('nq');  refreshTaxFieldsWarn('nq'); }
+
+// Reset (clear visible + hide) — called on openNew*
+function resetTaxFieldsInline(ctx) {
+  const ids = _txFieldIds(ctx);
+  ['company','taxid','branch','address','contact','position','email','po'].forEach(k => {
+    const e = document.getElementById(ids[k]); if (e) e.value = '';
+  });
+  const block = document.getElementById(ids.block);
+  if (block) { block.style.display = 'none'; block.classList.remove('gov'); }
 }
 
 // ========== v1.9.22 · แพคเกจหลัก dropdown state + render ==========
@@ -15431,10 +15742,18 @@ function selectCustTypeInForm(code) {
   // Update warning
   refreshCustTaxIdWarning(ctx);
 
+  // v1.9.24 · Show/hide inline tax fields based on new type + pre-populate
+  if (typeof applyTaxFieldsVisibility === 'function') applyTaxFieldsVisibility(ctx, code);
+  if (typeof populateTaxFieldsFromMaster === 'function' && name) populateTaxFieldsFromMaster(ctx, name);
+
   closeCustTypeSheet();
   if (typeof toast === 'function') toast((typeof t === 'function') ? t('ctype.synced') : 'Saved');
 
-  // If B2B/Gov + name exists but no tax id → auto-prompt fill modal
+  // v1.9.24 · No more auto-prompt modal — fields are inline now, user can fill directly
+  // (skip the old openTaxFillSheet auto-prompt)
+  return;
+
+  // If B2B/Gov + name exists but no tax id → auto-prompt fill modal (DISABLED)
   const isBusiness = (code === 'B2B' || code === 'Gov');
   if (isBusiness && name) {
     const info = CUSTOMER_INFO[name] || {};
@@ -15491,6 +15810,12 @@ function saveTaxFillSheet() {
 function onNQCustomerBlur(name) {
   if (typeof populateNQTaxFromCustomer === 'function') populateNQTaxFromCustomer(name);
   refreshFormCustomerTypeUI('nq');
+  // v1.9.24 · autofill inline tax fields for B2B/Gov
+  const info = (name && CUSTOMER_INFO[name]) || {};
+  if ((info.type === 'B2B' || info.type === 'Gov') && typeof populateTaxFieldsFromMaster === 'function') {
+    if (typeof applyTaxFieldsVisibility === 'function') applyTaxFieldsVisibility('nq', info.type);
+    populateTaxFieldsFromMaster('nq', name);
+  }
 }
 
 // Hook used by the existing autofillCustomerOnBlur (Add Job) — called at the end
