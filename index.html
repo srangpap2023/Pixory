@@ -1400,13 +1400,14 @@
   .cal-day.has-jobs .dot { background: rgba(255,255,255,0.95) !important; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.15); }
 
   /* v1.9.21 · per-section glass cards (not full-page overlay) so each section has
-     a clear boundary. The old "single page blur" made everything look like one
-     giant continuous dark area; now each card ends where its content ends. */
+     a clear rounded boundary. */
   #screen-add .settings-section,
   #screen-quote-new .settings-section,
   #screen-add-expense .settings-section {
-    /* Use default .settings-section glass styling — no overrides */
     padding: 14px 16px !important;
+    border-radius: 18px !important;
+    margin: 0 16px 14px !important;
+    overflow: hidden;
   }
   /* Disable the legacy page-wide overlay */
   #screen-add::before,
@@ -6005,12 +6006,54 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.20';
+const PIXORY_VERSION = '1.9.21';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.21': {
+    date: '2026-05-23',
+    title: 'Polish · กระจกแยกการ์ด · มุมโค้งสวย',
+    subtitle: 'แก้ visual: เลเยอร์ดำคลุมทั้งหน้า → กระจกต่อการ์ด · มุมโค้ง 18px',
+    items: [
+      {
+        icon: '🪟',
+        title: 'เปลี่ยนเป็น Per-Section Glass Cards',
+        desc: 'เดิมมี dark overlay เดียวคลุมทั้งหน้างานใหม่/ใบเสนอ ทำให้ดูเป็นเลเยอร์ใหญ่ยาว · ตอนนี้แต่ละ section (ลูกค้า · รายละเอียดงาน · แพคเกจ · ฯลฯ) มีกระจกของตัวเอง · ขอบเขตจบที่ section นั้น ๆ ชัดเจน'
+      },
+      {
+        icon: '⚪',
+        title: 'มุมโค้งกลม 18px (border-radius)',
+        desc: 'การ์ดในหน้าฟอร์มเปลี่ยนจากมุมเหลี่ยม → มุมโค้งกลมสไตล์ iOS · ดูสบายตา ไม่อึดอัด'
+      },
+      {
+        icon: '🎨',
+        title: 'แก้ chip-row · รอยซ้อนระหว่างแถว',
+        desc: 'chip ในหน้าฟอร์มเป็นสีทึบ (ขาวใน light · #2a2520 ใน dark) · ไม่มี gradient ของ wallpaper ผ่านขึ้นมาเป็นแถบเข้ม-อ่อนอีก'
+      },
+      {
+        icon: '➕',
+        title: 'ปุ่ม "▾" → "+ เพิ่ม" / "✕ ปิด"',
+        desc: 'การ์ดแพคเกจกำหนดเอง · ปุ่มมุมขวาเป็น pill button "+ เพิ่ม" ตอนปิด · "✕ ปิด" ตอนเปิด · ชัดเจนกว่าลูกศร'
+      },
+      {
+        icon: '🌐',
+        title: 'รองรับภาษาอังกฤษทุก section ใหม่',
+        desc: 'เพิ่ม i18n keys สำหรับ แพคเกจหลัก · กำหนดเอง · ค่าใช้จ่ายในงาน · ราคาสุทธิ · เวลาทำงาน · สลับ EN/TH ได้ตามปกติ'
+      },
+      {
+        icon: '🌙',
+        title: 'แก้ ราคาสุทธิ ในธีมมืด · มองไม่เห็น',
+        desc: 'ตัวเลขสีน้ำตาลเข้มมองไม่เห็นใน dark mode · ตอนนี้เป็นขาวครีมอ่านง่าย'
+      },
+      {
+        icon: '✨',
+        title: 'ลบกรอบรอบ "ปรับแต่งใบเรียกเก็บ"',
+        desc: 'กรอบเทาจางๆ ที่ดูรกตา ตอนนี้ section นี้ใส (transparent) แล้ว'
+      }
+    ]
+  },
   '1.9.20': {
     date: '2026-05-23',
     title: 'Polish · ปุ่ม "+ เพิ่ม" + รองรับภาษาอังกฤษ',
