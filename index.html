@@ -1118,18 +1118,19 @@
   }
 
   /* ---- Chip / Filter chip glass ---- */
-  /* v1.9.20 · removed backdrop-filter from chips — caused visual "seam" when chips wrapped
-     to multiple rows (overlapping blur halos). Use plain solid translucent fill instead. */
+  /* v1.9.20b · removed backdrop-filter from chips · use SOLID fills so dark wallpaper's
+     gradient doesn't bleed through and create visible "seam" bands between wrapped rows. */
   .chip {
     isolation: isolate;
   }
   body:not(.dark-theme) .chip {
-    background: rgba(255,255,255,.85);
-    border: 0.5px solid rgba(0,0,0,.08);
+    background: #ffffff;
+    border: 0.5px solid rgba(0,0,0,.1);
   }
   body.dark-theme .chip {
-    background: rgba(255,255,255,.1);
-    border: 0.5px solid rgba(255,255,255,.12);
+    background: #2a2520;
+    color: #f5f0e8;
+    border: 0.5px solid rgba(255,255,255,.06);
   }
   body:not(.dark-theme) .chip.active {
     background: #3a2f25;
