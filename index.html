@@ -2638,6 +2638,74 @@
   }
   body.dark-theme #whatsnew-modal .wn-footer-note { color: #807870; }
 
+  /* v1.9.22 · แพคเกจหลัก dropdown rows */
+  .pkg-dd-row {
+    background: rgba(255,255,255,0.7);
+    border: 0.5px solid rgba(0,0,0,0.06);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  body.dark-theme .pkg-dd-row { background: #1f1813; border-color: rgba(255,255,255,0.06); }
+  .pkg-dd-row.open { background: linear-gradient(135deg, rgba(216,112,74,0.12), rgba(244,163,106,0.08)); border-color: rgba(216,112,74,0.4); }
+  body.dark-theme .pkg-dd-row.open { background: linear-gradient(135deg, rgba(216,112,74,0.2), rgba(74,46,28,0.55)); border-color: rgba(244,163,106,0.4); }
+  .pkg-dd-row .pkg-dd-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+  .pkg-dd-row .pkg-dd-icon { font-size: 18px; flex-shrink: 0; }
+  .pkg-dd-row .pkg-dd-info { min-width: 0; flex: 1; }
+  .pkg-dd-row .pkg-dd-svc { font-size: 10px; color: #7c7066; }
+  body.dark-theme .pkg-dd-row .pkg-dd-svc { color: #b8b0a4; }
+  .pkg-dd-row .pkg-dd-pkg { font-size: 14px; color: #3a2f25; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  body.dark-theme .pkg-dd-row .pkg-dd-pkg { color: #f5f0e8; }
+  .pkg-dd-row.unselected .pkg-dd-pkg { color: #a89a8c; font-style: italic; font-weight: 400; }
+  body.dark-theme .pkg-dd-row.unselected .pkg-dd-pkg { color: #807870; }
+  .pkg-dd-row .pkg-dd-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .pkg-dd-row .pkg-dd-price { font-size: 13px; color: #d8704a; font-weight: 700; }
+  body.dark-theme .pkg-dd-row .pkg-dd-price { color: #f4a36a; }
+  .pkg-dd-row .pkg-dd-chev { font-size: 12px; color: #7c7066; transition: transform .2s ease; }
+  body.dark-theme .pkg-dd-row .pkg-dd-chev { color: #b8b0a4; }
+  .pkg-dd-row.open .pkg-dd-chev { transform: rotate(180deg); color: #d8704a; }
+  body.dark-theme .pkg-dd-row.open .pkg-dd-chev { color: #f4a36a; }
+
+  .pkg-dd-menu {
+    background: #fff;
+    border: 0.5px solid rgba(216,112,74,0.25);
+    border-radius: 12px;
+    padding: 5px;
+    margin-bottom: 8px;
+    box-shadow: 0 8px 24px -4px rgba(0,0,0,0.12);
+  }
+  body.dark-theme .pkg-dd-menu { background: rgba(40,32,24,0.98); border-color: rgba(244,163,106,0.25); box-shadow: 0 8px 24px -4px rgba(0,0,0,0.5); }
+  .pkg-dd-option { padding: 10px 12px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-size: 13px; color: #3a2f25; }
+  body.dark-theme .pkg-dd-option { color: #f5f0e8; }
+  .pkg-dd-option:hover { background: rgba(216,112,74,0.06); }
+  body.dark-theme .pkg-dd-option:hover { background: rgba(244,163,106,0.08); }
+  .pkg-dd-option.selected { background: linear-gradient(135deg,#f4a36a,#d8704a); color: #fff; font-weight: 700; }
+  .pkg-dd-option.selected .pkg-dd-opt-price { color: rgba(255,255,255,0.95); }
+  .pkg-dd-option.clear { color: #a89a8c; font-style: italic; }
+  body.dark-theme .pkg-dd-option.clear { color: #807870; }
+  .pkg-dd-option .pkg-dd-opt-price { color: #7c7066; font-weight: 600; }
+  body.dark-theme .pkg-dd-option .pkg-dd-opt-price { color: #b8b0a4; }
+
+  .pkg-dd-svc-sum {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 0.5px dashed rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+  }
+  body.dark-theme .pkg-dd-svc-sum { border-top-color: rgba(255,255,255,0.1); }
+  .pkg-dd-svc-sum .lbl { color: #7c7066; }
+  body.dark-theme .pkg-dd-svc-sum .lbl { color: #b8b0a4; }
+  .pkg-dd-svc-sum .val { color: #3a2f25; font-weight: 700; }
+  body.dark-theme .pkg-dd-svc-sum .val { color: #f5f0e8; }
+
   /* v1.9.19 · ราคาสุทธิ card · dark theme overrides (fix invisible text in dark mode) */
   body.dark-theme #add-final-summary,
   body.dark-theme #nq-final-summary {
@@ -3883,23 +3951,7 @@
           <label data-i18n="aj.depositBaht">มัดจำ (บาท)</label>
           <input type="number" value="0" id="addDeposit">
         </div>
-      </div>
-
-      <!-- Section 6b: ภาษี (Tax T2) -->
-      <div class="settings-section" id="add-tax-section">
-        <div class="sec-title" style="display:flex; align-items:center; gap:8px;">
-          <span>📋 <span data-i18n="tax.section">ภาษี</span></span>
-          <span style="display:none;">PRO</span>
-          <span id="add-tax-cust-hint" style="margin-left:auto; font-size:11px; color:#a89a8c; font-weight:500;"></span>
-        </div>
-
-        <!-- Master toggle -->
-        <div id="add-tax-master" onclick="toggleAddTax()" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:10px; cursor:pointer; background:#f7f4ef; border:1px solid #e8dfd5; transition:all .15s;">
-          <div style="flex:1; min-width:0;">
-            <div style="font-size:13.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.issueTaxInvoice">ออกใบกำกับภาษี</div>
-            <div style="font-size:11px; color:#7c7066; margin-top:2px;" data-i18n="tax.issueTaxInvoiceSub">แสดงรายละเอียด VAT / WHT ในใบเสนอราคา</div>
-          </div>
-          <div id="add-tax-knob" style="width:40px; height:22px; border-radius:14px; background:#cdc3b8; position:relative; transition:all .15s; flex-shrink:0;">
+      </div>          <div id="add-tax-knob" style="width:40px; height:22px; border-radius:14px; background:#cdc3b8; position:relative; transition:all .15s; flex-shrink:0;">
             <div style="width:18px; height:18px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:all .15s; box-shadow:0 1px 3px rgba(0,0,0,0.15);"></div>
           </div>
         </div>
@@ -3979,6 +4031,22 @@
         </div>
       </div>
 
+
+
+      <!-- Section 6b: ภาษี (Tax T2) -->
+      <div class="settings-section" id="add-tax-section">
+        <div class="sec-title" style="display:flex; align-items:center; gap:8px;">
+          <span>📋 <span data-i18n="tax.section">ภาษี</span></span>
+          <span style="display:none;">PRO</span>
+          <span id="add-tax-cust-hint" style="margin-left:auto; font-size:11px; color:#a89a8c; font-weight:500;"></span>
+        </div>
+
+        <!-- Master toggle -->
+        <div id="add-tax-master" onclick="toggleAddTax()" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:10px; cursor:pointer; background:#f7f4ef; border:1px solid #e8dfd5; transition:all .15s;">
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:13.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.issueTaxInvoice">ออกใบกำกับภาษี</div>
+            <div style="font-size:11px; color:#7c7066; margin-top:2px;" data-i18n="tax.issueTaxInvoiceSub">แสดงรายละเอียด VAT / WHT ในใบเสนอราคา</div>
+          </div>
       <!-- v1.9.19 · ราคาสุทธิ — full breakdown -->
       <div class="settings-section" id="add-final-summary" style="margin: 0 16px 12px; background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(254,243,235,0.85)); border:0.5px solid rgba(216,112,74,0.18); box-shadow:0 6px 22px -4px rgba(216,112,74,0.12);">
         <div class="sec-title" data-i18n="final.title">💎 ราคาสุทธิ</div>
@@ -6006,12 +6074,34 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.21';
+const PIXORY_VERSION = '1.9.22';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.22': {
+    date: '2026-05-23',
+    title: 'Feature · Dropdown แพคเกจหลัก + ภาษีย้ายลงล่าง',
+    subtitle: 'แพคเกจหลักเป็น dropdown · ค่าใช้จ่าย ก่อน ภาษี · สร้างใบเรียกเก็บ',
+    items: [
+      {
+        icon: '📷',
+        title: 'แพคเกจหลัก · Dropdown UX',
+        desc: 'เปลี่ยนจาก grid cards เป็น dropdown rows · 1 row ต่อ 1 บริการ (ภาพนิ่ง · วิดีโอ · Photobooth) · แตะ row เปิด menu เลือกแพคเกจ · ประหยัดพื้นที่ scroll · เห็นทุกบริการในจอเดียว'
+      },
+      {
+        icon: '🔄',
+        title: 'สลับลำดับ · ค่าใช้จ่าย ก่อน ภาษี',
+        desc: 'การเงิน → ค่าใช้จ่ายในงานนี้ → ภาษี · ตามลำดับ flow เงินจริง'
+      },
+      {
+        icon: '🧾',
+        title: 'ปุ่ม "ดูใบเรียกเก็บ" → "สร้างใบเรียกเก็บ"',
+        desc: 'ในหน้า Job Detail · เปลี่ยนชื่อปุ่มให้ตรงกับการใช้งานจริง (สร้างใบใหม่)'
+      }
+    ]
+  },
   '1.9.21': {
     date: '2026-05-23',
     title: 'Polish · กระจกแยกการ์ด · มุมโค้งสวย',
@@ -7922,6 +8012,11 @@ let LANG = 'th';
 
 const I18N = {
   // v1.9.20 · New strings (form redesign + custom items + costs + ราคาสุทธิ)
+  // v1.9.22 · pkg dropdown
+  'pkg.choosePh':    { th: '— ยังไม่เลือก —', en: '— Not selected —' },
+  'pkg.clear':       { th: '— ยกเลิกการเลือก —', en: '— Clear selection —' },
+  'pkg.subtotal':    { th: 'รวมแพคเกจหลัก', en: 'Main packages subtotal' },
+
   'pkg.mainTitle':       { th: '📷 แพคเกจหลัก', en: '📷 Main Packages' },
   'custom.title':        { th: '📝 แพคเกจแบบกำหนดรายละเอียดเอง', en: '📝 Custom Package' },
   'custom.subtitle':     { th: 'งานนอกแพคเกจหลัก · ตั้งราคา-บริการเอง', en: 'For one-off jobs · set your own price' },
@@ -8560,7 +8655,7 @@ const I18N = {
   'inv.title':          { th: 'ใบเรียกเก็บยอดชำระเพิ่มเติม', en: 'Final Invoice' },
   'inv.subTitle':       { th: 'INVOICE · BALANCE DUE', en: 'INVOICE · BALANCE DUE' },
   'inv.btnIssue':       { th: '📋 ออกใบเรียกเก็บยอดชำระเพิ่มเติม', en: '📋 Issue Final Invoice' },
-  'inv.btnView':        { th: '📋 ดูใบเรียกเก็บฯ', en: '📋 View Invoice' },
+  'inv.btnView':        { th: '📋 สร้างใบเรียกเก็บฯ', en: '📋 Create Invoice' },
   'inv.paidBadge':      { th: '✓ ชำระครบ', en: '✓ Paid' },
   'inv.statusWaiting':  { th: 'รอชำระยอดคงเหลือ', en: 'Awaiting Balance Payment' },
   'inv.statusPaid':     { th: '✓ ชำระครบแล้ว', en: '✓ Paid in Full' },
@@ -11633,6 +11728,7 @@ function openNewJob() {
   _editJobCode = null;
   ADD_SELECTED = {};
   ADD_ADDONS = {};
+  if (typeof ADD_OPEN_SVC !== 'undefined') ADD_OPEN_SVC = null;
   ADD_TEAM = new Set();
   ADD_TEAM_WAGES = {};
   ADD_SESSIONS = [];
@@ -11724,6 +11820,7 @@ function editCurrentJob() {
   _editJobCode = j.code;
   // Populate state from selectedServices (new format)
   ADD_SELECTED = {};
+  if (typeof ADD_OPEN_SVC !== 'undefined') ADD_OPEN_SVC = null;
   if (j.selectedServices) {
     Object.keys(j.selectedServices).forEach(svcId => {
       ADD_SELECTED[svcId] = { ...j.selectedServices[svcId] };
@@ -12693,6 +12790,7 @@ function openNewQuote() {
   _editingQuoteCode = null;
   _setQuoteFormMode('create');
   NQ_SELECTED = {}; NQ_ADDONS = {}; NQ_SESSIONS = [];
+  if (typeof NQ_OPEN_SVC !== 'undefined') NQ_OPEN_SVC = null;
   // v1.9.14 · reset custom items
   resetCustomItems('nq');
   // v1.9.11 C2 fix: use generateQuoteCode (max+1) instead of length+1
@@ -12738,6 +12836,7 @@ function editCurrentQuote() {
   _setQuoteFormMode('edit');
   // Restore selections
   NQ_SELECTED = q.selectedServices ? JSON.parse(JSON.stringify(q.selectedServices)) : {};
+  if (typeof NQ_OPEN_SVC !== 'undefined') NQ_OPEN_SVC = null;
   NQ_ADDONS = {};
   if (q.qr) NQ_ADDONS.qr = q.qr;
   if (q.other) NQ_ADDONS.profile = q.other;
@@ -13056,53 +13155,126 @@ function loadCustomItems(ctx, items) {
   }
 }
 
+// ========== v1.9.22 · แพคเกจหลัก dropdown state + render ==========
+// Track which service's dropdown is open (per form). null = none open.
+let NQ_OPEN_SVC = null;
+let ADD_OPEN_SVC = null;
+
+function _renderPkgDropdown(ctx, container) {
+  // ctx: 'add' or 'nq' · container: DOM element to fill
+  const SELECTED = ctx === 'add' ? ADD_SELECTED : NQ_SELECTED;
+  const openId = ctx === 'add' ? ADD_OPEN_SVC : NQ_OPEN_SVC;
+  const reRender = ctx === 'add' ? renderAddJobScreen : renderNQPackages;
+
+  container.innerHTML = '';
+  if (typeof SERVICES === 'undefined' || SERVICES.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'settings-section';
+    empty.innerHTML = '<div class="sec-title"><span data-i18n="pkg.mainTitle">📷 แพคเกจหลัก</span></div><div style="text-align:center; padding:20px; color:#a89a8c; font-size:13px;">' + (typeof t === 'function' ? t('svc.emptyHint') : 'ยังไม่มีแพคเกจ') + '</div>';
+    container.appendChild(empty);
+    return;
+  }
+
+  const section = document.createElement('div');
+  section.className = 'settings-section';
+  section.innerHTML = '<div class="sec-title"><span data-i18n="pkg.mainTitle">📷 แพคเกจหลัก</span></div>';
+
+  let totalAll = 0;
+
+  SERVICES.forEach(svc => {
+    const sel = SELECTED[svc.id];
+    const isOpen = openId === svc.id;
+    const isSelected = !!sel;
+    if (isSelected) totalAll += (sel.price || 0);
+
+    // Row
+    const row = document.createElement('div');
+    row.className = 'pkg-dd-row' + (isOpen ? ' open' : '') + (isSelected ? '' : ' unselected');
+    row.innerHTML = ''
+      + '<div class="pkg-dd-left">'
+      +   '<span class="pkg-dd-icon">' + (svc.icon || '📷') + '</span>'
+      +   '<div class="pkg-dd-info">'
+      +     '<div class="pkg-dd-svc">' + svc.name + '</div>'
+      +     '<div class="pkg-dd-pkg">' + (isSelected ? sel.packageName : (typeof t === 'function' ? t('pkg.choosePh') : '— ยังไม่เลือก —')) + '</div>'
+      +   '</div>'
+      + '</div>'
+      + '<div class="pkg-dd-right">'
+      +   (isSelected ? '<span class="pkg-dd-price">฿' + (sel.price || 0).toLocaleString() + '</span>' : '')
+      +   '<span class="pkg-dd-chev">▾</span>'
+      + '</div>';
+    row.onclick = function () {
+      if (ctx === 'add') ADD_OPEN_SVC = isOpen ? null : svc.id;
+      else NQ_OPEN_SVC = isOpen ? null : svc.id;
+      reRender();
+    };
+    section.appendChild(row);
+
+    // Menu (only if open)
+    if (isOpen) {
+      const menu = document.createElement('div');
+      menu.className = 'pkg-dd-menu';
+
+      // Clear option
+      if (isSelected) {
+        const clr = document.createElement('div');
+        clr.className = 'pkg-dd-option clear';
+        clr.innerHTML = '<span>' + (typeof t === 'function' ? t('pkg.clear') : '— ยกเลิกการเลือก —') + '</span>';
+        clr.onclick = function (e) {
+          e.stopPropagation();
+          delete SELECTED[svc.id];
+          if (ctx === 'add') ADD_OPEN_SVC = null;
+          else NQ_OPEN_SVC = null;
+          reRender();
+        };
+        menu.appendChild(clr);
+      }
+
+      if (svc.packages.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'pkg-dd-option';
+        empty.style.fontStyle = 'italic';
+        empty.style.color = '#a89a8c';
+        empty.innerHTML = '<span>ยังไม่มีแพคเกจ</span>';
+        menu.appendChild(empty);
+      } else {
+        svc.packages.forEach(p => {
+          const isActive = isSelected && sel.packageId === p.id;
+          const opt = document.createElement('div');
+          opt.className = 'pkg-dd-option' + (isActive ? ' selected' : '');
+          opt.innerHTML = '<span>' + (isActive ? '✓ ' : '') + p.name + '</span><span class="pkg-dd-opt-price">฿' + (p.price || 0).toLocaleString() + '</span>';
+          opt.onclick = function (e) {
+            e.stopPropagation();
+            const wasEmpty = Object.keys(SELECTED).length === 0;
+            SELECTED[svc.id] = { packageId: p.id, packageName: p.name, price: p.price, serviceName: svc.name, color: svc.color };
+            if (wasEmpty && svc.defaultJobType && typeof autoSetJobTypeFromService === 'function') {
+              autoSetJobTypeFromService(ctx, svc.defaultJobType);
+            }
+            if (ctx === 'add') ADD_OPEN_SVC = null;
+            else NQ_OPEN_SVC = null;
+            reRender();
+          };
+          menu.appendChild(opt);
+        });
+      }
+      section.appendChild(menu);
+    }
+  });
+
+  // Total summary
+  if (totalAll > 0) {
+    const sum = document.createElement('div');
+    sum.className = 'pkg-dd-svc-sum';
+    sum.innerHTML = '<span class="lbl">' + (typeof t === 'function' ? t('pkg.subtotal') : 'รวมแพคเกจหลัก') + '</span><span class="val">฿' + totalAll.toLocaleString() + '</span>';
+    section.appendChild(sum);
+  }
+
+  container.appendChild(section);
+}
+
 function renderNQPackages() {
   const container = document.getElementById('nq-services-container');
   if (container) {
-    container.innerHTML = '';
-    if (SERVICES.length === 0) {
-      container.innerHTML = '<div class="settings-section"><div class="sec-title">📷 แพคเกจหลัก</div><div style="text-align:center; padding:20px; color:#a89a8c; font-size:13px;">' + t('svc.emptyHint') + '</div></div>';
-    } else {
-      // v1.9.19 · single parent section "แพคเกจหลัก" containing all services as sub-groups
-      const section = document.createElement('div');
-      section.className = 'settings-section';
-      section.innerHTML = '<div class="sec-title">' + (typeof t === 'function' ? t('pkg.mainTitle') : '📷 แพคเกจหลัก') + '</div>';
-      SERVICES.forEach((svc, sIdx) => {
-        const sub = document.createElement('div');
-        sub.style.marginTop = sIdx === 0 ? '0' : '12px';
-        sub.innerHTML = '<div style="font-size:11px; font-weight:600; color:' + (svc.color || '#7c7066') + '; margin-bottom:6px;">' + svc.icon + ' ' + svc.name + '</div><div class="pkg-grid"></div>';
-        const grid = sub.querySelector('.pkg-grid');
-        if (svc.packages.length === 0) {
-          grid.innerHTML = '<div style="grid-column:1/-1; font-size:11px; color:#a89a8c; text-align:center; padding:8px;">ยังไม่มีแพคเกจ</div>';
-        } else {
-          svc.packages.forEach(p => {
-            const card = document.createElement('div');
-            const sel = NQ_SELECTED[svc.id];
-            const isActive = sel && sel.packageId === p.id;
-            card.className = 'pkg-card' + (isActive ? ' active' : '');
-            if (isActive) {
-              card.style.background = svc.color;
-              card.style.borderColor = svc.color;
-              card.style.color = 'white';
-            }
-            card.innerHTML = `<div class="pkg-name">${p.name}</div><div class="pkg-price" ${isActive ? 'style="color:rgba(255,255,255,.8)"' : ''}>${fmtPkgK(p.price)}</div>`;
-            card.onclick = () => {
-              if (isActive) delete NQ_SELECTED[svc.id];
-              else {
-                // v1.9.4 · Auto-set Job Type if this is the first selection
-                const wasEmpty = Object.keys(NQ_SELECTED).length === 0;
-                NQ_SELECTED[svc.id] = { packageId: p.id, packageName: p.name, price: p.price, serviceName: svc.name, color: svc.color };
-                if (wasEmpty && svc.defaultJobType) autoSetJobTypeFromService('nq', svc.defaultJobType);
-              }
-              renderNQPackages();
-            };
-            grid.appendChild(card);
-          });
-        }
-        section.appendChild(sub);
-      });
-      container.appendChild(section);
-    }
+    _renderPkgDropdown('nq', container);
   }
   let ar = document.getElementById('nq-addons-row'); ar.innerHTML = '';
   ADDONS.forEach(a => {
@@ -15960,53 +16132,10 @@ function getJobSessions(j) {
 }
 
 function renderAddJobScreen() {
-  // Render dynamic services
+  // v1.9.22 · Render dynamic services as DROPDOWN rows
   const container = document.getElementById('add-services-container');
   if (container) {
-    container.innerHTML = '';
-    if (SERVICES.length === 0) {
-      container.innerHTML = '<div class="settings-section"><div class="sec-title">📷 แพคเกจหลัก</div><div style="text-align:center; padding:20px; color:#a89a8c; font-size:13px;">' + t('svc.emptyHint') + '</div></div>';
-    } else {
-      // v1.9.19 · single parent section "แพคเกจหลัก" with services as sub-groups
-      const section = document.createElement('div');
-      section.className = 'settings-section';
-      section.innerHTML = '<div class="sec-title">' + (typeof t === 'function' ? t('pkg.mainTitle') : '📷 แพคเกจหลัก') + '</div>';
-      SERVICES.forEach((svc, sIdx) => {
-        const sub = document.createElement('div');
-        sub.style.marginTop = sIdx === 0 ? '0' : '12px';
-        sub.innerHTML = '<div style="font-size:11px; font-weight:600; color:' + (svc.color || '#7c7066') + '; margin-bottom:6px;">' + svc.icon + ' ' + svc.name + '</div><div class="pkg-grid"></div>';
-        const grid = sub.querySelector('.pkg-grid');
-        if (svc.packages.length === 0) {
-          grid.innerHTML = '<div style="grid-column:1/-1; font-size:11px; color:#a89a8c; text-align:center; padding:8px;">ยังไม่มีแพคเกจ</div>';
-        } else {
-          svc.packages.forEach(p => {
-            const card = document.createElement('div');
-            const sel = ADD_SELECTED[svc.id];
-            const isActive = sel && sel.packageId === p.id;
-            card.className = 'pkg-card' + (isActive ? ' active' : '');
-            if (isActive) {
-              card.style.background = svc.color;
-              card.style.borderColor = svc.color;
-              card.style.color = 'white';
-            }
-            card.innerHTML = `<div class="pkg-name">${p.name}</div><div class="pkg-price" ${isActive ? 'style="color:rgba(255,255,255,.8)"' : ''}>${fmtPkgK(p.price)}</div>`;
-            card.onclick = () => {
-              if (isActive) delete ADD_SELECTED[svc.id];
-              else {
-                // v1.9.4 · Track "first selection" so we know whether to auto-set Job Type
-                const wasEmpty = Object.keys(ADD_SELECTED).length === 0;
-                ADD_SELECTED[svc.id] = { packageId: p.id, packageName: p.name, price: p.price, serviceName: svc.name, color: svc.color };
-                if (wasEmpty && svc.defaultJobType) autoSetJobTypeFromService('add', svc.defaultJobType);
-              }
-              renderAddJobScreen();
-            };
-            grid.appendChild(card);
-          });
-        }
-        section.appendChild(sub);
-      });
-      container.appendChild(section);
-    }
+    _renderPkgDropdown('add', container);
   }
   // Addons
   const ar = document.getElementById('addons-row');
