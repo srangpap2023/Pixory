@@ -6297,12 +6297,24 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.32';
+const PIXORY_VERSION = '1.9.33';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.33': {
+    date: '2026-05-23',
+    title: 'Hotfix · ปฏิทิน · swipe เลื่อนเดือนกลับมา',
+    subtitle: 'แก้ฟังก์ชัน attachMonthSwipeGesture ที่หายไปจากไฟล์',
+    items: [
+      {
+        icon: '👆',
+        title: 'แก้บั๊ก · swipe ซ้าย/ขวาเลื่อนเดือนไม่ทำงาน',
+        desc: 'goTo("calendar") เรียก attachMonthSwipeGesture() · แต่ฟังก์ชันถูกลบไปโดยไม่ตั้งใจในรอบที่ผ่านมา · ทำให้ console error เงียบๆ + swipe ไม่ทำงาน · ตอนนี้คืนฟังก์ชันกลับ · ปัดซ้ายไปเดือนถัดไป · ปัดขวาไปเดือนก่อน'
+      }
+    ]
+  },
   '1.9.32': {
     date: '2026-05-23',
     title: 'Hotfix · หน้าเกี่ยวกับแอป',
@@ -15151,6 +15163,46 @@ function changeMonth(delta) {
   if (CAL_MONTH < 0) { CAL_MONTH = 11; CAL_YEAR--; }
   renderCalendar();
 }
+
+// v1.9.33 · Restore calendar swipe-to-change-month gesture (was missing → swipe broken)
+// Attaches touchstart/touchend listeners on #cal-month-view · idempotent (only attaches once)
+function attachMonthSwipeGesture() {
+  const el = document.getElementById('cal-month-view');
+  if (!el || el.dataset.swipeAttached === '1') return;
+  el.dataset.swipeAttached = '1';
+
+  let startX = 0, startY = 0, startT = 0, tracking = false;
+  const THRESHOLD_X = 50;   // min horizontal distance (px)
+  const MAX_OFF_AXIS = 60;  // max vertical drift to still count as horizontal swipe
+  const MAX_TIME = 600;     // max ms between touchstart and touchend
+
+  el.addEventListener('touchstart', function (e) {
+    if (!e.touches || e.touches.length !== 1) { tracking = false; return; }
+    // Skip if user is interacting with a day cell · let tap-to-open-day work normally
+    const tgt = e.target;
+    if (tgt && tgt.closest && tgt.closest('.nav-btn')) { tracking = false; return; }
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    startT = Date.now();
+    tracking = true;
+  }, { passive: true });
+
+  el.addEventListener('touchend', function (e) {
+    if (!tracking) return;
+    tracking = false;
+    const t = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+    if (!t) return;
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+    const dt = Date.now() - startT;
+    if (dt > MAX_TIME) return;
+    if (Math.abs(dy) > MAX_OFF_AXIS) return;       // too much vertical → it's a scroll
+    if (Math.abs(dx) < THRESHOLD_X) return;        // too short → not a swipe
+    // Right swipe (dx > 0) → previous month · Left swipe (dx < 0) → next month
+    changeMonth(dx > 0 ? -1 : 1);
+  }, { passive: true });
+}
+
 function toggleLegend() {
   const l = document.getElementById('cal-legend');
   l.style.display = l.style.display === 'none' ? 'flex' : 'none';
