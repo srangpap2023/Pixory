@@ -4305,8 +4305,12 @@
       <div style="padding: 0 20px 16px;">
         <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px;">
           <div id="cust-avatar" style="width:62px; height:62px; border-radius:50%; background:#dbeafe; color:#1e40af; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:22px;">?</div>
-          <div style="flex:1;">
-            <div style="font-size:22px; font-weight:600;" id="cust-name">—</div>
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <div style="font-size:22px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" id="cust-name">—</div>
+              <!-- v1.9.11 C3 fix: rename button -->
+              <button onclick="renameCurrentCustomer()" aria-label="เปลี่ยนชื่อลูกค้า" title="เปลี่ยนชื่อลูกค้า" style="background:transparent; border:0; color:#7c7066; font-size:14px; cursor:pointer; padding:4px 6px; border-radius:6px; flex-shrink:0;">✏️</button>
+            </div>
             <div style="font-size:13px; color:#7c7066; margin-top:2px;" id="cust-stats">0 งาน · ฿0</div>
           </div>
         </div>
@@ -5662,12 +5666,25 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.10';
+const PIXORY_VERSION = '1.9.11';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.11': {
+    date: '2026-05-23',
+    title: 'แก้บั๊กระดับ Critical · 4 จุด',
+    subtitle: 'ป้องกันข้อมูลเสียจาก sync และซ่อมระบบสร้างรหัสงาน',
+    items: [
+      '🔧 แก้บั๊กรหัสงาน/ใบเสนอซ้ำ — ลบงานกลางลำดับแล้วสร้างใหม่ จะไม่ทับรหัสเดิมอีกต่อไป',
+      '✏️ เพิ่มปุ่ม "เปลี่ยนชื่อลูกค้า" — แตะ ✏️ ข้างชื่อในหน้ารายละเอียดลูกค้า · ระบบจะอัพเดททุกงาน/ใบเสนอที่ผูกอยู่อัตโนมัติ',
+      '☁️ ป้องกันข้อมูลทับกันจากหลายเครื่อง — ก่อน push จะเช็คเวอร์ชั่นในคลาวด์ ถ้าอีกเครื่องอัพเดทใหม่กว่าจะถามก่อนทับ',
+      '📅 แปลงใบเสนอเป็นงาน · ใช้ปีของวันงานจริง (แทนปีปัจจุบัน) — แก้กรณีใบเสนอ ธ.ค. ปีก่อน แปลงเป็นงาน ม.ค. ปีนี้แต่รหัสติดปีเก่า',
+      '🔄 ชื่อเล่นลูกค้าใน "ใบเสนอจากงาน" อ่านจาก master ได้ถูกต้องแล้ว (แก้ typo)',
+      '⚙️ Service Worker bump cache → ป้องกัน user ที่ติดเวอร์ชั่นเก่าจาก PWA',
+    ]
+  },
   '1.9.10': {
     date: '2026-05-22',
     title: 'Hotfix · Back ในหน้า Settings · Packages',
@@ -6660,14 +6677,51 @@ function getLocalUpdatedAt() {
   return new Date(d._meta.updated_at).getTime() || 0;
 }
 
-async function pushToCloud() {
+async function pushToCloud(opts) {
+  // v1.9.11 · C4 fix — opts.force = true skips the version check (used after explicit user confirm)
+  opts = opts || {};
   if (!CURRENT_USER || !SUPABASE) { setSyncState('offline'); return false; }
   try {
     setSyncState('syncing');
     const blob = getLocalDataObj() || {};
+    const localVersion = (blob._meta && blob._meta.version) || 0;
+    const localDeviceId = (blob._meta && blob._meta.device_id) || null;
+    // v1.9.11 · C4 — check cloud version before overwriting
+    if (!opts.force) {
+      try {
+        const { data: remote, error: peekErr } = await SUPABASE
+          .from('user_data')
+          .select('data, device_id, updated_at')
+          .eq('user_id', CURRENT_USER.id)
+          .maybeSingle();
+        if (!peekErr && remote && remote.data && remote.data._meta) {
+          const remoteVersion = remote.data._meta.version || 0;
+          const remoteDeviceId = remote.data._meta.device_id;
+          // Conflict: cloud is newer AND was written by a different device
+          if (remoteVersion > localVersion && remoteDeviceId && remoteDeviceId !== DEVICE_ID) {
+            const remoteCount = countMeaningfulItems(remote.data);
+            const localCount = countMeaningfulItems(blob);
+            const msg = '⚠️ พบข้อมูลใหม่กว่าจากอีกเครื่อง\n\n'
+              + '☁️ ในคลาวด์ (เครื่องอื่น): v' + remoteVersion + ' · ' + remoteCount + ' รายการ\n'
+              + '📱 เครื่องนี้: v' + localVersion + ' · ' + localCount + ' รายการ\n\n'
+              + 'กด OK เพื่อทับข้อมูลในคลาวด์ด้วยข้อมูลเครื่องนี้ (อาจทำให้ข้อมูลจากอีกเครื่องหายได้)\n'
+              + 'กด Cancel เพื่อยกเลิก แล้ว Pull จากคลาวด์ก่อน';
+            if (!confirm(msg)) {
+              setSyncState('error', 'ยกเลิกการ push · pull ก่อนแล้วลองใหม่');
+              return false;
+            }
+            // User confirmed → snapshot local before overwrite, just in case
+            snapshotLocalForRecovery();
+          }
+        }
+      } catch(peekEx) {
+        // Peek failed → don't block, proceed cautiously
+        console.warn('Cloud peek failed (continuing):', peekEx);
+      }
+    }
     const now = new Date().toISOString();
     // Stamp metadata
-    blob._meta = { updated_at: now, device_id: DEVICE_ID, version: ((blob._meta && blob._meta.version) || 0) + 1 };
+    blob._meta = { updated_at: now, device_id: DEVICE_ID, version: localVersion + 1 };
     // Save stamped back to localStorage
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(blob)); } catch(e) {}
     const { error } = await SUPABASE
@@ -8770,13 +8824,14 @@ function openQuoteFromJob() {
     NQ_SESSIONS.push({ date: j.date || j.dateEvent || new Date().toISOString().slice(0,10), start: '14:00', end: '22:00', label: '' });
   }
 
-  // Generate new quote code
-  document.getElementById('new-quote-code').textContent = 'QT-' + new Date().getFullYear() + '-' + String(QUOTES.length + 1).padStart(3, '0');
+  // Generate new quote code — v1.9.11 C2 fix: use generateQuoteCode (max+1) not length+1
+  document.getElementById('new-quote-code').textContent = generateQuoteCode();
 
   // Customer block — read from CUSTOMER_INFO master (C2 fix) with job snapshot fallback
   const cInfo = (j.customer && CUSTOMER_INFO[j.customer]) ? CUSTOMER_INFO[j.customer] : {};
   document.getElementById('nq-customer').value = j.customer || '';
-  const nickEl = document.getElementById('nq-nick'); if (nickEl) nickEl.value = cInfo.nick || j.custNick || '';
+  // v1.9.11 M1 fix: master uses 'nickname' not 'nick'
+  const nickEl = document.getElementById('nq-nick'); if (nickEl) nickEl.value = cInfo.nickname || j.custNick || '';
   document.getElementById('nq-phone').value = cInfo.phone || j.custPhone || '';
   document.getElementById('nq-line').value = cInfo.line || j.custLine || '';
 
@@ -10908,9 +10963,10 @@ function populateJobTypeChips(containerId, currentType) {
   });
 }
 
-function generateJobCode() {
-  const yr = new Date().getFullYear();
-  // Find max number for this year
+function generateJobCode(year) {
+  // v1.9.11 — accepts optional year (defaults to current). Fixes M8: convertQuoteToJob should use the quote's event year.
+  const yr = year || new Date().getFullYear();
+  // Find max number for this year — v1.9.11 C2 fix: was using JOBS.length+1 which collides after delete
   const codes = JOBS.map(j => j.code).filter(c => c.startsWith('JOB-' + yr + '-'));
   let max = 0;
   codes.forEach(c => {
@@ -10918,6 +10974,18 @@ function generateJobCode() {
     if (n > max) max = n;
   });
   return 'JOB-' + yr + '-' + String(max + 1).padStart(3, '0');
+}
+
+function generateQuoteCode(year) {
+  // v1.9.11 — sibling of generateJobCode. Fixes C2: QUOTES.length+1 collides after delete
+  const yr = year || new Date().getFullYear();
+  const codes = QUOTES.map(q => q.code).filter(c => c.startsWith('QT-' + yr + '-'));
+  let max = 0;
+  codes.forEach(c => {
+    const n = parseInt(c.split('-')[2], 10);
+    if (n > max) max = n;
+  });
+  return 'QT-' + yr + '-' + String(max + 1).padStart(3, '0');
 }
 
 function editCurrentJob() {
@@ -11759,8 +11827,9 @@ function convertQuoteToJob(code) {
     q.convertedJobCode = null;
   }
   if (!confirm('แปลงใบเสนอนี้เป็นงานใหม่?\n\nระบบจะสร้างงานพร้อมรายละเอียดเดิม คุณจะกรอกมัดจำและทีมในขั้นตอนถัดไป')) return;
-  const yr = new Date().getFullYear();
-  const newCode = 'JOB-' + yr + '-' + String(JOBS.length + 1).padStart(3, '0');
+  // v1.9.11 C2 + M8 fix: use generateJobCode with event year (not current year, not length+1)
+  const eventYear = q.dateEvent ? new Date(q.dateEvent).getFullYear() : new Date().getFullYear();
+  const newCode = generateJobCode(eventYear);
   const qDeposit = q.deposit || 0;
   const qRemain = Math.max(0, q.sell - qDeposit);
   const qPayStatus = qDeposit > 0 ? (qRemain === 0 ? 'ชำระครบ' : 'มัดจำแล้ว') : 'รอมัดจำ';
@@ -11835,7 +11904,8 @@ function openNewQuote() {
   _editingQuoteCode = null;
   _setQuoteFormMode('create');
   NQ_SELECTED = {}; NQ_ADDONS = {}; NQ_SESSIONS = [];
-  document.getElementById('new-quote-code').textContent = 'QT-' + new Date().getFullYear() + '-' + String(QUOTES.length + 1).padStart(3, '0');
+  // v1.9.11 C2 fix: use generateQuoteCode (max+1) instead of length+1
+  document.getElementById('new-quote-code').textContent = generateQuoteCode();
   document.getElementById('nq-customer').value = '';
   const nickEl = document.getElementById('nq-nick'); if (nickEl) nickEl.value = '';
   document.getElementById('nq-phone').value = '';
@@ -12112,8 +12182,9 @@ function saveNewQuote(status) {
   }
 
   // === CREATE MODE: push new quote ===
+  // v1.9.11 C2 fix: use generateQuoteCode (max+1) instead of length+1
   const quote = {
-    code: 'QT-' + new Date().getFullYear() + '-' + String(QUOTES.length + 1).padStart(3, '0'),
+    code: generateQuoteCode(),
     customer,
     custNick: nick,
     contact: phone,
@@ -13204,6 +13275,42 @@ function saveCustomerInfo() {
   saveData();
   if (_backfilled > 0 && typeof renderCustomers === 'function') renderCustomers();
   toast(t('toast.savedCustomer'));
+}
+
+// v1.9.11 · C3 fix — rename customer & propagate to all linked records
+function renameCurrentCustomer() {
+  if (!_currentCustomer) return;
+  const oldName = _currentCustomer;
+  const newRaw = prompt('เปลี่ยนชื่อลูกค้าจาก:\n"' + oldName + '"\n\nเป็น:', oldName);
+  if (newRaw === null) return; // cancelled
+  const newName = newRaw.trim();
+  if (!newName) { toast('ชื่อว่างไม่ได้'); return; }
+  if (newName === oldName) return; // no change
+  // Check collision — case-sensitive exact match (different from oldName check above)
+  if (CUSTOMER_INFO[newName]) {
+    if (!confirm('มีลูกค้าชื่อ "' + newName + '" อยู่แล้ว\n\nกด OK เพื่อรวมงานทั้งหมดของ "' + oldName + '" เข้ากับลูกค้านี้\nกด Cancel เพื่อยกเลิก')) return;
+    // Merge: keep newName's CUSTOMER_INFO, drop oldName's
+  } else {
+    // Move CUSTOMER_INFO key
+    CUSTOMER_INFO[newName] = CUSTOMER_INFO[oldName] || {};
+  }
+  delete CUSTOMER_INFO[oldName];
+  // Re-point all JOBS
+  let jobCount = 0;
+  JOBS.forEach(j => {
+    if (j.customer === oldName) { j.customer = newName; jobCount++; }
+  });
+  // Re-point all QUOTES
+  let quoteCount = 0;
+  QUOTES.forEach(q => {
+    if (q.customer === oldName) { q.customer = newName; quoteCount++; }
+  });
+  _currentCustomer = newName;
+  saveData();
+  toast('เปลี่ยนชื่อแล้ว · อัพเดท ' + jobCount + ' งาน · ' + quoteCount + ' ใบเสนอ');
+  // Refresh detail view + customers list
+  openCustomerDetail(newName);
+  if (typeof renderCustomers === 'function') renderCustomers();
 }
 
 // === Customer Type Picker (Tax T1) ===
