@@ -3841,20 +3841,7 @@
         <div id="job-note-text" style="font-size:13px; line-height:1.6; color:#3a2f25; white-space:pre-wrap;"></div>
       </div>
 
-      <!-- Filing toggle (Tax T3 v2) — always visible for every job, even without tax -->
-      <div class="detail-block" id="job-filing-block">
-        <h3>🧾 <span data-i18n="tax.filingLabel">สถานะการยื่นภาษี</span></h3>
-        <div style="padding:10px 12px; border-radius:10px; background:#f7f4ef; border:1px solid #e8dfd5; display:flex; align-items:center; gap:10px;">
-          <div style="flex:1; min-width:0;">
-            <div style="font-size:11.5px; color:#7c7066;" id="job-filing-hint">—</div>
-          </div>
-          <select id="job-filing-select" onchange="onJobFilingChange(this.value)" style="font-size:12px; padding:6px 8px; border-radius:8px; border:1px solid #d6cabc; background:white; cursor:pointer;">
-            <option value="auto" data-i18n="tax.filingAuto">อัตโนมัติ</option>
-            <option value="include" data-i18n="tax.filingInclude">นับในรายงาน</option>
-            <option value="exclude" data-i18n="tax.filingExclude">ไม่นับในรายงาน</option>
-          </select>
-        </div>
-      </div>
+      <!-- v1.9.37 · Filing status toggle removed · all jobs always appear in tax report -->
     </div>
 
     <!-- ====== SCREEN: CALENDAR ====== -->
@@ -5212,6 +5199,15 @@
           ข้อมูลเหล่านี้จะแสดงในใบเสนอราคา · ใบกำกับภาษี · ใบเสร็จรับเงิน · ใช้สำหรับลูกค้าองค์กรและการยื่นภาษี
         </div>
 
+        <!-- v1.9.38 · Legal disclaimer -->
+        <div style="background:#fef3c7; border:1px solid #fbbf24; border-radius:12px; padding:12px 14px; margin-bottom:16px; font-size:12px; line-height:1.65; color:#78350f;">
+          <div style="font-weight:700; margin-bottom:6px; font-size:12.5px;">🛡 ข้อตกลงการใช้งาน · ภาษี</div>
+          <div style="margin-bottom:5px;">• Pixory เป็นเครื่องมือช่วยคำนวณและเก็บข้อมูลงาน · <strong>ไม่ใช่ที่ปรึกษาภาษี</strong> หรือนักบัญชีที่ได้รับอนุญาต</div>
+          <div style="margin-bottom:5px;">• ตัวเลขที่คำนวณ ผู้ใช้ต้องตรวจสอบความถูกต้องด้วยตนเอง<strong>ก่อนยื่นจริง</strong>ทุกครั้ง</div>
+          <div style="margin-bottom:5px;">• แนะนำให้<strong>ปรึกษานักบัญชี/ผู้สอบบัญชี</strong>ก่อนยื่นภาษีจริง · เพื่อความถูกต้องตามกฎหมาย</div>
+          <div>• ผู้ใช้รับผิดชอบข้อมูลที่กรอกและการยื่นภาษีตามกฎหมายทั้งหมด</div>
+        </div>
+
         <div class="settings-section">
           <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; padding: 0 4px;">ข้อมูลผู้เสียภาษี · สตูดิโอ</div>
           <div class="form-group">
@@ -6297,7 +6293,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.36';
+const PIXORY_VERSION = '1.9.38';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6308,6 +6304,50 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.38': {
+    date: '2026-05-23',
+    title: 'Excel ภาษี · เห็นรายได้รวมทั้งปี',
+    subtitle: 'หน้า "รายได้รวมทั้งปี" ใน Excel · ครบทุกงาน · ไม่ว่ามีภาษีหรือไม่',
+    items: [
+      {
+        icon: '📊',
+        title: 'Sheet 4 ใหม่ · "รายได้รวมทั้งปี"',
+        desc: 'เปลี่ยนจาก "งานที่ยื่นทั้งหมด" → "รายได้รวมทั้งปี" · บรรจุทุกงานในปีไม่ว่ามีภาษีหรือไม่ · มี VAT/WHT แสดงเป็น 0 สำหรับงาน B2C ปกติ · เห็นภาพรวมรายได้ครบ'
+      },
+      {
+        icon: '🧾',
+        title: 'Sheet 1 สรุปครอบคลุมขึ้น',
+        desc: 'หน้าสรุปเพิ่ม "รายได้รวมทั้งปี (ทุกงาน)" + จำนวนงานทั้งหมด · แยกจาก "งานที่เกี่ยวกับภาษี" ชัดเจน · นักบัญชีอ่านง่าย'
+      },
+      {
+        icon: '🛡',
+        title: 'เพิ่ม disclaimer ในตั้งค่าภาษี',
+        desc: 'เพิ่มกล่องข้อตกลงสีเหลือง · ระบุว่า Pixory เป็นเครื่องมือช่วยคำนวณ ไม่ใช่ที่ปรึกษาภาษี · แนะนำให้ปรึกษานักบัญชีก่อนยื่นจริง · ผู้ใช้รับผิดชอบข้อมูลและการยื่นเอง'
+      },
+      {
+        icon: '📋',
+        title: 'Sheet 2 (ภ.พ.30) · Sheet 3 (ภ.ง.ด.3) คงเดิม',
+        desc: 'หน้า VAT · WHT ยังเป็นเฉพาะงานที่มีภาษี · ตรงรูปแบบราชการ · ใช้ส่งให้นักบัญชีได้'
+      }
+    ]
+  },
+  '1.9.37': {
+    date: '2026-05-23',
+    title: 'รายงานภาษี · แสดงทุกงานครบ',
+    subtitle: 'รายงานภาษีแสดงทุกงานที่มีภาษีโดยอัตโนมัติ · ลดความซับซ้อน',
+    items: [
+      {
+        icon: '📊',
+        title: 'ลบตัวเลือก "สถานะการยื่น"',
+        desc: 'หน้ารายละเอียดงาน · นำการ์ด "สถานะการยื่นภาษี" (auto/include/exclude) ออก · ตอนนี้ทุกงานที่เปิด "ออกใบกำกับภาษี" ไว้จะอยู่ในรายงานและไฟล์ Excel โดยอัตโนมัติ · ไม่ต้องตั้งค่าเพิ่ม · ตัวเลขถูกต้อง ตรวจสอบง่าย'
+      },
+      {
+        icon: '✨',
+        title: 'รายงานภาษีโล่ง · ตัวกรองสะอาดขึ้น',
+        desc: 'หน้ารายงานภาษี · ตัวกรอง "ไม่นับ" ถูกลบออก · เหลือ ทั้งหมด / B2C / B2B / Gov / VIP'
+      }
+    ]
+  },
   '1.9.36': {
     date: '2026-05-23',
     title: 'Polish · ปรับปรุงการ sync',
@@ -8837,16 +8877,13 @@ const I18N = {
   'tax.kpiWht':             { th: 'WHT ถูกหัก', en: 'WHT withheld' },
   'tax.kpiNet':             { th: 'ยอดสุทธิที่รับจริง', en: 'Net received' },
   'tax.exportExcelBtn':     { th: 'บันทึก Excel · ภ.พ.30 · ภ.ง.ด. 3', en: 'Export Excel · VAT report · WHT report' },
-  'tax.filingAuto':         { th: 'อัตโนมัติ', en: 'Auto' },
-  'tax.filingInclude':      { th: 'นับในรายงาน', en: 'Include in report' },
-  'tax.filingExclude':      { th: 'ไม่นับในรายงาน', en: 'Exclude from report' },
-  'tax.filingLabel':        { th: 'สถานะการยื่นภาษี', en: 'Filing status' },
+  // v1.9.37 · filing status feature removed entirely — i18n keys deleted
   'tax.fchipAll':           { th: 'ทั้งหมด', en: 'All' },
   'tax.fchipB2C':           { th: '👤 บุคคล', en: '👤 B2C' },
   'tax.fchipB2B':           { th: '🏢 B2B', en: '🏢 B2B' },
   'tax.fchipGov':           { th: '🏛 Gov', en: '🏛 Gov' },
   'tax.fchipVIP':           { th: '💎 VIP', en: '💎 VIP' },
-  'tax.fchipExcluded':      { th: '🚫 ไม่นับ', en: '🚫 Excluded' },
+  // v1.9.37 · 'tax.fchipExcluded' removed · cannot exclude jobs from report anymore
 
   // Section
   'sec.allJobs':       { th: 'งานทั้งหมด',         en: 'All Jobs' },
@@ -10665,22 +10702,7 @@ function openJob(code) {
       _taxBlock.style.display = 'none';
     }
   }
-  // Tax T3 — filing selector
-  const _fSel = document.getElementById('job-filing-select');
-  const _fHint = document.getElementById('job-filing-hint');
-  if (_fSel) _fSel.value = j.filing || 'auto';
-  if (_fHint) {
-    const inReport = (typeof isJobInTaxReport === 'function') ? isJobInTaxReport(j) : !!j.taxEnabled;
-    const reason = (j.filing === 'include')
-      ? (LANG === 'en' ? 'Forced include' : 'บังคับนับ')
-      : (j.filing === 'exclude')
-        ? (LANG === 'en' ? 'Forced exclude — won\'t appear in report/Excel' : 'บังคับไม่นับ — จะไม่ขึ้นในรายงาน/Excel')
-        : (j.taxEnabled
-            ? (LANG === 'en' ? 'Auto: included (taxEnabled)' : 'อัตโนมัติ: นับ (เปิดภาษีไว้)')
-            : (LANG === 'en' ? 'Auto: excluded (no tax)' : 'อัตโนมัติ: ไม่นับ (ไม่มีภาษี)'));
-    _fHint.textContent = reason;
-    _fHint.style.color = inReport ? '#15803d' : '#a89a8c';
-  }
+  // v1.9.37 · Filing selector removed · all jobs always appear in tax report
 
   // v1.9.30 · note (หมายเหตุ) display
   const _noteBlock = document.getElementById('job-note-block');
@@ -16657,39 +16679,15 @@ function _refreshAddFormCtypeUI() {
 // === TAX T3 · REPORTS + EXCEL EXPORT + SELECTIVE FILING ======================
 // ============================================================================
 
-// Selective filing: each job has `filing` ∈ ('auto' | 'include' | 'exclude')
+// v1.9.37 · filing override feature removed · simplified tax report inclusion
 // 'auto' = include if job.taxEnabled is true (default)
 // 'include' = force include (even if taxEnabled is false — rare but allowed)
 // 'exclude' = force exclude (e.g. cash, off-book — common in TH)
+// v1.9.37 · filing override removed for legal compliance · always based on tax data
+// Jobs with taxEnabled appear in VAT/WHT reports · all jobs always appear in "All Jobs" Excel sheet
 function isJobInTaxReport(j) {
   if (!j) return false;
-  const f = j.filing || 'auto';
-  if (f === 'include') return true;
-  if (f === 'exclude') return false;
-  return !!j.taxEnabled;  // auto
-}
-
-// Called by the Job Detail filing dropdown — updates current job & refreshes hint text
-function onJobFilingChange(mode) {
-  const j = window._currentJob;
-  if (!j) return;
-  j.filing = (mode === 'include' || mode === 'exclude' || mode === 'auto') ? mode : 'auto';
-  saveData();
-  // Re-render just the hint
-  const _fHint = document.getElementById('job-filing-hint');
-  if (_fHint) {
-    const inReport = isJobInTaxReport(j);
-    const reason = (j.filing === 'include')
-      ? (LANG === 'en' ? 'Forced include' : 'บังคับนับ')
-      : (j.filing === 'exclude')
-        ? (LANG === 'en' ? 'Forced exclude — won\'t appear in report/Excel' : 'บังคับไม่นับ — จะไม่ขึ้นในรายงาน/Excel')
-        : (j.taxEnabled
-            ? (LANG === 'en' ? 'Auto: included (taxEnabled)' : 'อัตโนมัติ: นับ (เปิดภาษีไว้)')
-            : (LANG === 'en' ? 'Auto: excluded (no tax)' : 'อัตโนมัติ: ไม่นับ (ไม่มีภาษี)'));
-    _fHint.textContent = reason;
-    _fHint.style.color = inReport ? '#15803d' : '#a89a8c';
-  }
-  toast(LANG === 'en' ? 'Filing updated' : 'อัปเดตสถานะการยื่นแล้ว');
+  return !!j.taxEnabled;
 }
 
 // Tax-year period: returns {start: Date, end: Date, label: string}
@@ -16710,7 +16708,7 @@ function getTaxYearPeriod(year) {
 }
 
 let _taxReportYear = null;
-let _taxReportFilter = 'all';  // 'all' | 'B2B' | 'Gov' | 'excluded'
+let _taxReportFilter = 'all';  // v1.9.37 · 'all' | 'B2C' | 'B2B' | 'Gov' | 'VIP' · 'excluded' removed
 
 function getTaxReportRows(year, filter) {
   const period = getTaxYearPeriod(year);
@@ -16721,19 +16719,13 @@ function getTaxReportRows(year, filter) {
     if (isNaN(d)) return;
     if (d > today) return;  // Skip future-dated jobs
     if (d < period.start || d > period.end) return;
-    // Filter by inclusion + customer type
+    // v1.9.37 · filter by tax inclusion + customer type · no "excluded" override
     const included = isJobInTaxReport(j);
-    if (filter === 'excluded') {
-      // Show jobs that are tax-eligible (B2B/Gov OR taxEnabled was set) but currently excluded
-      if (included) return;
-      if (!j.taxEnabled && j.customerType !== 'B2B' && j.customerType !== 'Gov') return;
-    } else {
-      if (!included) return;
-      if (filter === 'B2C' && j.customerType !== 'B2C') return;
-      if (filter === 'B2B' && j.customerType !== 'B2B') return;
-      if (filter === 'Gov' && j.customerType !== 'Gov') return;
-      if (filter === 'VIP' && j.customerType !== 'VIP') return;
-    }
+    if (!included) return;
+    if (filter === 'B2C' && j.customerType !== 'B2C') return;
+    if (filter === 'B2B' && j.customerType !== 'B2B') return;
+    if (filter === 'Gov' && j.customerType !== 'Gov') return;
+    if (filter === 'VIP' && j.customerType !== 'VIP') return;
     // Compute breakdown if missing
     let breakdown = j.taxBreakdown;
     if (!breakdown && j.taxEnabled && j.tax) breakdown = calcTax(j.sell || 0, j.tax);
@@ -16750,7 +16742,7 @@ function getTaxReportRows(year, filter) {
       base: breakdown.base, vatAmount: breakdown.vatAmount, vatRate: breakdown.vatRate,
       whtAmount: breakdown.whtAmount, whtRate: breakdown.whtRate, whtBasis: breakdown.whtBasis,
       grandTotal: breakdown.grandTotal, netReceived: breakdown.netReceived,
-      filing: j.filing || 'auto',
+      // v1.9.37 · filing field removed
       taxEnabled: !!j.taxEnabled
     });
   });
@@ -16816,13 +16808,13 @@ function renderTaxReport() {
   const chips = document.getElementById('tr-filter-chips');
   if (chips) {
     chips.innerHTML = '';
+    // v1.9.37 · 'excluded' chip removed · cannot hide jobs from report
     const opts = [
       { id: 'all', label: t('tax.fchipAll') },
       { id: 'B2C', label: t('tax.fchipB2C') },
       { id: 'B2B', label: t('tax.fchipB2B') },
       { id: 'Gov', label: t('tax.fchipGov') },
-      { id: 'VIP', label: t('tax.fchipVIP') },
-      { id: 'excluded', label: t('tax.fchipExcluded') }
+      { id: 'VIP', label: t('tax.fchipVIP') }
     ];
     opts.forEach(o => {
       const c = document.createElement('div');
@@ -16848,11 +16840,8 @@ function renderTaxReport() {
       const dp = dateParts(r.date);
       const monShort = (typeof monthsShortArray === 'function') ? monthsShortArray()[dp.m] : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dp.m];
       const typePill = (typeof customerTypePill === 'function') ? customerTypePill(r.customerType, 'compact') : '';
-      const filingTag = r.filing === 'exclude'
-        ? '<span style="font-size:9.5px; color:#dc2626; background:#fee2e2; padding:1px 5px; border-radius:6px; margin-left:4px;">🚫 ' + t('tax.filingExclude') + '</span>'
-        : (r.filing === 'include' && !r.taxEnabled
-            ? '<span style="font-size:9.5px; color:#0c4a6e; background:#e0f2fe; padding:1px 5px; border-radius:6px; margin-left:4px;">+ ' + t('tax.filingInclude') + '</span>'
-            : '');
+      // v1.9.37 · filing tag removed · all eligible jobs always appear in report
+      const filingTag = '';
       html += '<div onclick="openJob(\'' + r.code + '\')" style="display:flex; gap:10px; padding:12px 14px; border-bottom:1px solid #f3f4f6; cursor:pointer; align-items:flex-start;">';
       html += '<div style="width:42px; text-align:center; flex-shrink:0;"><div style="font-size:17px; font-weight:700; color:#3a2f25; line-height:1.1;">' + dp.d + '</div><div style="font-size:10px; color:#a89a8c; text-transform:uppercase;">' + monShort + '</div></div>';
       html += '<div style="flex:1; min-width:0;">';
@@ -16876,10 +16865,19 @@ function exportTaxExcel() {
     return;
   }
   const yr = _taxReportYear || new Date().getFullYear();
-  // Pull ALL eligible rows for the year (ignore current chip filter — export should be complete)
+  // Pull tax-eligible rows for the year (for VAT/WHT sheets)
   const { rows, period } = getTaxReportRows(yr, 'all');
-  const excludedJobs = getTaxReportRows(yr, 'excluded').rows;
   const summary = summariseTaxRows(rows);
+
+  // v1.9.38 · Pull ALL jobs in the period (including non-tax jobs) for "All Revenue" sheet
+  const today = new Date();
+  const allJobs = JOBS.filter(j => {
+    const d = new Date(j.date);
+    if (isNaN(d)) return false;
+    if (d > today) return false;
+    return d >= period.start && d <= period.end;
+  }).sort((a, b) => new Date(a.date) - new Date(b.date));
+  const totalRevenueAll = allJobs.reduce((s, j) => s + (j.sell || 0), 0);
 
   const wb = XLSX.utils.book_new();
 
@@ -16895,15 +16893,18 @@ function exportTaxExcel() {
     [LANG === 'en' ? 'Period' : 'ช่วงเวลา', period.start.toISOString().slice(0,10) + '  →  ' + period.end.toISOString().slice(0,10)],
     [LANG === 'en' ? 'Generated' : 'สร้างเมื่อ', new Date().toISOString().slice(0,10)],
     [],
-    [LANG === 'en' ? '— Totals —' : '— สรุปยอด —'],
-    [LANG === 'en' ? 'Number of filed jobs' : 'จำนวนงานที่ยื่น', rows.length],
+    // v1.9.38 · Overall revenue (ALL jobs · including non-tax)
+    [LANG === 'en' ? '— Total Revenue (All Jobs) —' : '— รายได้รวมทั้งปี (ทุกงาน) —'],
+    [LANG === 'en' ? 'Total jobs in year' : 'จำนวนงานทั้งหมด', allJobs.length],
+    [LANG === 'en' ? 'Total revenue (sell price)' : 'ยอดรายได้รวม (ราคาขาย)', totalRevenueAll],
+    [],
+    // Tax-specific subset
+    [LANG === 'en' ? '— Tax-related Jobs (subset) —' : '— เฉพาะงานที่เกี่ยวกับภาษี —'],
+    [LANG === 'en' ? 'Number of tax-eligible jobs' : 'จำนวนงานที่มีภาษี', rows.length],
     [LANG === 'en' ? 'Gross sales (pre-tax)' : 'ยอดขายก่อนภาษี', summary.gross],
     [LANG === 'en' ? 'Total VAT (output)' : 'VAT รวม (ขายออก)', summary.vat],
     [LANG === 'en' ? 'Total WHT withheld' : 'WHT ถูกหักรวม', summary.wht],
-    [LANG === 'en' ? 'Net received' : 'ยอดสุทธิที่รับจริง', summary.net],
-    [],
-    [LANG === 'en' ? '— Excluded jobs (not filed) —' : '— งานที่ไม่ได้ยื่น (excluded) —'],
-    [LANG === 'en' ? 'Count' : 'จำนวน', excludedJobs.length]
+    [LANG === 'en' ? 'Net received from tax jobs' : 'ยอดสุทธิที่รับจริงจากงานภาษี', summary.net]
   ];
   const ws0 = XLSX.utils.aoa_to_sheet(summaryRows);
   ws0['!cols'] = [{ wch: 28 }, { wch: 22 }];
@@ -16964,23 +16965,43 @@ function exportTaxExcel() {
   ws2['!cols'] = [{ wch: 5 }, { wch: 12 }, { wch: 14 }, { wch: 18 }, { wch: 28 }, { wch: 8 }, { wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 14 }, { wch: 14 }];
   XLSX.utils.book_append_sheet(wb, ws2, LANG === 'en' ? 'WHT (PND3)' : 'ภ.ง.ด.3 ถูกหัก');
 
-  // === Sheet 4: All filed jobs (raw)
+  // === Sheet 4: All Revenue · v1.9.38 · ALL jobs in year (tax + non-tax) for total revenue overview
   const allHeader = LANG === 'en'
-    ? ['Date', 'Job Code', 'Customer', 'Customer Type', 'Tax ID', 'Company', 'Job Type', 'Location', 'Base', 'VAT', 'Grand Total', 'WHT', 'Net Received', 'Filing']
-    : ['วันที่', 'เลขที่งาน', 'ลูกค้า', 'ประเภท', 'เลขผู้เสียภาษี', 'บริษัท', 'ประเภทงาน', 'สถานที่', 'ฐาน', 'VAT', 'ยอดเรียกเก็บ', 'WHT', 'สุทธิ', 'การยื่น'];
-  const allBody = rows.map(r => [
-    r.date, r.code, r.customer, r.customerType, r.customerTaxId || '', r.customerCompany || '',
-    r.type, r.location, r.base, r.vatAmount, r.grandTotal, r.whtAmount, r.netReceived, r.filing
-  ]);
+    ? ['Date', 'Job Code', 'Customer', 'Customer Type', 'Tax ID', 'Company', 'Job Type', 'Location', 'Sell Price', 'VAT', 'WHT', 'Net Received', 'Has Tax']
+    : ['วันที่', 'เลขที่งาน', 'ลูกค้า', 'ประเภท', 'เลขผู้เสียภาษี', 'บริษัท', 'ประเภทงาน', 'สถานที่', 'ยอดขาย', 'VAT', 'WHT', 'สุทธิ', 'มี ภาษี'];
+  const allBody = allJobs.map(j => {
+    const bd = j.taxBreakdown || (j.taxEnabled && j.tax && typeof calcTax === 'function' ? calcTax(j.sell || 0, j.tax) : null);
+    const vatAmt = bd ? bd.vatAmount : 0;
+    const whtAmt = bd ? bd.whtAmount : 0;
+    const grandTotal = bd ? bd.grandTotal : (j.sell || 0);
+    const netReceived = bd ? bd.netReceived : (j.sell || 0);
+    const hasTax = j.taxEnabled ? (LANG === 'en' ? 'Yes' : 'มี') : (LANG === 'en' ? 'No' : 'ไม่มี');
+    return [
+      j.date, j.code, j.customer || '', j.customerType || 'B2C',
+      j.customerTaxId || '', j.customerCompanyName || '',
+      j.type || '', j.loc || '',
+      j.sell || 0, vatAmt, whtAmt, netReceived, hasTax
+    ];
+  });
+  // Totals row
+  if (allBody.length > 0) {
+    const tSell = allBody.reduce((s, r) => s + (r[8] || 0), 0);
+    const tVat  = allBody.reduce((s, r) => s + (r[9] || 0), 0);
+    const tWht  = allBody.reduce((s, r) => s + (r[10] || 0), 0);
+    const tNet  = allBody.reduce((s, r) => s + (r[11] || 0), 0);
+    allBody.push(['', '', '', '', '', '', '', LANG === 'en' ? 'TOTAL' : 'รวม', tSell, tVat, tWht, tNet, '']);
+  }
   const ws3 = XLSX.utils.aoa_to_sheet([allHeader, ...allBody]);
-  ws3['!cols'] = [{ wch: 12 }, { wch: 14 }, { wch: 22 }, { wch: 8 }, { wch: 18 }, { wch: 24 }, { wch: 12 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }];
-  XLSX.utils.book_append_sheet(wb, ws3, LANG === 'en' ? 'All Filed Jobs' : 'งานที่ยื่นทั้งหมด');
+  ws3['!cols'] = [{ wch: 12 }, { wch: 14 }, { wch: 22 }, { wch: 8 }, { wch: 18 }, { wch: 24 }, { wch: 12 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }];
+  XLSX.utils.book_append_sheet(wb, ws3, LANG === 'en' ? 'All Revenue' : 'รายได้รวมทั้งปี');
 
   // Filename
   const safe = (s) => (s || '').toString().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_').slice(0, 40);
   const fname = 'Pixory_Tax_' + safe(studioName || 'Studio') + '_' + yr + '.xlsx';
   XLSX.writeFile(wb, fname);
-  toast(LANG === 'en' ? 'Tax Excel exported · ' + rows.length + ' jobs' : 'ส่งออก Excel · ' + rows.length + ' งาน');
+  toast(LANG === 'en'
+    ? 'Excel exported · ' + allJobs.length + ' jobs (' + rows.length + ' with tax)'
+    : 'ส่งออก Excel · ' + allJobs.length + ' งาน (' + rows.length + ' งานมีภาษี)');
 }
 
 // ========== EQUIPMENT ==========
