@@ -175,7 +175,8 @@
   .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 0.5px solid #d1d5db; background: white; font-size: 14px; font-family: inherit; }
   .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #d8704a; box-shadow: 0 0 0 3px rgba(216,112,74,0.15); }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  /* v1.9.20 · row-gap 8px so wrapped chip rows breathe; column-gap 6px stays compact */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px 6px; align-items: flex-start; }
   .chip { padding: 7px 12px; border-radius: 16px; background: white; border: 0.5px solid #d1d5db; font-size: 12px; cursor: pointer; user-select: none; transition: all .1s; }
   .chip.active { background: #3a2f25; color: white; border-color: #3a2f25; }
   .chip .price { color: #7c7066; margin-left: 6px; font-size: 11px; }
@@ -1117,17 +1118,18 @@
   }
 
   /* ---- Chip / Filter chip glass ---- */
+  /* v1.9.20 · removed backdrop-filter from chips — caused visual "seam" when chips wrapped
+     to multiple rows (overlapping blur halos). Use plain solid translucent fill instead. */
   .chip {
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    isolation: isolate;
   }
   body:not(.dark-theme) .chip {
-    background: rgba(255,255,255,.7);
-    border: 0.5px solid rgba(0,0,0,.06);
+    background: rgba(255,255,255,.85);
+    border: 0.5px solid rgba(0,0,0,.08);
   }
   body.dark-theme .chip {
-    background: rgba(255,255,255,.08);
-    border: 0.5px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.1);
+    border: 0.5px solid rgba(255,255,255,.12);
   }
   body:not(.dark-theme) .chip.active {
     background: #3a2f25;
@@ -2651,6 +2653,55 @@
   }
   body.dark-theme #whatsnew-modal .wn-footer-note { color: #807870; }
 
+  /* v1.9.19 · ราคาสุทธิ card · dark theme overrides (fix invisible text in dark mode) */
+  body.dark-theme #add-final-summary,
+  body.dark-theme #nq-final-summary {
+    background: linear-gradient(135deg, rgba(40,32,24,0.95), rgba(74,46,28,0.85)) !important;
+    border-color: rgba(216,112,74,0.3) !important;
+    box-shadow: 0 6px 22px -4px rgba(0,0,0,0.4) !important;
+  }
+  body.dark-theme #add-final-summary .sec-title,
+  body.dark-theme #nq-final-summary .sec-title { color: #f5f0e8; }
+  body.dark-theme #add-final-breakdown span[style*="color:#3a2f25"],
+  body.dark-theme #nq-final-breakdown span[style*="color:#3a2f25"] {
+    color: #f5f0e8 !important;
+  }
+  body.dark-theme #add-final-breakdown span[style*="color:#7c7066"],
+  body.dark-theme #nq-final-breakdown span[style*="color:#7c7066"] {
+    color: #b8b0a4 !important;
+  }
+  body.dark-theme #add-final-breakdown div[style*="border-top"],
+  body.dark-theme #nq-final-breakdown div[style*="border-top"] {
+    border-top-color: rgba(255,255,255,0.15) !important;
+  }
+  /* "ราคาเรียกเก็บ (gross)" muted line */
+  body.dark-theme #add-final-breakdown span[style*="color:#7c7066"][style*="font-size:11.5px"],
+  body.dark-theme #nq-final-breakdown span[style*="color:#7c7066"][style*="font-size:11.5px"] {
+    color: #a89a8c !important;
+  }
+  /* Discount red — slightly lighter in dark */
+  body.dark-theme #add-final-breakdown span[style*="color:#dc2626"],
+  body.dark-theme #nq-final-breakdown span[style*="color:#dc2626"] {
+    color: #fca5a5 !important;
+  }
+  /* VAT green — keep green but slightly brighter */
+  body.dark-theme #add-final-breakdown span[style*="color:#15803d"],
+  body.dark-theme #nq-final-breakdown span[style*="color:#15803d"] {
+    color: #6ee7b7 !important;
+  }
+
+  /* v1.9.19 · ค่าใช้จ่ายในงานนี้ multi-item · dark theme overrides */
+  body.dark-theme .cost-item-row {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+  body.dark-theme .cost-item-row input[type="text"],
+  body.dark-theme .cost-item-row input[type="number"] {
+    background: rgba(40,32,24,0.7) !important;
+    color: #f5f0e8 !important;
+    border-color: rgba(255,255,255,0.1) !important;
+  }
+
   /* v1.9.18 · Tabbed form layout for New Job + New Quote (Layout C) */
   .form-tabs {
     display: flex;
@@ -2861,26 +2912,26 @@
     line-height: 1.4;
   }
   body.dark-theme .custom-items-header .subtitle { color: #8a8275; }
-  /* v1.9.16 · larger, more visible toggle button */
+  /* v1.9.20 · pill button "+ เพิ่ม" / "✕ ปิด" (replaces ▾ arrow) */
   .custom-items-header .arrow {
-    font-size: 16px;
+    font-size: 12px;
     color: #d8704a;
-    transition: transform .2s ease;
     flex-shrink: 0;
-    width: 34px;
-    height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 7px 14px;
     background: rgba(216, 112, 74, 0.1);
-    border-radius: 50%;
+    border-radius: 999px;
     font-weight: 700;
+    white-space: nowrap;
+    transition: background .15s ease;
   }
   body.dark-theme .custom-items-header .arrow {
     color: #f4a36a;
     background: rgba(216, 112, 74, 0.2);
   }
-  .custom-items-section.open .custom-items-header .arrow { transform: rotate(180deg); }
+  .custom-items-header .arrow .arrow-open { display: none; }
+  .custom-items-section.open .custom-items-header .arrow .arrow-closed { display: none; }
+  .custom-items-section.open .custom-items-header .arrow .arrow-open { display: inline; }
+  .custom-items-header:active .arrow { background: rgba(216, 112, 74, 0.18); }
   .custom-items-body {
     margin-top: 12px;
     display: none;
@@ -3801,16 +3852,16 @@
       <div class="settings-section custom-items-section" id="add-custom-section">
         <div class="custom-items-header" onclick="toggleCustomItems('add')">
           <div class="title-wrap">
-            <div class="sec-title-inline">📝 แพคเกจแบบกำหนดรายละเอียดเอง</div>
-            <div class="subtitle">งานนอกแพคเกจหลัก · ตั้งราคา-บริการเอง</div>
+            <div class="sec-title-inline" data-i18n="custom.title">📝 แพคเกจแบบกำหนดรายละเอียดเอง</div>
+            <div class="subtitle" data-i18n="custom.subtitle">งานนอกแพคเกจหลัก · ตั้งราคา-บริการเอง</div>
           </div>
-          <div class="arrow">▾</div>
+          <div class="arrow"><span class="arrow-closed" data-i18n="custom.addBtn">+ เพิ่ม</span><span class="arrow-open" data-i18n="custom.closeBtn">✕ ปิด</span></div>
         </div>
         <div class="custom-items-body">
           <div id="add-custom-list"></div>
-          <button type="button" class="custom-add-btn" onclick="addCustomItem('add')">+ เพิ่มรายการ</button>
+          <button type="button" class="custom-add-btn" onclick="addCustomItem('add')" data-i18n="custom.addItem">+ เพิ่มรายการ</button>
           <div class="custom-summary-line" id="add-custom-summary" style="display:none;">
-            <span class="lbl">รวมงานพิเศษ</span>
+            <span class="lbl" data-i18n="custom.subtotal">รวมงานพิเศษ</span>
             <span class="val" id="add-custom-sum">฿0</span>
           </div>
         </div>
@@ -3916,7 +3967,7 @@
 
       <!-- v1.9.19 · Section 7: ค่าใช้จ่ายในงานนี้ (multi-item) -->
       <div class="settings-section">
-        <div class="sec-title">💸 ค่าใช้จ่ายในงานนี้ <span style="color:#a89a8c; font-weight:400; font-size:10.5px; margin-left:6px; text-transform:none; letter-spacing:0;">· ไม่โชว์ลูกค้า</span></div>
+        <div class="sec-title"><span data-i18n="cost.title">💸 ค่าใช้จ่ายในงานนี้</span> <span style="color:#a89a8c; font-weight:400; font-size:10.5px; margin-left:6px; text-transform:none; letter-spacing:0;" data-i18n="cost.notShown">· ไม่โชว์ลูกค้า</span></div>
         <!-- Team wages auto (kept for backward compat) -->
         <div class="form-group" style="margin: 0 0 10px;">
           <label data-i18n="aj.teamCostAuto">ค่าแรงทีม (รวมอัตโนมัติ)</label>
@@ -3924,9 +3975,9 @@
         </div>
         <!-- Multi-item cost list -->
         <div id="add-costs-list" style="margin: 6px 0 8px;"></div>
-        <button type="button" onclick="addCostItem()" style="width:100%; padding:10px; background:transparent; color:#7c7066; border:1px dashed rgba(0,0,0,0.18); border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;">+ เพิ่มรายการ</button>
+        <button type="button" onclick="addCostItem()" style="width:100%; padding:10px; background:transparent; color:#7c7066; border:1px dashed rgba(0,0,0,0.18); border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;" data-i18n="custom.addItem">+ เพิ่มรายการ</button>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:8px; border-top:0.5px dashed rgba(0,0,0,0.08); font-size:12.5px;">
-          <span style="color:#7c7066;">รวมค่าใช้จ่าย</span>
+          <span style="color:#7c7066;" data-i18n="cost.subtotal">รวมค่าใช้จ่าย</span>
           <span style="color:#3a2f25; font-weight:700;" id="add-costs-sum">฿0</span>
         </div>
         <!-- Hidden inputs for backward compat (set to 0; sum kept in costItems) -->
@@ -3945,7 +3996,7 @@
 
       <!-- v1.9.19 · ราคาสุทธิ — full breakdown -->
       <div class="settings-section" id="add-final-summary" style="margin: 0 16px 12px; background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(254,243,235,0.85)); border:0.5px solid rgba(216,112,74,0.18); box-shadow:0 6px 22px -4px rgba(216,112,74,0.12);">
-        <div class="sec-title">💎 ราคาสุทธิ</div>
+        <div class="sec-title" data-i18n="final.title">💎 ราคาสุทธิ</div>
         <div id="add-final-breakdown" style="font-size:12px;"></div>
         <!-- Hidden legacy fields kept for compatibility with existing rendering elsewhere -->
         <span id="add-total" style="display:none;">฿0</span>
@@ -4243,8 +4294,8 @@
         </div>
       </div>
 
-      <!-- Editor section -->
-      <div class="settings-section" style="margin-top: 12px;">
+      <!-- Editor section · v1.9.20 — borderless, transparent (no card frame) -->
+      <div class="settings-section" id="inv-editor-section" style="margin-top: 12px; background: transparent; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none;">
         <div class="sec-title" data-i18n="inv.editorTitle">⚙ ปรับแต่งใบเรียกเก็บฯ</div>
 
         <div class="form-row" style="margin-bottom: 10px;">
@@ -4449,16 +4500,16 @@
       <div class="settings-section custom-items-section" id="nq-custom-section">
         <div class="custom-items-header" onclick="toggleCustomItems('nq')">
           <div class="title-wrap">
-            <div class="sec-title-inline">📝 แพคเกจแบบกำหนดรายละเอียดเอง</div>
-            <div class="subtitle">งานนอกแพคเกจหลัก · ตั้งราคา-บริการเอง</div>
+            <div class="sec-title-inline" data-i18n="custom.title">📝 แพคเกจแบบกำหนดรายละเอียดเอง</div>
+            <div class="subtitle" data-i18n="custom.subtitle">งานนอกแพคเกจหลัก · ตั้งราคา-บริการเอง</div>
           </div>
-          <div class="arrow">▾</div>
+          <div class="arrow"><span class="arrow-closed" data-i18n="custom.addBtn">+ เพิ่ม</span><span class="arrow-open" data-i18n="custom.closeBtn">✕ ปิด</span></div>
         </div>
         <div class="custom-items-body">
           <div id="nq-custom-list"></div>
-          <button type="button" class="custom-add-btn" onclick="addCustomItem('nq')">+ เพิ่มรายการ</button>
+          <button type="button" class="custom-add-btn" onclick="addCustomItem('nq')" data-i18n="custom.addItem">+ เพิ่มรายการ</button>
           <div class="custom-summary-line" id="nq-custom-summary" style="display:none;">
-            <span class="lbl">รวมงานพิเศษ</span>
+            <span class="lbl" data-i18n="custom.subtotal">รวมงานพิเศษ</span>
             <span class="val" id="nq-custom-sum">฿0</span>
           </div>
         </div>
@@ -5970,12 +6021,44 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.19';
+const PIXORY_VERSION = '1.9.20';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.20': {
+    date: '2026-05-23',
+    title: 'Polish · ปุ่ม "+ เพิ่ม" + รองรับภาษาอังกฤษ',
+    subtitle: 'Custom card ใช้ pill "+ เพิ่ม" แทนลูกศร · ทุก section ใหม่รองรับ EN',
+    items: [
+      {
+        icon: '➕',
+        title: 'เปลี่ยน ▾ → "+ เพิ่ม" / "✕ ปิด"',
+        desc: 'ปุ่ม expand ของการ์ดแพคเกจกำหนดเอง เปลี่ยนเป็น pill "+ เพิ่ม" ตอนปิด · "✕ ปิด" ตอนเปิด · ชัดเจนกว่าลูกศร'
+      },
+      {
+        icon: '🌐',
+        title: 'รองรับภาษาอังกฤษทุก section ใหม่',
+        desc: 'เพิ่ม i18n keys สำหรับ แพคเกจหลัก · แพคเกจกำหนดเอง · ค่าใช้จ่ายในงานนี้ · ราคาสุทธิ · เวลาทำงาน · สลับ EN/TH ได้ตามปกติ'
+      },
+      {
+        icon: '🎨',
+        title: 'แก้ chip-row · รอยซ้อนระหว่างแถว',
+        desc: 'ลบ backdrop-filter ออกจาก chip · เพิ่ม row-gap → เมื่อ chip wrap หลายแถว ไม่มีเงาเทาซ้อนเล็ก ๆ ระหว่างแถวอีก'
+      },
+      {
+        icon: '🌙',
+        title: 'แก้ ราคาสุทธิ card ในธีมมืด',
+        desc: 'ตัวเลขที่เคยเป็นสีน้ำตาลเข้มมองไม่เห็นใน dark mode · ตอนนี้ปรับเป็นขาวครีมอ่านง่าย'
+      },
+      {
+        icon: '✨',
+        title: 'ลบกรอบรอบ "ปรับแต่งใบเรียกเก็บ"',
+        desc: 'กรอบเทาจางๆ ที่ดูรกตา ตอนนี้ section นี้ใส (transparent) แล้ว'
+      }
+    ]
+  },
   '1.9.19': {
     date: '2026-05-23',
     title: 'รีดีไซน์หน้างานใหม่ครั้งใหญ่',
@@ -7811,6 +7894,35 @@ const LANG_KEY = 'pixory_lang_v1';
 let LANG = 'th';
 
 const I18N = {
+  // v1.9.20 · New strings (form redesign + custom items + costs + ราคาสุทธิ)
+  'pkg.mainTitle':       { th: '📷 แพคเกจหลัก', en: '📷 Main Packages' },
+  'custom.title':        { th: '📝 แพคเกจแบบกำหนดรายละเอียดเอง', en: '📝 Custom Package' },
+  'custom.subtitle':     { th: 'งานนอกแพคเกจหลัก · ตั้งราคา-บริการเอง', en: 'For one-off jobs · set your own price' },
+  'custom.addBtn':       { th: '+ เพิ่ม', en: '+ Add' },
+  'custom.closeBtn':     { th: '✕ ปิด', en: '✕ Close' },
+  'custom.addItem':      { th: '+ เพิ่มรายการ', en: '+ Add item' },
+  'custom.subtotal':     { th: 'รวมงานพิเศษ', en: 'Custom subtotal' },
+  'custom.empty':        { th: 'ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง', en: 'No items yet · tap "+ Add item" below' },
+  'custom.namePh':       { th: 'ชื่อรายการ (เช่น ช่างวิดีโอ)', en: 'Item name (e.g. Videographer)' },
+  'custom.pricePh':      { th: 'ราคา', en: 'Price' },
+  'custom.descPh':       { th: 'รายละเอียด (ไม่บังคับ · เช่น ถ่าย full HD · 2 ชม.)', en: 'Details (optional · e.g. full HD · 2 hrs)' },
+  'cost.title':          { th: '💸 ค่าใช้จ่ายในงานนี้', en: '💸 Job Expenses' },
+  'cost.notShown':       { th: '· ไม่โชว์ลูกค้า', en: '· internal only' },
+  'cost.namePh':         { th: 'ชื่อรายการ (เช่น ค่าเดินทาง)', en: 'Item name (e.g. Travel)' },
+  'cost.descPh':         { th: 'รายละเอียด (ไม่บังคับ · เช่น กรุงเทพ-เชียงใหม่)', en: 'Details (optional · e.g. BKK-CNX)' },
+  'cost.subtotal':       { th: 'รวมค่าใช้จ่าย', en: 'Total expenses' },
+  'cost.empty':          { th: 'ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง', en: 'No items yet · tap "+ Add item" below' },
+  'final.title':         { th: '💎 ราคาสุทธิ', en: '💎 Net Price' },
+  'final.subtotal':      { th: 'รวมก่อนส่วนลด', en: 'Subtotal' },
+  'final.discount':      { th: 'ส่วนลด', en: 'Discount' },
+  'final.sellPrice':     { th: 'ราคาขาย (สัญญา)', en: 'Sell price (contract)' },
+  'final.vat':           { th: '+ VAT', en: '+ VAT' },
+  'final.gross':         { th: '= ราคาเรียกเก็บ (gross)', en: '= Gross total' },
+  'final.wht':           { th: '− WHT', en: '− WHT' },
+  'final.netReceived':   { th: '✨ ยอดสุทธิที่ได้รับ', en: '✨ Net received' },
+  'lbl.workHours':       { th: '⏱ เวลาทำงาน', en: '⏱ Working Hours' },
+  'lbl.removeItem':      { th: 'ลบรายการ', en: 'Remove item' },
+
   // Bottom nav
   'nav.home':     { th: 'หน้าหลัก', en: 'Home' },
   'nav.jobs':     { th: 'งาน',     en: 'Jobs' },
@@ -8017,7 +8129,7 @@ const I18N = {
   'lbl.jobType':        { th: 'ประเภทงาน',        en: 'Job Type' },
   'lbl.location':       { th: 'สถานที่',          en: 'Location' },
   'lbl.depositDate':    { th: 'วันจองมัดจำ',      en: 'Deposit Date' },
-  'lbl.workSchedule':   { th: '⏱ เวลาทำงาน', en: '⏱ Work Schedule' },
+  'lbl.workSchedule':  { th: '⏱ เวลาทำงาน', en: '⏱ Working hours' },
   'lbl.addSession':     { th: 'เพิ่มช่วงเวลา',      en: 'Add Time Slot' },
   'lbl.discount':       { th: 'ส่วนลด',          en: 'Discount' },
   'lbl.deposit':        { th: 'มัดจำ',           en: 'Deposit' },
@@ -12731,18 +12843,25 @@ function updateCostItem(id, field, raw) {
 function renderCostList() {
   const listEl = document.getElementById('add-costs-list');
   if (!listEl) return;
+  // v1.9.20 · i18n
+  const _tt = (k, fb) => (typeof t === 'function' ? t(k) : fb);
+  const _emptyMsg = _tt('cost.empty', 'ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง');
+  const _namePh = _tt('cost.namePh', 'ชื่อรายการ (เช่น ค่าเดินทาง)');
+  const _pricePh = _tt('custom.pricePh', 'ราคา');
+  const _descPh = _tt('cost.descPh', 'รายละเอียด (ไม่บังคับ · เช่น กรุงเทพ-เชียงใหม่)');
+  const _removeLbl = _tt('lbl.removeItem', 'ลบรายการ');
   if (ADD_COSTS.length === 0) {
-    listEl.innerHTML = '<div style="text-align:center; color:#a89a8c; font-size:12px; padding:8px 0 10px;">ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง</div>';
+    listEl.innerHTML = '<div style="text-align:center; color:#a89a8c; font-size:12px; padding:8px 0 10px;">' + _emptyMsg + '</div>';
   } else {
     const escAttr = function (s) { return String(s || '').replace(/"/g, '&quot;'); };
     listEl.innerHTML = ADD_COSTS.map(function (it) {
       return '<div class="cost-item-row" data-id="' + it.id + '" style="background:rgba(255,255,255,0.55); border:0.5px solid rgba(0,0,0,0.05); border-radius:10px; padding:10px; margin-bottom:8px;">'
         + '<div style="display:grid; grid-template-columns: 1fr 100px 34px; gap:8px; align-items:center; margin-bottom:8px;">'
-        +   '<input type="text" placeholder="ชื่อรายการ (เช่น ค่าเดินทาง)" value="' + escAttr(it.name) + '" oninput="updateCostItem(\'' + it.id + '\', \'name\', this.value)" style="width:100%; padding:9px 11px; border:0.5px solid rgba(0,0,0,0.08); border-radius:8px; background:rgba(255,255,255,0.85); font-size:13px; font-family:inherit; color:#3a2f25; outline:none; box-sizing:border-box;">'
-        +   '<input type="number" min="0" placeholder="ราคา" value="' + (it.price || '') + '" oninput="updateCostItem(\'' + it.id + '\', \'price\', this.value)" style="width:100%; padding:9px 11px; border:0.5px solid rgba(0,0,0,0.08); border-radius:8px; background:rgba(255,255,255,0.85); font-size:13px; text-align:right; font-family:inherit; color:#3a2f25; outline:none; box-sizing:border-box;">'
-        +   '<button type="button" aria-label="ลบรายการ" onclick="removeCostItem(\'' + it.id + '\')" style="width:34px; height:34px; background:rgba(220,38,38,0.08); color:#dc2626; border:none; border-radius:8px; font-size:14px; cursor:pointer;">✕</button>'
+        +   '<input type="text" placeholder="' + _namePh + '" value="' + escAttr(it.name) + '" oninput="updateCostItem(\'' + it.id + '\', \'name\', this.value)" style="width:100%; padding:9px 11px; border:0.5px solid rgba(0,0,0,0.08); border-radius:8px; background:rgba(255,255,255,0.85); font-size:13px; font-family:inherit; color:#3a2f25; outline:none; box-sizing:border-box;">'
+        +   '<input type="number" min="0" placeholder="' + _pricePh + '" value="' + (it.price || '') + '" oninput="updateCostItem(\'' + it.id + '\', \'price\', this.value)" style="width:100%; padding:9px 11px; border:0.5px solid rgba(0,0,0,0.08); border-radius:8px; background:rgba(255,255,255,0.85); font-size:13px; text-align:right; font-family:inherit; color:#3a2f25; outline:none; box-sizing:border-box;">'
+        +   '<button type="button" aria-label="' + _removeLbl + '" onclick="removeCostItem(\'' + it.id + '\')" style="width:34px; height:34px; background:rgba(220,38,38,0.08); color:#dc2626; border:none; border-radius:8px; font-size:14px; cursor:pointer;">✕</button>'
         + '</div>'
-        + '<input type="text" placeholder="รายละเอียด (ไม่บังคับ · เช่น กรุงเทพ-เชียงใหม่)" value="' + escAttr(it.desc) + '" oninput="updateCostItem(\'' + it.id + '\', \'desc\', this.value)" style="width:100%; padding:9px 11px; border:0.5px solid rgba(0,0,0,0.08); border-radius:8px; background:rgba(255,255,255,0.85); font-size:12px; color:#7c7066; font-family:inherit; outline:none; box-sizing:border-box;">'
+        + '<input type="text" placeholder="' + _descPh + '" value="' + escAttr(it.desc) + '" oninput="updateCostItem(\'' + it.id + '\', \'desc\', this.value)" style="width:100%; padding:9px 11px; border:0.5px solid rgba(0,0,0,0.08); border-radius:8px; background:rgba(255,255,255,0.85); font-size:12px; color:#7c7066; font-family:inherit; outline:none; box-sizing:border-box;">'
         + '</div>';
     }).join('');
   }
@@ -12852,19 +12971,25 @@ function renderCustomList(ctx) {
   const listEl = document.getElementById((ctx === 'add' ? 'add' : 'nq') + '-custom-list');
   if (!listEl) return;
   const arr = _customGetState(ctx);
+  // v1.9.20 · i18n
+  const _tt = (k, fb) => (typeof t === 'function' ? t(k) : fb);
+  const _emptyMsg = _tt('custom.empty', 'ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง');
+  const _namePh = _tt('custom.namePh', 'ชื่อรายการ (เช่น ช่างวิดีโอ)');
+  const _pricePh = _tt('custom.pricePh', 'ราคา');
+  const _descPh = _tt('custom.descPh', 'รายละเอียด (ไม่บังคับ · เช่น ถ่าย full HD · 2 ชั่วโมง)');
+  const _removeLbl = _tt('lbl.removeItem', 'ลบรายการ');
   if (arr.length === 0) {
-    listEl.innerHTML = '<div class="custom-empty-hint">ยังไม่มีรายการ · กด "เพิ่มรายการ" ด้านล่าง</div>';
+    listEl.innerHTML = '<div class="custom-empty-hint">' + _emptyMsg + '</div>';
   } else {
     const escAttr = function (s) { return String(s || '').replace(/"/g, '&quot;'); };
-    // v1.9.15 · two-row layout per item: name+price+remove on top, desc below
     listEl.innerHTML = arr.map(function (it) {
       return '<div class="custom-item-row" data-id="' + it.id + '">'
         + '<div class="row-line">'
-        +   '<input type="text" placeholder="ชื่อรายการ (เช่น ช่างวิดีโอ)" value="' + escAttr(it.name) + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'name\', this.value)">'
-        +   '<input type="number" class="price-input" min="0" placeholder="ราคา" value="' + (it.price || '') + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'price\', this.value)">'
-        +   '<button type="button" class="remove-btn" aria-label="ลบรายการ" onclick="removeCustomItem(\'' + ctx + '\', \'' + it.id + '\')">✕</button>'
+        +   '<input type="text" placeholder="' + _namePh + '" value="' + escAttr(it.name) + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'name\', this.value)">'
+        +   '<input type="number" class="price-input" min="0" placeholder="' + _pricePh + '" value="' + (it.price || '') + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'price\', this.value)">'
+        +   '<button type="button" class="remove-btn" aria-label="' + _removeLbl + '" onclick="removeCustomItem(\'' + ctx + '\', \'' + it.id + '\')">✕</button>'
         + '</div>'
-        + '<input type="text" class="desc-input" placeholder="รายละเอียด (ไม่บังคับ · เช่น ถ่าย full HD · 2 ชั่วโมง)" value="' + escAttr(it.desc) + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'desc\', this.value)">'
+        + '<input type="text" class="desc-input" placeholder="' + _descPh + '" value="' + escAttr(it.desc) + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'desc\', this.value)">'
         + '</div>';
     }).join('');
   }
@@ -12914,7 +13039,7 @@ function renderNQPackages() {
       // v1.9.19 · single parent section "แพคเกจหลัก" containing all services as sub-groups
       const section = document.createElement('div');
       section.className = 'settings-section';
-      section.innerHTML = '<div class="sec-title">📷 แพคเกจหลัก</div>';
+      section.innerHTML = '<div class="sec-title">' + (typeof t === 'function' ? t('pkg.mainTitle') : '📷 แพคเกจหลัก') + '</div>';
       SERVICES.forEach((svc, sIdx) => {
         const sub = document.createElement('div');
         sub.style.marginTop = sIdx === 0 ? '0' : '12px';
@@ -15818,7 +15943,7 @@ function renderAddJobScreen() {
       // v1.9.19 · single parent section "แพคเกจหลัก" with services as sub-groups
       const section = document.createElement('div');
       section.className = 'settings-section';
-      section.innerHTML = '<div class="sec-title">📷 แพคเกจหลัก</div>';
+      section.innerHTML = '<div class="sec-title">' + (typeof t === 'function' ? t('pkg.mainTitle') : '📷 แพคเกจหลัก') + '</div>';
       SERVICES.forEach((svc, sIdx) => {
         const sub = document.createElement('div');
         sub.style.marginTop = sIdx === 0 ? '0' : '12px';
@@ -15987,20 +16112,29 @@ function updateAddTotal() {
   // Render breakdown card
   const bdEl = document.getElementById('add-final-breakdown');
   if (bdEl) {
+    // v1.9.20 · i18n
+    const _tt = (k, fb) => (typeof t === 'function' ? t(k) : fb);
+    const _L_subtotal = _tt('final.subtotal', 'รวมก่อนส่วนลด');
+    const _L_discount = _tt('final.discount', 'ส่วนลด');
+    const _L_sell = _tt('final.sellPrice', 'ราคาขาย (สัญญา)');
+    const _L_vat = _tt('final.vat', '+ VAT');
+    const _L_gross = _tt('final.gross', '= ราคาเรียกเก็บ (gross)');
+    const _L_wht = _tt('final.wht', '− WHT');
+    const _L_net = _tt('final.netReceived', '✨ ยอดสุทธิที่ได้รับ');
     let h = '';
     _items.forEach(it => {
       h += '<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:#7c7066;">' + it.name + '</span><span style="color:#3a2f25;">' + fmt(it.price) + '</span></div>';
     });
     h += '<div style="margin:8px 0 6px; padding-top:6px; border-top:0.5px dashed rgba(0,0,0,0.1);"></div>';
-    h += '<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:#7c7066;">รวมก่อนส่วนลด</span><span style="color:#3a2f25;">' + fmt(total) + '</span></div>';
-    if (disc > 0) h += '<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:#7c7066;">ส่วนลด</span><span style="color:#dc2626;">-' + fmt(disc) + '</span></div>';
+    h += '<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:#7c7066;">' + _L_subtotal + '</span><span style="color:#3a2f25;">' + fmt(total) + '</span></div>';
+    if (disc > 0) h += '<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:#7c7066;">' + _L_discount + '</span><span style="color:#dc2626;">-' + fmt(disc) + '</span></div>';
     h += '<div style="margin:6px 0; padding-top:4px; border-top:0.5px dashed rgba(0,0,0,0.1);"></div>';
-    h += '<div style="display:flex; justify-content:space-between; font-size:13.5px; font-weight:700; margin-bottom:6px;"><span style="color:#3a2f25;">ราคาขาย (สัญญา)</span><span style="color:#3a2f25;">' + fmt(finalP) + '</span></div>';
+    h += '<div style="display:flex; justify-content:space-between; font-size:13.5px; font-weight:700; margin-bottom:6px;"><span style="color:#3a2f25;">' + _L_sell + '</span><span style="color:#3a2f25;">' + fmt(finalP) + '</span></div>';
     if (_taxOn) {
-      if (vatAmt > 0) h += '<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:#15803d;">+ VAT</span><span style="color:#15803d;">' + fmt(vatAmt) + '</span></div>';
-      if (vatAmt > 0) h += '<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:#7c7066; font-size:11.5px;">= ราคาเรียกเก็บ (gross)</span><span style="color:#7c7066; font-size:11.5px;">' + fmt(gross) + '</span></div>';
-      if (whtAmt > 0) h += '<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="color:#dc2626;">− WHT</span><span style="color:#dc2626;">-' + fmt(whtAmt) + '</span></div>';
-      h += '<div style="margin-top:8px; padding:12px 14px; background: linear-gradient(135deg,#0f6e56,#1D9E75); border-radius:12px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 12px -2px rgba(15,110,86,0.3);"><span style="font-size:12.5px; color:rgba(255,255,255,0.92); font-weight:600;">✨ ยอดสุทธิที่ได้รับ</span><span style="font-size:18px; font-weight:800; color:#fff;">' + fmt(netReceived) + '</span></div>';
+      if (vatAmt > 0) h += '<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:#15803d;">' + _L_vat + '</span><span style="color:#15803d;">' + fmt(vatAmt) + '</span></div>';
+      if (vatAmt > 0) h += '<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="color:#7c7066; font-size:11.5px;">' + _L_gross + '</span><span style="color:#7c7066; font-size:11.5px;">' + fmt(gross) + '</span></div>';
+      if (whtAmt > 0) h += '<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="color:#dc2626;">' + _L_wht + '</span><span style="color:#dc2626;">-' + fmt(whtAmt) + '</span></div>';
+      h += '<div style="margin-top:8px; padding:12px 14px; background: linear-gradient(135deg,#0f6e56,#1D9E75); border-radius:12px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 12px -2px rgba(15,110,86,0.3);"><span style="font-size:12.5px; color:rgba(255,255,255,0.92); font-weight:600;">' + _L_net + '</span><span style="font-size:18px; font-weight:800; color:#fff;">' + fmt(netReceived) + '</span></div>';
     }
     bdEl.innerHTML = h;
   }
