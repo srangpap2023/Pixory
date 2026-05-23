@@ -64,8 +64,12 @@
   .user-row{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;backdrop-filter:blur(20px);display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
   .status-dot{width:10px;height:10px;border-radius:50%;background:var(--gray);box-shadow:0 0 0 0 currentColor;flex-shrink:0}
   .status-dot.online{background:var(--green);box-shadow:0 0 8px var(--green-dim)}
-  .user-info .email{font-size:13.5px;font-weight:700;color:var(--ink);word-break:break-all}
-  .user-info .meta{font-size:11px;color:var(--muted);margin-top:4px;display:flex;flex-wrap:wrap;gap:6px 12px}
+  .user-info .shop{font-size:14px;font-weight:700;color:var(--ink);word-break:break-word}
+  .user-info .shop.empty{color:var(--muted);font-weight:500;font-style:italic}
+  .user-info .email{font-size:12px;font-weight:500;color:var(--accent);word-break:break-all;margin-top:3px}
+  .user-info .email.fallback{color:var(--muted);font-family:ui-monospace,monospace;font-size:11px}
+  .user-info .profile-email{font-size:11px;color:var(--muted);word-break:break-all;margin-top:2px}
+  .user-info .meta{font-size:11px;color:var(--muted);margin-top:6px;display:flex;flex-wrap:wrap;gap:6px 12px}
   .user-info .meta .item{display:inline-flex;align-items:center;gap:3px}
   .user-info .meta .item.old-version{color:#fbbf24}
   .last-seen{font-size:11.5px;color:var(--muted);text-align:right;white-space:nowrap}
@@ -142,6 +146,13 @@
 <!-- Supabase JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ⛔ STRICT RULE — DO NOT add any of the following to admin.html (ever):
+//   - Service Worker registration (do not register sw.js)
+//   - Release notes display / "What's New" modal
+//   - Auto-update banner ("New version available · click to reload")
+//   - Version check / version comparison popups
+//   - Any kind of update notification / nag
+// This page is a SILENT read-only monitoring tool · keep it that way.
 // ===== CONFIG =====
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_d_Pp52QFpipDvj4JlhCzNw_mBpgyEvE';
@@ -259,7 +270,11 @@ function renderDashboard(rows) {
   rows.forEach(row => {
     const d = row.data || {};
     const meta = d._meta || {};
-    const email = meta.email || row.user_id;  // fallback to user_id if email not in meta yet
+    const profile = d.PROFILE || {};
+    const email = meta.email || row.user_id;  // auth email · fallback to user_id if not synced with v1.9.34+
+    const emailIsFallback = !meta.email;       // true if showing UUID instead of real email
+    const shop = String(profile.shop || '').trim();
+    const profileEmail = String(profile.email || '').trim();
     const updatedAt = new Date(row.updated_at).getTime();
     const minutesAgo = Math.max(0, Math.floor((now - updatedAt) / 60000));
     const isOnline = minutesAgo < ONLINE_THRESHOLD_MIN;
@@ -274,6 +289,9 @@ function renderDashboard(rows) {
     if (!usersByEmail.has(email)) {
       usersByEmail.set(email, {
         email,
+        emailIsFallback,
+        shop,
+        profileEmail,
         updatedAt,
         minutesAgo,
         isOnline,
@@ -295,6 +313,9 @@ function renderDashboard(rows) {
         u.jobCount = jobCount;
         u.quoteCount = quoteCount;
         u.custCount = custCount;
+        u.shop = shop;
+        u.profileEmail = profileEmail;
+        u.emailIsFallback = emailIsFallback;
       }
     }
   });
@@ -321,11 +342,25 @@ function renderDashboard(rows) {
 function renderUserRow(u) {
   const lastSeen = formatLastSeen(u.minutesAgo, u.isOnline);
   const isOldVersion = u.appVersion !== '—' && u.appVersion !== window.__LATEST_VERSION__ && window.__LATEST_VERSION__;
+  // Studio name display · empty placeholder if not set yet
+  const shopHtml = u.shop
+    ? `<div class="shop">🏪 ${escapeHtml(u.shop)}</div>`
+    : `<div class="shop empty">🏪 ยังไม่ตั้งชื่อร้าน</div>`;
+  // Auth email (or user_id fallback if not synced with v1.9.34+)
+  const emailHtml = u.emailIsFallback
+    ? `<div class="email fallback">${escapeHtml(u.email)} <span style="font-style:italic;">(รอ sync v1.9.34+ เพื่อเห็น email จริง)</span></div>`
+    : `<div class="email">📧 ${escapeHtml(u.email)}</div>`;
+  // Profile contact email (if user set one in their profile & it differs from auth email)
+  const profileEmailHtml = (u.profileEmail && u.profileEmail !== u.email)
+    ? `<div class="profile-email">✉️ ติดต่อ: ${escapeHtml(u.profileEmail)}</div>`
+    : '';
   return `
     <div class="user-row">
       <div class="status-dot ${u.isOnline ? 'online' : ''}"></div>
       <div class="user-info">
-        <div class="email">${escapeHtml(u.email)}</div>
+        ${shopHtml}
+        ${emailHtml}
+        ${profileEmailHtml}
         <div class="meta">
           <span class="item ${isOldVersion ? 'old-version' : ''}">v${escapeHtml(u.appVersion)}${isOldVersion ? ' (เก่า)' : ''}</span>
           <span class="item">📱 ${u.devices.size} device${u.devices.size > 1 ? 's' : ''}</span>
