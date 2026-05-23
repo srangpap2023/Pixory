@@ -6297,7 +6297,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.35';
+const PIXORY_VERSION = '1.9.36';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6308,6 +6308,18 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.36': {
+    date: '2026-05-23',
+    title: 'Polish · ปรับปรุงการ sync',
+    subtitle: 'การปรับปรุงเบื้องหลังต่อเนื่อง',
+    items: [
+      {
+        icon: '🛠',
+        title: 'Internal improvements',
+        desc: 'ปรับปรุงระบบ sync ให้ลื่นไหลขึ้น · ไม่กระทบการใช้งานปกติ'
+      }
+    ]
+  },
   '1.9.35': {
     date: '2026-05-23',
     title: 'Polish · ปรับปรุงภายใน',
@@ -7915,10 +7927,49 @@ async function doForgot() {
 async function doLogout() {
   if (!confirm('ออกจากระบบ?\n\nข้อมูลในเครื่องนี้จะยังอยู่ · กลับมาล็อกอินใหม่เมื่อไหร่ก็ใช้ต่อได้')) return;
   try {
+    if (typeof stopPresenceHeartbeat === 'function') stopPresenceHeartbeat();
     if (SUPABASE) await SUPABASE.auth.signOut();
   } catch(e) { console.warn('signOut failed', e); }
   CURRENT_USER = null;
   location.reload();
+}
+
+// v1.9.36 · Lightweight presence beat — UPDATE only updated_at column on user_data
+// Keeps "online" status fresh without writing the whole data blob
+let _presenceTimer = null;
+const PRESENCE_INTERVAL_MS = 15 * 1000;
+
+async function _sendPresenceBeat() {
+  if (!CURRENT_USER || !SUPABASE) return;
+  if (document.visibilityState !== 'visible') return;
+  try {
+    const { data, error } = await SUPABASE
+      .from('user_data')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('user_id', CURRENT_USER.id)
+      .select('user_id');
+    // If row doesn't exist yet (new user · never synced) → push full data so admin sees them
+    if (!error && Array.isArray(data) && data.length === 0) {
+      if (typeof pushToCloud === 'function') pushToCloud();
+    }
+  } catch (e) { /* silent */ }
+}
+
+function startPresenceHeartbeat() {
+  if (_presenceTimer) return;
+  _sendPresenceBeat(); // beat immediately on start
+  _presenceTimer = setInterval(_sendPresenceBeat, PRESENCE_INTERVAL_MS);
+  // Beat instantly when tab regains focus (no need to wait for interval)
+  document.addEventListener('visibilitychange', _onVisibilityForPresence);
+}
+
+function stopPresenceHeartbeat() {
+  if (_presenceTimer) { clearInterval(_presenceTimer); _presenceTimer = null; }
+  document.removeEventListener('visibilitychange', _onVisibilityForPresence);
+}
+
+function _onVisibilityForPresence() {
+  if (document.visibilityState === 'visible') _sendPresenceBeat();
 }
 
 function buildStorageKey() {
@@ -17923,6 +17974,8 @@ async function initAfterAuth() {
   // 1) Sync with cloud first (only if logged in) so localStorage has latest before load
   if (CURRENT_USER && SUPABASE) {
     try { await syncOnStartup(); } catch(e) { console.warn('initial sync error:', e); }
+    // v1.9.36 · start lightweight presence heartbeat so user shows up "online" without saving
+    if (typeof startPresenceHeartbeat === 'function') startPresenceHeartbeat();
   } else {
     _cloudInitialSyncDone = true;
   }
