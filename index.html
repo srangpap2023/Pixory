@@ -6205,12 +6205,29 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.24';
+const PIXORY_VERSION = '1.9.25';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.25': {
+    date: '2026-05-23',
+    title: 'Polish · Quickstart ขยายฟิลด์ทันที',
+    subtitle: 'เลือก B2B/Gov จาก quickstart → ฟิลด์ภาษีโผล่ทันที · ไม่ต้องกดจาก pill อีก',
+    items: [
+      {
+        icon: '⚡',
+        title: 'Quickstart → ขยายฟิลด์ภาษีอัตโนมัติ',
+        desc: 'กด + → "งานใหม่" → เลือก "🏢 บริษัท" / "🏛 ราชการ" → ฟอร์มเปิดพร้อมฟิลด์ภาษีขยายอยู่แล้ว · ไม่ต้องไปกดเลือกประเภทอีกครั้ง'
+      },
+      {
+        icon: '📖',
+        title: 'ทำความเข้าใจ · บุคคลธรรมดารับงาน B2B ได้',
+        desc: 'ช่างภาพอิสระไม่ต้องจดบริษัทก็รับงาน B2B ได้ · ฟิลด์ในฟอร์มเป็น "ข้อมูลของลูกค้าบริษัท" · ส่วนข้อมูลของพี่เอง (เลข 13 หลัก / ที่อยู่) ไปตั้งครั้งเดียวที่ Settings → Profile'
+      }
+    ]
+  },
   '1.9.24': {
     date: '2026-05-23',
     title: 'B2B / Gov · ฟิลด์ข้อมูลภาษีในฟอร์ม',
