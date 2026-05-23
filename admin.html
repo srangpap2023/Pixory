@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>🛡 Pixory Admin</title>
+<link rel="icon" type="image/png" href="./icon-192.png">
+<style>
+  :root {
+    --bg: #0d0a07;
+    --panel: rgba(26,21,16,0.72);
+    --ink: #e8ddd0;
+    --muted: #8a7d6e;
+    --accent: #d4a574;
+    --accent-dim: rgba(212,165,116,0.4);
+    --line: rgba(255,255,255,0.08);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.18);
+    --gray: #6b7280;
+    --red: #ef4444;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'IBM Plex Sans Thai','SF Pro Text','Sukhumvit Set',system-ui,sans-serif}
+  body{background:var(--bg);color:var(--ink);min-height:100vh;padding:0;overflow-x:hidden}
+
+  /* Background gradient */
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top, rgba(212,165,116,0.06), transparent 60%), radial-gradient(ellipse at bottom right, rgba(212,165,116,0.04), transparent 50%);z-index:-1;pointer-events:none}
+
+  .topbar{background:rgba(13,10,7,0.78);backdrop-filter:blur(20px);border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+  .topbar .brand{font-size:16px;font-weight:700;color:var(--ink)}
+  .topbar .brand .icon{color:var(--accent);margin-right:6px}
+  .topbar .meta{font-size:11.5px;color:var(--muted)}
+
+  .container{max-width:920px;margin:0 auto;padding:20px 16px 60px}
+
+  /* === Login screen === */
+  .login-wrap{display:flex;align-items:center;justify-content:center;min-height:80vh;padding:20px}
+  .login-card{width:100%;max-width:360px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:28px 22px;backdrop-filter:blur(20px)}
+  .login-card .logo{text-align:center;font-size:36px;margin-bottom:6px}
+  .login-card .title{text-align:center;font-size:18px;font-weight:700;margin-bottom:4px}
+  .login-card .sub{text-align:center;font-size:12px;color:var(--muted);margin-bottom:22px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+  .field input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:var(--ink);font-size:14px;outline:none;font-family:inherit}
+  .field input:focus{border-color:var(--accent-dim);background:rgba(255,255,255,0.06)}
+  .btn-primary{width:100%;background:linear-gradient(135deg,var(--accent),#b88a55);color:#1a1410;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px}
+  .btn-primary:hover{opacity:0.94}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+  .login-error{margin-top:12px;padding:9px 12px;border-radius:10px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;font-size:12px;display:none}
+
+  /* === Dashboard === */
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;backdrop-filter:blur(20px)}
+  .kpi .lbl{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.4px}
+  .kpi .val{font-size:22px;font-weight:700;color:var(--ink);margin-top:6px}
+  .kpi .val .unit{font-size:12px;color:var(--muted);font-weight:500;margin-left:4px}
+
+  .controls{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .controls .updated{font-size:11.5px;color:var(--muted)}
+  .btn-mini{background:rgba(255,255,255,0.05);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:12px;color:var(--ink);cursor:pointer;font-family:inherit;font-weight:600}
+  .btn-mini:hover{background:rgba(255,255,255,0.08)}
+  .btn-logout{color:#fca5a5;border-color:rgba(239,68,68,0.25)}
+
+  .users-list{display:grid;gap:10px}
+  .user-row{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;backdrop-filter:blur(20px);display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+  .status-dot{width:10px;height:10px;border-radius:50%;background:var(--gray);box-shadow:0 0 0 0 currentColor;flex-shrink:0}
+  .status-dot.online{background:var(--green);box-shadow:0 0 8px var(--green-dim)}
+  .user-info .email{font-size:13.5px;font-weight:700;color:var(--ink);word-break:break-all}
+  .user-info .meta{font-size:11px;color:var(--muted);margin-top:4px;display:flex;flex-wrap:wrap;gap:6px 12px}
+  .user-info .meta .item{display:inline-flex;align-items:center;gap:3px}
+  .user-info .meta .item.old-version{color:#fbbf24}
+  .last-seen{font-size:11.5px;color:var(--muted);text-align:right;white-space:nowrap}
+  .last-seen.online{color:var(--green);font-weight:600}
+
+  .empty{text-align:center;padding:60px 20px;color:var(--muted)}
+  .empty .icon{font-size:42px;margin-bottom:10px;opacity:0.5}
+  .empty .title{font-size:14px;font-weight:600;margin-bottom:4px}
+  .empty .sub{font-size:12px}
+
+  .footer-note{margin-top:30px;font-size:10.5px;color:var(--muted);text-align:center;line-height:1.6}
+
+  @media (max-width:480px){
+    .user-row{grid-template-columns:auto 1fr;row-gap:6px}
+    .last-seen{grid-column:2/3;text-align:left}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Login screen ===== -->
+<div id="login-screen" class="login-wrap">
+  <div class="login-card">
+    <div class="logo">🛡</div>
+    <div class="title">Pixory Admin</div>
+    <div class="sub">เข้าสู่ระบบด้วยบัญชี Supabase ของแอดมิน</div>
+    <form id="login-form">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn-primary" id="login-btn">เข้าสู่ระบบ</button>
+      <div id="login-error" class="login-error"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== Dashboard screen ===== -->
+<div id="dashboard-screen" style="display:none;">
+  <div class="topbar">
+    <div class="brand"><span class="icon">🛡</span>Pixory Admin</div>
+    <div class="meta" id="admin-email-display"></div>
+  </div>
+  <div class="container">
+
+    <div class="summary">
+      <div class="kpi"><div class="lbl">👥 ผู้ใช้ทั้งหมด</div><div class="val" id="kpi-users">—</div></div>
+      <div class="kpi"><div class="lbl">🟢 ออนไลน์ตอนนี้</div><div class="val" id="kpi-online">—</div></div>
+      <div class="kpi"><div class="lbl">📱 Devices รวม</div><div class="val" id="kpi-devices">—</div></div>
+      <div class="kpi"><div class="lbl">📋 งานในระบบ</div><div class="val" id="kpi-jobs">—</div></div>
+    </div>
+
+    <div class="controls">
+      <div class="updated" id="updated-text">รีเฟรชล่าสุด: —</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-mini" id="refresh-btn">🔄 รีเฟรช</button>
+        <button class="btn-mini btn-logout" id="logout-btn">ออกจากระบบ</button>
+      </div>
+    </div>
+
+    <div id="users-list" class="users-list"></div>
+
+    <div class="footer-note">
+      Online = activity ภายใน 2 นาทีล่าสุด · Auto-refresh ทุก 30 วินาที<br>
+      เห็นเฉพาะ summary stats · ไม่เห็นข้อมูลธุรกิจของผู้ใช้
+    </div>
+  </div>
+</div>
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ===== CONFIG =====
+const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_d_Pp52QFpipDvj4JlhCzNw_mBpgyEvE';
+const ADMIN_EMAIL  = 'srangpap2023@gmail.com';  // only this email can see all data (enforced by RLS)
+const ONLINE_THRESHOLD_MIN = 2;
+const REFRESH_INTERVAL_MS  = 30 * 1000;
+
+let SUPABASE = null;
+let _refreshTimer = null;
+
+function init() {
+  try {
+    SUPABASE = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, storage: window.localStorage, storageKey: 'pixory.admin.session' }
+    });
+  } catch (e) {
+    showLoginError('ไม่สามารถเชื่อมต่อ Supabase: ' + e.message);
+    return;
+  }
+  // Check existing session
+  SUPABASE.auth.getSession().then(({ data }) => {
+    if (data && data.session && data.session.user) {
+      enterDashboard(data.session.user);
+    }
+  });
+  // Wire login form
+  document.getElementById('login-form').addEventListener('submit', onLogin);
+  document.getElementById('logout-btn').addEventListener('click', onLogout);
+  document.getElementById('refresh-btn').addEventListener('click', () => loadDashboard(true));
+}
+
+async function onLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.textContent = 'กำลังเข้าสู่ระบบ...';
+  showLoginError('');
+  try {
+    const { data, error } = await SUPABASE.auth.signInWithPassword({ email, password });
+    if (error) { showLoginError('Login ไม่สำเร็จ: ' + error.message); return; }
+    if (!data || !data.user) { showLoginError('ไม่พบข้อมูลผู้ใช้'); return; }
+    enterDashboard(data.user);
+  } catch (e) {
+    showLoginError('Error: ' + (e.message || e));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'เข้าสู่ระบบ';
+  }
+}
+
+async function onLogout() {
+  try { await SUPABASE.auth.signOut(); } catch (e) {}
+  if (_refreshTimer) { clearInterval(_refreshTimer); _refreshTimer = null; }
+  document.getElementById('dashboard-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = '';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  if (!el) return;
+  if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
+  el.textContent = msg;
+  el.style.display = '';
+}
+
+function enterDashboard(user) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard-screen').style.display = '';
+  document.getElementById('admin-email-display').textContent = user.email;
+  if (user.email !== ADMIN_EMAIL) {
+    // Non-admin signed in · RLS will likely block but we warn here
+    document.getElementById('users-list').innerHTML = `
+      <div class="empty">
+        <div class="icon">🔒</div>
+        <div class="title">ไม่ใช่บัญชี admin</div>
+        <div class="sub">บัญชีนี้ไม่มีสิทธิ์ดูข้อมูลผู้ใช้ทั้งหมด · กรุณา logout แล้ว login ด้วย email ${ADMIN_EMAIL}</div>
+      </div>`;
+    return;
+  }
+  loadDashboard(true);
+  if (_refreshTimer) clearInterval(_refreshTimer);
+  _refreshTimer = setInterval(() => loadDashboard(false), REFRESH_INTERVAL_MS);
+}
+
+async function loadDashboard(showLoading) {
+  const list = document.getElementById('users-list');
+  if (showLoading) {
+    list.innerHTML = '<div class="empty"><div class="icon">⏳</div><div class="title">กำลังโหลด...</div></div>';
+  }
+  try {
+    const { data: rows, error } = await SUPABASE
+      .from('user_data')
+      .select('user_id, data, device_id, updated_at')
+      .order('updated_at', { ascending: false });
+    if (error) {
+      list.innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">โหลดข้อมูลไม่สำเร็จ</div><div class="sub">${escapeHtml(error.message)}</div><div class="sub" style="margin-top:8px;">เช็คว่า RLS policy ตั้งค่าให้บัญชี admin อ่านได้แล้วหรือยัง</div></div>`;
+      return;
+    }
+    renderDashboard(rows || []);
+  } catch (e) {
+    list.innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">Error</div><div class="sub">${escapeHtml(e.message || e)}</div></div>`;
+  }
+}
+
+function renderDashboard(rows) {
+  const now = Date.now();
+  const usersByEmail = new Map();
+  let totalDevices = 0;
+  let totalJobs = 0;
+
+  rows.forEach(row => {
+    const d = row.data || {};
+    const meta = d._meta || {};
+    const email = meta.email || row.user_id;  // fallback to user_id if email not in meta yet
+    const updatedAt = new Date(row.updated_at).getTime();
+    const minutesAgo = Math.max(0, Math.floor((now - updatedAt) / 60000));
+    const isOnline = minutesAgo < ONLINE_THRESHOLD_MIN;
+    const jobCount = Array.isArray(d.JOBS) ? d.JOBS.length : 0;
+    const quoteCount = Array.isArray(d.QUOTES) ? d.QUOTES.length : 0;
+    const custCount = d.CUSTOMER_INFO ? Object.keys(d.CUSTOMER_INFO).length : 0;
+    const appVersion = meta.app_version || '—';
+
+    totalJobs += jobCount;
+
+    // Group by email (a user can have multiple rows from different devices · we take latest)
+    if (!usersByEmail.has(email)) {
+      usersByEmail.set(email, {
+        email,
+        updatedAt,
+        minutesAgo,
+        isOnline,
+        appVersion,
+        jobCount,
+        quoteCount,
+        custCount,
+        devices: new Set([row.device_id].filter(Boolean))
+      });
+    } else {
+      const u = usersByEmail.get(email);
+      if (row.device_id) u.devices.add(row.device_id);
+      // Keep the most recent row's stats
+      if (updatedAt > u.updatedAt) {
+        u.updatedAt = updatedAt;
+        u.minutesAgo = minutesAgo;
+        u.isOnline = isOnline;
+        u.appVersion = appVersion;
+        u.jobCount = jobCount;
+        u.quoteCount = quoteCount;
+        u.custCount = custCount;
+      }
+    }
+  });
+
+  const users = Array.from(usersByEmail.values()).sort((a, b) => b.updatedAt - a.updatedAt);
+  users.forEach(u => { totalDevices += u.devices.size; });
+
+  document.getElementById('kpi-users').textContent = users.length;
+  document.getElementById('kpi-online').textContent = users.filter(u => u.isOnline).length;
+  document.getElementById('kpi-devices').textContent = totalDevices;
+  document.getElementById('kpi-jobs').textContent = totalJobs;
+
+  const list = document.getElementById('users-list');
+  if (users.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="icon">👤</div><div class="title">ยังไม่มีผู้ใช้</div><div class="sub">รอจนกว่าจะมีคน login + sync ครั้งแรก</div></div>';
+  } else {
+    list.innerHTML = users.map(u => renderUserRow(u)).join('');
+  }
+  const now2 = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  document.getElementById('updated-text').textContent = `รีเฟรชล่าสุด: ${pad(now2.getHours())}:${pad(now2.getMinutes())}:${pad(now2.getSeconds())}`;
+}
+
+function renderUserRow(u) {
+  const lastSeen = formatLastSeen(u.minutesAgo, u.isOnline);
+  const isOldVersion = u.appVersion !== '—' && u.appVersion !== window.__LATEST_VERSION__ && window.__LATEST_VERSION__;
+  return `
+    <div class="user-row">
+      <div class="status-dot ${u.isOnline ? 'online' : ''}"></div>
+      <div class="user-info">
+        <div class="email">${escapeHtml(u.email)}</div>
+        <div class="meta">
+          <span class="item ${isOldVersion ? 'old-version' : ''}">v${escapeHtml(u.appVersion)}${isOldVersion ? ' (เก่า)' : ''}</span>
+          <span class="item">📱 ${u.devices.size} device${u.devices.size > 1 ? 's' : ''}</span>
+          <span class="item">📋 ${u.jobCount} งาน</span>
+          <span class="item">📄 ${u.quoteCount} ใบเสนอ</span>
+          <span class="item">👥 ${u.custCount} ลูกค้า</span>
+        </div>
+      </div>
+      <div class="last-seen ${u.isOnline ? 'online' : ''}">${lastSeen}</div>
+    </div>
+  `;
+}
+
+function formatLastSeen(minutesAgo, isOnline) {
+  if (isOnline) return '🟢 ออนไลน์';
+  if (minutesAgo < 60) return `${minutesAgo} นาทีที่แล้ว`;
+  const hours = Math.floor(minutesAgo / 60);
+  if (hours < 24) return `${hours} ชม.ที่แล้ว`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} วันที่แล้ว`;
+  const months = Math.floor(days / 30);
+  return `${months} เดือนที่แล้ว`;
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// Boot
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+</script>
+
+</body>
+</html>
