@@ -127,7 +127,10 @@
     </div>
 
     <div class="controls">
-      <div class="updated" id="updated-text">รีเฟรชล่าสุด: —</div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div class="updated" id="updated-text">รีเฟรชล่าสุด: —</div>
+        <div class="updated" style="font-size:10.5px;color:#22c55e;" id="realtime-status">○ connecting...</div>
+      </div>
       <div style="display:flex;gap:8px;">
         <button class="btn-mini" id="refresh-btn">🔄 รีเฟรช</button>
         <button class="btn-mini btn-logout" id="logout-btn">ออกจากระบบ</button>
@@ -137,7 +140,7 @@
     <div id="users-list" class="users-list"></div>
 
     <div class="footer-note">
-      Online = activity ภายใน 2 นาทีล่าสุด · Auto-refresh ทุก 30 วินาที<br>
+      Online = activity ภายใน 45 วินาทีล่าสุด · Realtime push + fallback polling ทุก 10 วินาที<br>
       เห็นเฉพาะ summary stats · ไม่เห็นข้อมูลธุรกิจของผู้ใช้
     </div>
   </div>
@@ -157,11 +160,13 @@
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_d_Pp52QFpipDvj4JlhCzNw_mBpgyEvE';
 const ADMIN_EMAIL  = 'srangpap2023@gmail.com';  // only this email can see all data (enforced by RLS)
-const ONLINE_THRESHOLD_MIN = 2;
-const REFRESH_INTERVAL_MS  = 30 * 1000;
+const ONLINE_THRESHOLD_SEC = 45;                // online if active within last 45 seconds
+const REFRESH_INTERVAL_MS  = 10 * 1000;         // fallback polling · realtime push handles instant updates
 
 let SUPABASE = null;
 let _refreshTimer = null;
+let _realtimeChannel = null;
+let _onlineTickTimer = null;
 
 function init() {
   try {
@@ -208,6 +213,8 @@ async function onLogin(e) {
 async function onLogout() {
   try { await SUPABASE.auth.signOut(); } catch (e) {}
   if (_refreshTimer) { clearInterval(_refreshTimer); _refreshTimer = null; }
+  if (_onlineTickTimer) { clearInterval(_onlineTickTimer); _onlineTickTimer = null; }
+  if (_realtimeChannel) { try { SUPABASE.removeChannel(_realtimeChannel); } catch (e) {} _realtimeChannel = null; }
   document.getElementById('dashboard-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = '';
   document.getElementById('login-email').value = '';
@@ -239,6 +246,45 @@ function enterDashboard(user) {
   loadDashboard(true);
   if (_refreshTimer) clearInterval(_refreshTimer);
   _refreshTimer = setInterval(() => loadDashboard(false), REFRESH_INTERVAL_MS);
+  // Subscribe to realtime postgres_changes on user_data · admin sees changes instantly
+  subscribeToRealtime();
+  // Tick every 5s to refresh "X seconds ago" text & online dots without re-fetching
+  if (_onlineTickTimer) clearInterval(_onlineTickTimer);
+  _onlineTickTimer = setInterval(refreshOnlineStatusOnly, 5000);
+}
+
+let _lastRows = [];
+
+function subscribeToRealtime() {
+  if (!SUPABASE || _realtimeChannel) return;
+  try {
+    _realtimeChannel = SUPABASE
+      .channel('admin:user_data')
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'user_data' },
+        function (payload) {
+          // Re-fetch on any change · ensures we get complete row (RLS-safe)
+          loadDashboard(false);
+        }
+      )
+      .subscribe(function (status) {
+        if (status === 'SUBSCRIBED') {
+          const el = document.getElementById('realtime-status');
+          if (el) el.textContent = '⚡ realtime';
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          const el = document.getElementById('realtime-status');
+          if (el) el.textContent = '○ polling only';
+        }
+      });
+  } catch (e) {
+    console.warn('Realtime subscribe failed:', e);
+  }
+}
+
+// Tick "X seconds ago" + online dots without re-querying Supabase (saves reads)
+function refreshOnlineStatusOnly() {
+  if (!_lastRows || _lastRows.length === 0) return;
+  renderDashboard(_lastRows);
 }
 
 async function loadDashboard(showLoading) {
@@ -255,7 +301,8 @@ async function loadDashboard(showLoading) {
       list.innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">โหลดข้อมูลไม่สำเร็จ</div><div class="sub">${escapeHtml(error.message)}</div><div class="sub" style="margin-top:8px;">เช็คว่า RLS policy ตั้งค่าให้บัญชี admin อ่านได้แล้วหรือยัง</div></div>`;
       return;
     }
-    renderDashboard(rows || []);
+    _lastRows = rows || [];
+    renderDashboard(_lastRows);
   } catch (e) {
     list.innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">Error</div><div class="sub">${escapeHtml(e.message || e)}</div></div>`;
   }
@@ -276,8 +323,9 @@ function renderDashboard(rows) {
     const shop = String(profile.shop || '').trim();
     const profileEmail = String(profile.email || '').trim();
     const updatedAt = new Date(row.updated_at).getTime();
-    const minutesAgo = Math.max(0, Math.floor((now - updatedAt) / 60000));
-    const isOnline = minutesAgo < ONLINE_THRESHOLD_MIN;
+    const secondsAgo = Math.max(0, Math.floor((now - updatedAt) / 1000));
+    const minutesAgo = Math.floor(secondsAgo / 60);
+    const isOnline = secondsAgo < ONLINE_THRESHOLD_SEC;
     const jobCount = Array.isArray(d.JOBS) ? d.JOBS.length : 0;
     const quoteCount = Array.isArray(d.QUOTES) ? d.QUOTES.length : 0;
     const custCount = d.CUSTOMER_INFO ? Object.keys(d.CUSTOMER_INFO).length : 0;
@@ -293,6 +341,7 @@ function renderDashboard(rows) {
         shop,
         profileEmail,
         updatedAt,
+        secondsAgo,
         minutesAgo,
         isOnline,
         appVersion,
@@ -307,6 +356,7 @@ function renderDashboard(rows) {
       // Keep the most recent row's stats
       if (updatedAt > u.updatedAt) {
         u.updatedAt = updatedAt;
+        u.secondsAgo = secondsAgo;
         u.minutesAgo = minutesAgo;
         u.isOnline = isOnline;
         u.appVersion = appVersion;
@@ -340,7 +390,7 @@ function renderDashboard(rows) {
 }
 
 function renderUserRow(u) {
-  const lastSeen = formatLastSeen(u.minutesAgo, u.isOnline);
+  const lastSeen = formatLastSeen(u.minutesAgo, u.isOnline, u.secondsAgo);
   const isOldVersion = u.appVersion !== '—' && u.appVersion !== window.__LATEST_VERSION__ && window.__LATEST_VERSION__;
   // Studio name display · empty placeholder if not set yet
   const shopHtml = u.shop
@@ -374,8 +424,9 @@ function renderUserRow(u) {
   `;
 }
 
-function formatLastSeen(minutesAgo, isOnline) {
+function formatLastSeen(minutesAgo, isOnline, secondsAgo) {
   if (isOnline) return '🟢 ออนไลน์';
+  if (typeof secondsAgo === 'number' && secondsAgo < 120) return `${secondsAgo} วินาทีที่แล้ว`;
   if (minutesAgo < 60) return `${minutesAgo} นาทีที่แล้ว`;
   const hours = Math.floor(minutesAgo / 60);
   if (hours < 24) return `${hours} ชม.ที่แล้ว`;
