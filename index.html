@@ -1368,116 +1368,6 @@
     color: #3a2f25 !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
-  .cal-agenda-eyebrow {
-    font-size: 10.5px; font-weight: 800;
-    color: #d8704a;
-    letter-spacing: 1.8px; text-transform: uppercase;
-    margin: 0 4px 8px;
-  }
-  .cal-agenda-hero {
-    background: linear-gradient(135deg, #d8704a 0%, #b85a36 100%);
-    border-radius: 18px;
-    padding: 18px;
-    color: #fefcf9;
-    position: relative; overflow: hidden;
-    margin-bottom: 18px;
-    box-shadow: 0 6px 20px rgba(216,112,74,0.35);
-    cursor: pointer;
-    transition: transform .12s ease;
-  }
-  .cal-agenda-hero:active { transform: scale(0.99); }
-  .cal-agenda-hero::before {
-    content: '';
-    position: absolute;
-    top: -30px; right: -30px;
-    width: 130px; height: 130px;
-    background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-  }
-  .cal-agenda-hero .hero-when {
-    font-size: 11.5px; font-weight: 700; opacity: 0.95;
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 10px; flex-wrap: wrap;
-  }
-  .cal-agenda-hero .hero-when .countdown {
-    background: rgba(255,255,255,0.22);
-    padding: 3px 10px; border-radius: 100px;
-    font-size: 10px; font-weight: 800;
-    letter-spacing: 0.5px;
-  }
-  .cal-agenda-hero .hero-nm { font-size: 22px; font-weight: 900; line-height: 1.15; margin-bottom: 6px; }
-  .cal-agenda-hero .hero-meta { font-size: 12.5px; opacity: 0.92; line-height: 1.5; margin-bottom: 12px; }
-  .cal-agenda-hero .hero-stats {
-    display: flex; gap: 14px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(255,255,255,0.2);
-  }
-  .cal-agenda-hero .hero-stat { font-size: 10.5px; opacity: 0.85; min-width: 0; }
-  .cal-agenda-hero .hero-stat strong { display: block; font-size: 13.5px; font-weight: 800; opacity: 1; margin-bottom: 1px; }
-  .cal-agenda-list-h {
-    font-size: 12.5px; font-weight: 800; color: #3a2f25;
-    margin: 4px 4px 8px; padding: 0;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .cal-agenda-list-h .count {
-    font-size: 10.5px; color: #7c7066; font-weight: 600;
-    background: #f7f4ef; padding: 3px 9px; border-radius: 100px;
-  }
-  .cal-agenda-mini {
-    background: #fefcf9;
-    border-radius: 12px;
-    padding: 11px 12px;
-    display: flex; gap: 10px; align-items: center;
-    margin-bottom: 6px;
-    border: 0.5px solid #e8dfd5;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-    cursor: pointer;
-    transition: transform .12s ease, box-shadow .15s ease;
-  }
-  .cal-agenda-mini:active { transform: scale(0.98); }
-  .cal-agenda-mini:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.06); }
-  .cal-agenda-mini.closed { opacity: 0.6; }
-  .cal-agenda-mini .day-num {
-    width: 36px; flex-shrink: 0;
-    text-align: center;
-  }
-  .cal-agenda-mini .day-num .n {
-    font-size: 18px; font-weight: 800; color: #3a2f25; line-height: 1;
-    font-family: 'Inter', system-ui, sans-serif;
-  }
-  .cal-agenda-mini .day-num .m {
-    font-size: 9px; font-weight: 700; color: #7c7066;
-    margin-top: 1px; text-transform: uppercase;
-  }
-  .cal-agenda-mini.today .day-num .n { color: #d8704a; }
-  .cal-agenda-mini .bar { width: 2.5px; align-self: stretch; background: #d8704a; border-radius: 2px; }
-  .cal-agenda-mini.closed .bar { background: #a89a8c; }
-  .cal-agenda-mini .info { flex: 1; min-width: 0; overflow: hidden; }
-  .cal-agenda-mini .nm { font-size: 13px; font-weight: 700; color: #3a2f25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cal-agenda-mini .mt { font-size: 10.5px; color: #7c7066; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cal-agenda-mini .time {
-    font-size: 10.5px; color: #d8704a; font-weight: 800;
-    background: #fef3c7; padding: 4px 8px; border-radius: 6px;
-    flex-shrink: 0;
-  }
-  .cal-agenda-mini.closed .time { background: #f3f4f6; color: #7c7066; }
-  .cal-agenda-empty {
-    text-align: center; padding: 60px 20px;
-    color: #a89a8c; font-size: 13px;
-  }
-  body.dark-theme .cal-view-tab.active {
-    background: #2a2a2a !important;
-    color: #fefcf9 !important;
-  }
-  body.dark-theme .cal-agenda-mini {
-    background: #1c1c1c;
-    color: #f5f5f5;
-    border-color: #2a2a2a;
-  }
-  body.dark-theme .cal-agenda-mini .nm { color: #f5f5f5; }
-  body.dark-theme .cal-agenda-list-h { color: #f5f5f5; }
-  body.dark-theme .cal-agenda-list-h .count { background: #2a2a2a; color: #d1d5db; }
 
   /* Calendar — has-jobs strong Pixory orange (v1.9.4 · was too pale) */
   .cal-day.has-jobs {
@@ -2760,6 +2650,142 @@
     margin-top: 10px;
   }
   body.dark-theme #whatsnew-modal .wn-footer-note { color: #807870; }
+
+  /* v1.9.14 · "กำหนดรายละเอียดเอง" — custom items card */
+  .custom-items-section {
+    margin: 0 16px 16px;
+    padding: 0;
+    background: rgba(254, 243, 235, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 0.5px solid rgba(216, 112, 74, 0.18);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.6), 0 2px 10px rgba(216,112,74,0.06);
+    overflow: hidden;
+  }
+  body.dark-theme .custom-items-section {
+    background: rgba(74, 46, 28, 0.45);
+    border-color: rgba(216, 112, 74, 0.25);
+  }
+  .custom-items-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .custom-items-header .icon-bubble {
+    flex-shrink: 0;
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, #f4a36a, #d8704a);
+    color: #fff;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .custom-items-header .info { flex: 1; min-width: 0; }
+  .custom-items-header .title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #3a2f25;
+  }
+  body.dark-theme .custom-items-header .title { color: #f5f0e8; }
+  .custom-items-header .subtitle {
+    font-size: 11px;
+    color: #7c2d12;
+    margin-top: 1px;
+    opacity: 0.8;
+  }
+  body.dark-theme .custom-items-header .subtitle { color: #fbcaa6; }
+  .custom-items-header .arrow {
+    font-size: 14px;
+    color: #d8704a;
+    transition: transform .2s ease;
+    flex-shrink: 0;
+  }
+  .custom-items-section.open .custom-items-header .arrow { transform: rotate(180deg); }
+  .custom-items-body {
+    padding: 0 14px 14px;
+    display: none;
+  }
+  .custom-items-section.open .custom-items-body { display: block; }
+  .custom-item-row {
+    display: grid;
+    grid-template-columns: 1fr 100px 34px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .custom-item-row input[type="text"],
+  .custom-item-row input[type="number"] {
+    width: 100%;
+    padding: 9px 11px;
+    border: 0.5px solid rgba(216, 112, 74, 0.25);
+    border-radius: 9px;
+    background: rgba(255,255,255,0.7);
+    font-size: 13px;
+    font-family: inherit;
+    color: #3a2f25;
+    outline: none;
+    box-sizing: border-box;
+  }
+  body.dark-theme .custom-item-row input {
+    background: rgba(58, 47, 37, 0.6);
+    color: #f5f0e8;
+    border-color: rgba(216, 112, 74, 0.3);
+  }
+  .custom-item-row input:focus { border-color: #d8704a; }
+  .custom-item-row .price-input { text-align: right; }
+  .custom-item-row .remove-btn {
+    width: 34px; height: 34px;
+    background: rgba(220, 38, 38, 0.08);
+    color: #dc2626;
+    border: none;
+    border-radius: 9px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .custom-item-row .remove-btn:active { background: rgba(220, 38, 38, 0.18); }
+  .custom-add-btn {
+    width: 100%;
+    background: transparent;
+    color: #d8704a;
+    border: 1px dashed rgba(216, 112, 74, 0.45);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 2px;
+  }
+  .custom-add-btn:active { background: rgba(216, 112, 74, 0.06); }
+  .custom-empty-hint {
+    text-align: center;
+    color: #a89a8c;
+    font-size: 12px;
+    padding: 12px 0 10px;
+  }
+  body.dark-theme .custom-empty-hint { color: #8a8275; }
+  .custom-summary-line {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 0.5px dashed rgba(216, 112, 74, 0.25);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+  }
+  .custom-summary-line .lbl { color: #7c7066; }
+  .custom-summary-line .val { color: #d8704a; font-weight: 700; }
+  body.dark-theme .custom-summary-line .lbl { color: #b8b0a4; }
 </style>
 </head>
 <body>
@@ -3561,6 +3587,26 @@
         </div>
       </div>
 
+      <!-- v1.9.14 · กำหนดรายละเอียดเอง (Custom items) — pinned above main packages -->
+      <div class="custom-items-section" id="add-custom-section">
+        <div class="custom-items-header" onclick="toggleCustomItems('add')">
+          <div class="icon-bubble">📝</div>
+          <div class="info">
+            <div class="title">กำหนดรายละเอียดเอง</div>
+            <div class="subtitle">งานนอกแพคเกจหลัก · ตั้งราคา-บริการเอง</div>
+          </div>
+          <div class="arrow">▾</div>
+        </div>
+        <div class="custom-items-body">
+          <div id="add-custom-list"></div>
+          <button type="button" class="custom-add-btn" onclick="addCustomItem('add')">+ เพิ่มรายการ</button>
+          <div class="custom-summary-line" id="add-custom-summary" style="display:none;">
+            <span class="lbl">รวมงานพิเศษ</span>
+            <span class="val" id="add-custom-sum">฿0</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Dynamic services (from SERVICES) -->
       <div id="add-services-container"></div>
 
@@ -4186,6 +4232,26 @@
         </div>
       </div>
 
+      <!-- v1.9.14 · กำหนดรายละเอียดเอง (Custom items) — pinned above main packages -->
+      <div class="custom-items-section" id="nq-custom-section">
+        <div class="custom-items-header" onclick="toggleCustomItems('nq')">
+          <div class="icon-bubble">📝</div>
+          <div class="info">
+            <div class="title">กำหนดรายละเอียดเอง</div>
+            <div class="subtitle">งานนอกแพคเกจหลัก · ตั้งราคา-บริการเอง</div>
+          </div>
+          <div class="arrow">▾</div>
+        </div>
+        <div class="custom-items-body">
+          <div id="nq-custom-list"></div>
+          <button type="button" class="custom-add-btn" onclick="addCustomItem('nq')">+ เพิ่มรายการ</button>
+          <div class="custom-summary-line" id="nq-custom-summary" style="display:none;">
+            <span class="lbl">รวมงานพิเศษ</span>
+            <span class="val" id="nq-custom-sum">฿0</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Dynamic services (from SERVICES) -->
       <div id="nq-services-container"></div>
 
@@ -4736,6 +4802,10 @@
             <div style="font-size:20px; font-weight:700; color:#3a2f25;" id="tax-report-count">0</div>
           </div>
         </div>
+        <!-- v1.9.13 · M4 fix — clarify date basis -->
+        <div style="background:#eff6ff; border:0.5px solid rgba(37,99,235,.2); border-radius:10px; padding:9px 12px; margin-top:8px; font-size:11px; color:#1e40af; line-height:1.5;">
+          ℹ️ <strong>เกณฑ์วันที่:</strong> รายงานนี้นับ <strong>ตามวันงาน / วันออกใบเสร็จ</strong> สำหรับยื่น ภ.พ.30 และ ภ.ง.ด.3 · ตัวเลขอาจต่างจาก PIT Helper ที่ใช้ <strong>วันรับเงิน</strong> — ทั้งสองวิธีถูกต้องตามกฎหมาย แค่ใช้คนละแบบฟอร์ม
+        </div>
       </div>
 
       <!-- KPI cards (2x2 grid) -->
@@ -4794,9 +4864,14 @@
           ✨ <strong>PIT Helper</strong> — ช่วยคำนวณภาษีเงินได้บุคคลธรรมดา (ภ.ง.ด.90/94) สำหรับช่างภาพที่ไม่ได้จดบริษัท · ใช้ข้อมูลจาก Pixory ทั้งหมด · กรอกแค่ 3-5 ช่องนี้
         </div>
 
+        <!-- v1.9.13 · M4 fix — explain date basis difference -->
+        <div style="background:#eff6ff; border:0.5px solid rgba(37,99,235,.2); border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:11.5px; color:#1e40af; line-height:1.55;">
+          ℹ️ <strong>เกณฑ์วันที่:</strong> PIT คำนวณ <strong>ตามวันรับเงิน (cash basis)</strong> ตามที่กรมสรรพากรกำหนดสำหรับบุคคลธรรมดา · ตัวเลขอาจต่างจาก "รายงานภาษี" (ภ.พ.30 / ภ.ง.ด.3) ที่ใช้วันออกใบเสร็จ/วันงาน — เป็นเรื่องปกติ ไม่ใช่บั๊ก
+        </div>
+
         <!-- Year selector -->
         <div class="form-group" style="margin: 0 0 14px;">
-          <label>ปีภาษี</label>
+          <label>ปีภาษี <span style="color:#7c7066; font-weight:400; font-size:11px;">· นับตามวันรับเงิน</span></label>
           <select id="pit-year" onchange="refreshPITCalc()"></select>
         </div>
 
@@ -5685,12 +5760,148 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.11';
+const PIXORY_VERSION = '1.9.14';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.14': {
+    date: '2026-05-23',
+    title: 'ฟีเจอร์ใหม่ · กำหนดรายละเอียดเอง',
+    subtitle: 'รับงานหลายสายได้ ไม่ต้องสร้างแพคเกจหลักทุกครั้ง',
+    items: [
+      {
+        icon: '📝',
+        title: 'กำหนดรายละเอียดเอง · ใหม่!',
+        desc: 'การ์ดด้านบนสุดในหน้าสร้างงาน + ใบเสนอ · กดเปิดแล้วเพิ่มรายการบริการได้เอง (เช่น "ช่างวิดีโอพรีเซน 25,000" · "ตัดต่อ 12,000") · ตั้งราคาเอง · เหมาะกับงาน corporate / อีเวนต์ / พรีเวด ที่ไม่ตรงกับแพคเกจหลัก'
+      },
+      {
+        icon: '💰',
+        title: 'รวมในยอดและคิดภาษีปกติ',
+        desc: 'รายการพิเศษคำนวณรวมในยอดขายและภาษี (VAT/WHT) เหมือนแพคเกจหลัก · ไม่ต้องจัดการแยก'
+      },
+      {
+        icon: '📄',
+        title: 'แสดงในใบเสนอ/ใบกำกับเป็นบรรทัดแยก',
+        desc: 'ทุกรายการพิเศษโชว์เป็นบรรทัดของตัวเอง ลูกค้าเห็นรายละเอียดครบ · ดูเป็นมือโปร'
+      },
+      {
+        icon: '👥',
+        title: 'เลือกทีมงานในฟอร์มปกติ',
+        desc: 'ฟิลด์ทีมงานยังอยู่ที่เดิม · เผื่อตอนขายยังไม่รู้ว่าจะใช้ช่างคนไหน ค่อยมาใส่ทีหลังได้'
+      }
+    ]
+  },
+  '1.9.13': {
+    date: '2026-05-23',
+    title: 'รอบใหญ่ · แก้ Critical + Major รวม 11 จุด',
+    subtitle: 'Sync ปลอดภัย · ลูกค้า rename ได้ · note ภาษีชัดเจน · cleanup ~360 บรรทัด',
+    items: [
+      {
+        icon: '🔧',
+        title: 'รหัสงาน/ใบเสนอ ไม่ทับกันอีก',
+        desc: 'ลบงานกลางลำดับ → สร้างใหม่ ไม่ได้รหัสซ้ำของเดิมแล้ว · ใช้เลขสูงสุด+1 แทน length+1'
+      },
+      {
+        icon: '✏️',
+        title: 'เปลี่ยนชื่อลูกค้าได้',
+        desc: 'แตะ ✏️ ข้างชื่อในหน้า Customer Detail · อัพเดททุก JOBS/QUOTES ที่ผูกอยู่ + merge ถ้าชื่อใหม่ซ้ำกับลูกค้าเดิม'
+      },
+      {
+        icon: '☁️',
+        title: 'Multi-device sync · เช็คก่อนทับ',
+        desc: 'ก่อน push ดูเวอร์ชั่นในคลาวด์ · ถ้าอีกเครื่องอัพเดทใหม่กว่าจะถามก่อน + snapshot สำรอง'
+      },
+      {
+        icon: '🏠',
+        title: 'งานวันนี้ไม่หายหลังเที่ยงคืน',
+        desc: 'หน้าโฮม "งานที่จะถึง" เทียบกับเที่ยงคืนของวันแล้ว · ไม่ใช่เวลาเปิดแอพ'
+      },
+      {
+        icon: '💵',
+        title: 'มัดจำตอนจอง เก็บแยกใน depositInitial',
+        desc: 'รับเงินงวดถัด ๆ ไปไม่เขียนทับมัดจำดั้งเดิมแล้ว'
+      },
+      {
+        icon: '⚠️',
+        title: 'เตือนเมื่อส่วนลด > ยอดรวม',
+        desc: 'ทั้งหน้างานใหม่และใบเสนอ · มี confirm ก่อนเซ็ตยอดขายเป็น 0'
+      },
+      {
+        icon: 'ℹ️',
+        title: 'อธิบายเกณฑ์วันที่ภาษีชัดเจน',
+        desc: 'PIT Helper ใช้วันรับเงิน · Tax Report ใช้วันงาน · มี note อธิบายในทั้ง 2 หน้าแล้ว ไม่งงอีก'
+      },
+      {
+        icon: '🧾',
+        title: 'แก้ที่อยู่ภาษี → ถามว่าปรับงานเก่าด้วยมั้ย',
+        desc: 'หลัง save customer · ถ้าฟิลด์ภาษีเปลี่ยน + มีงานเก่าที่ snapshot แล้ว · ระบบจะ confirm ก่อนปรับ'
+      },
+      {
+        icon: '🎂',
+        title: 'คำอวยพรวันเกิด · sign ชื่อร้านถูกแล้ว',
+        desc: 'แก้ key อ่านจาก PROFILE.shop · ไม่ใช่ "— ทีมงาน" ตลอด'
+      },
+      {
+        icon: '🔄',
+        title: 'ชื่อเล่นลูกค้าใน "ใบเสนอจากงาน" ถูก',
+        desc: 'แก้ typo cInfo.nick → cInfo.nickname'
+      },
+      {
+        icon: '📅',
+        title: 'แปลงใบเสนอ → งาน · ใช้ปีของวันงาน',
+        desc: 'รหัสงานไม่ติดปีปัจจุบันอีก · อ่านจาก q.dateEvent'
+      },
+      {
+        icon: '🔙',
+        title: 'Smart-back · ปลอดภัยขึ้น',
+        desc: 'safeBack() ตรวจ nav stack ก่อนทำ history.back() · ถ้าอยู่ root จะ fallback ไป home แทน trigger tap-twice-to-exit'
+      },
+      {
+        icon: '📱',
+        title: 'Modal "What\'s New" เลื่อนได้บน Safari',
+        desc: 'รายการอัพเดทยาว ๆ ปุ่ม CTA ติดล่างเสมอ · พร้อมเผื่อ home indicator iPhone'
+      },
+      {
+        icon: '🧹',
+        title: 'Cleanup · ลบ dead code ~360 บรรทัด',
+        desc: 'ลบ agenda functions + CSS ที่ไม่ใช้แล้วตั้งแต่ v1.9.8 · ไฟล์เล็กลง โหลดเร็วขึ้น'
+      }
+    ]
+  },
+  '1.9.12': {
+    date: '2026-05-23',
+    title: 'แก้บั๊กเพิ่ม · 4 จุด + UI hotfix',
+    subtitle: 'หน้าโฮม · มัดจำ · ส่วนลด · คำอวยพร',
+    items: [
+      {
+        icon: '🏠',
+        title: 'งานวันนี้ไม่หายหลังเที่ยงคืน',
+        desc: 'เดิมเปิดแอพหลัง 9 โมงเช้า งานของวันนั้นจะถูกตัดออกจาก "งานที่จะถึง" ในหน้าโฮม · ตอนนี้เปรียบเทียบกับเที่ยงคืนของวัน ทำให้งานวันนี้แสดงตลอดทั้งวัน'
+      },
+      {
+        icon: '🎂',
+        title: 'คำอวยพรวันเกิด · ใช้ชื่อร้านถูกต้อง',
+        desc: 'เดิม sign "— ทีมงาน" ทุกครั้งเพราะอ่าน key ผิด · ตอนนี้ใช้ชื่อสตูดิโอจริงที่ตั้งใน Settings → Profile → ชื่อร้าน'
+      },
+      {
+        icon: '💵',
+        title: 'รักษามัดจำดั้งเดิมไว้ใน j.depositInitial',
+        desc: 'เดิมทุกครั้งที่รับเงินงวด ระบบเขียนทับยอดมัดจำเริ่มต้น · ตอนนี้เก็บมัดจำตอนจองไว้ใน j.depositInitial · j.deposit ยังเป็นยอดสะสม (backward compat)'
+      },
+      {
+        icon: '⚠️',
+        title: 'เตือนเมื่อส่วนลด > ราคารวม',
+        desc: 'เดิมถ้าใส่ส่วนลดเกินยอด ระบบเซ็ตยอดขายเป็น 0 เงียบ ๆ · ตอนนี้มี confirm ก่อนบันทึกในทั้งหน้างานใหม่และใบเสนอใหม่'
+      },
+      {
+        icon: '📱',
+        title: 'Modal "What\'s New" เลื่อนได้บน iPhone',
+        desc: 'เดิมรายการอัพเดทยาว ๆ บน Safari → ปุ่ม "เข้าใช้งาน" หายลงนอกจอ · ตอนนี้ body เลื่อนได้ + ปุ่ม CTA ติดล่างเสมอ พร้อมเผื่อพื้นที่ home indicator'
+      }
+    ]
+  },
   '1.9.11': {
     date: '2026-05-23',
     title: 'แก้บั๊กระดับ Critical · 4 จุด',
@@ -8860,6 +9071,8 @@ function openQuoteFromJob() {
   NQ_ADDONS = {};
   if (j.qr) NQ_ADDONS.qr = j.qr;
   if (j.other) NQ_ADDONS.profile = j.other;
+  // v1.9.14 · carry custom items from the job into the new quote
+  loadCustomItems('nq', j.customItems || []);
   NQ_SESSIONS.length = 0;
   if (Array.isArray(j.sessions) && j.sessions.length) {
     j.sessions.forEach(s => NQ_SESSIONS.push({...s}));
@@ -10954,6 +11167,8 @@ function openNewJob() {
   ADD_TEAM = new Set();
   ADD_TEAM_WAGES = {};
   ADD_SESSIONS = [];
+  // v1.9.14 · reset custom items
+  resetCustomItems('add');
   // Default form
   document.getElementById('add-screen-title').textContent = 'งานใหม่';
   document.getElementById('add-save-btn').textContent = 'บันทึกงาน';
@@ -11045,6 +11260,8 @@ function editCurrentJob() {
   ADD_ADDONS = {};
   if (j.qr) ADD_ADDONS.qr = j.qr;
   if (j.other) ADD_ADDONS.profile = j.other;
+  // v1.9.14 · restore custom items
+  loadCustomItems('add', j.customItems || []);
   ADD_TEAM = new Set(j.team || []);
   ADD_TEAM_WAGES = j.teamWages ? {...j.teamWages} : {};
   ADD_SESSIONS = getJobSessions(j).map(s => ({...s}));
@@ -11124,12 +11341,24 @@ function collectAddFormData() {
   let total = 0;
   Object.values(ADD_SELECTED).forEach(s => total += (s.price || 0));
   Object.values(ADD_ADDONS).forEach(p => total += p);
+  // v1.9.14 · custom items count toward total
+  total += _customTotal('add');
   const extraTime = parseFloat(document.getElementById('addExtraTime').value) || 0;
   total += extraTime;  // ← Fix: include Extra time in total
+  // v1.9.14 · snapshot of custom items, drop empty rows
+  const _addCustomSnapshot = _customGetState('add')
+    .filter(c => (c.name && c.name.trim()) || (parseFloat(c.price) || 0) > 0)
+    .map(c => ({ id: c.id, name: String(c.name || '').trim(), price: parseFloat(c.price) || 0 }));
   if (total === 0) { toast(t('toast.errSelectPackage')); return null; }
 
   const discount = parseFloat(document.getElementById('addDiscount').value) || 0;
   const deposit = parseFloat(document.getElementById('addDeposit').value) || 0;
+  // v1.9.11 · M6 fix — warn if discount > total (would silently set sell to 0)
+  if (discount > total) {
+    if (!confirm('⚠️ ส่วนลด (' + fmt(discount) + ') มากกว่าราคารวม (' + fmt(total) + ')\n\nระบบจะตั้งยอดขายเป็น 0 บาท — ต้องการบันทึกใช่ไหม?')) {
+      return null;
+    }
+  }
   const sell = Math.max(0, total - discount);
   const remain = Math.max(0, sell - deposit);
 
@@ -11201,6 +11430,7 @@ function collectAddFormData() {
     team: Array.from(ADD_TEAM),
     teamWages: {...ADD_TEAM_WAGES},
     selectedServices: {...ADD_SELECTED},
+    customItems: _addCustomSnapshot,  // v1.9.14
     extraTime: parseFloat(document.getElementById('addExtraTime').value) || 0,
     qr: ADD_ADDONS.qr || null,
     other: ADD_ADDONS.profile || null,
@@ -11377,6 +11607,13 @@ function savePayment() {
   // Add to payments history
   j.payments = j.payments || [];
   j.payments.push({ date, amount, note });
+
+  // v1.9.11 · M5 fix — preserve original deposit before treating j.deposit as cumulative.
+  // เก็บมัดจำดั้งเดิม (ตอนจอง) ไว้ในฟิลด์แยก · j.deposit จะเป็นยอดสะสม (backward compat)
+  // เก็บแค่ครั้งแรก · ครั้งถัดไป (รับเงินงวดต่อ ๆ ไป) จะไม่เขียนทับ
+  if (j.depositInitial == null) {
+    j.depositInitial = j.deposit || 0;
+  }
 
   // Update remain + deposit (treat deposit as cumulative total paid for backward compat)
   const newDeposit = (j.deposit || 0) + amount;
@@ -11612,6 +11849,13 @@ function showQuoteScreen(data, source) {
       const pkg = svc ? svc.packages.find(p => p.id === s.packageId) : null;
       const desc = pkg ? (pkg.desc || '') : '';
       addItem(s.serviceName + ' · ' + s.packageName, desc, s.price);
+    });
+  }
+  // v1.9.14 · render custom items as separate line items
+  if (Array.isArray(data.customItems)) {
+    data.customItems.forEach(ci => {
+      if (!ci || (parseFloat(ci.price) || 0) <= 0) return;
+      addItem(ci.name || 'งานพิเศษ', '', parseFloat(ci.price) || 0);
     });
   }
   if (data.qr) addItem(t('addon.qrBackdrop'), t('addon.qrBackdropDesc'), data.qr);
@@ -11887,6 +12131,7 @@ function convertQuoteToJob(code) {
     sessions: jobSessions,
     start: parseInt((firstS.start||'14:00').split(':')[0],10), end: parseInt((firstS.end||'22:00').split(':')[0],10), team: [],
     selectedServices: q.selectedServices ? {...q.selectedServices} : {},
+    customItems: Array.isArray(q.customItems) ? q.customItems.map(c => ({...c})) : [],  // v1.9.14
     qr: q.qr || null, other: q.other || null,
     extraTime: q.extraTime || 0,  // ← Fix: carry over Extra time from quote
     total: q.total, sell: q.sell, discount: q.discount,
@@ -11947,6 +12192,8 @@ function openNewQuote() {
   _editingQuoteCode = null;
   _setQuoteFormMode('create');
   NQ_SELECTED = {}; NQ_ADDONS = {}; NQ_SESSIONS = [];
+  // v1.9.14 · reset custom items
+  resetCustomItems('nq');
   // v1.9.11 C2 fix: use generateQuoteCode (max+1) instead of length+1
   document.getElementById('new-quote-code').textContent = generateQuoteCode();
   document.getElementById('nq-customer').value = '';
@@ -11993,6 +12240,8 @@ function editCurrentQuote() {
   NQ_ADDONS = {};
   if (q.qr) NQ_ADDONS.qr = q.qr;
   if (q.other) NQ_ADDONS.profile = q.other;
+  // v1.9.14 · restore custom items
+  loadCustomItems('nq', q.customItems || []);
   NQ_SESSIONS.length = 0;
   if (q.sessions && q.sessions.length) {
     q.sessions.forEach(s => NQ_SESSIONS.push({...s}));
@@ -12059,6 +12308,131 @@ function populateJobTypeChipsForNQ() {
   });
 }
 
+// ========== v1.9.14 · "กำหนดรายละเอียดเอง" (Custom items) ==========
+// State: parallel arrays for two contexts — 'add' (new job) and 'nq' (new quote).
+// Each item: { id: string, name: string, price: number }
+let NQ_CUSTOM = [];
+let ADD_CUSTOM = [];
+let _customItemCounter = 0;
+
+function _customGetState(ctx) {
+  return ctx === 'add' ? ADD_CUSTOM : NQ_CUSTOM;
+}
+
+function _customSetState(ctx, arr) {
+  if (ctx === 'add') ADD_CUSTOM = arr;
+  else NQ_CUSTOM = arr;
+}
+
+function _customTotal(ctx) {
+  return _customGetState(ctx).reduce(function (s, it) { return s + (parseFloat(it.price) || 0); }, 0);
+}
+
+function toggleCustomItems(ctx) {
+  const sec = document.getElementById(ctx === 'add' ? 'add-custom-section' : 'nq-custom-section');
+  if (!sec) return;
+  sec.classList.toggle('open');
+  // Auto-add a blank row when opening for the first time if empty
+  if (sec.classList.contains('open') && _customGetState(ctx).length === 0) {
+    addCustomItem(ctx);
+  }
+}
+
+function addCustomItem(ctx) {
+  _customItemCounter++;
+  const id = 'c' + Date.now() + '_' + _customItemCounter;
+  _customGetState(ctx).push({ id: id, name: '', price: 0 });
+  renderCustomList(ctx);
+  // Make sure the section is open
+  const sec = document.getElementById(ctx === 'add' ? 'add-custom-section' : 'nq-custom-section');
+  if (sec && !sec.classList.contains('open')) sec.classList.add('open');
+  // Focus the new row's name input for quick typing
+  setTimeout(function () {
+    try {
+      const inp = document.querySelector('#' + (ctx === 'add' ? 'add' : 'nq') + '-custom-list .custom-item-row[data-id="' + id + '"] input[type="text"]');
+      if (inp) inp.focus();
+    } catch (e) {}
+  }, 50);
+}
+
+function removeCustomItem(ctx, id) {
+  const arr = _customGetState(ctx).filter(function (it) { return it.id !== id; });
+  _customSetState(ctx, arr);
+  renderCustomList(ctx);
+  // Recompute totals + tax
+  if (ctx === 'add') { if (typeof updateAddTotal === 'function') updateAddTotal(); }
+  else { if (typeof updateNQTotal === 'function') updateNQTotal(); }
+}
+
+function updateCustomItem(ctx, id, field, raw) {
+  const arr = _customGetState(ctx);
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i].id === id) {
+      if (field === 'price') arr[i].price = parseFloat(raw) || 0;
+      else arr[i].name = String(raw || '');
+      break;
+    }
+  }
+  // Update sum line + form total
+  const sum = _customTotal(ctx);
+  const sumEl = document.getElementById((ctx === 'add' ? 'add' : 'nq') + '-custom-sum');
+  if (sumEl) sumEl.textContent = '฿' + sum.toLocaleString();
+  const sumRow = document.getElementById((ctx === 'add' ? 'add' : 'nq') + '-custom-summary');
+  if (sumRow) sumRow.style.display = sum > 0 ? '' : 'none';
+  if (ctx === 'add') { if (typeof updateAddTotal === 'function') updateAddTotal(); }
+  else { if (typeof updateNQTotal === 'function') updateNQTotal(); }
+}
+
+function renderCustomList(ctx) {
+  const listEl = document.getElementById((ctx === 'add' ? 'add' : 'nq') + '-custom-list');
+  if (!listEl) return;
+  const arr = _customGetState(ctx);
+  if (arr.length === 0) {
+    listEl.innerHTML = '<div class="custom-empty-hint">ยังไม่มีรายการ · กด "เพิ่มรายการ" ด้านล่าง</div>';
+  } else {
+    const escAttr = function (s) { return String(s || '').replace(/"/g, '&quot;'); };
+    listEl.innerHTML = arr.map(function (it) {
+      return '<div class="custom-item-row" data-id="' + it.id + '">'
+        + '<input type="text" placeholder="ชื่อรายการ (เช่น ช่างวิดีโอ)" value="' + escAttr(it.name) + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'name\', this.value)">'
+        + '<input type="number" class="price-input" min="0" placeholder="ราคา" value="' + (it.price || '') + '" oninput="updateCustomItem(\'' + ctx + '\', \'' + it.id + '\', \'price\', this.value)">'
+        + '<button type="button" class="remove-btn" aria-label="ลบรายการ" onclick="removeCustomItem(\'' + ctx + '\', \'' + it.id + '\')">✕</button>'
+        + '</div>';
+    }).join('');
+  }
+  // Sum line
+  const sum = _customTotal(ctx);
+  const sumEl = document.getElementById((ctx === 'add' ? 'add' : 'nq') + '-custom-sum');
+  if (sumEl) sumEl.textContent = '฿' + sum.toLocaleString();
+  const sumRow = document.getElementById((ctx === 'add' ? 'add' : 'nq') + '-custom-summary');
+  if (sumRow) sumRow.style.display = sum > 0 ? '' : 'none';
+}
+
+function resetCustomItems(ctx) {
+  _customSetState(ctx, []);
+  renderCustomList(ctx);
+  const sec = document.getElementById(ctx === 'add' ? 'add-custom-section' : 'nq-custom-section');
+  if (sec) sec.classList.remove('open');
+}
+
+function loadCustomItems(ctx, items) {
+  // Used by edit flow + convert-quote-to-job
+  const cleaned = (Array.isArray(items) ? items : []).map(function (it, i) {
+    _customItemCounter++;
+    return {
+      id: it.id || ('c' + Date.now() + '_' + _customItemCounter + '_' + i),
+      name: String(it.name || ''),
+      price: parseFloat(it.price) || 0
+    };
+  });
+  _customSetState(ctx, cleaned);
+  renderCustomList(ctx);
+  const sec = document.getElementById(ctx === 'add' ? 'add-custom-section' : 'nq-custom-section');
+  if (sec) {
+    if (cleaned.length > 0) sec.classList.add('open');
+    else sec.classList.remove('open');
+  }
+}
+
 function renderNQPackages() {
   const container = document.getElementById('nq-services-container');
   if (container) {
@@ -12120,6 +12494,8 @@ function updateNQTotal() {
   let total = 0;
   Object.values(NQ_SELECTED).forEach(s => total += (s.price || 0));
   Object.values(NQ_ADDONS).forEach(p => total += p);
+  // v1.9.14 · include custom items in total
+  total += _customTotal('nq');
   const extra = parseFloat((document.getElementById('nq-extratime')||{}).value) || 0;
   total += extra;
   const disc = parseFloat(document.getElementById('nq-discount').value) || 0;
@@ -12144,10 +12520,22 @@ function saveNewQuote(status) {
   let total = 0;
   Object.values(NQ_SELECTED).forEach(s => total += (s.price || 0));
   Object.values(NQ_ADDONS).forEach(p => total += p);
+  // v1.9.14 · include custom items in total
+  total += _customTotal('nq');
   const extraTime = parseFloat((document.getElementById('nq-extratime')||{}).value) || 0;
   total += extraTime;  // ← Fix: include Extra time in total
   const disc = parseFloat(document.getElementById('nq-discount').value) || 0;
+  // v1.9.14 · drop empty custom rows before save (name blank AND price 0)
+  const _customSnapshot = _customGetState('nq')
+    .filter(c => (c.name && c.name.trim()) || (parseFloat(c.price) || 0) > 0)
+    .map(c => ({ id: c.id, name: String(c.name || '').trim(), price: parseFloat(c.price) || 0 }));
   if (total === 0) { toast(t('toast.errSelectPackage')); return; }
+  // v1.9.11 · M6 fix — warn if discount > total (would silently set sell to 0)
+  if (disc > total) {
+    if (!confirm('⚠️ ส่วนลด (' + fmt(disc) + ') มากกว่าราคารวม (' + fmt(total) + ')\n\nระบบจะตั้งยอดขายเป็น 0 บาท — ต้องการบันทึกใช่ไหม?')) {
+      return;
+    }
+  }
 
   const typeEl = document.querySelector('#nq-type-row .chip.active');
 
@@ -12204,6 +12592,7 @@ function saveNewQuote(status) {
       sessions: NQ_SESSIONS.map(s => ({...s})),
       dateExpire: document.getElementById('nq-expire').value,
       selectedServices: {...NQ_SELECTED},
+      customItems: _customSnapshot,  // v1.9.14
       extraTime: parseFloat((document.getElementById('nq-extratime')||{}).value) || 0,
       qr: NQ_ADDONS.qr || null,
       other: NQ_ADDONS.profile || null,
@@ -12239,6 +12628,7 @@ function saveNewQuote(status) {
     dateSent: new Date().toISOString().slice(0,10),
     dateExpire: document.getElementById('nq-expire').value,
     selectedServices: {...NQ_SELECTED},
+    customItems: _customSnapshot,  // v1.9.14
     extraTime: parseFloat((document.getElementById('nq-extratime')||{}).value) || 0,
     qr: NQ_ADDONS.qr || null,
     other: NQ_ADDONS.profile || null,
@@ -12526,6 +12916,13 @@ function renderInvoicePDF(job) {
       const pkg = svc ? svc.packages.find(p => p.id === s.packageId) : null;
       const desc = pkg ? (pkg.desc || '') : '';
       addItem(s.serviceName + ' · ' + s.packageName, desc, s.price);
+    });
+  }
+  // v1.9.14 · render custom items as separate line items
+  if (Array.isArray(job.customItems)) {
+    job.customItems.forEach(ci => {
+      if (!ci || (parseFloat(ci.price) || 0) <= 0) return;
+      addItem(ci.name || 'งานพิเศษ', '', parseFloat(ci.price) || 0);
     });
   }
   if (job.qr) addItem(t('addon.qrBackdrop'), t('addon.qrBackdropDesc'), job.qr);
@@ -12934,258 +13331,6 @@ function renderMonthJobsList() {
 
   detail.innerHTML = html;
 }
-// ====== v1.9.5 · Calendar Agenda View ======
-function setCalendarView(mode) {
-  // mode: 'agenda' | 'month'
-  try { localStorage.setItem('pixory.calView', mode); } catch (e) {}
-  const agendaView = document.getElementById('cal-agenda-view');
-  const monthView = document.getElementById('cal-month-view');
-  const tabAgenda = document.getElementById('cal-tab-agenda');
-  const tabMonth = document.getElementById('cal-tab-month');
-  const legendBtn = document.getElementById('cal-legend-btn');
-  if (mode === 'agenda') {
-    if (agendaView) agendaView.style.display = '';
-    if (monthView) monthView.style.display = 'none';
-    if (tabAgenda) tabAgenda.classList.add('active');
-    if (tabMonth) tabMonth.classList.remove('active');
-    if (legendBtn) legendBtn.style.display = 'none';
-    renderAgenda();
-  } else {
-    if (agendaView) agendaView.style.display = 'none';
-    if (monthView) monthView.style.display = '';
-    if (tabAgenda) tabAgenda.classList.remove('active');
-    if (tabMonth) tabMonth.classList.add('active');
-    if (legendBtn) legendBtn.style.display = '';
-    renderCalendar();
-    // v1.9.7 · Wire up swipe gesture once (idempotent via _wired flag)
-    attachMonthSwipeGesture();
-  }
-}
-
-// v1.9.7 · Swipe left/right on month view to change month
-function attachMonthSwipeGesture() {
-  const monthView = document.getElementById('cal-month-view');
-  if (!monthView || monthView.dataset.swipeWired === '1') return;
-  monthView.dataset.swipeWired = '1';
-  let startX = 0, startY = 0, startT = 0;
-  monthView.addEventListener('touchstart', function(e) {
-    if (!e.touches || !e.touches[0]) return;
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-    startT = Date.now();
-  }, { passive: true });
-  monthView.addEventListener('touchend', function(e) {
-    if (!e.changedTouches || !e.changedTouches[0]) return;
-    const dx = e.changedTouches[0].clientX - startX;
-    const dy = e.changedTouches[0].clientY - startY;
-    const dt = Date.now() - startT;
-    // Detect horizontal swipe: at least 60px horizontal, mostly horizontal (|dx| > 2*|dy|), within 600ms
-    if (Math.abs(dx) < 60) return;
-    if (Math.abs(dx) < Math.abs(dy) * 2) return;
-    if (dt > 600) return;
-    // Subtle slide-out animation then change month
-    const grid = document.getElementById('cal-days');
-    if (grid) {
-      grid.style.transition = 'transform .18s ease, opacity .18s ease';
-      grid.style.transform = dx > 0 ? 'translateX(40px)' : 'translateX(-40px)';
-      grid.style.opacity = '0';
-      setTimeout(function() {
-        if (dx > 0) changeMonth(-1); else changeMonth(1);
-        grid.style.transition = 'none';
-        grid.style.transform = dx > 0 ? 'translateX(-40px)' : 'translateX(40px)';
-        grid.style.opacity = '0';
-        // force reflow then animate in
-        // eslint-disable-next-line no-unused-expressions
-        grid.offsetHeight;
-        grid.style.transition = 'transform .2s ease, opacity .2s ease';
-        grid.style.transform = 'translateX(0)';
-        grid.style.opacity = '1';
-      }, 180);
-    } else {
-      if (dx > 0) changeMonth(-1); else changeMonth(1);
-    }
-  }, { passive: true });
-}
-
-// v1.9.6 · Agenda Style B "Hero + Stack"
-function renderAgenda() {
-  const list = document.getElementById('cal-agenda-list');
-  if (!list) return;
-  const now = new Date();
-  const today = new Date(now); today.setHours(0,0,0,0);
-  const maxDate = new Date(today); maxDate.setDate(today.getDate() + 90);
-
-  // Collect upcoming sessions (today + future, within 90 days)
-  const upcoming = [];  // { job, session, dt (Date with time) }
-  (JOBS || []).forEach(j => {
-    if (j.jobStatus === 'ปิดงาน') return;  // skip closed jobs in hero/list (still showable but de-prioritized)
-    const sessions = getJobSessions(j);
-    sessions.forEach(s => {
-      if (!s || !s.date) return;
-      const d = new Date(s.date);
-      if (isNaN(d)) return;
-      // include "today" even if time has passed (still relevant for the day)
-      if (d < today || d > maxDate) return;
-      // Build a Date with the start time for accurate sorting
-      const [hh, mm] = (s.start || '00:00').split(':').map(n => parseInt(n,10) || 0);
-      const dt = new Date(d); dt.setHours(hh, mm, 0, 0);
-      upcoming.push({ job: j, session: s, dt: dt });
-    });
-  });
-  // Sort ascending by date+time
-  upcoming.sort((a, b) => a.dt - b.dt);
-
-  if (upcoming.length === 0) {
-    list.innerHTML = '<div class="cal-agenda-empty">🗓 ไม่มีงานที่จะมาถึงในช่วง 90 วันข้างหน้า<br><span style="font-size:11px;">เพิ่มงานใหม่ผ่านปุ่ม + ด้านล่าง</span></div>';
-    return;
-  }
-
-  const THAI_DAYS = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
-  const THAI_MONTHS_SHORT = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-
-  // ── Helper · build countdown text ──
-  function buildCountdown(targetDt) {
-    const diffMs = targetDt - now;
-    const diffMin = Math.round(diffMs / 60000);
-    const targetDay = new Date(targetDt); targetDay.setHours(0,0,0,0);
-    const daysDiff = Math.round((targetDay - today) / 86400000);
-    if (diffMin < 0) {
-      // Started already today
-      const elapsed = Math.abs(diffMin);
-      if (elapsed < 60) return 'เริ่มไปแล้ว ' + elapsed + ' นาที';
-      return 'เริ่มไปแล้ว ' + Math.floor(elapsed/60) + ' ชั่วโมง';
-    }
-    if (daysDiff === 0) {
-      if (diffMin < 60) return 'เริ่มในอีก ' + diffMin + ' นาที';
-      const hours = Math.floor(diffMin / 60);
-      const mins = diffMin % 60;
-      return 'เริ่มในอีก ' + hours + ' ชม.' + (mins > 0 ? ' ' + mins + ' น.' : '');
-    }
-    if (daysDiff === 1) return 'พรุ่งนี้';
-    if (daysDiff < 7) return 'อีก ' + daysDiff + ' วัน';
-    return 'อีก ' + Math.ceil(daysDiff / 7) + ' สัปดาห์';
-  }
-
-  // ── HERO · งานถัดไป ──
-  const hero = upcoming[0];
-  const heroJob = hero.job;
-  const heroS = hero.session;
-  const heroDt = hero.dt;
-  const heroCInfo = (heroJob.customer && CUSTOMER_INFO[heroJob.customer]) ? CUSTOMER_INFO[heroJob.customer] : {};
-  const heroNick = heroCInfo.nickname || heroJob.custNick || '';
-  const heroCust = heroJob.customer + (heroNick && heroNick !== heroJob.customer ? ' (' + heroNick + ')' : '');
-  const heroLoc = (heroJob.loc && heroJob.loc !== '-') ? heroJob.loc : '';
-  const heroType = heroJob.type || '';
-  const heroStart = heroS.start || '—';
-  const heroEnd = heroS.end || '—';
-  // Duration
-  function diffHours(s, e) {
-    if (!s || !e) return null;
-    const [sh, sm] = s.split(':').map(n => parseInt(n,10)||0);
-    const [eh, em] = e.split(':').map(n => parseInt(n,10)||0);
-    const d = (eh*60+em) - (sh*60+sm);
-    if (d <= 0) return null;
-    return (d / 60);
-  }
-  const heroDuration = diffHours(heroStart, heroEnd);
-  const heroDurStr = heroDuration ? (heroDuration % 1 === 0 ? heroDuration + ' ชม.' : heroDuration.toFixed(1) + ' ชม.') : '';
-  const heroPrice = heroJob.sell ? '฿' + fmt(heroJob.sell) : '';
-  // Status pill text
-  let heroStatusLbl = 'รอจ่าย';
-  if (heroJob.payStatus === 'ชำระครบ') heroStatusLbl = 'จ่ายครบ';
-  else if (heroJob.payStatus === 'มัดจำแล้ว') heroStatusLbl = 'มัดจำแล้ว';
-  // Date display
-  const heroDayNum = heroDt.getDate();
-  const heroMonth = THAI_MONTHS_SHORT[heroDt.getMonth()];
-  const heroDayName = THAI_DAYS[heroDt.getDay()];
-  const heroDateLbl = heroDayName + ' ' + heroDayNum + ' ' + heroMonth;
-  const countdown = buildCountdown(heroDt);
-  const safeHeroCode = (heroJob.code || '').replace(/'/g, "\\'");
-
-  let html = '<div class="cal-agenda-eyebrow">⭐ งานถัดไป · ' + heroDateLbl + '</div>';
-  html += '<div class="cal-agenda-hero" onclick="openJob(\'' + safeHeroCode + '\')">';
-  html += '<div class="hero-when">⏰ ' + heroStart + (heroDuration ? ' · ' + heroDurStr : '') +
-          ' <span class="countdown">' + countdown.toUpperCase() + '</span></div>';
-  html += '<div class="hero-nm">' + heroCust + (heroType ? ' · ' + heroType : '') + '</div>';
-  const heroMetaParts = [];
-  if (heroLoc) heroMetaParts.push('📍 ' + heroLoc);
-  if (heroPrice) heroMetaParts.push(heroPrice);
-  if (heroMetaParts.length) html += '<div class="hero-meta">' + heroMetaParts.join(' · ') + '</div>';
-  html += '<div class="hero-stats">' +
-    '<div class="hero-stat"><strong>' + heroStart + '</strong>เริ่ม</div>' +
-    '<div class="hero-stat"><strong>' + heroEnd + '</strong>เสร็จ</div>' +
-    '<div class="hero-stat"><strong>' + heroStatusLbl + '</strong>สถานะ</div>' +
-    '</div>';
-  html += '</div>';  // hero end
-
-  // ── STACK · รายการที่เหลือ (จำกัด 5 รายการ พร้อม expand) ──
-  const rest = upcoming.slice(1);
-  const MINI_LIMIT = 5;
-  const showAll = window._calAgendaExpanded === true;
-  const visibleRest = showAll ? rest : rest.slice(0, MINI_LIMIT);
-  if (rest.length > 0) {
-    html += '<div class="cal-agenda-list-h"><span>📅 งานต่อ ๆ ไป</span><span class="count">' + rest.length + ' รายการ</span></div>';
-    visibleRest.forEach(it => {
-      const j = it.job;
-      const s = it.session;
-      const dt = it.dt;
-      const dayNum = dt.getDate();
-      const monthShort = THAI_MONTHS_SHORT[dt.getMonth()];
-      const dDay = new Date(dt); dDay.setHours(0,0,0,0);
-      const isMiniToday = dDay.getTime() === today.getTime();
-      const isClosed = j.jobStatus === 'ปิดงาน';
-      const cInfo = (j.customer && CUSTOMER_INFO[j.customer]) ? CUSTOMER_INFO[j.customer] : {};
-      const nick = cInfo.nickname || j.custNick || '';
-      const custDisplay = j.customer + (nick && nick !== j.customer ? ' (' + nick + ')' : '');
-      const loc = (j.loc && j.loc !== '-') ? j.loc : '';
-      const metaText = [j.type, loc].filter(Boolean).join(' · ');
-      const startStr = s.start || '—';
-      const safeCode = (j.code || '').replace(/'/g, "\\'");
-      html += '<div class="cal-agenda-mini' + (isMiniToday ? ' today' : '') + (isClosed ? ' closed' : '') + '" onclick="openJob(\'' + safeCode + '\')">' +
-        '<div class="day-num"><div class="n">' + dayNum + '</div><div class="m">' + monthShort + '</div></div>' +
-        '<div class="bar"></div>' +
-        '<div class="info"><div class="nm">' + custDisplay + '</div>' +
-          (metaText ? '<div class="mt">' + metaText + '</div>' : '') +
-        '</div>' +
-        '<span class="time">' + startStr + '</span>' +
-        '</div>';
-    });
-    // v1.9.7 · Expand/Collapse button if more than 5 items
-    if (rest.length > MINI_LIMIT) {
-      if (!showAll) {
-        html += '<button onclick="toggleAgendaExpanded()" class="cal-agenda-expand" style="display:block; width:100%; margin:8px 0 4px; padding:11px; background:#f7f4ef; border:0.5px dashed #d8704a; border-radius:12px; color:#d8704a; font-family:inherit; font-size:12.5px; font-weight:800; cursor:pointer;">ดูทั้งหมด ' + rest.length + ' รายการ ↓</button>';
-      } else {
-        html += '<button onclick="toggleAgendaExpanded()" class="cal-agenda-expand" style="display:block; width:100%; margin:8px 0 4px; padding:11px; background:#f7f4ef; border:0.5px dashed #a89a8c; border-radius:12px; color:#7c7066; font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;">ย่อรายการ ↑</button>';
-      }
-    }
-  }
-
-  list.innerHTML = html;
-}
-
-function toggleAgendaExpanded() {
-  window._calAgendaExpanded = !window._calAgendaExpanded;
-  if (typeof renderAgenda === 'function') renderAgenda();
-}
-
-function showDayDetail(dateStr) {
-  const dayJobs = JOBS.filter(j => {
-    const ss = getJobSessions(j);
-    return ss.some(s => s.date === dateStr);
-  });
-  const detail = document.getElementById('day-detail');
-  if (dayJobs.length === 0) { detail.innerHTML = '<div style="text-align:center; color:#a89a8c; padding:20px 0; font-size:12px;">ไม่มีงานวันนี้</div>'; return; }
-  const dp = dateParts(dateStr);
-  let html = `<div style="font-size:13px; font-weight:600; padding:8px 4px 12px;">${dp.full} · ${dayJobs.length} งาน</div>`;
-  dayJobs.forEach(j => {
-    const teamHtml = j.team.map(p => `<span style="display:inline-flex; align-items:center; gap:3px; padding:2px 8px; border-radius:10px; background:${colorFor(p)}15; color:${colorFor(p)}; font-size:10px; margin-right:4px; font-weight:500;"><span style="width:6px; height:6px; border-radius:50%; background:${colorFor(p)};"></span>${p}</span>`).join('');
-    html += `<div class="job-row" onclick="openJob('${j.code}')" style="margin: 0 0 8px;">
-      <div class="date-block upcoming"><div class="day">${String(j.start).padStart(2,'0')}</div><div class="month">น.</div></div>
-      <div class="info"><p class="customer">${j.customer}</p><p class="meta">${j.type} · ${j.loc}</p><div style="margin-top: 5px;">${teamHtml}</div></div>
-    </div>`;
-  });
-  detail.innerHTML = html;
-}
 function changeMonth(delta) {
   CAL_MONTH += delta;
   if (CAL_MONTH > 11) { CAL_MONTH = 0; CAL_YEAR++; }
@@ -13283,6 +13428,15 @@ function saveCustomerInfo() {
   const companyName = getId('cust-company-name');
   const branch = getId('cust-branch');
   const taxAddress = getId('cust-tax-address');
+  // v1.9.13 · M7 fix — detect if tax-related fields actually changed (vs. master)
+  const _prev = CUSTOMER_INFO[_currentCustomer] || {};
+  const _taxChanged = (
+    (_prev.taxId || '') !== taxId ||
+    (_prev.companyName || '') !== companyName ||
+    (_prev.branch || '') !== branch ||
+    (_prev.taxAddress || '') !== taxAddress ||
+    (_prev.type || 'B2C') !== type
+  );
   CUSTOMER_INFO[_currentCustomer] = {
     nickname: document.getElementById('cust-nickname').value,
     phone: document.getElementById('cust-phone').value,
@@ -13315,9 +13469,39 @@ function saveCustomerInfo() {
       if (!j.customerTaxAddress && taxAddress) j.customerTaxAddress = taxAddress;
     }
   });
+  // v1.9.13 · M7 fix — if tax fields changed AND there are old jobs with existing snapshot,
+  // ask whether to propagate the changes to those historical records.
+  let _propagated = 0;
+  if (_taxChanged) {
+    const _existingTaxJobs = JOBS.filter(j =>
+      j.customer === _currentCustomer && (
+        j.customerTaxId || j.customerCompanyName || j.customerBranch || j.customerTaxAddress
+      )
+    );
+    if (_existingTaxJobs.length > 0) {
+      const ask = '🧾 ที่อยู่ภาษีของลูกค้านี้เปลี่ยนแล้ว\n\n'
+        + 'พบงานเก่า ' + _existingTaxJobs.length + ' งาน ที่มีข้อมูลภาษีบันทึกไว้แล้ว\n\n'
+        + 'กด OK เพื่อปรับงานเก่าทั้งหมดให้ใช้ข้อมูลใหม่ (สำหรับออกใบกำกับภาษีย้อนหลัง)\n'
+        + 'กด Cancel เพื่อเก็บข้อมูลเก่าของงานเดิมไว้';
+      if (confirm(ask)) {
+        _existingTaxJobs.forEach(j => {
+          j.customerType = type;
+          j.customerTaxId = taxId;
+          j.customerCompanyName = companyName;
+          j.customerBranch = branch;
+          j.customerTaxAddress = taxAddress;
+          _propagated++;
+        });
+      }
+    }
+  }
   saveData();
-  if (_backfilled > 0 && typeof renderCustomers === 'function') renderCustomers();
-  toast(t('toast.savedCustomer'));
+  if ((_backfilled > 0 || _propagated > 0) && typeof renderCustomers === 'function') renderCustomers();
+  if (_propagated > 0) {
+    toast('บันทึก + ปรับงานเก่า ' + _propagated + ' งานแล้ว');
+  } else {
+    toast(t('toast.savedCustomer'));
+  }
 }
 
 // v1.9.11 · C3 fix — rename customer & propagate to all linked records
@@ -13518,6 +13702,8 @@ function _readAddBase() {
   let total = 0;
   Object.values(ADD_SELECTED || {}).forEach(s => total += (s.price || 0));
   Object.values(ADD_ADDONS || {}).forEach(p => total += p);
+  // v1.9.14 · custom items count toward tax base
+  total += _customTotal('add');
   const extra = parseFloat((document.getElementById('addExtraTime')||{}).value) || 0;
   const disc = parseFloat((document.getElementById('addDiscount')||{}).value) || 0;
   return Math.max(0, total + extra - disc);
@@ -13670,6 +13856,8 @@ function _readNQBase() {
   let total = 0;
   Object.values(NQ_SELECTED || {}).forEach(s => total += (s.price || 0));
   Object.values(NQ_ADDONS || {}).forEach(p => total += p);
+  // v1.9.14 · custom items count toward tax base
+  total += _customTotal('nq');
   const extra = parseFloat((document.getElementById('nq-extratime')||{}).value) || 0;
   const disc = parseFloat((document.getElementById('nq-discount')||{}).value) || 0;
   return Math.max(0, total + extra - disc);
@@ -15277,6 +15465,8 @@ function updateAddTotal() {
   let total = 0;
   Object.values(ADD_SELECTED).forEach(s => total += (s.price || 0));
   Object.values(ADD_ADDONS).forEach(p => total += p);
+  // v1.9.14 · include custom items in total
+  total += _customTotal('add');
   const extra = parseFloat((document.getElementById('addExtraTime')||{}).value) || 0;
   total += extra;
   const disc = parseFloat(document.getElementById('addDiscount').value) || 0;
@@ -15489,7 +15679,10 @@ function renderDashboard() {
 
 // ========== HOME UPCOMING ==========
 function renderHomeUpcoming() {
+  // v1.9.11 · M2 fix — compare against today's midnight, not the current moment.
+  // เดิม "งานวันนี้เริ่ม 9:00" เปิดแอพตอน 10:00 → ถูกตัดออกจาก list เพราะ new Date(j.date) คืน 00:00 ของวันนั้น
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const upcoming = JOBS.filter(j => new Date(j.date) >= today).sort((a,b) => new Date(a.date) - new Date(b.date)).slice(0, 4);
   renderJobs(upcoming, 'home-upcoming');
 }
@@ -15560,7 +15753,8 @@ function renderHomeBirthdays() {
 function copyBirthdayGreeting(customerName) {
   const info = (CUSTOMER_INFO && CUSTOMER_INFO[customerName]) || {};
   const nick = info.nickname || customerName;
-  const studio = (PROFILE && PROFILE.studioName) ? PROFILE.studioName : 'ทีมงาน';
+  // v1.9.11 · M3 fix — master key คือ PROFILE.shop (ไม่ใช่ studioName) · เดิมคำอวยพร sign "— ทีมงาน" ตลอด
+  const studio = (PROFILE && PROFILE.shop) ? PROFILE.shop : 'ทีมงาน';
   const msg = '🎂 สุขสันต์วันเกิดนะคะ คุณ' + nick + '\n' +
               'ขอให้มีความสุขมาก ๆ สุขภาพแข็งแรง สมหวังทุกประการ ✨\n\n' +
               '— ' + studio;
@@ -15896,6 +16090,25 @@ if (document.readyState === 'loading') {
   });
 })();
 
+// v1.9.13 · M9 fix — safe back helper.
+// If the nav stack has somewhere to go, use history.back() so popstate handler pops cleanly.
+// If we're at the root (_navStack length ≤ 1), go to the original fallback target explicitly
+// (typically 'home'). This prevents the "tap-twice-to-exit" toast from firing when the user
+// taps ‹ on a top-level screen reached directly (e.g., quickstart deep link).
+window.safeBack = function safeBack(fallback) {
+  try {
+    if (typeof _navStack !== 'undefined' && Array.isArray(_navStack) && _navStack.length > 1) {
+      history.back();
+    } else if (typeof goTo === 'function') {
+      goTo(fallback || 'home');
+    } else {
+      history.back();
+    }
+  } catch (e) {
+    try { history.back(); } catch (err) {}
+  }
+};
+
 // M18 · A11y patch — add aria-label to icon-only back/close buttons at startup
 // v1.9.5 · Smart-back patch — make all simple "‹" back buttons use history.back()
 // so they respect the actual navigation history (e.g. Calendar → Job → back goes to Calendar,
@@ -15911,11 +16124,14 @@ function applyA11yPatches() {
         else if (txt === '‹' || txt === '◂' || txt === '<') btn.setAttribute('aria-label', 'ย้อนกลับ');
         else btn.setAttribute('aria-label', 'ย้อนกลับ');
       }
-      // Smart-back patch — replace hardcoded goTo('xxx') with history.back()
+      // Smart-back patch — replace hardcoded goTo('xxx') with safeBack('xxx')
+      // v1.9.13 M9 fix: pass the original target as fallback so top-level entries still resolve.
       const oc = btn.getAttribute('onclick') || '';
       // Match only simple goTo('xxx') or goTo("xxx") — no extra args/calls
-      if (/^\s*goTo\(['"][\w-]+['"]\)\s*;?\s*$/.test(oc)) {
-        btn.setAttribute('onclick', 'history.back()');
+      const m = oc.match(/^\s*goTo\(['"]([\w-]+)['"]\)\s*;?\s*$/);
+      if (m) {
+        const fallback = m[1];
+        btn.setAttribute('onclick', "safeBack('" + fallback + "')");
       }
     });
     // FAB plus button
