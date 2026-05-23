@@ -1399,36 +1399,19 @@
   .cal-day .dot { width: 5px; height: 5px; border-radius: 50%; }
   .cal-day.has-jobs .dot { background: rgba(255,255,255,0.95) !important; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.15); }
 
-  /* === FORM PAGES: remove individual glass card frames, single page blur === */
+  /* v1.9.21 · per-section glass cards (not full-page overlay) so each section has
+     a clear boundary. The old "single page blur" made everything look like one
+     giant continuous dark area; now each card ends where its content ends. */
   #screen-add .settings-section,
   #screen-quote-new .settings-section,
   #screen-add-expense .settings-section {
-    background: transparent !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 4px 16px 18px !important;
-    margin: 0 !important;
+    /* Use default .settings-section glass styling — no overrides */
+    padding: 14px 16px !important;
   }
-  /* Add one big page-level blur layer for these screens */
+  /* Disable the legacy page-wide overlay */
   #screen-add::before,
   #screen-quote-new::before,
-  #screen-add-expense::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  body.dark-theme #screen-add::before,
-  body.dark-theme #screen-quote-new::before,
-  body.dark-theme #screen-add-expense::before {
-    background: rgba(20, 20, 25, 0.6);
-  }
+  #screen-add-expense::before { display: none; }
   #screen-add > *,
   #screen-quote-new > *,
   #screen-add-expense > * { position: relative; z-index: 1; }
