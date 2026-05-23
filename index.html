@@ -2589,6 +2589,11 @@
     border-radius: 22px;
     width: 100%;
     max-width: 380px;
+    /* v1.9.11 fix · long release notes overflow on iPhone Safari */
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px); /* dynamic viewport — Safari address bar safe */
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     box-shadow: 0 32px 80px rgba(20,14,8,0.32), 0 8px 20px rgba(20,14,8,0.12);
     animation: wn-pop .35s cubic-bezier(.18, .89, .32, 1.28);
@@ -2607,6 +2612,7 @@
     padding: 28px 24px 22px;
     text-align: center;
     position: relative;
+    flex-shrink: 0; /* v1.9.11 — keep header visible while body scrolls */
   }
   body.dark-theme #whatsnew-modal .wn-header {
     background: linear-gradient(165deg, #4a2e1c 0%, #5a3a26 50%, #6a4a32 100%);
@@ -2666,6 +2672,10 @@
   }
   #whatsnew-modal .wn-body {
     padding: 22px 22px 18px;
+    /* v1.9.11 — scrollable when release notes are long */
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   #whatsnew-modal .wn-section-label {
     font-size: 10.5px;
@@ -2717,7 +2727,16 @@
   }
   body.dark-theme #whatsnew-modal .wn-item .item-desc { color: #b8b0a4; }
   #whatsnew-modal .wn-actions {
-    padding: 0 22px 22px;
+    padding: 14px 22px 22px;
+    /* v1.9.11 — pin CTA to bottom + safe area for iPhone home indicator */
+    padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+    flex-shrink: 0;
+    background: #fff;
+    border-top: 1px solid rgba(20,14,8,0.06);
+  }
+  body.dark-theme #whatsnew-modal .wn-actions {
+    background: #261d15;
+    border-top-color: rgba(255,255,255,0.06);
   }
   #whatsnew-modal .wn-primary {
     width: 100%;
