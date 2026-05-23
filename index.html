@@ -6219,7 +6219,7 @@ const RELEASE_NOTES = {
       {
         icon: '🏢',
         title: 'เลือก B2B → ฟิลด์ภาษีขึ้นทันที',
-        desc: 'ในหน้าสร้างงาน + ใบเสนอ · เลือกประเภท "บริษัท" → ขยายฟิลด์ inline: ชื่อบริษัท · เลขผู้เสียภาษี 13 หลัก · สาขา · ที่อยู่จดทะเบียน · ผู้ติดต่อ · ตำแหน่ง · อีเมล'
+        desc: 'ทั้งจาก quickstart modal (กด + เลือกประเภทเลย) และจากในฟอร์ม · ขยายฟิลด์ inline: ชื่อบริษัท · เลขผู้เสียภาษี 13 หลัก · สาขา · ที่อยู่จดทะเบียน · ผู้ติดต่อ · ตำแหน่ง · อีเมล · ไม่ต้องเปิด modal อีก'
       },
       {
         icon: '🏛',
@@ -9765,6 +9765,10 @@ function quickStartPickType(code) {
     const ctx = (_quickStartMode === 'job') ? 'add' : 'nq';
     if (typeof renderFormCustomerTypePill === 'function') {
       renderFormCustomerTypePill(ctx, code);
+    }
+    // v1.9.24b · expand inline tax fields immediately if B2B/Gov picked from quickstart
+    if (typeof applyTaxFieldsVisibility === 'function') {
+      applyTaxFieldsVisibility(ctx, code);
     }
     // Apply tax defaults
     if (ctx === 'add' && typeof populateAddTaxFromCustomer === 'function') populateAddTaxFromCustomer('');
