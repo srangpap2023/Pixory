@@ -2651,7 +2651,7 @@
   }
   body.dark-theme #whatsnew-modal .wn-footer-note { color: #807870; }
 
-  /* v1.9.15 · "กำหนดรายละเอียดเอง" — match standard settings-section look */
+  /* v1.9.16 · "กำหนดรายละเอียดเอง" — match settings-section look but more visible header */
   .custom-items-section {
     /* uses .settings-section glass styling — no override here */
     padding: 14px;
@@ -2660,7 +2660,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 10px;
     cursor: pointer;
     user-select: none;
     padding: 0;
@@ -2669,29 +2669,43 @@
     flex: 1;
     min-width: 0;
   }
+  /* v1.9.16 · larger + bolder title so it doesn't get lost when scrolling */
   .custom-items-header .sec-title-inline {
-    font-size: 11px;
-    color: #7c7066;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    font-weight: 600;
-    margin-bottom: 4px;
+    font-size: 14px;
+    color: #3a2f25;
+    font-weight: 700;
+    margin-bottom: 3px;
+    letter-spacing: -0.005em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
-  body.dark-theme .custom-items-header .sec-title-inline { color: #a89a8c; }
+  body.dark-theme .custom-items-header .sec-title-inline { color: #f5f0e8; }
   .custom-items-header .subtitle {
     font-size: 11.5px;
     color: #a89a8c;
     line-height: 1.4;
   }
   body.dark-theme .custom-items-header .subtitle { color: #8a8275; }
+  /* v1.9.16 · larger, more visible toggle button */
   .custom-items-header .arrow {
-    font-size: 13px;
-    color: #7c7066;
+    font-size: 16px;
+    color: #d8704a;
     transition: transform .2s ease;
     flex-shrink: 0;
-    padding: 4px 6px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(216, 112, 74, 0.1);
+    border-radius: 50%;
+    font-weight: 700;
   }
-  body.dark-theme .custom-items-header .arrow { color: #b8b0a4; }
+  body.dark-theme .custom-items-header .arrow {
+    color: #f4a36a;
+    background: rgba(216, 112, 74, 0.2);
+  }
   .custom-items-section.open .custom-items-header .arrow { transform: rotate(180deg); }
   .custom-items-body {
     margin-top: 12px;
@@ -3919,6 +3933,12 @@
             <div style="font-size:11px; font-weight:600; color:#0c447c;" id="q-bank-name">—</div>
             <div style="font-size:12px; font-weight:700; color:#042c53;" id="q-bank-acc">—</div>
             <div style="font-size:10px; color:#185fa5;" id="q-bank-holder">—</div>
+          </div>
+
+          <!-- v1.9.16 · หมายเหตุ จากฟอร์ม nq-note -->
+          <div id="q-note-block" style="display:none; margin-top:6px; padding:6px 10px; background:#fef3eb; border-radius:6px; border-left:3px solid #d8704a;">
+            <div style="font-size:10px; color:#7c2d12; font-weight:700; margin-bottom:2px;">📝 หมายเหตุ</div>
+            <div style="font-size:10.5px; color:#3a2f25; line-height:1.5; white-space:pre-wrap;" id="q-note-text">—</div>
           </div>
 
           <div style="margin-top: 8px; padding-top: 6px; border-top: 0.5px solid #d1d5db; font-size: 10px; color: #374151; line-height: 1.4;">
@@ -5770,12 +5790,29 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.15';
+const PIXORY_VERSION = '1.9.16';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.16': {
+    date: '2026-05-23',
+    title: 'แก้ 2 จุดจาก feedback',
+    subtitle: 'หมายเหตุขึ้นใน PDF · หัวข้อ "กำหนดรายละเอียดเอง" เด่นขึ้น',
+    items: [
+      {
+        icon: '📝',
+        title: 'แสดงหมายเหตุในใบเสนอราคา',
+        desc: 'เดิมข้อความที่กรอกในช่อง "หมายเหตุ" ไม่ขึ้นใน PDF · ตอนนี้แสดงเป็นบล็อกสีส้มอ่อน ใต้บัญชีธนาคาร · บน Copy LINE และไฟล์ JPEG/PDF ก็มี'
+      },
+      {
+        icon: '👀',
+        title: 'หัวข้อ "กำหนดรายละเอียดเอง" เด่นขึ้น',
+        desc: 'เพิ่มขนาดและน้ำหนักของข้อความ + ทำปุ่มขยายเป็นวงกลมสีส้ม · มองเห็นง่ายขึ้นเวลา scroll ผ่าน'
+      }
+    ]
+  },
   '1.9.15': {
     date: '2026-05-23',
     title: 'ปรับ "กำหนดรายละเอียดเอง" · เพิ่มช่องรายละเอียด',
@@ -12074,6 +12111,19 @@ function showQuoteScreen(data, source) {
       document.getElementById('q-bank-holder').textContent = bank.holder || '—';
     } else {
       bankBlock.style.display = 'none';
+    }
+  }
+
+  // v1.9.16 · note block — render หมายเหตุ from quote/job
+  const noteBlock = document.getElementById('q-note-block');
+  const noteText  = document.getElementById('q-note-text');
+  if (noteBlock && noteText) {
+    const _noteVal = (data.note || '').trim();
+    if (_noteVal) {
+      noteText.textContent = _noteVal;
+      noteBlock.style.display = '';
+    } else {
+      noteBlock.style.display = 'none';
     }
   }
 
