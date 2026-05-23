@@ -3951,7 +3951,23 @@
           <label data-i18n="aj.depositBaht">มัดจำ (บาท)</label>
           <input type="number" value="0" id="addDeposit">
         </div>
-      </div>          <div id="add-tax-knob" style="width:40px; height:22px; border-radius:14px; background:#cdc3b8; position:relative; transition:all .15s; flex-shrink:0;">
+      </div>
+
+            <!-- Section 6b: ภาษี (Tax T2) -->
+      <div class="settings-section" id="add-tax-section">
+        <div class="sec-title" style="display:flex; align-items:center; gap:8px;">
+          <span>📋 <span data-i18n="tax.section">ภาษี</span></span>
+          <span style="display:none;">PRO</span>
+          <span id="add-tax-cust-hint" style="margin-left:auto; font-size:11px; color:#a89a8c; font-weight:500;"></span>
+        </div>
+
+        <!-- Master toggle -->
+        <div id="add-tax-master" onclick="toggleAddTax()" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:10px; cursor:pointer; background:#f7f4ef; border:1px solid #e8dfd5; transition:all .15s;">
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:13.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.issueTaxInvoice">ออกใบกำกับภาษี</div>
+            <div style="font-size:11px; color:#7c7066; margin-top:2px;" data-i18n="tax.issueTaxInvoiceSub">แสดงรายละเอียด VAT / WHT ในใบเสนอราคา</div>
+          </div>
+          <div id="add-tax-knob" style="width:40px; height:22px; border-radius:14px; background:#cdc3b8; position:relative; transition:all .15s; flex-shrink:0;">
             <div style="width:18px; height:18px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:all .15s; box-shadow:0 1px 3px rgba(0,0,0,0.15);"></div>
           </div>
         </div>
@@ -4000,53 +4016,8 @@
         </div>
       </div>
 
-      
-
-      <!-- v1.9.19 · Section 7: ค่าใช้จ่ายในงานนี้ (multi-item) -->
-      <div class="settings-section">
-        <div class="sec-title"><span data-i18n="cost.title">💸 ค่าใช้จ่ายในงานนี้</span> <span style="color:#a89a8c; font-weight:400; font-size:10.5px; margin-left:6px; text-transform:none; letter-spacing:0;" data-i18n="cost.notShown">· ไม่โชว์ลูกค้า</span></div>
-        <!-- Team wages auto (kept for backward compat) -->
-        <div class="form-group" style="margin: 0 0 10px;">
-          <label data-i18n="aj.teamCostAuto">ค่าแรงทีม (รวมอัตโนมัติ)</label>
-          <input type="number" id="addTeamCost" value="0" readonly class="readonly-input">
-        </div>
-        <!-- Multi-item cost list -->
-        <div id="add-costs-list" style="margin: 6px 0 8px;"></div>
-        <button type="button" onclick="addCostItem()" style="width:100%; padding:10px; background:transparent; color:#7c7066; border:1px dashed rgba(0,0,0,0.18); border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;" data-i18n="custom.addItem">+ เพิ่มรายการ</button>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:8px; border-top:0.5px dashed rgba(0,0,0,0.08); font-size:12.5px;">
-          <span style="color:#7c7066;" data-i18n="cost.subtotal">รวมค่าใช้จ่าย</span>
-          <span style="color:#3a2f25; font-weight:700;" id="add-costs-sum">฿0</span>
-        </div>
-        <!-- Hidden inputs for backward compat (set to 0; sum kept in costItems) -->
-        <input type="hidden" id="addTravelCost" value="0">
-        <input type="hidden" id="addOtherCost" value="0">
-      </div>
-
-      <!-- Section 8: อื่นๆ — moved hint/Note into Team tab -->
-      <div class="settings-section">
-        <div class="sec-title">📝 หมายเหตุ</div>
-        <div class="form-group" style="margin: 0;">
-          <label data-i18n="aj.note">หมายเหตุ</label>
-          <textarea id="addNote" rows="3" placeholder="ข้อมูลเพิ่มเติม..."></textarea>
-        </div>
-      </div>
 
 
-
-      <!-- Section 6b: ภาษี (Tax T2) -->
-      <div class="settings-section" id="add-tax-section">
-        <div class="sec-title" style="display:flex; align-items:center; gap:8px;">
-          <span>📋 <span data-i18n="tax.section">ภาษี</span></span>
-          <span style="display:none;">PRO</span>
-          <span id="add-tax-cust-hint" style="margin-left:auto; font-size:11px; color:#a89a8c; font-weight:500;"></span>
-        </div>
-
-        <!-- Master toggle -->
-        <div id="add-tax-master" onclick="toggleAddTax()" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:10px; cursor:pointer; background:#f7f4ef; border:1px solid #e8dfd5; transition:all .15s;">
-          <div style="flex:1; min-width:0;">
-            <div style="font-size:13.5px; font-weight:600; color:#3a2f25;" data-i18n="tax.issueTaxInvoice">ออกใบกำกับภาษี</div>
-            <div style="font-size:11px; color:#7c7066; margin-top:2px;" data-i18n="tax.issueTaxInvoiceSub">แสดงรายละเอียด VAT / WHT ในใบเสนอราคา</div>
-          </div>
       <!-- v1.9.19 · ราคาสุทธิ — full breakdown -->
       <div class="settings-section" id="add-final-summary" style="margin: 0 16px 12px; background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(254,243,235,0.85)); border:0.5px solid rgba(216,112,74,0.18); box-shadow:0 6px 22px -4px rgba(216,112,74,0.12);">
         <div class="sec-title" data-i18n="final.title">💎 ราคาสุทธิ</div>
