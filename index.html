@@ -2651,6 +2651,108 @@
   }
   body.dark-theme #whatsnew-modal .wn-footer-note { color: #807870; }
 
+  /* v1.9.18 · Tabbed form layout for New Job + New Quote (Layout C) */
+  .form-tabs {
+    display: flex;
+    gap: 3px;
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 12px;
+    padding: 4px;
+    margin: 0 16px 14px;
+    border: 0.5px solid rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(20px);
+  }
+  .form-tab { flex: 1; min-width: 0; }
+  body.dark-theme .form-tabs {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+  .form-tab {
+    padding: 9px 4px;
+    border-radius: 9px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #7c7066;
+    cursor: pointer;
+    transition: all .15s ease;
+    user-select: none;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    line-height: 1.1;
+  }
+  body.dark-theme .form-tab { color: #b8b0a4; }
+  .form-tab.active {
+    background: linear-gradient(135deg, #f4a36a, #d8704a);
+    color: #fff;
+    box-shadow: 0 2px 8px -2px rgba(216, 112, 74, 0.4);
+  }
+  .form-tab .badge-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #dc2626;
+    border-radius: 50%;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+  /* Show only the active tab's content */
+  .form-section[data-tab] { display: none; }
+  #screen-add[data-active-tab="customer"] .form-section[data-tab~="customer"],
+  #screen-add[data-active-tab="job"] .form-section[data-tab~="job"],
+  #screen-add[data-active-tab="price"] .form-section[data-tab~="price"],
+  #screen-add[data-active-tab="team"] .form-section[data-tab~="team"],
+  #screen-quote-new[data-active-tab="customer"] .form-section[data-tab~="customer"],
+  #screen-quote-new[data-active-tab="job"] .form-section[data-tab~="job"],
+  #screen-quote-new[data-active-tab="price"] .form-section[data-tab~="price"],
+  #screen-quote-new[data-active-tab="team"] .form-section[data-tab~="team"] {
+    display: block;
+  }
+  /* Sticky tab navigation */
+  .form-tabs-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding-top: 8px;
+    margin: -8px 0 0;
+    background: inherit;
+  }
+  .tab-next-row {
+    display: flex;
+    gap: 8px;
+    padding: 6px 16px 12px;
+  }
+  .tab-next-row .tab-prev-btn {
+    flex: 0 0 auto;
+    padding: 11px 18px;
+    border-radius: 11px;
+    background: rgba(255,255,255,0.7);
+    border: 0.5px solid rgba(0,0,0,0.06);
+    font-size: 13px;
+    color: #7c7066;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  body.dark-theme .tab-next-row .tab-prev-btn {
+    background: rgba(255,255,255,0.05);
+    color: #b8b0a4;
+    border-color: rgba(255,255,255,0.08);
+  }
+  .tab-next-row .tab-next-btn {
+    flex: 1;
+    padding: 11px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #f4a36a, #d8704a);
+    border: 0;
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 3px 10px -2px rgba(216, 112, 74, 0.4);
+  }
+
   /* v1.9.17 · "กำหนดรายละเอียดเอง" — Liquid Glass button effect */
   .custom-items-section {
     /* override .settings-section base — strong frosted Liquid Glass */
@@ -3612,16 +3714,24 @@
     </div>
 
     <!-- ====== SCREEN: ADD/EDIT JOB ====== -->
-    <div class="screen" id="screen-add">
+    <div class="screen" id="screen-add" data-active-tab="customer">
       <div class="header">
         <button class="back" onclick="cancelAddJob()">×</button>
         <h1 id="add-screen-title" data-i18n="header.addJob">งานใหม่</h1>
         <span style="font-size: 12px; color: #7c7066;" id="new-job-code">JOB-2026-024</span>
       </div>
 
-      <!-- Section 1: ข้อมูลงาน -->
-      <div class="settings-section">
-        <div class="sec-title" data-i18n="aj.jobInfo">📋 ข้อมูลงาน</div>
+      <!-- v1.9.18 · Tab navigation -->
+      <div class="form-tabs">
+        <button class="form-tab active" data-tab-id="customer" onclick="setFormTab('add','customer')">ลูกค้า</button>
+        <button class="form-tab" data-tab-id="job" onclick="setFormTab('add','job')">งาน</button>
+        <button class="form-tab" data-tab-id="price" onclick="setFormTab('add','price')">ราคา</button>
+        <button class="form-tab" data-tab-id="team" onclick="setFormTab('add','team')">ทีม</button>
+      </div>
+
+      <!-- Tab: ลูกค้า -->
+      <div class="settings-section form-section" data-tab="customer">
+        <div class="sec-title">👤 ข้อมูลลูกค้า</div>
         <div class="form-group" style="margin: 0 0 10px;">
           <label><span data-i18n="lbl.customer">ลูกค้า</span> <span class="req">*</span></label>
           <input type="text" id="addCustomer" list="customer-names-list" autocomplete="off" data-i18n-attr="placeholder" data-i18n="aj.placeholderCustomerSearch" placeholder="พิมพ์ชื่อ หรือเลือกจากรายชื่อ" value="" onblur="autofillCustomerOnBlur()" oninput="if(typeof onCustomerNameInput==='function')onCustomerNameInput(this,'add')">
@@ -3655,6 +3765,21 @@
           <label data-i18n="lbl.lineFb">💬 LINE / Facebook</label>
           <input type="text" id="add-cust-line" data-i18n-attr="placeholder" data-i18n="aj.placeholderLineLong" placeholder="LINE ID หรือชื่อ Facebook" value="">
         </div>
+        <div class="form-group" style="margin: 0;">
+          <label>Source ลูกค้ามาจากไหน</label>
+          <select id="addSource"></select>
+        </div>
+      </div>
+
+      <div class="form-section" data-tab="customer">
+        <div class="tab-next-row">
+          <button type="button" class="tab-next-btn" onclick="setFormTab('add','job')">ต่อไป · งาน ›</button>
+        </div>
+      </div>
+
+      <!-- Tab: งาน -->
+      <div class="settings-section form-section" data-tab="job">
+        <div class="sec-title">📅 รายละเอียดงาน</div>
         <div class="form-group" style="margin: 0 0 10px;">
           <label data-i18n="lbl.jobType">ประเภทงาน</label>
           <div class="chip-row" id="add-type-row">
@@ -3686,10 +3811,10 @@
       </div>
 
       <!-- v1.9.14 · กำหนดรายละเอียดเอง (Custom items) — pinned above main packages -->
-      <div class="settings-section custom-items-section" id="add-custom-section">
+      <div class="settings-section custom-items-section form-section" id="add-custom-section" data-tab="job">
         <div class="custom-items-header" onclick="toggleCustomItems('add')">
           <div class="title-wrap">
-            <div class="sec-title-inline">📝 กำหนดรายละเอียดเอง</div>
+            <div class="sec-title-inline">📝 แพคเกจแบบกำหนดรายละเอียดเอง</div>
             <div class="subtitle">งานนอกแพคเกจหลัก · ตั้งราคา-บริการเอง</div>
           </div>
           <div class="arrow">▾</div>
@@ -3705,23 +3830,30 @@
       </div>
 
       <!-- Dynamic services (from SERVICES) -->
-      <div id="add-services-container"></div>
+      <div id="add-services-container" class="form-section" data-tab="job"></div>
 
       <!-- Section 6: บริการเสริม -->
-      <div class="settings-section">
+      <div class="settings-section form-section" data-tab="job">
         <div class="sec-title">➕ บริการเสริม</div>
         <div class="chip-row" id="addons-row"></div>
       </div>
 
-      <!-- Section 5: ทีมงาน -->
-      <div class="settings-section">
+      <div class="form-section" data-tab="job">
+        <div class="tab-next-row">
+          <button type="button" class="tab-prev-btn" onclick="setFormTab('add','customer')">‹</button>
+          <button type="button" class="tab-next-btn" onclick="setFormTab('add','price')">ต่อไป · ราคา ›</button>
+        </div>
+      </div>
+
+      <!-- Tab: ทีม (mid-position kept for code order; visible only under tab=team) -->
+      <div class="settings-section form-section" data-tab="team">
         <div class="sec-title">👥 ทีมช่าง (เลือกได้หลายคน)</div>
         <div class="chip-row" id="team-chip-row"></div>
         <div id="team-wage-list" style="margin-top: 12px;"></div>
       </div>
 
-      <!-- Section 6: การเงิน -->
-      <div class="settings-section">
+      <!-- Tab: ราคา -->
+      <div class="settings-section form-section" data-tab="price">
         <div class="sec-title">💰 การเงิน</div>
         <div class="form-row" style="padding: 0;">
           <div class="form-group" style="margin: 0 0 10px;">
@@ -3740,7 +3872,7 @@
       </div>
 
       <!-- Section 6b: ภาษี (Tax T2) -->
-      <div class="settings-section" id="add-tax-section">
+      <div class="settings-section form-section" id="add-tax-section" data-tab="price">
         <div class="sec-title" style="display:flex; align-items:center; gap:8px;">
           <span>📋 <span data-i18n="tax.section">ภาษี</span></span>
           <span style="display:none;">PRO</span>
@@ -3802,8 +3934,15 @@
         </div>
       </div>
 
+      <div class="form-section" data-tab="price">
+        <div class="tab-next-row">
+          <button type="button" class="tab-prev-btn" onclick="setFormTab('add','job')">‹</button>
+          <button type="button" class="tab-next-btn" onclick="setFormTab('add','team')">ต่อไป · ทีม ›</button>
+        </div>
+      </div>
+
       <!-- Section 7: ต้นทุน -->
-      <div class="settings-section">
+      <div class="settings-section form-section" data-tab="team">
         <div class="sec-title">💸 ต้นทุน</div>
         <div class="form-row" style="padding: 0;">
           <div class="form-group" style="margin: 0 0 10px;">
@@ -3821,13 +3960,9 @@
         </div>
       </div>
 
-      <!-- Section 8: อื่นๆ -->
-      <div class="settings-section">
-        <div class="sec-title">📣 อื่นๆ</div>
-        <div class="form-group" style="margin: 0 0 10px;">
-          <label>Source ลูกค้ามาจากไหน</label>
-          <select id="addSource"></select>
-        </div>
+      <!-- Section 8: อื่นๆ — moved hint/Note into Team tab -->
+      <div class="settings-section form-section" data-tab="team">
+        <div class="sec-title">📝 หมายเหตุ</div>
         <div class="form-group" style="margin: 0;">
           <label data-i18n="aj.note">หมายเหตุ</label>
           <textarea id="addNote" rows="3" placeholder="ข้อมูลเพิ่มเติม..."></textarea>
@@ -4258,15 +4393,22 @@
     </div>
 
     <!-- ====== SCREEN: NEW QUOTE ====== -->
-    <div class="screen" id="screen-quote-new">
+    <div class="screen" id="screen-quote-new" data-active-tab="customer">
       <div class="header">
         <button class="back" onclick="backFromNewQuote()">×</button>
         <h1 data-i18n="header.newQuote" id="new-quote-title">ใบเสนอราคาใหม่</h1>
         <span style="font-size: 12px; color: #7c7066;" id="new-quote-code">QT-2026-008</span>
       </div>
 
+      <!-- v1.9.18 · Tab navigation (Quote = 3 tabs only · no team) -->
+      <div class="form-tabs">
+        <button class="form-tab active" data-tab-id="customer" onclick="setFormTab('nq','customer')">ลูกค้า</button>
+        <button class="form-tab" data-tab-id="job" onclick="setFormTab('nq','job')">งาน</button>
+        <button class="form-tab" data-tab-id="price" onclick="setFormTab('nq','price')">ราคา</button>
+      </div>
+
       <!-- ลูกค้า -->
-      <div class="settings-section">
+      <div class="settings-section form-section" data-tab="customer">
         <div class="sec-title" data-i18n="aj.customerSection">👤 ลูกค้า (ยังไม่ต้องเป็นลูกค้าจริง)</div>
         <div class="form-row" style="margin-bottom: 10px;">
           <div class="form-group" style="margin: 0; flex:1.4;">
@@ -4307,8 +4449,14 @@
         </div>
       </div>
 
+      <div class="form-section" data-tab="customer">
+        <div class="tab-next-row">
+          <button type="button" class="tab-next-btn" onclick="setFormTab('nq','job')">ต่อไป · งาน ›</button>
+        </div>
+      </div>
+
       <!-- งาน -->
-      <div class="settings-section">
+      <div class="settings-section form-section" data-tab="job">
         <div class="sec-title" data-i18n="aj.jobInfo">📋 ข้อมูลงาน</div>
         <div class="form-group" style="margin: 0 0 10px;">
           <label data-i18n="lbl.jobType">ประเภทงาน</label>
@@ -4336,10 +4484,10 @@
       </div>
 
       <!-- v1.9.14 · กำหนดรายละเอียดเอง (Custom items) — pinned above main packages -->
-      <div class="settings-section custom-items-section" id="nq-custom-section">
+      <div class="settings-section custom-items-section form-section" id="nq-custom-section" data-tab="job">
         <div class="custom-items-header" onclick="toggleCustomItems('nq')">
           <div class="title-wrap">
-            <div class="sec-title-inline">📝 กำหนดรายละเอียดเอง</div>
+            <div class="sec-title-inline">📝 แพคเกจแบบกำหนดรายละเอียดเอง</div>
             <div class="subtitle">งานนอกแพคเกจหลัก · ตั้งราคา-บริการเอง</div>
           </div>
           <div class="arrow">▾</div>
@@ -4355,16 +4503,23 @@
       </div>
 
       <!-- Dynamic services (from SERVICES) -->
-      <div id="nq-services-container"></div>
+      <div id="nq-services-container" class="form-section" data-tab="job"></div>
 
       <!-- Addons -->
-      <div class="settings-section">
+      <div class="settings-section form-section" data-tab="job">
         <div class="sec-title" data-i18n="aj.addOns">➕ บริการเสริม</div>
         <div class="chip-row" id="nq-addons-row"></div>
       </div>
 
+      <div class="form-section" data-tab="job">
+        <div class="tab-next-row">
+          <button type="button" class="tab-prev-btn" onclick="setFormTab('nq','customer')">‹</button>
+          <button type="button" class="tab-next-btn" onclick="setFormTab('nq','price')">ต่อไป · ราคา ›</button>
+        </div>
+      </div>
+
       <!-- การเงิน + อายุใบเสนอ -->
-      <div class="settings-section">
+      <div class="settings-section form-section" data-tab="price">
         <div class="sec-title" data-i18n="aj.section1Title">💰 ราคา · มัดจำ · อายุใบเสนอ</div>
         <div class="form-row" style="margin-bottom: 10px;">
           <div class="form-group" style="margin: 0;">
@@ -4395,7 +4550,7 @@
       </div>
 
       <!-- Tax (Tax T2) -->
-      <div class="settings-section" id="nq-tax-section">
+      <div class="settings-section form-section" id="nq-tax-section" data-tab="price">
         <div class="sec-title" style="display:flex; align-items:center; gap:8px;">
           <span>📋 <span data-i18n="tax.section">ภาษี</span></span>
           <span style="display:none;">PRO</span>
@@ -5862,12 +6017,39 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.17';
+const PIXORY_VERSION = '1.9.18';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.18': {
+    date: '2026-05-23',
+    title: 'Layout C · Tabbed Form ทดลองใช้',
+    subtitle: 'หน้างานใหม่ + ใบเสนอใหม่ · แบ่งเป็นแท็บกะทัดรัด · scroll สั้นลง',
+    items: [
+      {
+        icon: '📑',
+        title: 'แท็บใหม่ในหน้างาน · ลูกค้า / งาน / ราคา / ทีม',
+        desc: 'แบ่งฟอร์มงานเป็น 4 แท็บ · ปุ่ม "ต่อไป ›" นำพาทีละขั้น · สรุปยอดและปุ่มบันทึกอยู่ล่างเสมอ · scroll สั้นลงเยอะ'
+      },
+      {
+        icon: '📋',
+        title: 'แท็บในใบเสนอ · 3 แท็บ',
+        desc: 'ใบเสนอไม่มีทีม จึงเหลือ 3 แท็บ · ลูกค้า / งาน / ราคา · เร็วและกะทัดรัด'
+      },
+      {
+        icon: '🏷',
+        title: 'เปลี่ยนชื่อ "กำหนดรายละเอียดเอง"',
+        desc: 'เป็น "แพคเกจแบบกำหนดรายละเอียดเอง" ให้ชัดเจนขึ้นว่าเป็นทางเลือกของแพคเกจ'
+      },
+      {
+        icon: '⚠️',
+        title: 'เป็นการทดลอง · พร้อม rollback',
+        desc: 'ถ้าใช้ไม่ลื่นสามารถ revert กลับ Layout เดิมได้ · feedback ผมจะปรับให้'
+      }
+    ]
+  },
   '1.9.17': {
     date: '2026-05-23',
     title: 'การ์ด "กำหนดรายละเอียดเอง" · Liquid Glass',
@@ -11322,6 +11504,8 @@ function openNewJob() {
   ADD_SESSIONS = [];
   // v1.9.14 · reset custom items
   resetCustomItems('add');
+  // v1.9.18 · reset to first tab
+  if (typeof setFormTab === 'function') setFormTab('add', 'customer');
   // Default form
   document.getElementById('add-screen-title').textContent = 'งานใหม่';
   document.getElementById('add-save-btn').textContent = 'บันทึกงาน';
@@ -11415,6 +11599,8 @@ function editCurrentJob() {
   if (j.other) ADD_ADDONS.profile = j.other;
   // v1.9.14 · restore custom items
   loadCustomItems('add', j.customItems || []);
+  // v1.9.18 · reset to first tab when editing
+  if (typeof setFormTab === 'function') setFormTab('add', 'customer');
   ADD_TEAM = new Set(j.team || []);
   ADD_TEAM_WAGES = j.teamWages ? {...j.teamWages} : {};
   ADD_SESSIONS = getJobSessions(j).map(s => ({...s}));
@@ -12360,6 +12546,8 @@ function openNewQuote() {
   NQ_SELECTED = {}; NQ_ADDONS = {}; NQ_SESSIONS = [];
   // v1.9.14 · reset custom items
   resetCustomItems('nq');
+  // v1.9.18 · reset to first tab
+  if (typeof setFormTab === 'function') setFormTab('nq', 'customer');
   // v1.9.11 C2 fix: use generateQuoteCode (max+1) instead of length+1
   document.getElementById('new-quote-code').textContent = generateQuoteCode();
   document.getElementById('nq-customer').value = '';
@@ -12408,6 +12596,8 @@ function editCurrentQuote() {
   if (q.other) NQ_ADDONS.profile = q.other;
   // v1.9.14 · restore custom items
   loadCustomItems('nq', q.customItems || []);
+  // v1.9.18 · reset to first tab when editing
+  if (typeof setFormTab === 'function') setFormTab('nq', 'customer');
   NQ_SESSIONS.length = 0;
   if (q.sessions && q.sessions.length) {
     q.sessions.forEach(s => NQ_SESSIONS.push({...s}));
@@ -12472,6 +12662,22 @@ function populateJobTypeChipsForNQ() {
     chip.onclick = () => selectOne(chip, 'nq-type');
     el.appendChild(chip);
   });
+}
+
+// ========== v1.9.18 · Form tab system (Layout C) ==========
+// Switch between Customer / Job / Price / Team tabs in Add Job + New Quote forms
+function setFormTab(form, tabId) {
+  // form: 'add' or 'nq'
+  const screenId = form === 'add' ? 'screen-add' : 'screen-quote-new';
+  const screen = document.getElementById(screenId);
+  if (!screen) return;
+  screen.setAttribute('data-active-tab', tabId);
+  // Update tab button active state
+  screen.querySelectorAll('.form-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-tab-id') === tabId);
+  });
+  // Scroll to top
+  try { screen.scrollTop = 0; window.scrollTo(0, 0); } catch (e) {}
 }
 
 // ========== v1.9.14 · "กำหนดรายละเอียดเอง" (Custom items) ==========
