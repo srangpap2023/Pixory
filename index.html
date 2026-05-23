@@ -6297,36 +6297,26 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.34';
+const PIXORY_VERSION = '1.9.35';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
+
+// ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
+//   NEVER in this user-facing RELEASE_NOTES object. Users see everything here.
+//   When adding admin features, write something generic like "Internal improvements"
+//   or omit the version entry entirely.
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
-  '1.9.34': {
+  '1.9.35': {
     date: '2026-05-23',
-    title: 'Admin Dashboard · admin.html',
-    subtitle: 'หน้ามอนิเตอร์ผู้ใช้ realtime · last seen · app version · usage stats',
+    title: 'Polish · ปรับปรุงภายใน',
+    subtitle: 'การปรับปรุงเบื้องหลัง · ไม่กระทบการใช้งาน',
     items: [
       {
-        icon: '🛡',
-        title: 'admin.html · หน้าใหม่แยกจากแอพ',
-        desc: 'URL: /admin.html · login ด้วย email admin (srangpap2023@gmail.com) · เห็น list ผู้ใช้ทั้งหมด · last seen (กี่นาทีที่แล้ว) · app version (highlight ถ้าเก่า) · จำนวนงาน/ใบเสนอ/ลูกค้า · device count · auto-refresh ทุก 30 วินาที'
-      },
-      {
-        icon: '📊',
-        title: '_meta เพิ่ม app_version + email',
-        desc: 'ทุกครั้งที่ sync ขึ้น cloud · ฝัง PIXORY_VERSION + email ลง _meta blob · admin จะเห็นว่าใครยังไม่อัพ + รู้ว่า user_id ไหน = email ใคร'
-      },
-      {
-        icon: '🔐',
-        title: 'Security ผ่าน RLS · ไม่ใช่ client check',
-        desc: 'ใครเปิด /admin.html ก็เห็นหน้า login · แต่จะอ่านข้อมูลได้เฉพาะ email ที่ตั้งใน Supabase RLS policy เท่านั้น · ป้องกัน leak ตั้งแต่ database level · ดู setup guide ที่ business/admin_setup_guide.md'
-      },
-      {
-        icon: '👁',
-        title: 'เห็นแค่ aggregate · ไม่เห็นรายละเอียด',
-        desc: 'แสดงเฉพาะ counts (จำนวนงาน · จำนวนลูกค้า ฯลฯ) · ไม่แสดงชื่อลูกค้า · ราคา · เบอร์ · ข้อมูลธุรกิจรายละเอียด · เคารพ privacy ผู้ใช้'
+        icon: '🛠',
+        title: 'Internal improvements',
+        desc: 'ปรับปรุงการเก็บข้อมูล sync ให้เสถียรขึ้น · ไม่กระทบการใช้งานปกติ'
       }
     ]
   },
@@ -8089,7 +8079,7 @@ async function pushToCloud(opts) {
       }
     }
     const now = new Date().toISOString();
-    // Stamp metadata · v1.9.34 also include app_version + email for admin dashboard
+    // Stamp metadata · app_version + email used for sync metadata
     blob._meta = {
       updated_at: now,
       device_id: DEVICE_ID,
