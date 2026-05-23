@@ -4060,7 +4060,7 @@
         </div>
       </div>
 
-      <!-- v1.9.30 · Section 7: ต้นทุนงาน (multi-item · internal cost — our expenses) -->
+      <!-- v1.9.31 · Section 7: ต้นทุนงาน · 3 fields (2 presets + 1 multi อื่นๆ) -->
       <div class="settings-section">
         <div class="sec-title">
           <span data-i18n="cost.title">💸 ต้นทุนงาน</span>
@@ -4074,22 +4074,30 @@
           <div style="font-size:11px; color:#475569;" data-i18n="cost.billableHint">กรอกที่พี่จ่ายจริงด้านล่าง · ส่วนต่าง = กำไร</div>
         </div>
 
-        <!-- Team wages auto (kept for backward compat) -->
+        <!-- Team wages auto -->
         <div class="form-group" style="margin: 0 0 10px;">
           <label data-i18n="aj.teamCostAuto">ค่าแรงทีม (รวมอัตโนมัติ)</label>
           <input type="number" id="addTeamCost" value="0" readonly class="readonly-input">
         </div>
-        <!-- Multi-item cost list -->
-        <div id="add-costs-list" style="margin: 6px 0 8px;"></div>
-        <button type="button" onclick="addCostItem('add')" style="width:100%; padding:10px; background:transparent; color:#7c7066; border:1px dashed rgba(0,0,0,0.18); border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;" data-i18n="custom.addItem">+ เพิ่มรายการ</button>
 
-        <!-- v1.9.30 · Quick-pick chips · auto-learned from existing jobs' costItems -->
-        <div id="add-costs-chips-wrap" style="display:none; margin-top:10px;">
-          <div style="font-size:10.5px; color:#a89a8c; font-weight:600; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.4px;" data-i18n="cost.chipsLabel">รายการที่ใช้บ่อย</div>
-          <div id="add-costs-chips" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+        <!-- v1.9.31 · Preset row 1: ค่าที่พัก -->
+        <div class="form-group" style="margin: 0 0 10px;">
+          <label data-i18n="cost.lodging">🛏 ค่าที่พัก</label>
+          <input type="number" id="addCostLodging" value="0" min="0" placeholder="0" oninput="if(typeof _addUpdateCostsSum==='function')_addUpdateCostsSum()">
         </div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:8px; border-top:0.5px dashed rgba(0,0,0,0.08); font-size:12.5px;">
+        <!-- v1.9.31 · Preset row 2: ค่าเดินทาง -->
+        <div class="form-group" style="margin: 0 0 10px;">
+          <label data-i18n="cost.travel">⛽ ค่าเดินทาง</label>
+          <input type="number" id="addCostTravel" value="0" min="0" placeholder="0" oninput="if(typeof _addUpdateCostsSum==='function')_addUpdateCostsSum()">
+        </div>
+
+        <!-- v1.9.31 · อื่นๆ multi-item with category dropdown -->
+        <div style="margin: 14px 0 6px; font-size:12.5px; font-weight:600; color:#7c7066;" data-i18n="cost.others">🔖 อื่นๆ</div>
+        <div id="add-costs-list" style="margin: 0 0 8px;"></div>
+        <button type="button" onclick="addCostItem('add')" style="width:100%; padding:10px; background:transparent; color:#7c7066; border:1px dashed rgba(0,0,0,0.18); border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;" data-i18n="cost.addOther">+ เพิ่มรายการอื่น</button>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:0.5px dashed rgba(0,0,0,0.08); font-size:12.5px;">
           <span style="color:#7c7066;" data-i18n="cost.subtotal">รวมต้นทุนงาน</span>
           <span style="color:#3a2f25; font-weight:700;" id="add-costs-sum">฿0</span>
         </div>
@@ -6289,12 +6297,44 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.30';
+const PIXORY_VERSION = '1.9.31';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.31': {
+    date: '2026-05-23',
+    title: 'ต้นทุนงาน · 3 ช่อง · ลงหมวดอัตโนมัติ',
+    subtitle: 'ที่พัก · เดินทาง · อื่นๆ (เลือกหมวด) · เข้าชาร์ทรายจ่ายแยกหมวดแล้ว',
+    items: [
+      {
+        icon: '🛏',
+        title: 'ช่องที่พัก + ช่องเดินทาง',
+        desc: '2 ช่องคงที่ในการ์ดต้นทุนงาน · กรอกเลขราคาเลย · ไม่ต้องตั้งชื่อรายการ · ตัวเลขเข้าหมวด "ที่พัก" / "เดินทาง" ในชาร์ทรายจ่ายอัตโนมัติ'
+      },
+      {
+        icon: '🔖',
+        title: 'อื่นๆ · เลือกหมวดเองได้',
+        desc: 'รายการนอกเหนือจาก 2 ช่องบน · กดเพิ่มได้หลายแถว · แต่ละแถวเลือกหมวดจาก dropdown (เดินทาง · ที่พัก · อุปกรณ์ถ่าย · เช่าอุปกรณ์ · ค่ากินทีม · Software · Marketing · ค่าตัดต่อ · อื่นๆ) · default = อื่นๆ'
+      },
+      {
+        icon: '📊',
+        title: 'แก้ bug · ชาร์ทรายจ่ายแยกหมวดนับครบแล้ว',
+        desc: 'รอบก่อน costItems ไม่เข้าชาร์ทรายจ่ายเลย · ตอนนี้ทุกรายการ (ทั้ง 3 ช่อง + ช่องอื่นๆ) เด้งเข้าหมวดถูกในชาร์ท Dashboard · ทั้ง donut chart + monthly bar + total expense KPI · ทุกตัวแม่นยำเท่ากัน'
+      },
+      {
+        icon: '↔️',
+        title: 'Backward-compat · งานเก่าใช้ได้ต่อ',
+        desc: 'งานเก่าที่มี costItems แบบ free-form · ตอน load เข้าฟอร์ม ระบบจัดเข้าช่องที่พัก/เดินทางอัตโนมัติถ้าชื่อตรง (ค่าที่พัก/ค่าน้ำมัน/ค่าเดินทาง) · ที่เหลือเข้าช่องอื่นๆ พร้อม category = อื่นๆ'
+      },
+      {
+        icon: '🧹',
+        title: 'ลบ chips ของ v1.9.30 ออก',
+        desc: 'Auto-learn quick-pick chips ไม่จำเป็นอีก เพราะ preset 2 ช่องชัดอยู่แล้ว · ลดความรกในฟอร์ม'
+      }
+    ]
+  },
   '1.9.30': {
     date: '2026-05-23',
     title: 'หน้างานใหม่ · ปรับการ์ดต้นทุน + หน้ารายละเอียดงานเต็ม',
@@ -8523,6 +8563,12 @@ const I18N = {
   'cost.chipsLabel':     { th: 'รายการที่ใช้บ่อย', en: 'Recently used' },
   'cost.billableBanner': { th: 'ลูกค้าจะจ่าย', en: 'Customer pays' },
   'cost.billableHint':   { th: 'กรอกที่พี่จ่ายจริงด้านล่าง · ส่วนต่าง = กำไร', en: 'Enter your actual cost below · difference = profit' },
+  'cost.lodging':        { th: '🛏 ค่าที่พัก', en: '🛏 Lodging' },
+  'cost.travel':         { th: '⛽ ค่าเดินทาง', en: '⛽ Travel/Fuel' },
+  'cost.others':         { th: '🔖 อื่นๆ', en: '🔖 Other' },
+  'cost.categoryLabel':  { th: '🏷 หมวด', en: '🏷 Category' },
+  'cost.namePhOther':    { th: 'ชื่อรายการ (เช่น ค่ากินทีม)', en: 'Item name (e.g. Team meals)' },
+  'cost.addOther':       { th: '+ เพิ่มรายการอื่น', en: '+ Add other item' },
   'final.title':         { th: '💎 ราคาสุทธิ', en: '💎 Net Price' },
   'final.subtotal':      { th: 'รวมก่อนส่วนลด', en: 'Subtotal' },
   'final.discount':      { th: 'ส่วนลด', en: 'Discount' },
@@ -12291,10 +12337,11 @@ function openNewJob() {
   ADD_SESSIONS = [];
   // v1.9.14 · reset custom items
   resetCustomItems('add');
-  // v1.9.19 · reset cost items
+  // v1.9.19 · reset cost items · v1.9.31 also reset preset fields
   if (typeof resetCostItems === 'function') resetCostItems('add');
-  // v1.9.30 · refresh quick-pick chips (auto-learn from history) + hide billable banner (no source quote for fresh job)
-  if (typeof renderJobCostChips === 'function') renderJobCostChips();
+  if (typeof _addResetPresetCosts === 'function') _addResetPresetCosts();
+  if (typeof _addUpdateCostsSum === 'function') _addUpdateCostsSum();
+  // v1.9.30 · hide billable banner (no source quote for fresh job)
   if (typeof renderJobBillableBanner === 'function') renderJobBillableBanner(null);
   // Default form
   document.getElementById('add-screen-title').textContent = 'งานใหม่';
@@ -12393,17 +12440,17 @@ function editCurrentJob() {
   if (j.other) ADD_ADDONS.profile = j.other;
   // v1.9.14 · restore custom items
   loadCustomItems('add', j.customItems || []);
-  // v1.9.19 · restore cost items · migrate legacy travelCost/otherCost if no new list
+  // v1.9.19 · restore cost items · v1.9.31 split into preset slots + others
   if (Array.isArray(j.costItems) && j.costItems.length > 0) {
-    loadCostItems('add', j.costItems);
+    _addLoadCostItemsSplit(j.costItems);
   } else {
     const _migrate = [];
-    if ((j.travelCost || 0) > 0) _migrate.push({ name: 'ค่าที่พัก/เดินทาง', desc: '', price: j.travelCost });
-    if ((j.otherCost || 0) > 0) _migrate.push({ name: 'ค่าใช้จ่ายอื่นๆ', desc: '', price: j.otherCost });
-    loadCostItems('add', _migrate);
+    if ((j.travelCost || 0) > 0) _migrate.push({ name: 'ค่าเดินทาง', desc: '', price: j.travelCost, category: 'เดินทาง', slot: 'travel' });
+    if ((j.otherCost || 0) > 0) _migrate.push({ name: 'ค่าใช้จ่ายอื่นๆ', desc: '', price: j.otherCost, category: 'อื่นๆ' });
+    _addLoadCostItemsSplit(_migrate);
   }
-  // v1.9.30 · refresh chips + billable banner (if job has billableCosts from converted quote)
-  if (typeof renderJobCostChips === 'function') renderJobCostChips();
+  if (typeof _addUpdateCostsSum === 'function') _addUpdateCostsSum();
+  // v1.9.30 · billable banner (if job has billableCosts from converted quote)
   if (typeof renderJobBillableBanner === 'function') renderJobBillableBanner(j);
   ADD_TEAM = new Set(j.team || []);
   ADD_TEAM_WAGES = j.teamWages ? {...j.teamWages} : {};
@@ -12503,10 +12550,19 @@ function collectAddFormData() {
   const _addCustomSnapshot = _customGetState('add')
     .filter(c => (c.name && c.name.trim()) || (parseFloat(c.price) || 0) > 0)
     .map(c => ({ id: c.id, name: String(c.name || '').trim(), desc: String(c.desc || '').trim(), price: parseFloat(c.price) || 0, category: String(c.category || '') }));
-  // v1.9.19 · snapshot of cost items · v1.9.27 ctx-aware
-  const _addCostsSnapshot = (typeof _costsGetState === 'function' ? _costsGetState('add') : (ADD_COSTS || []))
+  // v1.9.19 · snapshot of cost items · v1.9.27 ctx-aware · v1.9.31 merge presets + others, persist category + slot
+  const _addPresetCosts = (typeof _addReadPresetCosts === 'function') ? _addReadPresetCosts() : [];
+  const _addOtherCosts = (typeof _costsGetState === 'function' ? _costsGetState('add') : (ADD_COSTS || []))
     .filter(c => (c.name && c.name.trim()) || (parseFloat(c.price) || 0) > 0)
-    .map(c => ({ id: c.id, name: String(c.name || '').trim(), desc: String(c.desc || '').trim(), price: parseFloat(c.price) || 0 }));
+    .map(c => ({
+      id: c.id,
+      name: String(c.name || '').trim() || 'อื่นๆ',
+      desc: String(c.desc || '').trim(),
+      price: parseFloat(c.price) || 0,
+      category: String(c.category || 'อื่นๆ'),
+      slot: null
+    }));
+  const _addCostsSnapshot = _addPresetCosts.concat(_addOtherCosts);
   const _costsTotalForSave = _addCostsSnapshot.reduce(function (s, it) { return s + (it.price || 0); }, 0);
   if (total === 0) { toast(t('toast.errSelectPackage')); return null; }
 
@@ -13592,7 +13648,10 @@ function addCostItem(ctx) {
   ctx = ctx || 'add';
   _costsItemCounter++;
   const id = 'cost_' + Date.now() + '_' + _costsItemCounter;
-  _costsGetState(ctx).push({ id: id, name: '', desc: '', price: 0 });
+  // v1.9.31 · for Job form, new "อื่นๆ" rows default category to 'อื่นๆ'
+  const newItem = { id: id, name: '', desc: '', price: 0 };
+  if (ctx === 'add') newItem.category = 'อื่นๆ';
+  _costsGetState(ctx).push(newItem);
   renderCostList(ctx);
   setTimeout(function () {
     try {
@@ -13602,6 +13661,7 @@ function addCostItem(ctx) {
   }, 50);
   // Quote-context: trigger total recalc since these items are billable
   if (ctx === 'nq' && typeof updateNQTotal === 'function') updateNQTotal();
+  if (ctx === 'add' && typeof _addUpdateCostsSum === 'function') _addUpdateCostsSum();
 }
 
 function removeCostItem(ctx, id) {
@@ -13610,7 +13670,8 @@ function removeCostItem(ctx, id) {
   const arr = _costsGetState(ctx).filter(function (it) { return it.id !== id; });
   _costsSetState(ctx, arr);
   renderCostList(ctx);
-  if (ctx === 'add' && typeof updateAddTotal === 'function') updateAddTotal();
+  // v1.9.31 · update cost sum (Job form) · NQ recalculates total since billable
+  if (ctx === 'add' && typeof _addUpdateCostsSum === 'function') _addUpdateCostsSum();
   if (ctx === 'nq' && typeof updateNQTotal === 'function') updateNQTotal();
 }
 
@@ -13622,13 +13683,19 @@ function updateCostItem(ctx, id, field, raw) {
     if (arr[i].id === id) {
       if (field === 'price') arr[i].price = parseFloat(raw) || 0;
       else if (field === 'desc') arr[i].desc = String(raw || '');
+      else if (field === 'category') arr[i].category = String(raw || '');  // v1.9.31
       else arr[i].name = String(raw || '');
       break;
     }
   }
-  const sum = _costsTotal(ctx);
-  const sumEl = document.getElementById(_costsSumId(ctx));
-  if (sumEl) sumEl.textContent = '฿' + sum.toLocaleString();
+  // v1.9.31 · Job-context: sum includes presets · Quote-context: list sum only
+  if (ctx === 'add' && typeof _addUpdateCostsSum === 'function') {
+    _addUpdateCostsSum();
+  } else {
+    const sum = _costsTotal(ctx);
+    const sumEl = document.getElementById(_costsSumId(ctx));
+    if (sumEl) sumEl.textContent = '฿' + sum.toLocaleString();
+  }
   // Quote-context: items are billable → recompute quote total
   if (ctx === 'nq' && typeof updateNQTotal === 'function') updateNQTotal();
 }
@@ -13639,16 +13706,39 @@ function renderCostList(ctx) {
   if (!listEl) return;
   // v1.9.20 · i18n
   const _tt = (k, fb) => (typeof t === 'function' ? t(k) : fb);
-  const _emptyMsg = _tt('cost.empty', 'ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง');
-  const _namePh = _tt('cost.namePh', 'ชื่อรายการ (เช่น ค่าเดินทาง)');
+  const _emptyMsg = (ctx === 'add')
+    ? '<div style="text-align:center; color:#a89a8c; font-size:11.5px; padding:4px 0 8px;">ยังไม่มีรายการอื่น · กดเพิ่มด้านล่าง</div>'
+    : '<div style="text-align:center; color:#a89a8c; font-size:12px; padding:8px 0 10px;">' + _tt('cost.empty', 'ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง') + '</div>';
+  const _namePh = (ctx === 'add')
+    ? _tt('cost.namePhOther', 'ชื่อรายการ (เช่น ค่ากินทีม)')
+    : _tt('cost.namePh', 'ชื่อรายการ (เช่น ค่าเดินทาง)');
   const _pricePh = _tt('custom.pricePh', 'ราคา');
   const _descPh = _tt('cost.descPh', 'รายละเอียด (ไม่บังคับ · เช่น กรุงเทพ-เชียงใหม่)');
   const _removeLbl = _tt('lbl.removeItem', 'ลบรายการ');
+  const _catLbl = _tt('cost.categoryLabel', '🏷 หมวด');
   const arr = _costsGetState(ctx);
   if (arr.length === 0) {
-    listEl.innerHTML = '<div style="text-align:center; color:#a89a8c; font-size:12px; padding:8px 0 10px;">' + _emptyMsg + '</div>';
+    listEl.innerHTML = _emptyMsg;
   } else {
     const escAttr = function (s) { return String(s || '').replace(/"/g, '&quot;'); };
+    // v1.9.31 · category dropdown options (Job form only · uses EXPENSE_CATS)
+    const _catOptions = function (current) {
+      if (ctx !== 'add') return '';
+      const cur = String(current || 'อื่นๆ');
+      const cats = (typeof EXPENSE_CATS !== 'undefined' && Array.isArray(EXPENSE_CATS)) ? EXPENSE_CATS : ['อื่นๆ'];
+      return cats.map(function (c) {
+        return '<option value="' + escAttr(c) + '"' + (cur === c ? ' selected' : '') + '>' + c + '</option>';
+      }).join('');
+    };
+    const _catLine = function (it) {
+      if (ctx !== 'add') return '';
+      return '<div style="display:flex; align-items:center; gap:8px; margin-top:6px; padding-top:6px; border-top:1px dashed rgba(0,0,0,0.06);">'
+        + '<span style="font-size:11px; color:#8a7d6e; font-weight:600; flex-shrink:0;">' + _catLbl + '</span>'
+        + '<select onchange="updateCostItem(\'' + ctx + '\', \'' + it.id + '\', \'category\', this.value)" style="flex:1; padding:6px 10px; border:0.5px solid rgba(0,0,0,0.08); border-radius:8px; background:rgba(255,255,255,0.85); font-size:12px; color:#3a2f25; font-family:inherit; outline:none; cursor:pointer;">'
+        +   _catOptions(it.category)
+        + '</select>'
+        + '</div>';
+    };
     listEl.innerHTML = arr.map(function (it) {
       return '<div class="cost-item-row" data-id="' + it.id + '" style="background:rgba(255,255,255,0.55); border:0.5px solid rgba(0,0,0,0.05); border-radius:10px; padding:10px; margin-bottom:8px;">'
         + '<div style="display:grid; grid-template-columns: 1fr 100px 34px; gap:8px; align-items:center; margin-bottom:8px;">'
@@ -13657,6 +13747,7 @@ function renderCostList(ctx) {
         +   '<button type="button" aria-label="' + _removeLbl + '" onclick="removeCostItem(\'' + ctx + '\', \'' + it.id + '\')" style="width:34px; height:34px; background:rgba(220,38,38,0.08); color:#dc2626; border:none; border-radius:8px; font-size:14px; cursor:pointer;">✕</button>'
         + '</div>'
         + '<input type="text" placeholder="' + _descPh + '" value="' + escAttr(it.desc) + '" oninput="updateCostItem(\'' + ctx + '\', \'' + it.id + '\', \'desc\', this.value)" style="width:100%; padding:9px 11px; border:0.5px solid rgba(0,0,0,0.08); border-radius:8px; background:rgba(255,255,255,0.85); font-size:12px; color:#7c7066; font-family:inherit; outline:none; box-sizing:border-box;">'
+        + _catLine(it)
         + '</div>';
     }).join('');
   }
@@ -13671,58 +13762,56 @@ function resetCostItems(ctx) {
   renderCostList(ctx);
 }
 
-// v1.9.30 · Auto-learn quick-pick chips from history (Job form only)
-// Scans all JOBS' costItems, counts name frequency, returns top N most-used
-function _getRecentCostNames(limit) {
-  const lim = limit || 6;
-  const counts = {};
-  if (typeof JOBS === 'undefined' || !Array.isArray(JOBS)) return [];
-  JOBS.forEach(function (j) {
-    if (!Array.isArray(j.costItems)) return;
-    j.costItems.forEach(function (ci) {
-      const name = String((ci && ci.name) || '').trim();
-      if (!name) return;
-      counts[name] = (counts[name] || 0) + 1;
-    });
+// v1.9.31 · Read preset cost fields (lodging + travel) on Job form
+function _addReadPresetCosts() {
+  const lodging = parseFloat((document.getElementById('addCostLodging') || {}).value) || 0;
+  const travel  = parseFloat((document.getElementById('addCostTravel')  || {}).value) || 0;
+  const items = [];
+  if (lodging > 0) items.push({ id: 'preset_lodging', name: 'ค่าที่พัก',  desc: '', price: lodging, category: 'ที่พัก',  slot: 'lodging' });
+  if (travel  > 0) items.push({ id: 'preset_travel',  name: 'ค่าเดินทาง', desc: '', price: travel,  category: 'เดินทาง', slot: 'travel'  });
+  return items;
+}
+function _addPresetTotal() {
+  return _addReadPresetCosts().reduce(function (s, c) { return s + c.price; }, 0);
+}
+
+// v1.9.31 · Update the "รวมต้นทุนงาน" sum display (presets + other items)
+function _addUpdateCostsSum() {
+  const presetSum = _addPresetTotal();
+  const otherSum = (typeof _costsTotal === 'function') ? _costsTotal('add') : 0;
+  const total = presetSum + otherSum;
+  const el = document.getElementById('add-costs-sum');
+  if (el) el.textContent = '฿' + total.toLocaleString();
+}
+
+// v1.9.31 · Reset preset cost fields
+function _addResetPresetCosts() {
+  const a = document.getElementById('addCostLodging'); if (a) a.value = 0;
+  const b = document.getElementById('addCostTravel');  if (b) b.value = 0;
+}
+
+// v1.9.31 · Split incoming costItems into preset slots + other rows (used on edit-load)
+function _addLoadCostItemsSplit(items) {
+  _addResetPresetCosts();
+  const others = [];
+  let lodging = 0;
+  let travel = 0;
+  (Array.isArray(items) ? items : []).forEach(function (it) {
+    const slot = it && it.slot;
+    const cat = it && it.category;
+    const name = String((it && it.name) || '').trim();
+    const price = parseFloat(it && it.price) || 0;
+    if (slot === 'lodging' || cat === 'ที่พัก' || name === 'ค่าที่พัก') {
+      lodging += price;
+    } else if (slot === 'travel' || cat === 'เดินทาง' || name === 'ค่าเดินทาง' || name === 'ค่าน้ำมัน' || name === 'ค่าที่พัก/เดินทาง') {
+      travel += price;
+    } else {
+      others.push(it);
+    }
   });
-  // Sort by frequency desc, then alphabetically
-  return Object.keys(counts)
-    .sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b, 'th'); })
-    .slice(0, lim);
-}
-
-// v1.9.30 · Render quick-pick chips on Job form's cost card
-// Chip click → adds a new costItem row with the name pre-filled
-function renderJobCostChips() {
-  const wrap = document.getElementById('add-costs-chips-wrap');
-  const list = document.getElementById('add-costs-chips');
-  if (!wrap || !list) return;
-  const names = _getRecentCostNames(6);
-  if (names.length === 0) {
-    wrap.style.display = 'none';
-    return;
-  }
-  const escAttr = function (s) { return String(s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); };
-  list.innerHTML = names.map(function (n) {
-    return '<button type="button" class="cost-chip" onclick="addCostItemFromChip(\'' + escAttr(n) + '\')" '
-      + 'style="background:rgba(212,165,116,0.08); border:1px solid rgba(212,165,116,0.35); border-radius:14px; padding:6px 12px; font-size:12px; color:#7a5a30; font-weight:600; font-family:inherit; cursor:pointer;">'
-      + '+ ' + n
-      + '</button>';
-  }).join('');
-  wrap.style.display = '';
-}
-
-function addCostItemFromChip(name) {
-  _costsItemCounter++;
-  const id = 'cost_' + Date.now() + '_' + _costsItemCounter;
-  ADD_COSTS.push({ id: id, name: String(name || ''), desc: '', price: 0 });
-  renderCostList('add');
-  setTimeout(function () {
-    try {
-      const inp = document.querySelector('#add-costs-list .cost-item-row[data-id="' + id + '"] input[type="number"]');
-      if (inp) inp.focus();
-    } catch (e) {}
-  }, 50);
+  const eL = document.getElementById('addCostLodging'); if (eL && lodging > 0) eL.value = lodging;
+  const eT = document.getElementById('addCostTravel');  if (eT && travel  > 0) eT.value = travel;
+  loadCostItems('add', others);
 }
 
 // v1.9.30 · Show "Customer pays X" banner if this job has billableCosts (carried from a converted quote)
@@ -13764,7 +13853,9 @@ function loadCostItems(ctx, items) {
       id: it.id || ('cost_' + Date.now() + '_' + _costsItemCounter + '_' + i),
       name: String(it.name || ''),
       desc: String(it.desc || ''),
-      price: parseFloat(it.price) || 0
+      price: parseFloat(it.price) || 0,
+      category: String(it.category || ''),  // v1.9.31
+      slot: it.slot || null                  // v1.9.31 · 'lodging' | 'travel' | null
     };
   });
   _costsSetState(ctx, cleaned);
@@ -17256,7 +17347,12 @@ function renderDashboard() {
   const travelCost = yearJobs.reduce((s,j) => s + (j.travelCost || 0), 0);
   const jobOther = yearJobs.reduce((s,j) => s + (j.otherCost || 0), 0);
   const expenseGen = yearExp.reduce((s,e) => s + e.amount, 0);
-  const totalExpense = teamCost + travelCost + jobOther + expenseGen;
+  // v1.9.31 · also include multi-item costItems sum (ต้นทุนงาน · ที่พัก/เดินทาง/อื่นๆ)
+  const costItemsTotal = yearJobs.reduce(function (s, j) {
+    if (!Array.isArray(j.costItems)) return s;
+    return s + j.costItems.reduce(function (ss, c) { return ss + (parseFloat(c && c.price) || 0); }, 0);
+  }, 0);
+  const totalExpense = teamCost + travelCost + jobOther + expenseGen + costItemsTotal;
   const profit = income - totalExpense;
   const margin = income > 0 ? (profit / income * 100) : 0;
   const avgJob = yearJobs.length > 0 ? income / yearJobs.length : 0;
@@ -17325,7 +17421,11 @@ function renderDashboard() {
   yearJobs.forEach(j => { monthlyIn[new Date(j.date).getMonth()] += (j.sell || 0); });
   yearJobs.forEach(j => {
     const m = new Date(j.date).getMonth();
-    monthlyOut[m] += (j.teamCost || 0) + (j.travelCost || 0) + (j.otherCost || 0);
+    // v1.9.31 · include costItems multi-item sum in monthly expense bar
+    const ciSum = Array.isArray(j.costItems)
+      ? j.costItems.reduce(function (ss, c) { return ss + (parseFloat(c && c.price) || 0); }, 0)
+      : 0;
+    monthlyOut[m] += (j.teamCost || 0) + (j.travelCost || 0) + (j.otherCost || 0) + ciSum;
   });
   yearExp.forEach(e => { monthlyOut[new Date(e.date).getMonth()] += e.amount; });
 
@@ -17334,6 +17434,16 @@ function renderDashboard() {
   yearExp.forEach(e => cat[e.cat] = (cat[e.cat] || 0) + e.amount);
   if (travelCost > 0) cat['เดินทาง/ที่พัก (จากงาน)'] = (cat['เดินทาง/ที่พัก (จากงาน)'] || 0) + travelCost;
   if (teamCost > 0) cat['ค่าแรงทีม'] = (cat['ค่าแรงทีม'] || 0) + teamCost;
+  // v1.9.31 · also bucket jobs' costItems (multi-item ต้นทุนงาน) by category into the chart
+  yearJobs.forEach(function (j) {
+    if (!Array.isArray(j.costItems)) return;
+    j.costItems.forEach(function (ci) {
+      const price = parseFloat(ci && ci.price) || 0;
+      if (!(price > 0)) return;
+      const c = String((ci && ci.category) || 'อื่นๆ');
+      cat[c] = (cat[c] || 0) + price;
+    });
+  });
 
   // Destroy old charts
   Object.values(DB_CHARTS).forEach(c => c && c.destroy && c.destroy());
