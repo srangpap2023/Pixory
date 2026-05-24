@@ -1,11 +1,11 @@
-// Pixory Service Worker — v2.0.0
+// Pixory Service Worker — v2.1.0
 // Strategy:
 //   - HTML (navigation): network-first, fall back to cache when offline
 //   - Other assets: cache-first, update in background ("stale-while-revalidate")
 //   - Supabase API calls: never cache (live data only)
 // NOTE: bump CACHE_NAME on every release so old caches are evicted on activate
 
-const CACHE_NAME = 'pixory-v2.0.0';
+const CACHE_NAME = 'pixory-v2.1.0';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -103,4 +103,56 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+});
+
+// ========== v2.1 · Web Push Notifications ==========
+// Payload contract (sent by Supabase Edge Function):
+//   { title: string, body: string, tag?: string, url?: string, icon?: string }
+
+self.addEventListener('push', (event) => {
+  let payload = { title: 'Pixory', body: 'มีการแจ้งเตือนใหม่' };
+  try {
+    if (event.data) {
+      const text = event.data.text();
+      try { payload = Object.assign(payload, JSON.parse(text)); }
+      catch (e) { payload.body = text; }
+    }
+  } catch (e) { /* swallow */ }
+
+  const options = {
+    body: payload.body,
+    icon: payload.icon || './icon-192.png',
+    badge: './icon-192.png',
+    tag: payload.tag || 'pixory-' + Date.now(),
+    renotify: true,
+    requireInteraction: false,
+    data: { url: payload.url || './' }
+  };
+  event.waitUntil(self.registration.showNotification(payload.title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || './';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // Focus existing window if already open
+      for (const c of clientList) {
+        if ('focus' in c) {
+          if (target && target !== './') {
+            try { c.navigate(target); } catch (e) { /* some browsers disallow */ }
+          }
+          return c.focus();
+        }
+      }
+      // Otherwise open new
+      if (self.clients.openWindow) return self.clients.openWindow(target);
+    })
+  );
+});
+
+// When subscription expires (rare · happens on browser/device changes) · re-subscribe silently
+self.addEventListener('pushsubscriptionchange', (event) => {
+  // Just log · client will resubscribe on next app open via ensurePushSubscription()
+  console.warn('[sw] push subscription changed · client will re-subscribe on next launch');
 });
