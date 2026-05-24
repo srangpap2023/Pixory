@@ -5716,9 +5716,32 @@
           </div>
         </div>
       </div>
+      <!-- v1.9.41 · Legal section in About -->
+      <div class="settings-section">
+        <div style="border-radius: 12px; overflow: hidden;">
+          <div class="settings-row" onclick="openLegalScreen('privacy')">
+            <div class="left"><div class="row-title">🔒 นโยบายความเป็นส่วนตัว</div><div class="row-sub">PDPA compliance · สิทธิของคุณ</div></div>
+            <div class="right">›</div>
+          </div>
+          <div class="settings-row" onclick="openLegalScreen('terms')">
+            <div class="left"><div class="row-title">📜 ข้อกำหนดการใช้บริการ</div><div class="row-sub">Terms of Service</div></div>
+            <div class="right">›</div>
+          </div>
+        </div>
+      </div>
       <div style="font-size:11px; color:#a89a8c; text-align:center; padding:20px;" data-i18n="ab.copyright">
         © 2026 · Prototype Version
       </div>
+    </div>
+
+    <!-- ====== SETTINGS: LEGAL (Privacy + ToS) — v1.9.41 ====== -->
+    <div class="screen" id="screen-settings-legal">
+      <div class="header">
+        <button class="back" onclick="goTo('settings-about')">‹</button>
+        <h1><span id="legal-title-icon" style="margin-right:6px;">🔒</span><span id="legal-title">นโยบายความเป็นส่วนตัว</span></h1>
+        <span style="width: 22px;"></span>
+      </div>
+      <div id="legal-content" style="padding:0 20px 32px; font-size:13px; line-height:1.65; color:#3a2f25;"></div>
     </div>
 
     <!-- ====== SETTINGS: ACCOUNT (Logout, user info) ====== -->
@@ -6325,7 +6348,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.40';
+const PIXORY_VERSION = '1.9.41';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6336,6 +6359,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.41': {
+    date: '2026-05-24',
+    title: 'นโยบายความเป็นส่วนตัว + ข้อกำหนดการใช้บริการ',
+    subtitle: 'เพิ่มเอกสารทางกฎหมายให้ผู้ใช้อ่านได้ในแอพ · ตามมาตรฐาน PDPA',
+    items: [
+      {
+        icon: '🔒',
+        title: 'นโยบายความเป็นส่วนตัว (Privacy Policy)',
+        desc: 'Settings → เกี่ยวกับ → นโยบายความเป็นส่วนตัว · อธิบายว่าเก็บข้อมูลอะไร · ใช้ทำอะไร · เก็บนานแค่ไหน · และสิทธิของคุณตาม PDPA'
+      },
+      {
+        icon: '📜',
+        title: 'ข้อกำหนดการใช้บริการ (Terms of Service)',
+        desc: 'Settings → เกี่ยวกับ → ข้อกำหนดการใช้บริการ · เงื่อนไขการใช้งาน · ความรับผิดชอบของผู้ใช้ · ข้อจำกัดความรับผิดของผู้ให้บริการ'
+      },
+      {
+        icon: '✅',
+        title: 'พร้อมสำหรับการใช้งานสาธารณะ',
+        desc: 'เอกสารทั้ง 2 ฉบับเป็นภาษาไทย · ครอบคลุมการคุ้มครองข้อมูลส่วนบุคคล (PDPA) · การใช้งานข้ามประเทศ (Supabase US) · สิทธิในการเข้าถึง/ลบ/ขนถ่ายข้อมูล'
+      }
+    ]
+  },
   '1.9.40': {
     date: '2026-05-23',
     title: 'แก้ตัวเลขกำไรที่หน้าหลัก + รายงานภาษีบุคคล',
@@ -7679,6 +7724,64 @@ function dismissWhatsNew() {
 // Called from About page / Settings — manual replay
 function showCurrentVersionNotes() {
   showWhatsNewModal(PIXORY_VERSION);
+}
+
+// v1.9.41 · Legal screens (Privacy Policy + Terms of Service)
+const LEGAL_DOCS = {
+  privacy: {
+    icon: '🔒',
+    title: 'นโยบายความเป็นส่วนตัว',
+    updated: '24 พฤษภาคม 2569',
+    sections: [
+      { h: '1. ผู้ควบคุมข้อมูล', body: 'ชื่อ: SRANGPAP (ผู้พัฒนา Pixory)\nติดต่อ DPO: LINE rubjangsrangpap' },
+      { h: '2. ข้อมูลที่เราเก็บ', body: 'บัญชี: อีเมล + รหัสผ่าน (hash)\nโปรไฟล์: ชื่อสตูดิโอ เบอร์ ที่อยู่ เลขผู้เสียภาษี\nธุรกิจ: งาน ใบเสนอ ลูกค้า ค่าใช้จ่าย\nเทคนิค: device ID เวอร์ชั่นแอพ last seen IP (90 วัน ตาม พ.ร.บ.คอมพิวเตอร์)\n\nเราไม่เก็บ: GPS · Contact list · ภาพถ่ายจากกล้อง · Biometric' },
+      { h: '3. วัตถุประสงค์', body: '• ให้บริการแอพ\n• Sync ข้ามเครื่อง\n• ออกใบเสนอ/ใบกำกับ\n• Backup ข้อมูล\n\nเราจะไม่: ขายข้อมูล · ทำ advertising profiling · ส่งให้บุคคลที่สามนอกจากผู้ให้บริการเทคโนโลยี' },
+      { h: '4. ระยะเวลาเก็บ', body: 'บัญชี + ข้อมูลธุรกิจ: จนกว่าคุณลบเอง\nหลังลบ Cloud: ลบภายใน 30 วัน\nBackup snapshot: สูงสุด 90 วัน · ลบอัตโนมัติ\nIP log: 90 วัน (ตาม พ.ร.บ.คอมพิวเตอร์)' },
+      { h: '5. ส่งข้อมูลต่างประเทศ', body: 'Supabase (AWS US): ฐานข้อมูล + Auth\nGitHub Pages (US): Hosting\nCloudflare CDN: โหลด libraries\n\nคุณยินยอมการส่งข้อมูลข้ามประเทศนี้เมื่อใช้บริการ · ประเทศปลายทางมีมาตรฐานคุ้มครองข้อมูล SOC 2 + ISO 27001' },
+      { h: '6. ความปลอดภัย', body: '• HTTPS เท่านั้น\n• รหัสผ่าน hash (bcrypt)\n• Row-Level Security (RLS)\n• Admin เห็นแค่ aggregate stats · ไม่เห็นรายละเอียดธุรกิจ\n\nหากเกิดข้อมูลรั่ว เราแจ้งภายใน 72 ชั่วโมง ตามที่ PDPA กำหนด' },
+      { h: '7. สิทธิของคุณ (PDPA)', body: '• เข้าถึง: Settings → Backup → Export\n• แก้ไข: แก้ในแอพได้\n• ลบ: Settings → บัญชี → ลบบัญชีถาวร\n• ขนถ่าย: Export Backup .json\n• คัดค้าน / เพิกถอน: ติดต่อ DPO\n\nหากเราไม่ดำเนินการภายใน 30 วัน ร้องเรียนได้ที่ pdpc.or.th' },
+      { h: '8. คุกกี้', body: 'แอพใช้:\n• localStorage (ข้อมูลธุรกิจในเครื่อง · offline)\n• sessionStorage (login session)\n• Cookies ของ Supabase (login)\n\nไม่ใช้: Google Analytics · Facebook pixel · Advertising cookies · Cross-site tracking' },
+      { h: '9. เด็กและเยาวชน', body: 'Pixory สำหรับผู้ใช้อายุ 18 ปีขึ้นไป · เครื่องมือธุรกิจ · เราไม่เก็บข้อมูลของผู้ใช้ที่อายุต่ำกว่า 18 ปีโดยเจตนา' },
+      { h: '10. ติดต่อ', body: 'LINE: rubjangsrangpap\nResponse time: ภายใน 7 วัน' }
+    ]
+  },
+  terms: {
+    icon: '📜',
+    title: 'ข้อกำหนดการใช้บริการ',
+    updated: '24 พฤษภาคม 2569',
+    sections: [
+      { h: '1. ใครใช้บริการได้', body: '• อายุ 18 ปีบริบูรณ์ขึ้นไป\n• มีอีเมลของตัวเอง\n• ยอมรับข้อกำหนดนี้และ Privacy Policy\n• ใช้เพื่อวัตถุประสงค์ทางธุรกิจที่ชอบด้วยกฎหมาย' },
+      { h: '2. ลักษณะการให้บริการ', body: 'Pixory ให้บริการฟรี · ไม่มีค่าใช้จ่ายแอบแฝง · ไม่มีโฆษณา\n\nบริการให้แบบ "ตามที่เห็นในขณะนี้" (As-Is):\n• ไม่รับประกัน uptime\n• ไม่รับประกันความถูกต้องของการคำนวณ 100%\n• ไม่รับประกันว่าจะมีฟีเจอร์ตามที่คุณต้องการทุกอย่าง' },
+      { h: '3. Pixory ไม่ใช่ที่ปรึกษาวิชาชีพ', body: 'Pixory ไม่ใช่:\n• ที่ปรึกษาภาษี\n• นักบัญชีที่ได้รับอนุญาต\n• ที่ปรึกษากฎหมาย\n• ที่ปรึกษาทางธุรกิจ\n\nเป็นเพียงเครื่องมือช่วยจัดการข้อมูล · การยื่นภาษีและการตัดสินใจทางธุรกิจ ผู้ใช้รับผิดชอบเอง · แนะนำปรึกษาผู้เชี่ยวชาญ' },
+      { h: '4. หน้าที่ของผู้ใช้', body: 'ต้องทำ:\n• กรอกข้อมูลถูกต้อง\n• รักษา password ให้ปลอดภัย\n• ใช้บริการตามกฎหมาย\n• ตรวจสอบตัวเลขก่อนยื่นภาษี\n• เก็บ Backup เอง\n\nห้ามทำ:\n• ใช้หลีกเลี่ยงภาษี (Tax Evasion)\n• พยายาม hack หรือ reverse engineer\n• เก็บข้อมูลของบุคคลอื่นโดยไม่ได้รับความยินยอม\n• ใช้เพื่อกิจกรรมผิดกฎหมาย\n• Resell หรือ sublicense' },
+      { h: '5. ทรัพย์สินทางปัญญา', body: 'ของผู้ให้บริการ: โค้ด · ดีไซน์ · โลโก้ · ชื่อ "Pixory"\nของผู้ใช้: ข้อมูลที่คุณกรอก (ชื่อลูกค้า · ราคา · งาน)\n\nผู้ใช้ Export ออกได้ตลอดเวลา · เมื่อลบบัญชี ข้อมูลถูกลบจากระบบภายใน 30 วัน' },
+      { h: '6. ข้อจำกัดความรับผิด', body: 'ในขอบเขตสูงสุดที่กฎหมายไทยอนุญาต:\n• ผู้ให้บริการไม่รับผิดต่อความเสียหายทางอ้อม · พิเศษ · การสูญเสียโอกาส · กำไร\n• ไม่รับผิดต่อ Force Majeure (ภัยธรรมชาติ · ไฟดับ · cyber attack · บุคคลที่สาม)\n\nหากศาลตัดสินให้ต้องรับผิด · ความรับผิดสูงสุด = ค่าบริการในรอบ 12 เดือนล่าสุด\n\nเนื่องจากบริการนี้ฟรี · ความรับผิดสูงสุด = 0 บาท' },
+      { h: '7. ภาษี · ความรับผิดของผู้ใช้', body: '• การยื่นภาษีและการชำระภาษีเป็นความรับผิดชอบของผู้ใช้ 100%\n• Pixory เป็นเพียงเครื่องมือช่วยคำนวณ\n• ผู้ใช้ต้องตรวจสอบตัวเลขก่อนยื่นจริงทุกครั้ง\n• หากเกิดการปรับ · เงินเพิ่ม · ผู้ใช้รับผิดชอบเต็มจำนวน\n• แนะนำปรึกษานักบัญชี / ผู้สอบบัญชีก่อนยื่นจริง' },
+      { h: '8. การยกเลิกบริการ', body: 'ผู้ใช้ยกเลิก: Settings → บัญชี → ลบบัญชีถาวร · ข้อมูลถูกลบภายใน 30 วัน\n\nผู้ให้บริการมีสิทธิระงับบัญชีหาก: ฝ่าฝืนข้อกำหนด · กระทำผิดกฎหมาย · คำสั่งจากหน่วยงานรัฐ\n\nหากจะปิดบริการถาวร · จะแจ้งล่วงหน้าอย่างน้อย 30 วัน · ให้เวลา Export ข้อมูล' },
+      { h: '9. กฎหมาย', body: 'ข้อกำหนดนี้อยู่ภายใต้กฎหมายไทย · ข้อพิพาทพยายามเจรจาแก้กันก่อน · หากไม่สำเร็จ ฟ้องที่ศาลในประเทศไทย' },
+      { h: '10. ติดต่อ', body: 'LINE: rubjangsrangpap\nResponse time: ภายใน 7 วัน' }
+    ]
+  }
+};
+
+function openLegalScreen(which) {
+  const doc = LEGAL_DOCS[which];
+  if (!doc) return;
+  const titleEl = document.getElementById('legal-title');
+  const iconEl = document.getElementById('legal-title-icon');
+  const contentEl = document.getElementById('legal-content');
+  if (titleEl) titleEl.textContent = doc.title;
+  if (iconEl) iconEl.textContent = doc.icon;
+  if (contentEl) {
+    let html = '<div style="font-size:11.5px; color:#a89a8c; margin: 4px 0 18px;">ปรับปรุงล่าสุด: ' + doc.updated + '</div>';
+    doc.sections.forEach(s => {
+      html += '<h3 style="font-size:14px; font-weight:700; color:#3a2f25; margin: 18px 0 8px;">' + escapeHtml(s.h) + '</h3>';
+      html += '<div style="white-space:pre-wrap; color:#3a2f25;">' + escapeHtml(s.body) + '</div>';
+    });
+    html += '<div style="margin-top:32px; padding:14px; background:#fef3c7; border:1px solid #fbbf24; border-radius:10px; font-size:11.5px; color:#78350f; line-height:1.6;">⚠️ เอกสารนี้เป็นฉบับร่าง · กำลังอยู่ระหว่างการตรวจสอบโดยทนายความ · มีผลบังคับใช้ในเวอร์ชั่นปัจจุบัน</div>';
+    contentEl.innerHTML = html;
+  }
+  goTo('settings-legal');
 }
 
 // Auto-check on app startup
