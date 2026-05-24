@@ -6712,7 +6712,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.1.1';
+const PIXORY_VERSION = '2.1.2';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6723,6 +6723,18 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.1.2': {
+    date: '2026-05-24',
+    title: 'ปรับปรุงเล็กน้อย',
+    subtitle: 'แก้บั๊กและปรับปรุงประสิทธิภาพ',
+    items: [
+      {
+        icon: '⚡',
+        title: 'ปรับปรุงประสิทธิภาพ',
+        desc: 'ปรับปรุงระบบหลังบ้านให้ทำงานได้ดียิ่งขึ้น · ไม่กระทบการใช้งาน'
+      }
+    ]
+  },
   '2.1.1': {
     date: '2026-05-24',
     title: '🎨 หน้าตั้งค่าแจ้งเตือนสวยขึ้น',
@@ -8771,6 +8783,10 @@ async function doSignup() {
         signupStudio: studio,
         signupConsent: { consentedAt: consentedAt, version: CONSENT_VERSION, terms: true, privacy: true }
       };
+      // v2.1.2 · Notify admin (Joe) of new signup · fire-and-forget
+      if (typeof notifyAdmin === 'function') {
+        notifyAdmin('new_signup').catch(function(){});
+      }
       finishAuthAndStartApp();
     } else if (data && data.user && !data.session) {
       // Email confirmation required
@@ -9334,6 +9350,9 @@ const NOTIF_SETTINGS = {
 // IMPORTANT: This is the PUBLIC key only · private key stays on server (Supabase Edge Function)
 // Joe must replace with his own generated key — see /business/supabase/setup_push_notifications.md
 const VAPID_PUBLIC_KEY = 'BMEHtYFdPaYYVKWSOwwOa-QBu5iWI3LUlQEdTxrv4hj2K4gRKXfLF3BoEq4Lv0XBmIHeQSWUz2zcIb2srhh4WiQ';
+
+// v2.1.2 · Admin email · used to suppress admin notifications when admin themselves does the action
+const ADMIN_EMAIL_CONST = 'srangpap2023@gmail.com';
 
 function saveData() {
   try {
@@ -13721,6 +13740,31 @@ function renderPushUI() {
   }
 }
 
+// v2.1.2 · Notify admin (Joe) of significant user events
+// Fire-and-forget · failures don't affect user flow
+// Skips notification if the current user IS the admin (no self-notify)
+async function notifyAdmin(event, extra) {
+  try {
+    if (!SUPABASE || !CURRENT_USER || !CURRENT_USER.email) return;
+    if (CURRENT_USER.email.toLowerCase() === ADMIN_EMAIL_CONST.toLowerCase()) return;
+    // Prefer extra.studio (caller-provided), then signup studio (set right at signup),
+    // then PROFILE.shop (after onboarding done)
+    const studio = (extra && extra.studio) ||
+                   (CURRENT_USER && CURRENT_USER.signupStudio) ||
+                   (typeof PROFILE !== 'undefined' && PROFILE && PROFILE.shop) || '';
+    await SUPABASE.functions.invoke('notify-admin', {
+      body: {
+        event: event,
+        email: CURRENT_USER.email,
+        studio: studio,
+        extra: extra || {}
+      }
+    });
+  } catch (e) {
+    console.warn('[notify-admin] failed for event:', event, e);
+  }
+}
+
 async function sendTestPush() {
   // Calls Supabase Edge Function to send a test push to THIS device
   if (!NOTIF_SETTINGS.pushEnabled) { toast('กรุณาเปิด Push Notifications ก่อน'); return; }
@@ -14137,8 +14181,13 @@ function saveAddJob() {
       logDepositPayment(newJob, newJob.deposit, depDate, 'มัดจำจองคิว');
       newJob.depositPaidDate = depDate;
     }
+    const _wasFirstJob = JOBS.length === 0;
     JOBS.push(newJob);
     saveData();
+    // v2.1.2 · Notify admin of user's first job ever
+    if (_wasFirstJob && typeof notifyAdmin === 'function') {
+      notifyAdmin('first_job', { job_code: newCode }).catch(function(){});
+    }
     toast('บันทึก ' + newCode + ' แล้ว' + (newJob.deposit > 0 ? ' · บันทึกมัดจำ ' + fmt(newJob.deposit) : ''));
     openJob(newCode);
   }
@@ -14883,10 +14932,15 @@ function convertQuoteToJob(code) {
   if (qDeposit > 0) {
     logDepositPayment(newJob, qDeposit, today, 'มัดจำจากใบเสนอ ' + q.code);
   }
+  const _wasFirstJobConvert = JOBS.length === 0;
   JOBS.push(newJob);
   q.status = 'converted';
   q.convertedJobCode = newCode;
   saveData();
+  // v2.1.2 · Notify admin of user's first job ever (via quote conversion)
+  if (_wasFirstJobConvert && typeof notifyAdmin === 'function') {
+    notifyAdmin('first_job', { job_code: newCode, from_quote: q.code }).catch(function(){});
+  }
   toast('สร้างงาน ' + newCode + ' แล้ว' + (qDeposit > 0 ? ' · บันทึกมัดจำ ' + fmt(qDeposit) : ''));
   renderJobsWithCurrentFilter();
   updateCounts();
@@ -15880,9 +15934,14 @@ function saveNewQuote(status) {
     note: document.getElementById('nq-note').value,
     ..._taxFields,
   };
+  const _wasFirstQuote = QUOTES.length === 0;
   QUOTES.push(quote);
   saveData();
   updateCounts();
+  // v2.1.2 · Notify admin of user's first quote ever
+  if (_wasFirstQuote && typeof notifyAdmin === 'function') {
+    notifyAdmin('first_quote', { quote_code: quote.code }).catch(function(){});
+  }
   toast(status === 'draft' ? t('toast.savedDraft') : t('toast.savedQuote'));
   if (status !== 'draft') {
     showQuoteScreen(quote, 'quote');
