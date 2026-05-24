@@ -3252,6 +3252,42 @@
   </div>
 </div>
 
+<!-- ====== RE-CONSENT MODAL (v1.9.43) ======
+     Shown to existing users who signed up before v1.9.42 (no consent record).
+     Blocking · cannot be dismissed except by accepting or signing out.
+-->
+<div id="reconsent-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:99998; align-items:center; justify-content:center; padding:18px;">
+  <div style="background:#fff; max-width:520px; width:100%; max-height:88vh; overflow:hidden; border-radius:18px; box-shadow:0 24px 64px rgba(0,0,0,.45); display:flex; flex-direction:column;" id="reconsent-card">
+    <div style="padding:22px 22px 14px; background:linear-gradient(180deg, #fef3eb, #fdf8f3); border-bottom:1px solid #f0e6d8;">
+      <div style="font-size:32px; line-height:1; margin-bottom:8px;">📜</div>
+      <h2 style="margin:0 0 6px; font-size:18px; font-weight:700; color:#2a1f17;">เราได้ปรับปรุงเอกสารทางกฎหมาย</h2>
+      <p style="margin:0; font-size:13px; line-height:1.55; color:#5a4a3a;">เพื่อความโปร่งใสและคุ้มครองสิทธิของคุณตาม PDPA · กรุณาอ่านและยอมรับเอกสารทั้ง 2 ฉบับก่อนใช้งานต่อ</p>
+    </div>
+    <div style="flex:1; overflow-y:auto; padding:18px 22px; font-size:13.5px; line-height:1.6; color:#3a2f25;">
+      <div style="background:#fef3eb; border:1px solid #f4d4b8; border-radius:12px; padding:14px; margin-bottom:14px;">
+        <div style="font-weight:700; margin-bottom:6px; color:#7c2d12;">สรุปสั้นๆ:</div>
+        <div style="font-size:12.5px;">• <strong>Pixory ฟรี</strong> · ไม่มีค่าใช้จ่าย<br>
+        • <strong>ไม่ใช่ที่ปรึกษาภาษี</strong> · ตัวเลขต้องตรวจสอบเอง<br>
+        • <strong>ข้อมูลของคุณเป็นของคุณ</strong> · Export/ลบได้ตลอด<br>
+        • <strong>ไม่ขายข้อมูล</strong> · ไม่ทำ ad profiling<br>
+        • เก็บข้อมูลที่ Supabase (AWS US) · เข้ารหัส HTTPS</div>
+      </div>
+      <div style="display:flex; gap:10px; margin-bottom:14px;">
+        <button onclick="openLegalFromAuth('terms')" style="flex:1; padding:11px 12px; background:transparent; border:1px solid #d8704a; color:#d8704a; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer;">📜 อ่านข้อกำหนด</button>
+        <button onclick="openLegalFromAuth('privacy')" style="flex:1; padding:11px 12px; background:transparent; border:1px solid #d8704a; color:#d8704a; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer;">🔒 อ่านนโยบายฯ</button>
+      </div>
+      <label style="display:flex; align-items:flex-start; gap:10px; padding:14px; background:#fdf8f3; border:1px solid #ead9c9; border-radius:10px; cursor:pointer; user-select:none;">
+        <input type="checkbox" id="reconsent-cb" onchange="updateReConsentBtnState()" style="flex-shrink:0; width:18px; height:18px; margin-top:2px; accent-color:#d8704a; cursor:pointer;">
+        <span style="font-size:13px; line-height:1.5; color:#3a2f25;">ฉันได้อ่านและยอมรับ <strong>ข้อกำหนดการใช้บริการ</strong> และ <strong>นโยบายความเป็นส่วนตัว</strong> ฉบับปรับปรุงล่าสุด</span>
+      </label>
+    </div>
+    <div style="padding:16px 22px; background:#fafaf7; border-top:1px solid #f0e6d8; display:flex; gap:10px;">
+      <button id="reconsent-logout-btn" onclick="reconsentLogout()" style="flex:0 0 auto; padding:12px 18px; background:transparent; border:1px solid #d1d5db; color:#6b6157; border-radius:10px; font-size:13.5px; font-weight:500; cursor:pointer;">ออกจากระบบ</button>
+      <button id="reconsent-accept-btn" onclick="reconsentAccept()" disabled style="flex:1; padding:12px 18px; background:linear-gradient(180deg, #e87f5a, #d8704a); border:none; color:#fff; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(216,112,74,.3);">ยอมรับและใช้งานต่อ</button>
+    </div>
+  </div>
+</div>
+
 <!-- ====== CLOUD SYNC DOT INDICATOR ====== -->
 <div id="cloud-sync-dot" title="ไม่ได้เชื่อมต่อ" style="position:fixed; top:env(safe-area-inset-top, 8px); right:8px; width:8px; height:8px; border-radius:50%; background:#a89a8c; z-index:8500; box-shadow:0 0 8px rgba(0,0,0,.15); transition:background .25s; pointer-events:none;"></div>
 
@@ -4395,7 +4431,7 @@
               <span style="font-size:9px; color:#a06402;" id="q-deposit-due"></span>
             </div>
             <div style="font-size:14px; font-weight:700; color:#92400e;" id="q-deposit-amount">฿0</div>
-            <div style="font-size:9.5px; color:#92400e; margin-top:3px;" id="q-balance-due-row" style="display:none;">
+            <div id="q-balance-due-row" style="font-size:9.5px; color:#92400e; margin-top:3px; display:none;">
               <span data-i18n="q.balanceDue">ยอดคงเหลือ</span>: <strong id="q-balance-amount">฿0</strong> <span id="q-balance-due-date" style="color:#a06402;"></span>
             </div>
           </div>
@@ -6396,7 +6432,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.42';
+const PIXORY_VERSION = '1.9.44';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6407,6 +6443,35 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.44': {
+    date: '2026-05-24',
+    title: 'แก้ใบเสนอราคา · ข้อความ "ยอดคงเหลือ" ขึ้นผิด',
+    subtitle: 'Hotfix · กล่องมัดจำในใบเสนอราคาแสดงข้อความให้ถูกต้องแล้ว',
+    items: [
+      {
+        icon: '🐛',
+        title: 'แก้ "q.balanceDue" ที่ขึ้นเป็น code',
+        desc: 'ในกล่อง "มัดจำจองคิว" เคยขึ้น "q.balanceDue: ฿X,XXX" ตอนนี้แสดงเป็น "ยอดคงเหลือ: ฿X,XXX" ถูกต้องแล้ว · ใบเสนอใหม่และที่มีอยู่จะแสดงถูกทันที'
+      }
+    ]
+  },
+  '1.9.43': {
+    date: '2026-05-24',
+    title: 'ปรับปรุงเอกสารทางกฎหมาย · ขอความยินยอมใหม่',
+    subtitle: 'เพื่อให้ผู้ใช้ทุกคนมีหลักฐานยอมรับครบ · ตามมาตรฐาน PDPA',
+    items: [
+      {
+        icon: '📜',
+        title: 'หน้ายอมรับเอกสารฉบับปรับปรุง',
+        desc: 'เมื่อ login ครั้งถัดไป · จะมีหน้าต่างให้คุณอ่านและกดยอมรับ ข้อกำหนด + นโยบายความเป็นส่วนตัว · ฉบับปรับปรุงล่าสุด · ทำครั้งเดียว ใช้งานปกติ'
+      },
+      {
+        icon: '🔐',
+        title: 'ปลอดภัยและโปร่งใส',
+        desc: 'มีปุ่มอ่านเอกสารฉบับเต็มก่อนกดยอมรับ · ระบบบันทึก timestamp + version ที่ยอมรับ · ปฏิเสธได้ (ออกจากระบบ) · เคารพสิทธิของคุณ'
+      }
+    ]
+  },
   '1.9.42': {
     date: '2026-05-24',
     title: 'ยืนยันยอมรับข้อกำหนดตอนสมัคร',
@@ -7861,6 +7926,9 @@ function checkVersionUpdate() {
       if (typeof _wizardActive !== 'undefined' && _wizardActive) return;
       const authActive = document.querySelector('.auth-screen.active');
       if (authActive) return;
+      // v1.9.43 · Don't show on top of re-consent modal
+      const recon = document.getElementById('reconsent-modal');
+      if (recon && recon.style.display === 'flex') return;
       showWhatsNewModal(PIXORY_VERSION);
     }, 1500);
   }
@@ -8203,6 +8271,92 @@ function openLegalFromAuth(which) {
   } catch(e) {
     console.warn('openLegalFromAuth failed', e);
   }
+}
+
+// v1.9.43 · Re-consent flow for existing users (signed up before v1.9.42)
+// Triggered after loadData() in initAfterAuth() — see checkReConsentNeeded()
+function updateReConsentBtnState() {
+  const cb = document.getElementById('reconsent-cb');
+  const btn = document.getElementById('reconsent-accept-btn');
+  if (!cb || !btn) return;
+  btn.disabled = !cb.checked;
+}
+function showReConsentModal() {
+  const m = document.getElementById('reconsent-modal');
+  if (!m) return;
+  m.style.display = 'flex';
+  const cb = document.getElementById('reconsent-cb');
+  if (cb) cb.checked = false;
+  updateReConsentBtnState();
+  // Apply dark theme to modal card if needed
+  const card = document.getElementById('reconsent-card');
+  if (card && document.body.classList.contains('dark-theme')) {
+    card.style.background = '#1f1a16';
+    card.style.color = '#e5e5e5';
+  }
+}
+function hideReConsentModal() {
+  const m = document.getElementById('reconsent-modal');
+  if (m) m.style.display = 'none';
+}
+async function reconsentAccept() {
+  const cb = document.getElementById('reconsent-cb');
+  if (!cb || !cb.checked) return;
+  const btn = document.getElementById('reconsent-accept-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'กำลังบันทึก...'; }
+  const consentedAt = new Date().toISOString();
+  // 1) Persist locally (PROFILE.consent) — synced to cloud via normal saveData
+  try {
+    PROFILE.consent = {
+      consentedAt: consentedAt,
+      version: CONSENT_VERSION,
+      terms: true,
+      privacy: true
+    };
+    saveData();
+  } catch(e) { console.warn('reconsent local save failed', e); }
+  // 2) Also update Supabase user_metadata for redundancy / admin audit
+  try {
+    if (SUPABASE && SUPABASE.auth && SUPABASE.auth.updateUser) {
+      await SUPABASE.auth.updateUser({
+        data: {
+          consented_at: consentedAt,
+          consent_version: CONSENT_VERSION,
+          consent_terms: true,
+          consent_privacy: true,
+          consent_method: 'reconsent_modal'
+        }
+      });
+    }
+  } catch(e) { console.warn('reconsent metadata update failed', e); }
+  // 3) Dismiss modal · resume app
+  hideReConsentModal();
+  if (typeof toast === 'function') {
+    try { toast('✓ ขอบคุณครับ · ใช้งานต่อได้เลย'); } catch(e) {}
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'ยอมรับและใช้งานต่อ'; }
+}
+async function reconsentLogout() {
+  // User declined → log out without recording consent
+  // Don't use the normal doLogout() confirm — they already chose to leave
+  try {
+    if (typeof stopPresenceHeartbeat === 'function') stopPresenceHeartbeat();
+    if (SUPABASE) await SUPABASE.auth.signOut();
+  } catch(e) { console.warn('reconsent signOut failed', e); }
+  CURRENT_USER = null;
+  location.reload();
+}
+function checkReConsentNeeded() {
+  // Skip if not logged in (offline / guest mode)
+  if (!CURRENT_USER) return false;
+  // Skip if consent already recorded
+  if (PROFILE && PROFILE.consent && PROFILE.consent.consentedAt) return false;
+  // Skip if user has empty profile · they're brand-new in wizard flow already covered
+  // (Brand new signups already have signupConsent → consent will be applied in next initAfterAuth)
+  if (CURRENT_USER && CURRENT_USER.signupConsent) return false;
+  // Otherwise → existing user without consent → show modal
+  showReConsentModal();
+  return true;
 }
 
 async function doSignup() {
@@ -9348,6 +9502,7 @@ const I18N = {
   'lbl.footer':         { th: 'Footer / คำขอบคุณ', en: 'Footer / Thank you' },
   'lbl.address':        { th: 'ที่อยู่',          en: 'Address' },
   'lbl.email':          { th: 'อีเมล',           en: 'Email' },
+  'lbl.website':        { th: '🌐 เว็บไซต์',     en: '🌐 Website' },
   'lbl.instagram':      { th: 'Instagram',       en: 'Instagram' },
   'lbl.facebook':       { th: 'Facebook',        en: 'Facebook' },
 
@@ -9556,6 +9711,7 @@ const I18N = {
   'q.discount':         { th: 'ส่วนลด', en: 'Discount' },
   'q.net':              { th: 'ราคาสุทธิ', en: 'Net Total' },
   'q.depositJob':       { th: 'มัดจำจองคิว', en: 'Deposit' },
+  'q.balanceDue':       { th: 'ยอดคงเหลือ', en: 'Balance due' },
   'q.transferTo':       { th: '🏦 โอนเข้าบัญชี', en: '🏦 Transfer to' },
   'q.terms':            { th: 'เงื่อนไขการชำระเงิน', en: 'Payment Terms' },
   'q.status':           { th: 'สถานะ', en: 'Status' },
@@ -18498,6 +18654,11 @@ async function initAfterAuth() {
       saveData();
     }
   } catch(e) { console.warn('consent persist failed', e); }
+  // v1.9.43 · Check if existing user needs to re-consent (signed up pre-v1.9.42)
+  // Delay slightly to let UI settle before showing blocking modal
+  try {
+    setTimeout(function() { checkReConsentNeeded(); }, 800);
+  } catch(e) { console.warn('checkReConsentNeeded failed', e); }
   loadWallpaper();
   loadFontSize();
   renderHomeUpcoming();
