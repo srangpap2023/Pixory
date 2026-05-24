@@ -6314,7 +6314,18 @@ const MONTHS_TH_SHORT = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.
 
 // ========== HELPERS ==========
 function fmt(n) { return '฿' + Math.round(n).toLocaleString(); }
-function fmtK(n) { if (Math.abs(n) >= 1000) return '฿' + Math.round(n/1000) + 'K'; return '฿' + n; }
+// v2.0 · Precision-aware compact formatter
+// Keeps 1 decimal place when meaningful so ฿6,900 → "฿6.9K" (not the misleading "฿7K")
+// Integer values stay clean ("฿7K" not "฿7.0K") · Handles negatives and small amounts gracefully
+function fmtK(n) {
+  const num = Number(n) || 0;
+  const sign = num < 0 ? '-' : '';
+  const abs = Math.abs(num);
+  if (abs < 1000) return sign + '฿' + Math.round(abs);
+  const k = abs / 1000;
+  const rounded = Math.round(k * 10) / 10;
+  return sign + '฿' + (Number.isInteger(rounded) ? rounded : rounded.toFixed(1)) + 'K';
+}
 
 // v1.9.39 · XSS protection helper · always escape user input before innerHTML
 function escapeHtml(s) {
@@ -6432,7 +6443,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.44';
+const PIXORY_VERSION = '2.0.0';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6443,6 +6454,43 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.0.0': {
+    date: '2026-05-24',
+    title: '🎉 Pixory 2.0 · พร้อมเปิดสู่สาธารณะ',
+    subtitle: 'หมุดหมายสำคัญ · launch-ready ครบทุกด้าน · ขอบคุณ beta testers ทุกคน',
+    items: [
+      {
+        icon: '🔢',
+        title: 'แก้ตัวเลข KPI แสดงปัดเศษหลอกตา',
+        desc: 'รายได้ ฿6,900 เคยขึ้นเป็น "฿7K" · ตอนนี้ขึ้น "฿6.9K" ถูกต้อง · ทุกกล่อง KPI ในหน้าแรก + หน้า Dashboard · ตัวเลขในระบบไม่เคยผิด · แค่การแสดงผลถูกต้องขึ้น'
+      },
+      {
+        icon: '🛡',
+        title: 'พร้อมเปิดสาธารณะ · เอกสารทางกฎหมายครบ',
+        desc: 'Privacy Policy + Terms of Service ในแอพ · checkbox ยอมรับตอนสมัคร · re-consent flow สำหรับผู้ใช้เก่า · ปุ่มลบบัญชีถาวรตาม PDPA'
+      },
+      {
+        icon: '🧾',
+        title: 'ใบเสนอราคา + ภาษีระดับ production',
+        desc: 'เลขใบกำกับภาษีต่อเนื่อง (TI-2026-NNNN) · WHT ราชการ 1% · กล่องข้อมูลลูกค้า B2B/ราชการ · ป้องกัน XSS'
+      },
+      {
+        icon: '📊',
+        title: 'คำนวณกำไรและภาษีถูกต้องครบ',
+        desc: 'รวมต้นทุนงาน multi-item ในการคำนวณกำไรหน้าแรก + PIT Helper · แก้บั๊กกำไรเกินจริงครบ · Excel ภาษี 4 sheets'
+      },
+      {
+        icon: '☁️',
+        title: 'ซิงค์ Cloud + Realtime',
+        desc: 'Heartbeat presence · sync ข้ามเครื่องอัตโนมัติ · backup คลาวด์เข้ารหัส · เตือนเมื่อที่เก็บข้อมูลในเครื่องเต็ม'
+      },
+      {
+        icon: '🙏',
+        title: 'ขอบคุณ beta testers ทุกคน',
+        desc: 'ทุก feedback ทุกบั๊กที่จับให้ คือสิ่งที่ทำให้ Pixory พัฒนามาถึง v2.0 ได้ · ขอให้ใช้แอพแล้วทำงานง่ายขึ้น · ทำเงินได้คุ้มค่าทุกบาท ❤️'
+      }
+    ]
+  },
   '1.9.44': {
     date: '2026-05-24',
     title: 'แก้ใบเสนอราคา · ข้อความ "ยอดคงเหลือ" ขึ้นผิด',
