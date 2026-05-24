@@ -722,6 +722,156 @@
   body.dark-theme .notif-rule { background: #1c1c1c; border-bottom-color: #262626; color: #e5e7eb; }
   body.dark-theme .notif-rule input[type="number"] { background: #262626; border-color: #3a3a3a; color: #f5f5f5; }
 
+  /* ===== v2.1.1 · Notification Settings · Design E (Live Preview) ===== */
+  .notif-subhead { padding: 4px 22px 18px; text-align: center; font-size: 12.5px; color: #8b7d6d; line-height: 1.5; }
+  body.dark-theme .notif-subhead { color: #a8a29e; }
+  .notif-master {
+    margin: 0 16px 22px; background: white; border-radius: 20px;
+    padding: 16px 18px; display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04); border: 1px solid rgba(216,112,74,.1);
+  }
+  body.dark-theme .notif-master { background: #1c1c1c; border-color: rgba(216,112,74,.2); }
+  .nm-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, #fef3eb, #fbe0cc);
+    border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+  }
+  body.dark-theme .nm-icon { background: rgba(216,112,74,.15); }
+  .nm-info { flex: 1; min-width: 0; }
+  .nm-title { font-size: 15px; font-weight: 700; color: #2a1f17; }
+  body.dark-theme .nm-title { color: #f5f5f5; }
+  .nm-status { font-size: 11px; color: #15803d; font-weight: 600; margin-top: 2px; display: flex; align-items: center; gap: 5px; }
+  .nm-status.off { color: #8b7d6d; }
+  .pulse-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; animation: ndPulse 2s infinite; flex-shrink: 0; }
+  .pulse-dot.off { background: #a89a8c; animation: none; }
+  @keyframes ndPulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+  .notif-toggle-md {
+    width: 48px; height: 28px; background: #e5e0d8; border-radius: 14px;
+    position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0;
+  }
+  .notif-toggle-md.on { background: linear-gradient(180deg, #e87f5a, #d8704a); }
+  .notif-toggle-md::after {
+    content: ''; width: 24px; height: 24px; background: white; border-radius: 50%;
+    position: absolute; top: 2px; left: 2px; transition: transform .2s; box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  }
+  .notif-toggle-md.on::after { transform: translateX(20px); }
+  .notif-group-title { padding: 0 22px 12px; font-size: 13px; font-weight: 700; color: #2a1f17; }
+  body.dark-theme .notif-group-title { color: #f5f5f5; }
+  .preview-card {
+    margin: 0 16px 14px; background: white; border-radius: 22px; overflow: hidden;
+    border: 1px solid rgba(216,112,74,.1); box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  }
+  body.dark-theme .preview-card { background: #1c1c1c; border-color: rgba(216,112,74,.2); }
+  .preview-mock {
+    padding: 16px; background: linear-gradient(180deg, #fef3eb 0%, #fdf8f3 100%);
+    border-bottom: 1px solid #f0ebe3; display: flex; align-items: flex-start; gap: 12px;
+  }
+  body.dark-theme .preview-mock {
+    background: linear-gradient(180deg, rgba(216,112,74,.12) 0%, rgba(216,112,74,.05) 100%);
+    border-bottom-color: #2a2a2a;
+  }
+  .preview-card.disabled .preview-mock { opacity: .45; filter: grayscale(60%); }
+  .preview-app-icon {
+    width: 36px; height: 36px; background: linear-gradient(135deg, #e87f5a, #d8704a);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 18px; flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(216,112,74,.3);
+  }
+  .preview-content { flex: 1; min-width: 0; }
+  .preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; gap: 6px; }
+  .preview-app-name { font-size: 11.5px; font-weight: 700; color: #2a1f17; text-transform: uppercase; letter-spacing: 0.3px; }
+  body.dark-theme .preview-app-name { color: #f5f5f5; }
+  .preview-time { font-size: 10.5px; color: #8b7d6d; }
+  .preview-title { font-size: 14px; font-weight: 700; color: #2a1f17; margin-bottom: 2px; line-height: 1.3; }
+  body.dark-theme .preview-title { color: #f5f5f5; }
+  .preview-body { font-size: 12.5px; color: #5a4a3a; line-height: 1.45; }
+  body.dark-theme .preview-body { color: #d4d4d8; }
+  .pref-row { padding: 14px 18px; display: flex; align-items: center; gap: 12px; }
+  .pref-row + .pref-row { border-top: 1px solid #f0ebe3; }
+  body.dark-theme .pref-row + .pref-row { border-top-color: #2a2a2a; }
+  .pref-label { flex: 1; font-size: 13.5px; color: #2a1f17; font-weight: 500; min-width: 0; }
+  body.dark-theme .pref-label { color: #e5e5e5; }
+  .pref-time-input {
+    background: #fef3eb; color: #d8704a; padding: 6px 12px; border-radius: 10px;
+    font-size: 13px; font-weight: 700; font-family: "SF Mono", Menlo, monospace;
+    border: 1px solid #f4d4b8; cursor: pointer; outline: none;
+  }
+  body.dark-theme .pref-time-input { background: rgba(216,112,74,.15); border-color: rgba(216,112,74,.3); color: #f4a36a; }
+  .pref-stepper {
+    display: flex; align-items: center; gap: 4px;
+    background: #fafaf7; padding: 4px; border-radius: 10px; border: 1px solid #e5e0d8;
+  }
+  body.dark-theme .pref-stepper { background: #2a2a2a; border-color: #3a3a3a; }
+  .pref-btn {
+    width: 24px; height: 24px; border: none; background: white;
+    border-radius: 7px; color: #d8704a; font-weight: 700; cursor: pointer; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pref-btn:active { transform: scale(0.92); }
+  body.dark-theme .pref-btn { background: #1c1c1c; color: #f4a36a; }
+  .pref-num { min-width: 22px; text-align: center; font-weight: 700; color: #2a1f17; font-size: 13px; }
+  body.dark-theme .pref-num { color: #f5f5f5; }
+  .notif-toggle-mini {
+    width: 38px; height: 22px; background: #efe7dc; border-radius: 11px;
+    position: relative; cursor: pointer; flex-shrink: 0; transition: background .2s;
+  }
+  .notif-toggle-mini.on { background: #d8704a; }
+  .notif-toggle-mini::after {
+    content: ''; width: 18px; height: 18px; background: white; border-radius: 50%;
+    position: absolute; top: 2px; left: 2px; transition: transform .2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  }
+  .notif-toggle-mini.on::after { transform: translateX(16px); }
+  body.dark-theme .notif-toggle-mini { background: #3a3a3a; }
+  .notif-test-btn {
+    margin: 18px 16px 0; width: calc(100% - 32px); padding: 16px;
+    background: linear-gradient(180deg, #e87f5a, #d8704a); color: white;
+    border: none; border-radius: 16px; font-size: 14.5px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 6px 18px rgba(216,112,74,.3);
+  }
+  .notif-test-btn:active { transform: translateY(1px); }
+  .notif-other-card {
+    margin: 0 16px 0; background: white; border-radius: 20px; overflow: hidden;
+    border: 1px solid rgba(216,112,74,.08);
+  }
+  body.dark-theme .notif-other-card { background: #1c1c1c; border-color: rgba(216,112,74,.2); }
+  .notif-other-row {
+    padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+    border-bottom: 0.5px solid #f0ebe3;
+  }
+  .notif-other-row:last-child { border-bottom: none; }
+  body.dark-theme .notif-other-row { border-bottom-color: #2a2a2a; }
+  .notif-other-icon {
+    width: 34px; height: 34px; background: #fef3eb;
+    border-radius: 11px; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .notif-other-icon.green { background: #d1fae5; }
+  .notif-other-icon.purple { background: #ede9fe; }
+  .notif-other-icon.pink { background: #fce7f3; }
+  .notif-other-icon.amber { background: #fef3c7; }
+  body.dark-theme .notif-other-icon.green { background: rgba(34,197,94,.15); }
+  body.dark-theme .notif-other-icon.purple { background: rgba(139,92,246,.15); }
+  body.dark-theme .notif-other-icon.pink { background: rgba(236,72,153,.15); }
+  body.dark-theme .notif-other-icon.amber { background: rgba(245,158,11,.15); }
+  .notif-other-text { flex: 1; min-width: 0; }
+  .notif-other-title { font-size: 13.5px; font-weight: 600; color: #2a1f17; }
+  body.dark-theme .notif-other-title { color: #f5f5f5; }
+  .notif-other-meta { font-size: 11px; color: #8b7d6d; margin-top: 2px; }
+  .notif-hint-ios {
+    margin: 0 16px 14px; padding: 14px;
+    background: #fef9c3; border-radius: 14px; font-size: 12px;
+    color: #78350f; line-height: 1.6; border: 1px solid #fde68a;
+  }
+  .notif-hint-warn {
+    margin: 0 16px 14px; padding: 14px;
+    background: #fee2e2; border-radius: 14px; font-size: 12px;
+    color: #7f1d1d; line-height: 1.6; border: 1px solid #fecaca;
+  }
+  body.dark-theme .notif-hint-ios { background: rgba(245,158,11,.15); border-color: rgba(245,158,11,.3); color: #fbbf24; }
+  body.dark-theme .notif-hint-warn { background: rgba(220,38,38,.15); border-color: rgba(220,38,38,.3); color: #fca5a5; }
+
   /* Readonly auto-calculated input */
   .readonly-input { background: #f3f4f6 !important; cursor: not-allowed; color: #3a2f25; }
   body.dark-theme .readonly-input { background: #262626 !important; color: #f5f5f5; border-color: #2a2a2a !important; }
@@ -6060,137 +6210,200 @@
     <div class="screen" id="screen-settings-notif">
       <div class="header">
         <button class="back" onclick="goTo('settings')">‹</button>
-        <h1><span style="margin-right:6px;">🔔</span><span data-i18n="header.notif">ตั้งค่าแจ้งเตือน</span></h1>
+        <h1>การแจ้งเตือน</h1>
         <span style="width: 22px;"></span>
       </div>
 
-      <div style="padding: 0 16px 12px; font-size: 12px; color: #7c7066;">ปรับจำนวนวันได้ตามสไตล์การทำงาน — บางคน brief 2 อาทิตย์ บางคน 3 วัน</div>
+      <div class="notif-subhead">ดูตัวอย่างได้ก่อนเปิดใช้งานจริง</div>
 
-      <!-- v2.1 · Push Notifications (Web Push) -->
-      <div class="settings-section">
-        <div class="sec-title">📲 แจ้งเตือนบนเครื่อง (Push Notifications)</div>
-        <div style="border-radius: 12px; overflow: hidden; background:white;">
-          <div class="settings-row" id="push-master-row">
-            <div class="left">
-              <div class="row-title">เปิด Push Notifications</div>
-              <div class="row-sub" id="push-status-text">ยังไม่เปิด · ต้องอนุญาตจาก browser ก่อน</div>
-            </div>
-            <div class="switch" id="push-master-sw" onclick="togglePushMaster()"><div class="knob"></div></div>
+      <!-- Master Push toggle -->
+      <div class="notif-master" id="push-master-row">
+        <div class="nm-icon">📲</div>
+        <div class="nm-info">
+          <div class="nm-title">Push Notifications</div>
+          <div class="nm-status off" id="push-status-text">
+            <span class="pulse-dot off" id="push-status-dot"></span>
+            <span id="push-status-text-inner">ยังไม่เปิด · กดเพื่ออนุญาต</span>
           </div>
-          <div id="push-detail-rows" style="display:none;">
-            <div class="settings-row">
-              <div class="left">
-                <div class="row-title">🌅 สรุปงานทุกเช้า</div>
-                <div class="row-sub">"วันนี้มี X งาน · พรุ่งนี้ Y งาน"</div>
+        </div>
+        <div class="notif-toggle-md" id="push-master-sw" onclick="togglePushMaster()"></div>
+      </div>
+
+      <!-- Hint boxes -->
+      <div class="notif-hint-ios" id="push-ios-hint" style="display:none;">
+        <strong>💡 iPhone/iPad:</strong> ต้องเพิ่ม Pixory เข้า Home Screen ก่อน (Safari → กดปุ่ม Share → "เพิ่มเข้าหน้าจอ") · จากนั้นเปิด Pixory จาก icon นั้น · push จะใช้ได้
+      </div>
+      <div class="notif-hint-warn" id="push-unsupported-hint" style="display:none;">
+        <strong>⚠ Browser นี้ไม่รองรับ Push Notifications</strong> · ลองเปิดใน Chrome, Edge, Firefox หรือ Safari (iOS 16.4+)
+      </div>
+
+      <!-- Push live preview cards -->
+      <div id="push-detail-rows" style="display:none;">
+        <div class="notif-group-title">เด้งแบบไหน · ดูตัวอย่างได้</div>
+
+        <!-- 1. Morning briefing -->
+        <div class="preview-card" id="preview-card-briefing">
+          <div class="preview-mock">
+            <div class="preview-app-icon">📷</div>
+            <div class="preview-content">
+              <div class="preview-header">
+                <span class="preview-app-name">PIXORY</span>
+                <span class="preview-time" id="preview-briefing-time">7:30 น.</span>
               </div>
-              <div class="switch" id="push-briefing-sw" onclick="togglePushOption('pushDailyBriefing')"><div class="knob"></div></div>
+              <div class="preview-title">🌅 สรุปงานวันนี้+พรุ่งนี้</div>
+              <div class="preview-body" id="preview-briefing-body">วันนี้มี 2 งาน · งานแรก 09:00 · คุณวรัญญา<br>พรุ่งนี้มี 1 งาน</div>
             </div>
-            <div class="settings-row" id="push-briefing-time-row" style="padding-top:0;">
-              <div class="left">
-                <div class="row-title" style="font-size:13px;">เวลาส่ง</div>
+          </div>
+          <div class="pref-row">
+            <span class="pref-label">เวลาส่ง</span>
+            <input type="time" id="push-briefing-time" class="pref-time-input" onchange="updatePushTime(this.value)">
+            <div class="notif-toggle-mini" id="push-briefing-sw" onclick="togglePushOption('pushDailyBriefing')"></div>
+          </div>
+        </div>
+
+        <!-- 2. Quote expiry -->
+        <div class="preview-card" id="preview-card-quote">
+          <div class="preview-mock">
+            <div class="preview-app-icon">📷</div>
+            <div class="preview-content">
+              <div class="preview-header">
+                <span class="preview-app-name">PIXORY</span>
+                <span class="preview-time">เมื่อกี้</span>
               </div>
-              <input type="time" id="push-briefing-time" style="padding:6px 10px; border:1px solid #e5e0d8; border-radius:8px; font-size:14px;" onchange="updatePushTime(this.value)">
+              <div class="preview-title">📋 ใบเสนอใกล้หมดอายุ</div>
+              <div class="preview-body">QT-2026-001 จะหมดอายุใน <span id="preview-quote-days-text">3</span> วัน · ลูกค้า วรัญญา</div>
             </div>
-            <div class="settings-row">
-              <div class="left">
-                <div class="row-title">📋 ใบเสนอใกล้หมดอายุ</div>
-                <div class="row-sub">เตือนล่วงหน้า <span id="push-quote-days-display">3</span> วัน</div>
+          </div>
+          <div class="pref-row">
+            <span class="pref-label">เตือนล่วงหน้า</span>
+            <div class="pref-stepper">
+              <button class="pref-btn" onclick="adjustPushDays('pushQuoteExpiryDays', -1)">−</button>
+              <span class="pref-num" id="push-quote-days-display">3</span>
+              <button class="pref-btn" onclick="adjustPushDays('pushQuoteExpiryDays', 1)">+</button>
+            </div>
+            <div class="notif-toggle-mini" id="push-quote-sw" onclick="togglePushOption('pushQuoteExpiry')"></div>
+          </div>
+        </div>
+
+        <!-- 3. Balance due -->
+        <div class="preview-card" id="preview-card-balance">
+          <div class="preview-mock">
+            <div class="preview-app-icon">📷</div>
+            <div class="preview-content">
+              <div class="preview-header">
+                <span class="preview-app-name">PIXORY</span>
+                <span class="preview-time">เมื่อกี้</span>
               </div>
-              <div class="switch" id="push-quote-sw" onclick="togglePushOption('pushQuoteExpiry')"><div class="knob"></div></div>
-            </div>
-            <div class="settings-row">
-              <div class="left">
-                <div class="row-title">💰 ยอดค้างเก็บใกล้ครบกำหนด</div>
-                <div class="row-sub">เตือนล่วงหน้า <span id="push-balance-days-display">1</span> วัน ก่อนวันงาน</div>
-              </div>
-              <div class="switch" id="push-balance-sw" onclick="togglePushOption('pushBalanceDue')"><div class="knob"></div></div>
-            </div>
-            <div class="settings-row" onclick="sendTestPush()" style="cursor:pointer;">
-              <div class="left">
-                <div class="row-title" style="color:#d8704a;">🧪 ส่งข้อความทดสอบ</div>
-                <div class="row-sub">ทดสอบว่า browser ของคุณรับ push ได้หรือไม่</div>
-              </div>
-              <span style="color:#d8704a; font-size:20px;">›</span>
+              <div class="preview-title">💰 ยอดค้างเก็บใกล้ครบ</div>
+              <div class="preview-body">งาน คุณวรัญญา ครบกำหนดในอีก <span id="preview-balance-days-text">1</span> วัน · ยอดคงเหลือ ฿5,000</div>
             </div>
           </div>
-          <div id="push-ios-hint" style="display:none; padding:12px 14px; background:#fef3c7; border-top:1px solid #fde68a; font-size:12px; line-height:1.5; color:#78350f;">
-            <strong>💡 iPhone/iPad:</strong> ต้องเพิ่ม Pixory เข้า Home Screen ก่อน (Safari → กดปุ่ม Share → "เพิ่มเข้าหน้าจอ") · จากนั้นเปิด Pixory จาก icon นั้น · แล้ว push notification จะใช้ได้
+          <div class="pref-row">
+            <span class="pref-label">ก่อนวันงาน</span>
+            <div class="pref-stepper">
+              <button class="pref-btn" onclick="adjustPushDays('pushBalanceDueDays', -1)">−</button>
+              <span class="pref-num" id="push-balance-days-display">1</span>
+              <button class="pref-btn" onclick="adjustPushDays('pushBalanceDueDays', 1)">+</button>
+            </div>
+            <div class="notif-toggle-mini" id="push-balance-sw" onclick="togglePushOption('pushBalanceDue')"></div>
           </div>
-          <div id="push-unsupported-hint" style="display:none; padding:12px 14px; background:#fee2e2; border-top:1px solid #fecaca; font-size:12px; line-height:1.5; color:#7f1d1d;">
-            <strong>⚠ Browser นี้ไม่รองรับ Push Notifications</strong> · ลองเปิดใน Chrome, Edge, Firefox หรือ Safari (iOS 16.4+)
+        </div>
+
+        <button class="notif-test-btn" onclick="sendTestPush()">🧪 ส่งข้อความทดสอบ</button>
+      </div>
+
+      <!-- In-app reminders -->
+      <div class="notif-group-title" style="padding-top: 28px;">เตือนงานในแอพ</div>
+      <div class="notif-other-card">
+        <div class="notif-other-row">
+          <div class="notif-other-icon green">📅</div>
+          <div class="notif-other-text">
+            <div class="notif-other-title">เตือนล่วงหน้าก่อนงาน</div>
+            <div class="notif-other-meta">ครั้งที่ 1 · วันก่อนวันงาน</div>
           </div>
+          <div class="pref-stepper">
+            <button class="pref-btn" onclick="adjustNotifNum('jobBefore1', -1)">−</button>
+            <span class="pref-num" id="ns-jobBefore1-display">7</span>
+            <button class="pref-btn" onclick="adjustNotifNum('jobBefore1', 1)">+</button>
+          </div>
+          <div class="notif-toggle-mini" id="ns-jobBefore1On-sw" onclick="toggleNotifRule('jobBefore1On')"></div>
+        </div>
+        <div class="notif-other-row">
+          <div class="notif-other-icon green">⚡</div>
+          <div class="notif-other-text">
+            <div class="notif-other-title">เตือนซ้ำใกล้วันงาน</div>
+            <div class="notif-other-meta">ครั้งที่ 2 · วันก่อนวันงาน</div>
+          </div>
+          <div class="pref-stepper">
+            <button class="pref-btn" onclick="adjustNotifNum('jobBefore2', -1)">−</button>
+            <span class="pref-num" id="ns-jobBefore2-display">1</span>
+            <button class="pref-btn" onclick="adjustNotifNum('jobBefore2', 1)">+</button>
+          </div>
+          <div class="notif-toggle-mini" id="ns-jobBefore2On-sw" onclick="toggleNotifRule('jobBefore2On')"></div>
+        </div>
+        <div class="notif-other-row">
+          <div class="notif-other-icon purple">🤝</div>
+          <div class="notif-other-text">
+            <div class="notif-other-title">นัด brief งาน</div>
+            <div class="notif-other-meta">วันก่อนวันงาน</div>
+          </div>
+          <div class="pref-stepper">
+            <button class="pref-btn" onclick="adjustNotifNum('briefBefore', -1)">−</button>
+            <span class="pref-num" id="ns-briefBefore-display">14</span>
+            <button class="pref-btn" onclick="adjustNotifNum('briefBefore', 1)">+</button>
+          </div>
+          <div class="notif-toggle-mini" id="ns-briefBeforeOn-sw" onclick="toggleNotifRule('briefBeforeOn')"></div>
+        </div>
+        <div class="notif-other-row">
+          <div class="notif-other-icon amber">💸</div>
+          <div class="notif-other-text">
+            <div class="notif-other-title">ทวงยอดคงเหลือ</div>
+            <div class="notif-other-meta">วันหลังวันงาน</div>
+          </div>
+          <div class="pref-stepper">
+            <button class="pref-btn" onclick="adjustNotifNum('paymentAfter', -1)">−</button>
+            <span class="pref-num" id="ns-paymentAfter-display">1</span>
+            <button class="pref-btn" onclick="adjustNotifNum('paymentAfter', 1)">+</button>
+          </div>
+          <div class="notif-toggle-mini" id="ns-paymentAfterOn-sw" onclick="toggleNotifRule('paymentAfterOn')"></div>
+        </div>
+        <div class="notif-other-row">
+          <div class="notif-other-icon amber">📤</div>
+          <div class="notif-other-text">
+            <div class="notif-other-title">เตือนถ้ายังไม่ส่งงาน</div>
+            <div class="notif-other-meta">วันหลังวันงาน</div>
+          </div>
+          <div class="pref-stepper">
+            <button class="pref-btn" onclick="adjustNotifNum('deliveryAfter', -1)">−</button>
+            <span class="pref-num" id="ns-deliveryAfter-display">30</span>
+            <button class="pref-btn" onclick="adjustNotifNum('deliveryAfter', 1)">+</button>
+          </div>
+          <div class="notif-toggle-mini" id="ns-deliveryAfterOn-sw" onclick="toggleNotifRule('deliveryAfterOn')"></div>
         </div>
       </div>
 
-      <div class="settings-section">
-        <div class="sec-title">📅 งานที่กำลังจะถึง</div>
-        <div style="border-radius: 12px; overflow: hidden; background:white;">
-          <div class="notif-rule">
-            <input type="checkbox" id="ns-jobBefore1On">
-            <span>เตือนล่วงหน้า</span>
-            <input type="number" id="ns-jobBefore1" min="1" max="365" style="width:60px; padding:6px; text-align:center;">
-            <span>วันก่อนวันงาน</span>
+      <!-- Reports -->
+      <div class="notif-group-title" style="padding-top: 28px;">รายงานสรุป</div>
+      <div class="notif-other-card">
+        <div class="notif-other-row">
+          <div class="notif-other-icon pink">📊</div>
+          <div class="notif-other-text">
+            <div class="notif-other-title">สรุปรายสัปดาห์</div>
+            <div class="notif-other-meta">ทุกวันจันทร์เช้า</div>
           </div>
-          <div class="notif-rule">
-            <input type="checkbox" id="ns-jobBefore2On">
-            <span>เตือนล่วงหน้า</span>
-            <input type="number" id="ns-jobBefore2" min="0" max="365" style="width:60px; padding:6px; text-align:center;">
-            <span>วันก่อนวันงาน</span>
+          <div class="notif-toggle-mini" id="ns-weekly-sw" onclick="toggleNotifSwitch('weekly')"></div>
+        </div>
+        <div class="notif-other-row">
+          <div class="notif-other-icon pink">📈</div>
+          <div class="notif-other-text">
+            <div class="notif-other-title">สรุปรายเดือน</div>
+            <div class="notif-other-meta">วันสิ้นเดือน · 18:00</div>
           </div>
+          <div class="notif-toggle-mini" id="ns-monthly-sw" onclick="toggleNotifSwitch('monthly')"></div>
         </div>
       </div>
 
-      <div class="settings-section">
-        <div class="sec-title">🤝 นัดคุยรายละเอียด / บรีฟงาน</div>
-        <div style="border-radius: 12px; overflow: hidden; background:white;">
-          <div class="notif-rule">
-            <input type="checkbox" id="ns-briefBeforeOn">
-            <span>เตือน brief งานล่วงหน้า</span>
-            <input type="number" id="ns-briefBefore" min="1" max="365" style="width:60px; padding:6px; text-align:center;">
-            <span>วันก่อนวันงาน</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="sec-title">💰 การชำระเงิน</div>
-        <div style="border-radius: 12px; overflow: hidden; background:white;">
-          <div class="notif-rule">
-            <input type="checkbox" id="ns-paymentAfterOn">
-            <span>ทวงยอดคงเหลือ</span>
-            <input type="number" id="ns-paymentAfter" min="0" max="365" style="width:60px; padding:6px; text-align:center;">
-            <span>วันหลังวันงาน</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="sec-title">📤 การส่งงาน</div>
-        <div style="border-radius: 12px; overflow: hidden; background:white;">
-          <div class="notif-rule">
-            <input type="checkbox" id="ns-deliveryAfterOn">
-            <span>เตือนถ้ายังไม่ส่งงาน</span>
-            <input type="number" id="ns-deliveryAfter" min="1" max="365" style="width:60px; padding:6px; text-align:center;">
-            <span>วันหลังวันงาน</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="sec-title">📊 รายงานสรุป</div>
-        <div style="border-radius: 12px; overflow: hidden;">
-          <div class="settings-row">
-            <div class="left"><div class="row-title">สรุปสัปดาห์ ทุกวันจันทร์</div></div>
-            <div class="switch" id="ns-weekly-sw" onclick="toggleNotifSwitch('weekly')"><div class="knob"></div></div>
-          </div>
-          <div class="settings-row">
-            <div class="left"><div class="row-title">สรุปเดือน ทุกวันสิ้นเดือน</div></div>
-            <div class="switch" id="ns-monthly-sw" onclick="toggleNotifSwitch('monthly')"><div class="knob"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <button class="btn" onclick="saveNotifSettings()">บันทึก</button>
+      <div style="height: 40px;"></div>
     </div>
 
     <!-- ====== SVG DEFS for Apple-style icons (Variant A iOS Solid Color) ====== -->
@@ -6499,7 +6712,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.1.0';
+const PIXORY_VERSION = '2.1.1';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6510,6 +6723,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.1.1': {
+    date: '2026-05-24',
+    title: '🎨 หน้าตั้งค่าแจ้งเตือนสวยขึ้น',
+    subtitle: 'ออกแบบใหม่ · เห็นตัวอย่าง notification ก่อนเปิดใช้',
+    items: [
+      {
+        icon: '👁',
+        title: 'Live Preview · เห็นว่าเด้งจะหน้าตาแบบไหน',
+        desc: 'แต่ละ notification แสดง preview จริง · เห็นทันทีว่าเปิดแล้วจะได้รับข้อความหน้าตายังไง · ลดความสับสน'
+      },
+      {
+        icon: '➖➕',
+        title: 'Stepper ปรับวันได้ง่ายขึ้น',
+        desc: 'เปลี่ยนจาก input number เป็นปุ่ม − + กดง่ายกว่าบนมือถือ · auto-save ทันที · ไม่ต้องกดบันทึก'
+      },
+      {
+        icon: '🌈',
+        title: 'การ์ดทุกอันมุมโค้ง',
+        desc: 'ปรับ design ทั้งหน้าให้มุมโค้งมน 20-22px · ไอคอนสีต่างๆ จัดกลุ่มชัดเจน · เข้ากับ brand Pixory'
+      }
+    ]
+  },
   '2.1.0': {
     date: '2026-05-24',
     title: '🔔 Push Notifications มาแล้ว',
@@ -13171,34 +13406,114 @@ function saveQuoteTemplate() {
   toast(t('toast.tmplSaved'));
 }
 
-// ========== NOTIFICATION SETTINGS ==========
+// ========== NOTIFICATION SETTINGS (v2.1.1 · Design E auto-save) ==========
+// Min/max bounds for each numeric setting
+const NOTIF_NUM_BOUNDS = {
+  jobBefore1:    { min: 1, max: 365 },
+  jobBefore2:    { min: 0, max: 365 },
+  briefBefore:   { min: 1, max: 365 },
+  paymentAfter:  { min: 0, max: 365 },
+  deliveryAfter: { min: 1, max: 365 }
+};
+const PUSH_DAYS_BOUNDS = {
+  pushQuoteExpiryDays:  { min: 1, max: 30 },
+  pushBalanceDueDays:   { min: 0, max: 30 }
+};
+
 function populateNotifSettings() {
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
-  const setCheck = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
-  set('ns-jobBefore1', NOTIF_SETTINGS.jobBefore1); setCheck('ns-jobBefore1On', NOTIF_SETTINGS.jobBefore1On);
-  set('ns-jobBefore2', NOTIF_SETTINGS.jobBefore2); setCheck('ns-jobBefore2On', NOTIF_SETTINGS.jobBefore2On);
-  set('ns-briefBefore', NOTIF_SETTINGS.briefBefore); setCheck('ns-briefBeforeOn', NOTIF_SETTINGS.briefBeforeOn);
-  set('ns-paymentAfter', NOTIF_SETTINGS.paymentAfter); setCheck('ns-paymentAfterOn', NOTIF_SETTINGS.paymentAfterOn);
-  set('ns-deliveryAfter', NOTIF_SETTINGS.deliveryAfter); setCheck('ns-deliveryAfterOn', NOTIF_SETTINGS.deliveryAfterOn);
-  const w = document.getElementById('ns-weekly-sw'); if (w) w.classList.toggle('on', NOTIF_SETTINGS.weekly);
-  const m = document.getElementById('ns-monthly-sw'); if (m) m.classList.toggle('on', NOTIF_SETTINGS.monthly);
+  // Numeric displays + toggle states for in-app rules
+  const setNum = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const setSw  = (id, on)  => { const el = document.getElementById(id); if (el) el.classList.toggle('on', !!on); };
+  setNum('ns-jobBefore1-display',    NOTIF_SETTINGS.jobBefore1);
+  setNum('ns-jobBefore2-display',    NOTIF_SETTINGS.jobBefore2);
+  setNum('ns-briefBefore-display',   NOTIF_SETTINGS.briefBefore);
+  setNum('ns-paymentAfter-display',  NOTIF_SETTINGS.paymentAfter);
+  setNum('ns-deliveryAfter-display', NOTIF_SETTINGS.deliveryAfter);
+  setSw('ns-jobBefore1On-sw',    NOTIF_SETTINGS.jobBefore1On);
+  setSw('ns-jobBefore2On-sw',    NOTIF_SETTINGS.jobBefore2On);
+  setSw('ns-briefBeforeOn-sw',   NOTIF_SETTINGS.briefBeforeOn);
+  setSw('ns-paymentAfterOn-sw',  NOTIF_SETTINGS.paymentAfterOn);
+  setSw('ns-deliveryAfterOn-sw', NOTIF_SETTINGS.deliveryAfterOn);
+  setSw('ns-weekly-sw',  NOTIF_SETTINGS.weekly);
+  setSw('ns-monthly-sw', NOTIF_SETTINGS.monthly);
+  // Sync push preview display values
+  if (typeof syncPushPreviewLabels === 'function') syncPushPreviewLabels();
 }
+
 function toggleNotifSwitch(key) {
   NOTIF_SETTINGS[key] = !NOTIF_SETTINGS[key];
   const sw = document.getElementById('ns-' + key + '-sw');
   if (sw) sw.classList.toggle('on', NOTIF_SETTINGS[key]);
-}
-function saveNotifSettings() {
-  const getNum = (id, fallback) => { const v = parseInt(document.getElementById(id).value, 10); return isNaN(v) ? fallback : v; };
-  const getChk = (id) => document.getElementById(id).checked;
-  NOTIF_SETTINGS.jobBefore1 = getNum('ns-jobBefore1', 7); NOTIF_SETTINGS.jobBefore1On = getChk('ns-jobBefore1On');
-  NOTIF_SETTINGS.jobBefore2 = getNum('ns-jobBefore2', 1); NOTIF_SETTINGS.jobBefore2On = getChk('ns-jobBefore2On');
-  NOTIF_SETTINGS.briefBefore = getNum('ns-briefBefore', 14); NOTIF_SETTINGS.briefBeforeOn = getChk('ns-briefBeforeOn');
-  NOTIF_SETTINGS.paymentAfter = getNum('ns-paymentAfter', 1); NOTIF_SETTINGS.paymentAfterOn = getChk('ns-paymentAfterOn');
-  NOTIF_SETTINGS.deliveryAfter = getNum('ns-deliveryAfter', 30); NOTIF_SETTINGS.deliveryAfterOn = getChk('ns-deliveryAfterOn');
   saveData();
-  renderHomeNotifs();
-  toast(t('toast.savedNotif'));
+}
+
+function toggleNotifRule(key) {
+  // For job/brief/payment/delivery On flags
+  NOTIF_SETTINGS[key] = !NOTIF_SETTINGS[key];
+  const sw = document.getElementById('ns-' + key + '-sw');
+  if (sw) sw.classList.toggle('on', NOTIF_SETTINGS[key]);
+  saveData();
+  if (typeof renderHomeNotifs === 'function') renderHomeNotifs();
+}
+
+function adjustNotifNum(key, delta) {
+  const bounds = NOTIF_NUM_BOUNDS[key];
+  if (!bounds) return;
+  const cur = parseInt(NOTIF_SETTINGS[key], 10) || 0;
+  const next = Math.max(bounds.min, Math.min(bounds.max, cur + delta));
+  if (next === cur) return;
+  NOTIF_SETTINGS[key] = next;
+  const disp = document.getElementById('ns-' + key + '-display');
+  if (disp) disp.textContent = next;
+  saveData();
+  if (typeof renderHomeNotifs === 'function') renderHomeNotifs();
+}
+
+function adjustPushDays(key, delta) {
+  const bounds = PUSH_DAYS_BOUNDS[key];
+  if (!bounds) return;
+  const cur = parseInt(NOTIF_SETTINGS[key], 10) || 0;
+  const next = Math.max(bounds.min, Math.min(bounds.max, cur + delta));
+  if (next === cur) return;
+  NOTIF_SETTINGS[key] = next;
+  saveData();
+  syncPushPreviewLabels();
+}
+
+function syncPushPreviewLabels() {
+  // Update display numbers + preview body text whenever push days/time change
+  const qDays = NOTIF_SETTINGS.pushQuoteExpiryDays;
+  const bDays = NOTIF_SETTINGS.pushBalanceDueDays;
+  const qDisp = document.getElementById('push-quote-days-display');
+  const qPrev = document.getElementById('preview-quote-days-text');
+  const bDisp = document.getElementById('push-balance-days-display');
+  const bPrev = document.getElementById('preview-balance-days-text');
+  if (qDisp) qDisp.textContent = qDays;
+  if (qPrev) qPrev.textContent = qDays;
+  if (bDisp) bDisp.textContent = bDays;
+  if (bPrev) bPrev.textContent = bDays;
+  // Briefing preview time (e.g. "7:30 น.")
+  const bt = NOTIF_SETTINGS.pushDailyBriefingTime || '07:30';
+  const bTimePrev = document.getElementById('preview-briefing-time');
+  if (bTimePrev) {
+    const [h, m] = bt.split(':').map(Number);
+    bTimePrev.textContent = (h || 0) + ':' + String(m || 0).padStart(2, '0') + ' น.';
+  }
+  // Disabled state for preview cards (greyed out when toggled off)
+  const setDisabled = (id, isOff) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('disabled', isOff);
+  };
+  setDisabled('preview-card-briefing', !NOTIF_SETTINGS.pushDailyBriefing);
+  setDisabled('preview-card-quote',    !NOTIF_SETTINGS.pushQuoteExpiry);
+  setDisabled('preview-card-balance',  !NOTIF_SETTINGS.pushBalanceDue);
+}
+
+// Backward-compat: legacy save button still wired; just no-op since auto-save is in place
+function saveNotifSettings() {
+  saveData();
+  if (typeof renderHomeNotifs === 'function') renderHomeNotifs();
+  if (typeof toast === 'function') toast('✓ บันทึกแล้ว');
 }
 
 // ========== v2.1 · WEB PUSH NOTIFICATIONS ==========
@@ -13285,7 +13600,6 @@ async function deleteSubscriptionFromSupabase(endpoint) {
 async function togglePushMaster() {
   const sw = document.getElementById('push-master-sw');
   const detailRows = document.getElementById('push-detail-rows');
-  const statusText = document.getElementById('push-status-text');
   if (NOTIF_SETTINGS.pushEnabled) {
     // Currently ON → turn OFF
     if (!confirm('ปิดการแจ้งเตือนแบบ Push?\n\nคุณจะไม่ได้รับการเตือนงาน · ใบเสนอ · ยอดค้างเก็บ จนกว่าจะเปิดอีกครั้ง')) return;
@@ -13302,7 +13616,7 @@ async function togglePushMaster() {
     saveData();
     if (sw) sw.classList.remove('on');
     if (detailRows) detailRows.style.display = 'none';
-    if (statusText) statusText.textContent = 'ปิดอยู่';
+    _setMasterStatus('ปิดอยู่ · กดเพื่อเปิดอีกครั้ง', false);
     toast('✓ ปิด Push Notifications แล้ว');
     return;
   }
@@ -13341,7 +13655,7 @@ async function togglePushMaster() {
   saveData();
   if (sw) sw.classList.add('on');
   if (detailRows) detailRows.style.display = '';
-  if (statusText) statusText.textContent = '✓ เปิดอยู่ · พร้อมรับแจ้งเตือน';
+  _setMasterStatus('เปิดอยู่ · พร้อมรับแจ้งเตือน', true);
   renderPushDetailRows();
   toast('✓ เปิด Push Notifications แล้ว · ลองส่งข้อความทดสอบดูสิ');
 }
@@ -13355,44 +13669,55 @@ function updatePushTime(value) {
   if (!/^\d{2}:\d{2}$/.test(value)) return;
   NOTIF_SETTINGS.pushDailyBriefingTime = value;
   saveData();
+  if (typeof syncPushPreviewLabels === 'function') syncPushPreviewLabels();
 }
 function renderPushDetailRows() {
-  // Update toggle switches + display text after settings changed
+  // Update toggle switches · time input · day displays
   const setSw = (id, on) => { const el = document.getElementById(id); if (el) el.classList.toggle('on', !!on); };
   setSw('push-briefing-sw', NOTIF_SETTINGS.pushDailyBriefing);
-  setSw('push-quote-sw', NOTIF_SETTINGS.pushQuoteExpiry);
-  setSw('push-balance-sw', NOTIF_SETTINGS.pushBalanceDue);
+  setSw('push-quote-sw',    NOTIF_SETTINGS.pushQuoteExpiry);
+  setSw('push-balance-sw',  NOTIF_SETTINGS.pushBalanceDue);
   const timeEl = document.getElementById('push-briefing-time');
   if (timeEl) timeEl.value = NOTIF_SETTINGS.pushDailyBriefingTime || '07:30';
-  const qd = document.getElementById('push-quote-days-display');
-  if (qd) qd.textContent = NOTIF_SETTINGS.pushQuoteExpiryDays;
-  const bd = document.getElementById('push-balance-days-display');
-  if (bd) bd.textContent = NOTIF_SETTINGS.pushBalanceDueDays;
+  if (typeof syncPushPreviewLabels === 'function') syncPushPreviewLabels();
+}
+function _setMasterStatus(textInner, isActive) {
+  const wrap = document.getElementById('push-status-text');
+  const dot  = document.getElementById('push-status-dot');
+  const inner = document.getElementById('push-status-text-inner');
+  if (inner) inner.textContent = textInner;
+  if (wrap) wrap.classList.toggle('off', !isActive);
+  if (dot)  dot.classList.toggle('off', !isActive);
 }
 function renderPushUI() {
   // Call on entering settings-notif screen · sync UI with state
   const sw = document.getElementById('push-master-sw');
   const detailRows = document.getElementById('push-detail-rows');
-  const statusText = document.getElementById('push-status-text');
   if (!sw) return;
+  // Hide hints by default before re-evaluating
+  const iosHint = document.getElementById('push-ios-hint');
+  const unsupHint = document.getElementById('push-unsupported-hint');
+  if (iosHint) iosHint.style.display = 'none';
+  if (unsupHint) unsupHint.style.display = 'none';
+
   if (!isPushSupported()) {
-    if (statusText) statusText.textContent = 'Browser นี้ไม่รองรับ';
-    document.getElementById('push-unsupported-hint').style.display = 'block';
+    _setMasterStatus('Browser นี้ไม่รองรับ', false);
+    if (unsupHint) unsupHint.style.display = 'block';
     return;
   }
   if (isIOSDevice() && !isPWAInstalled()) {
-    if (statusText) statusText.textContent = 'iPhone/iPad ต้องติดตั้งเป็นแอพก่อน';
-    document.getElementById('push-ios-hint').style.display = 'block';
+    _setMasterStatus('iPhone/iPad ต้องติดตั้งเป็นแอพก่อน', false);
+    if (iosHint) iosHint.style.display = 'block';
   }
   if (NOTIF_SETTINGS.pushEnabled) {
     sw.classList.add('on');
     if (detailRows) detailRows.style.display = '';
-    if (statusText) statusText.textContent = '✓ เปิดอยู่ · พร้อมรับแจ้งเตือน';
+    _setMasterStatus('เปิดอยู่ · พร้อมรับแจ้งเตือน', true);
     renderPushDetailRows();
   } else {
     sw.classList.remove('on');
     if (detailRows) detailRows.style.display = 'none';
-    if (statusText) statusText.textContent = 'ยังไม่เปิด · กดเพื่ออนุญาต';
+    _setMasterStatus('ยังไม่เปิด · กดเพื่ออนุญาต', false);
   }
 }
 
