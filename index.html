@@ -3801,6 +3801,18 @@
       <!-- Tax breakdown block (Tax T2/T3) — shown only if job.taxEnabled -->
       <div class="detail-block" id="job-tax-block" style="display:none;">
         <h3>📋 <span data-i18n="tax.section">ภาษี</span></h3>
+        <!-- v1.9.40 · B2B/Gov customer tax info (was orphan · saved but not displayed) -->
+        <div id="job-cust-tax-block" style="display:none; margin-bottom:10px; padding:10px 12px; border-radius:10px; background:#f9f7f3; border:1px solid #e8dfd5; font-size:12.5px; color:#3a2f25;">
+          <div style="font-size:10.5px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:6px;">ข้อมูลลูกค้าสำหรับใบกำกับ</div>
+          <div style="display:grid; grid-template-columns:max-content 1fr; gap:4px 10px;">
+            <span style="color:#7c7066;">บริษัท:</span><span id="job-cust-company">—</span>
+            <span style="color:#7c7066;">เลขผู้เสีย:</span><span id="job-cust-taxid">—</span>
+            <span style="color:#7c7066;">สาขา:</span><span id="job-cust-branch">—</span>
+            <span style="color:#7c7066;">ที่อยู่:</span><span id="job-cust-taxaddr">—</span>
+            <span style="color:#7c7066;">ผู้ติดต่อ:</span><span id="job-cust-contact">—</span>
+            <span style="color:#7c7066;" id="job-cust-po-label" style="display:none">PO Number:</span><span id="job-cust-po" style="display:none">—</span>
+          </div>
+        </div>
         <div id="job-tax-breakdown" style="padding:10px 12px; border-radius:10px; background:linear-gradient(135deg, #fef3c7, #fde68a); border:1px solid #fbbf24; font-size:13px;"></div>
       </div>
 
@@ -6313,7 +6325,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.39';
+const PIXORY_VERSION = '1.9.40';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6324,6 +6336,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.40': {
+    date: '2026-05-23',
+    title: 'แก้ตัวเลขกำไรที่หน้าหลัก + รายงานภาษีบุคคล',
+    subtitle: 'เพิ่มต้นทุนงานเข้าในการคำนวณ · เคยตกหล่นทำให้กำไรขึ้นเกินจริง',
+    items: [
+      {
+        icon: '🐛',
+        title: 'แก้บั๊ก · กำไรหน้าหลักขึ้นเกินจริง',
+        desc: 'KPI หน้าหลัก (รายได้-กำไร-margin) ไม่นับ "ต้นทุนงาน" (multi-item) ตอน v1.9.31 · ทำให้ตัวเลขกำไรสูงเกินจริง · ตอนนี้รวมครบเหมือน Dashboard'
+      },
+      {
+        icon: '🧾',
+        title: 'แก้บั๊ก · PIT Helper คำนวณภาษีเกิน',
+        desc: 'หน้า PIT Helper ไม่นับต้นทุนงาน ทำให้ค่าใช้จ่ายต่ำกว่าจริง · ภาษีที่ต้องจ่ายขึ้นเกินจริง · ตอนนี้แก้ครบ'
+      },
+      {
+        icon: '🏢',
+        title: 'แสดงข้อมูลภาษีลูกค้าในหน้างาน',
+        desc: 'งาน B2B/ราชการ · เพิ่มกล่องแสดงข้อมูลที่ใช้ออกใบกำกับ: ชื่อบริษัท · เลขผู้เสียภาษี · สาขา · ที่อยู่ · ผู้ติดต่อ · PO Number (ราชการ) · เห็นทันทีว่าบันทึกถูกมั้ย'
+      }
+    ]
+  },
   '1.9.39': {
     date: '2026-05-23',
     title: 'Launch-ready · Security · Tax invoice · PDPA',
@@ -10822,6 +10856,36 @@ function openJob(code) {
       if (breakdown) {
         _taxBreakdownEl.innerHTML = formatTaxBreakdownHTML(breakdown);
         _taxBlock.style.display = '';
+        // v1.9.40 · also render B2B/Gov customer tax info (was orphan)
+        const _custTaxBlock = document.getElementById('job-cust-tax-block');
+        if (_custTaxBlock) {
+          const isBiz = (j.customerType === 'B2B' || j.customerType === 'Gov');
+          if (isBiz) {
+            const setTx = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = (v && String(v).trim()) ? v : '—'; };
+            setTx('job-cust-company',  j.customerCompanyName);
+            setTx('job-cust-taxid',    j.customerTaxId);
+            setTx('job-cust-branch',   j.customerBranch || 'สำนักงานใหญ่');
+            setTx('job-cust-taxaddr',  j.customerTaxAddress);
+            const contactStr = [j.customerContactPerson, j.customerContactPosition].filter(Boolean).join(' · ') + (j.customerEmail ? ' · ' + j.customerEmail : '');
+            setTx('job-cust-contact',  contactStr.trim().replace(/^·\s*/,''));
+            // PO Number only for Gov
+            const _poLbl = document.getElementById('job-cust-po-label');
+            const _poVal = document.getElementById('job-cust-po');
+            if (_poLbl && _poVal) {
+              if (j.customerType === 'Gov' && j.poNumber) {
+                _poLbl.style.display = '';
+                _poVal.style.display = '';
+                _poVal.textContent = j.poNumber;
+              } else {
+                _poLbl.style.display = 'none';
+                _poVal.style.display = 'none';
+              }
+            }
+            _custTaxBlock.style.display = '';
+          } else {
+            _custTaxBlock.style.display = 'none';
+          }
+        }
       } else {
         _taxBlock.style.display = 'none';
       }
@@ -12418,8 +12482,13 @@ function updateHomeKPIs() {
   const teamCost = yearJobs.reduce((s,j) => s + (j.teamCost || 0), 0);
   const travelCost = yearJobs.reduce((s,j) => s + (j.travelCost || 0), 0);
   const otherCost = yearJobs.reduce((s,j) => s + (j.otherCost || 0), 0);
+  // v1.9.40 · include multi-item costItems (v1.9.19+) · matches Dashboard expense calc
+  const costItemsTotal = yearJobs.reduce(function (s, j) {
+    if (!Array.isArray(j.costItems)) return s;
+    return s + j.costItems.reduce(function (ss, c) { return ss + (parseFloat(c && c.price) || 0); }, 0);
+  }, 0);
   const expense = EXPENSES.filter(e => new Date(e.date).getFullYear() === yr).reduce((s,e) => s + e.amount, 0);
-  const totalCost = teamCost + travelCost + otherCost + expense;
+  const totalCost = teamCost + travelCost + otherCost + costItemsTotal + expense;
   const profit = totalRev - totalCost;
   const margin = totalRev > 0 ? Math.round(profit / totalRev * 100) : 0;
   const debt = yearJobs.reduce((s,j) => s + (j.remain || 0), 0);
@@ -16163,10 +16232,15 @@ function computePIT(year, opts) {
       if (period.end && d > period.end) return;
     }
     revenue += (j.sell || 0);
-    // Actual expenses from job: team wages + travel + other
+    // Actual expenses from job: team wages + travel + other + costItems (v1.9.40)
     let teamCost = 0;
     Object.values(j.teamWages || {}).forEach(w => teamCost += (Number(w) || 0));
-    actualExpenses += teamCost + (Number(j.travelCost) || 0) + (Number(j.otherCost) || 0);
+    // v1.9.40 · include multi-item costItems (was missing · PIT expense undercounted)
+    let costItemsSum = 0;
+    if (Array.isArray(j.costItems)) {
+      j.costItems.forEach(c => { costItemsSum += (parseFloat(c && c.price) || 0); });
+    }
+    actualExpenses += teamCost + (Number(j.travelCost) || 0) + (Number(j.otherCost) || 0) + costItemsSum;
     // WHT
     if (j.taxBreakdown && j.taxBreakdown.includeWht) {
       whtWithheld += (j.taxBreakdown.whtAmount || 0);
