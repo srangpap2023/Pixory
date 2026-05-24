@@ -3332,7 +3332,7 @@
     <div style="margin-top:6px;">
       <div class="tf-input-row">
         <label data-i18n="cust.taxId">เลขประจำตัวผู้เสียภาษี (13 หลัก)</label>
-        <input type="text" id="tf-tax-id" inputmode="numeric" maxlength="13" placeholder="1234567890123">
+        <input type="text" id="tf-tax-id" inputmode="numeric" maxlength="13" oninput="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="1234567890123">
       </div>
       <div class="tf-input-row">
         <label data-i18n="cust.companyName">ชื่อบริษัท / หน่วยงาน</label>
@@ -3909,7 +3909,7 @@
             </div>
             <div class="form-group">
               <label>เลขผู้เสียภาษี 13 หลัก</label>
-              <input type="text" id="add-tf-taxid" inputmode="numeric" maxlength="13" oninput="onAddTaxFieldChange()" placeholder="1234567890123">
+              <input type="text" id="add-tf-taxid" inputmode="numeric" maxlength="13" oninput="this.value=this.value.replace(/[^0-9]/g,'');onAddTaxFieldChange()" placeholder="1234567890123">
             </div>
             <div class="form-group">
               <label>สาขา</label>
@@ -4271,6 +4271,10 @@
           <div id="q-doc-title" style="display:none; background:linear-gradient(135deg, #fef3c7, #fde68a); border-left:3px solid #f59e0b; padding:6px 10px; margin-bottom:6px; border-radius:0 4px 4px 0;">
             <div style="font-size:13px; font-weight:700; color:#7c2d12; letter-spacing:0.3px;" id="q-doc-title-text" data-i18n="tax.headerTaxInvoice">ใบเสนอราคา / ใบกำกับภาษี</div>
             <div style="font-size:9px; color:#a06402; margin-top:1px;">QUOTE · TAX INVOICE</div>
+            <!-- v1.9.39 · Sequential tax invoice number (legal compliance) -->
+            <div id="q-tax-invoice-no-row" style="display:none; font-size:11px; color:#7c2d12; margin-top:3px; padding-top:3px; border-top:0.5px dashed #f59e0b; font-weight:700;">
+              เลขที่ใบกำกับภาษี: <span id="q-tax-invoice-no">—</span>
+            </div>
           </div>
 
           <!-- v1.9.26 · PO Number banner (Gov only) -->
@@ -4669,7 +4673,7 @@
             </div>
             <div class="form-group">
               <label>เลขผู้เสียภาษี 13 หลัก</label>
-              <input type="text" id="nq-tf-taxid" inputmode="numeric" maxlength="13" oninput="onNQTaxFieldChange()" placeholder="1234567890123">
+              <input type="text" id="nq-tf-taxid" inputmode="numeric" maxlength="13" oninput="this.value=this.value.replace(/[^0-9]/g,'');onNQTaxFieldChange()" placeholder="1234567890123">
             </div>
             <div class="form-group">
               <label>สาขา</label>
@@ -4939,7 +4943,7 @@
         <div id="cust-b2b-fields" style="display:none;">
           <div class="form-group" style="margin: 0 0 10px;">
             <label><span data-i18n="cust.taxId">เลขประจำตัวผู้เสียภาษี (13 หลัก)</span> <span style="display:none;">PRO</span></label>
-            <input type="text" id="cust-tax-id" inputmode="numeric" maxlength="13" placeholder="1234567890123">
+            <input type="text" id="cust-tax-id" inputmode="numeric" maxlength="13" oninput="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="1234567890123">
           </div>
           <div class="form-group" style="margin: 0 0 10px;">
             <label data-i18n="cust.companyName">ชื่อบริษัท / หน่วยงาน</label>
@@ -5212,7 +5216,7 @@
           <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; padding: 0 4px;">ข้อมูลผู้เสียภาษี · สตูดิโอ</div>
           <div class="form-group">
             <label>เลขประจำตัวผู้เสียภาษี (13 หลัก) <span style="color:#a89a8c; font-weight:400; font-size:11px;">— แสดงในใบกำกับภาษี</span></label>
-            <input type="text" id="tax-id" inputmode="numeric" maxlength="13" placeholder="1234567890123">
+            <input type="text" id="tax-id" inputmode="numeric" maxlength="13" oninput="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="1234567890123">
           </div>
           <div class="form-group">
             <label>สาขา <span style="color:#a89a8c; font-weight:400; font-size:11px;">— "สำนักงานใหญ่" หรือเลขสาขา 5 หลัก</span></label>
@@ -5239,7 +5243,7 @@
           </div>
           <div class="form-group" id="tax-vat-number-wrap" style="margin-top:12px;">
             <label>เลขผู้ประกอบการ VAT <span style="color:#a89a8c; font-weight:400; font-size:11px;">— ถ้ามี (ปกติเหมือนเลข 13 หลัก)</span></label>
-            <input type="text" id="tax-vat-number" inputmode="numeric" maxlength="13" placeholder="กรอกถ้าต่างจาก 13 หลัก">
+            <input type="text" id="tax-vat-number" inputmode="numeric" maxlength="13" oninput="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="กรอกถ้าต่างจาก 13 หลัก">
           </div>
         </div>
 
@@ -5758,6 +5762,15 @@
           </div>
         </div>
       </div>
+      <!-- v1.9.39 · PDPA · Delete account permanently -->
+      <div class="settings-section">
+        <div style="border-radius: 12px; overflow: hidden; border:1px solid #fecaca;">
+          <div class="settings-row" onclick="deleteAccountConfirm()">
+            <div class="left"><div class="ico-wrap" style="background:#fee2e2; color:#dc2626; display:flex; align-items:center; justify-content:center; font-size:22px;">🗑️</div><div><div class="row-title" style="color:#dc2626;">ลบบัญชีถาวร</div><div class="row-sub">ลบข้อมูลทั้งหมดทั้งในเครื่องและ Cloud · ทำตาม PDPA · กู้คืนไม่ได้</div></div></div>
+            <div class="right">›</div>
+          </div>
+        </div>
+      </div>
       <div style="font-size:11px; color:#a89a8c; text-align:center; padding:20px;" data-i18n="acc.note">
         ระบบล็อกอินใช้ Supabase · ข้อมูลของคุณยังเก็บในเครื่องนี้ (จะ sync cloud ในเวอร์ชันถัดไป)
       </div>
@@ -6183,6 +6196,13 @@ const MONTHS_TH_SHORT = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.
 // ========== HELPERS ==========
 function fmt(n) { return '฿' + Math.round(n).toLocaleString(); }
 function fmtK(n) { if (Math.abs(n) >= 1000) return '฿' + Math.round(n/1000) + 'K'; return '฿' + n; }
+
+// v1.9.39 · XSS protection helper · always escape user input before innerHTML
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]);
+  });
+}
 // Smart K formatter — 24000→"24K", 8500→"8.5K", 8900→"8.9K"
 function fmtPkgK(n) {
   if (n == null) return '';
@@ -6293,7 +6313,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.38';
+const PIXORY_VERSION = '1.9.39';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6304,6 +6324,43 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.39': {
+    date: '2026-05-23',
+    title: 'Launch-ready · Security · Tax invoice · PDPA',
+    subtitle: 'แก้ XSS · เพิ่มเลขใบกำกับภาษีต่อเนื่อง · WHT ราชการ 1% auto · ปุ่มลบบัญชี',
+    items: [
+      {
+        icon: '🔒',
+        title: 'ปลอดภัยขึ้น · กรองข้อมูลผู้ใช้',
+        desc: 'เพิ่มระบบกรองอักขระพิเศษในชื่อลูกค้า · ชื่อแพคเกจ · เทมเพลตงาน · ป้องกันการแอบฝัง code · ปลอดภัย sync ข้ามเครื่อง'
+      },
+      {
+        icon: '🧾',
+        title: 'เลขใบกำกับภาษีต่อเนื่อง · ตามกฎหมาย',
+        desc: 'สำหรับสตูดิโอที่จดทะเบียน VAT · ตอนนี้ใบเสนอที่เปิดภาษีจะได้เลขใบกำกับภาษีต่อเนื่องอัตโนมัติ (TI-2026-0001 · 0002 · 0003 ...) · ตรงตามที่กฎหมายไทยกำหนด · ห้ามข้าม ห้ามซ้ำ'
+      },
+      {
+        icon: '🏛',
+        title: 'WHT ราชการ default 1%',
+        desc: 'เลือกประเภทลูกค้า "ราชการ" · WHT ตั้งเป็น 1% อัตโนมัติ (กฎหมายไทยสำหรับงานบริการ) · ไม่ต้องปรับเอง'
+      },
+      {
+        icon: '🔢',
+        title: 'เลขผู้เสียภาษี · กรอกได้แค่ตัวเลข',
+        desc: 'ทุกช่องเลขผู้เสียภาษีบังคับกรอกเฉพาะตัวเลข 13 หลัก · ป้องกัน format ผิดที่จะทำให้ใบกำกับไม่ถูกต้อง'
+      },
+      {
+        icon: '🗑',
+        title: 'ปุ่ม "ลบบัญชีถาวร" (PDPA)',
+        desc: 'Settings → บัญชี · มีปุ่มลบบัญชีและข้อมูลทั้งหมด · ทำตาม PDPA "right to be forgotten" · ลบทั้งใน Cloud + เครื่อง · เคารพสิทธิผู้ใช้'
+      },
+      {
+        icon: '💾',
+        title: 'เตือนเมื่อที่เก็บข้อมูลเต็ม',
+        desc: 'ถ้า localStorage เกิน quota (~5MB) · แสดง toast เตือน "ที่เก็บข้อมูลในเครื่องเต็ม" · แนะนำให้ Export Backup ก่อนข้อมูลหาย'
+      }
+    ]
+  },
   '1.9.38': {
     date: '2026-05-23',
     title: 'Excel ภาษี · เห็นรายได้รวมทั้งปี',
@@ -7974,6 +8031,63 @@ async function doLogout() {
   location.reload();
 }
 
+// v1.9.39 · PDPA · Delete account permanently (right to be forgotten)
+// Steps: 1) suggest export backup · 2) confirm twice · 3) delete cloud row · 4) clear local · 5) sign out
+async function deleteAccountConfirm() {
+  // Step 1 · Offer backup
+  const offerBackup = confirm(
+    '🗑 ลบบัญชีถาวร\n\n' +
+    'ข้อมูลทั้งหมดจะถูกลบ · กู้คืนไม่ได้\n\n' +
+    'แนะนำให้กด "Export Backup" ใน Settings ก่อน\n' +
+    'เพื่อเก็บข้อมูลไว้\n\n' +
+    'กด OK เพื่อทำต่อ · กด Cancel เพื่อยกเลิก'
+  );
+  if (!offerBackup) return;
+  // Step 2 · Final confirm
+  const really = confirm(
+    '⚠️ ยืนยันลบบัญชีถาวร?\n\n' +
+    'รายการที่จะถูกลบ:\n' +
+    '✗ ข้อมูลใน Cloud (Supabase)\n' +
+    '✗ ข้อมูลในเครื่อง (localStorage)\n' +
+    '✗ บัญชี Login\n\n' +
+    'การกระทำนี้ "ไม่สามารถกู้คืนได้"\n' +
+    'กด OK เพื่อยืนยัน'
+  );
+  if (!really) return;
+
+  // Step 3 · Stop heartbeat to prevent re-sync
+  try { if (typeof stopPresenceHeartbeat === 'function') stopPresenceHeartbeat(); } catch(e) {}
+
+  // Step 4 · Delete cloud row
+  if (CURRENT_USER && SUPABASE) {
+    try {
+      const { error } = await SUPABASE.from('user_data').delete().eq('user_id', CURRENT_USER.id);
+      if (error) console.warn('cloud delete failed:', error);
+    } catch(e) { console.warn('cloud delete error:', e); }
+  }
+
+  // Step 5 · Clear local storage (everything related to Pixory)
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith('srangpap_wedding_data') || k.startsWith('pixory.') || k === STORAGE_KEY)) {
+        keysToRemove.push(k);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+  } catch(e) { console.warn('local clear error:', e); }
+
+  // Step 6 · Sign out
+  try {
+    if (SUPABASE) await SUPABASE.auth.signOut();
+  } catch(e) {}
+
+  alert('✓ ลบบัญชีและข้อมูลทั้งหมดแล้ว\n\nเรารักษาความเป็นส่วนตัวของคุณ');
+  CURRENT_USER = null;
+  location.reload();
+}
+
 // v1.9.36 · Lightweight presence beat — UPDATE only updated_at column on user_data
 // Keeps "online" status fresh without writing the whole data blob
 let _presenceTimer = null;
@@ -8368,6 +8482,8 @@ const PROFILE = {
   branch:'สำนักงานใหญ่',  // สาขา (v1.8.4) — สำหรับใบกำกับ
   defaultWHT:3,          // อัตรา WHT ปกติ (3% สำหรับบริการ)
   taxYearStart:1,        // เดือนที่เริ่มปีงบ (1=ม.ค., 10=ต.ค. เป็นต้น)
+  // v1.9.39 · Sequential tax invoice numbering (legal compliance for VAT-registered users)
+  taxInvoiceCounters: {},  // { '2026': 7 } → next invoice will be TI-2026-008
   // === PIT Helper (Tax T6, v1.8.7) — แสดงเฉพาะในหน้า PIT Helper ไม่กระทบฟอร์มอื่น ===
   pit: {
     enabled: false,           // ผู้ใช้เปิดใช้หน้า PIT ครั้งแรกหรือยัง
@@ -8422,7 +8538,17 @@ function saveData() {
       JOBS, QUOTES, PROFILE, BANKS, QUOTE_TEMPLATE, NOTIF_SETTINGS, SERVICES, CUSTOMER_INFO, EQUIPMENT
     };
     if (_meta) blob._meta = _meta;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(blob));
+    const serialized = JSON.stringify(blob);
+    try {
+      localStorage.setItem(STORAGE_KEY, serialized);
+    } catch (quotaErr) {
+      // v1.9.39 · localStorage quota exceeded — warn user (data still in memory + cloud)
+      console.warn('localStorage quota exceeded:', quotaErr);
+      if (typeof toast === 'function') {
+        toast('⚠️ ที่เก็บข้อมูลในเครื่องเต็ม · ลอง Export Backup + ลบงานเก่า · ข้อมูลยังอยู่ใน Cloud');
+      }
+      // Don't throw — continue with cloud push
+    }
     // Trigger debounced cloud sync (no-op if not logged in)
     if (typeof debouncedCloudPush === 'function') debouncedCloudPush();
   } catch(e) { console.warn('save failed', e); }
@@ -9845,8 +9971,8 @@ function renderPixoryPresets() {
     // Name + tag overlay
     const overlay = document.createElement('div');
     overlay.style.cssText = "position:absolute; bottom:0; left:0; right:0; padding:8px 10px; background:linear-gradient(180deg, transparent, rgba(0,0,0,0.5)); color:#fff;";
-    overlay.innerHTML = '<div style="font-size:11.5px; font-weight:700;">' + p.name + '</div>' +
-                       '<div style="font-size:9.5px; opacity:0.85; margin-top:1px;">' + p.tag + (isActive ? ' · ใช้อยู่' : '') + '</div>';
+    overlay.innerHTML = '<div style="font-size:11.5px; font-weight:700;">' + escapeHtml(p.name) + '</div>' +
+                       '<div style="font-size:9.5px; opacity:0.85; margin-top:1px;">' + escapeHtml(p.tag) + (isActive ? ' · ' + escapeHtml(t('lbl.inUse') || 'ใช้อยู่') : '') + '</div>';
     cell.appendChild(overlay);
     // Active checkmark
     if (isActive) {
@@ -10170,7 +10296,8 @@ function renderQuickStartTemplates() {
   }
   let html = '<div style="font-size: 11px; color: #a89a8c; font-weight: 600; margin: 14px 0 6px;">📋 เทมเพลตที่บันทึกไว้</div>';
   list.slice(0, 5).forEach(tpl => {
-    html += '<div class="qs-match-row" onclick="applyWorkflowTemplate(\'' + tpl.id + '\')"><div style="font-size:18px;">📋</div><div style="flex:1; min-width:0;"><div class="qm-name">' + tpl.name + '</div><div class="qm-meta">' + (tpl.type || 'งาน') + '</div></div><button onclick="event.stopPropagation();deleteWorkflowTemplate(\'' + tpl.id + '\')" style="background:transparent;border:0;color:#dc2626;cursor:pointer;font-size:14px;padding:4px 8px;">✕</button></div>';
+    const safeId = escapeHtml(tpl.id);
+    html += '<div class="qs-match-row" onclick="applyWorkflowTemplate(\'' + safeId + '\')"><div style="font-size:18px;">📋</div><div style="flex:1; min-width:0;"><div class="qm-name">' + escapeHtml(tpl.name) + '</div><div class="qm-meta">' + escapeHtml(tpl.type || 'งาน') + '</div></div><button onclick="event.stopPropagation();deleteWorkflowTemplate(\'' + safeId + '\')" style="background:transparent;border:0;color:#dc2626;cursor:pointer;font-size:14px;padding:4px 8px;">✕</button></div>';
   });
   container.innerHTML = html;
 }
@@ -10244,7 +10371,7 @@ function renderQuickStartMatches() {
     const phone = item.info.phone ? ' · ' + item.info.phone : '';
     const row = document.createElement('div');
     row.className = 'qs-match-row';
-    row.innerHTML = '<div style="font-size:18px;">' + (meta ? meta.icon : '👤') + '</div><div style="flex:1; min-width:0;"><div class="qm-name">' + item.name + '</div><div class="qm-meta">' + (item.info.type || 'B2C') + phone + '</div></div><div style="color:#a89a8c;">›</div>';
+    row.innerHTML = '<div style="font-size:18px;">' + (meta ? escapeHtml(meta.icon) : '👤') + '</div><div style="flex:1; min-width:0;"><div class="qm-name">' + escapeHtml(item.name) + '</div><div class="qm-meta">' + escapeHtml(item.info.type || 'B2C') + escapeHtml(phone) + '</div></div><div style="color:#a89a8c;">›</div>';
     row.onclick = () => quickStartPickExisting(item.name);
     matches.appendChild(row);
   });
@@ -12561,6 +12688,30 @@ function generateQuoteCode(year) {
   return 'QT-' + yr + '-' + String(max + 1).padStart(3, '0');
 }
 
+// v1.9.39 · Sequential tax invoice numbering (TI-YYYY-NNN)
+// Legal compliance: pwra Thai VAT law requires sequential, non-skipping, non-duplicate numbers
+// Counter is per-calendar-year · auto-increments on each issued tax invoice
+function generateTaxInvoiceNumber(year) {
+  const yr = year || new Date().getFullYear();
+  if (!PROFILE.taxInvoiceCounters) PROFILE.taxInvoiceCounters = {};
+  // Look at existing taxInvoiceNo in QUOTES/JOBS to determine highest used number for this year
+  let max = PROFILE.taxInvoiceCounters[yr] || 0;
+  const scan = (arr) => (arr || []).forEach(item => {
+    if (item && item.taxInvoiceNo && typeof item.taxInvoiceNo === 'string') {
+      const m = item.taxInvoiceNo.match(/^TI-(\d{4})-(\d+)$/);
+      if (m && parseInt(m[1], 10) === yr) {
+        const n = parseInt(m[2], 10);
+        if (n > max) max = n;
+      }
+    }
+  });
+  scan(QUOTES);
+  scan(JOBS);
+  const next = max + 1;
+  PROFILE.taxInvoiceCounters[yr] = next;
+  return 'TI-' + yr + '-' + String(next).padStart(4, '0');
+}
+
 function editCurrentJob() {
   const j = window._currentJob;
   if (!j) return;
@@ -13253,6 +13404,17 @@ function showQuoteScreen(data, source) {
     //  - OR b2bNoVat (still want a subtle header for business client)
     const showPill = (_studioVat && _taxOn) || _docCase === 'b2bNoVat' || _docCase === 'fullPro';
     _qDocTitle.style.display = showPill ? '' : 'none';
+    // v1.9.39 · Show sequential tax invoice number (only for VAT studio + tax on + has number)
+    const _qTiRow = document.getElementById('q-tax-invoice-no-row');
+    const _qTiNo  = document.getElementById('q-tax-invoice-no');
+    if (_qTiRow && _qTiNo) {
+      if (_studioVat && _taxOn && data.taxInvoiceNo) {
+        _qTiNo.textContent = data.taxInvoiceNo;
+        _qTiRow.style.display = '';
+      } else {
+        _qTiRow.style.display = 'none';
+      }
+    }
   }
 
   // Studio tax id row — show per visibility rule
@@ -14535,8 +14697,14 @@ function saveNewQuote(status) {
 
   // === CREATE MODE: push new quote ===
   // v1.9.11 C2 fix: use generateQuoteCode (max+1) instead of length+1
+  // v1.9.39 · assign sequential tax invoice number ONLY when VAT studio + tax enabled
+  let _taxInvoiceNo = '';
+  if (_taxSnap.taxEnabled && PROFILE && PROFILE.vatRegistered && typeof generateTaxInvoiceNumber === 'function') {
+    _taxInvoiceNo = generateTaxInvoiceNumber();
+  }
   const quote = {
     code: generateQuoteCode(),
+    taxInvoiceNo: _taxInvoiceNo,   // v1.9.39 · empty for non-VAT or non-tax quotes
     customer,
     custNick: nick,
     contact: phone,
@@ -15612,12 +15780,16 @@ function round2(n) { return Math.round((Number(n) || 0) * 100) / 100; }
 function getDefaultTaxOpts(customerType) {
   const studioVat = !!(typeof PROFILE !== 'undefined' && PROFILE && PROFILE.vatRegistered);
   const isBusinessCust = (customerType === 'B2B' || customerType === 'Gov');
+  // v1.9.39 · Gov defaults to 1% (Thai law) · others use PROFILE.defaultWHT (default 3%)
+  const whtRateDefault = (customerType === 'Gov')
+    ? 1
+    : ((typeof PROFILE !== 'undefined' && PROFILE.defaultWHT) ? PROFILE.defaultWHT : 3);
   return {
     enabled: isBusinessCust,            // auto-on for B2B/Gov
     includeVat: studioVat,              // VAT only if studio is VAT-registered
     vatRate: 7,
     includeWht: isBusinessCust,         // companies/gov usually withhold
-    whtRate: (typeof PROFILE !== 'undefined' && PROFILE.defaultWHT) ? PROFILE.defaultWHT : 3,
+    whtRate: whtRateDefault,
     whtBasis: 'base'
   };
 }
