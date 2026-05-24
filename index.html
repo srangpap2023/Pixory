@@ -2202,6 +2202,45 @@
   }
   .auth-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(216,112,74,.4); }
   .auth-btn:active { transform: translateY(0); }
+  /* v1.9.42 · Consent checkbox at signup */
+  .auth-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 14px 0 6px;
+    padding: 12px;
+    background: #fdf8f3;
+    border: 1px solid #ead9c9;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #5a4a3a;
+  }
+  body.dark-theme .auth-consent {
+    background: rgba(216,112,74,.08);
+    border-color: rgba(216,112,74,.25);
+    color: #d4d4d8;
+  }
+  .auth-consent input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: #d8704a;
+    cursor: pointer;
+  }
+  .auth-consent label {
+    flex: 1;
+    cursor: pointer;
+    user-select: none;
+  }
+  .auth-consent a {
+    color: #d8704a;
+    text-decoration: underline;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  body.dark-theme .auth-consent a { color: #f4a36a; }
   .auth-btn:disabled {
     background: #d1d5db;
     color: #a89a8c;
@@ -3424,7 +3463,16 @@
         <label data-i18n="auth.studioName">ชื่อสตูดิโอ <span style="color:#a89a8c; font-weight:400;">(ไม่บังคับ)</span></label>
         <input type="text" id="signup-studio" autocomplete="organization" placeholder="เช่น SRANGPAP WEDDING">
       </div>
-      <button class="auth-btn" id="signup-btn" onclick="doSignup()" data-i18n="auth.signupBtn">สมัครสมาชิก</button>
+      <div class="auth-consent">
+        <input type="checkbox" id="signup-consent" onchange="updateSignupBtnState()">
+        <label for="signup-consent">
+          ฉันได้อ่านและยอมรับ
+          <a onclick="event.preventDefault(); event.stopPropagation(); openLegalFromAuth('terms')">ข้อกำหนดการใช้บริการ</a>
+          และ
+          <a onclick="event.preventDefault(); event.stopPropagation(); openLegalFromAuth('privacy')">นโยบายความเป็นส่วนตัว</a>
+        </label>
+      </div>
+      <button class="auth-btn" id="signup-btn" onclick="doSignup()" data-i18n="auth.signupBtn" disabled>สมัครสมาชิก</button>
       <div class="auth-divider"></div>
       <div class="auth-links">
         <span data-i18n="auth.hasAccount">มีบัญชีแล้ว?</span>
@@ -6348,7 +6396,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '1.9.41';
+const PIXORY_VERSION = '1.9.42';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6359,6 +6407,23 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '1.9.42': {
+    date: '2026-05-24',
+    title: 'ยืนยันยอมรับข้อกำหนดตอนสมัคร',
+    subtitle: 'เพิ่มขั้นตอนยอมรับ ToS + Privacy ก่อนสมัครสมาชิก · ตามมาตรฐาน PDPA',
+    items: [
+      {
+        icon: '☑️',
+        title: 'Checkbox ยอมรับข้อกำหนดตอนสมัคร',
+        desc: 'ผู้ใช้ใหม่ต้องอ่านและกดยอมรับ ข้อกำหนดการใช้บริการ + นโยบายความเป็นส่วนตัว · ก่อนปุ่ม "สมัครสมาชิก" จะเปิดให้กด · กดที่ลิงก์เพื่ออ่านได้ทันทีในหน้าสมัคร'
+      },
+      {
+        icon: '🕒',
+        title: 'บันทึกเวลาที่ยอมรับ',
+        desc: 'ระบบบันทึก timestamp + version ของเอกสารที่ยอมรับลงในโปรไฟล์ของคุณ · เพื่อให้มีหลักฐานยืนยัน · เป็นไปตามมาตรฐาน PDPA · ผู้ใช้เดิมไม่ต้องทำซ้ำ'
+      }
+    ]
+  },
   '1.9.41': {
     date: '2026-05-24',
     title: 'นโยบายความเป็นส่วนตัว + ข้อกำหนดการใช้บริการ',
@@ -8093,20 +8158,77 @@ async function doLogin() {
   }
 }
 
+// v1.9.42 · Active consent at signup (PDPA + legal protection)
+// Constants used to record what the user agreed to and when.
+const CONSENT_VERSION = '1.0'; // bump if ToS/Privacy materially changes
+function updateSignupBtnState() {
+  const cb = document.getElementById('signup-consent');
+  const btn = document.getElementById('signup-btn');
+  if (!cb || !btn) return;
+  btn.disabled = !cb.checked;
+}
+function openLegalFromAuth(which) {
+  // Allow user to read ToS/Privacy from signup screen without losing their input
+  // Open in new tab if hosted, else show inline alert with key points
+  try {
+    if (typeof LEGAL_DOCS !== 'undefined' && LEGAL_DOCS && LEGAL_DOCS[which]) {
+      const doc = LEGAL_DOCS[which];
+      // Build a minimal modal-like overlay
+      let bg = document.getElementById('legal-auth-overlay');
+      if (bg) bg.remove();
+      bg = document.createElement('div');
+      bg.id = 'legal-auth-overlay';
+      bg.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+      const box = document.createElement('div');
+      box.style.cssText = 'background:#fff;color:#2a1f17;max-width:680px;width:100%;max-height:85vh;overflow-y:auto;border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.4);font-size:14px;line-height:1.65;';
+      if (document.body.classList.contains('dark-theme')) {
+        box.style.background = '#1f1a16';
+        box.style.color = '#e5e5e5';
+      }
+      const closeBtn = '<button onclick="document.getElementById(\'legal-auth-overlay\').remove()" style="float:right;background:#d8704a;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:600;cursor:pointer;">ปิด</button>';
+      const title = '<h2 style="margin:0 0 8px;font-size:20px;">' + escapeHtml(doc.title) + '</h2>';
+      const sub = '<div style="font-size:12px;color:#8b7d6d;margin-bottom:16px;">ปรับปรุงล่าสุด: ' + escapeHtml(doc.updated || '24 พฤษภาคม 2569') + '</div>';
+      let body = '';
+      (doc.sections || []).forEach(function(s) {
+        body += '<h3 style="margin:18px 0 8px;font-size:15px;color:#d8704a;">' + escapeHtml(s.h || s.title || '') + '</h3>';
+        body += '<div style="white-space:pre-wrap;">' + escapeHtml(s.body || '') + '</div>';
+      });
+      box.innerHTML = closeBtn + title + sub + body;
+      bg.appendChild(box);
+      bg.onclick = function(e) { if (e.target === bg) bg.remove(); };
+      document.body.appendChild(bg);
+    } else {
+      alert('โปรดดูรายละเอียดใน Settings → เกี่ยวกับ → ' + (which === 'terms' ? 'ข้อกำหนดการใช้บริการ' : 'นโยบายความเป็นส่วนตัว') + ' หลังสมัคร');
+    }
+  } catch(e) {
+    console.warn('openLegalFromAuth failed', e);
+  }
+}
+
 async function doSignup() {
   clearAuthMsg('signup');
   const email = (document.getElementById('signup-email').value || '').trim();
   const pw = document.getElementById('signup-password').value || '';
   const studio = (document.getElementById('signup-studio').value || '').trim();
+  const consentEl = document.getElementById('signup-consent');
+  const consented = !!(consentEl && consentEl.checked);
   if (!email || !pw) { setAuthError('signup', 'กรุณากรอกอีเมลและรหัสผ่าน'); return; }
   if (pw.length < 6) { setAuthError('signup', 'รหัสผ่านต้องอย่างน้อย 6 ตัวอักษร'); return; }
+  if (!consented) { setAuthError('signup', 'กรุณาอ่านและยอมรับข้อกำหนดการใช้บริการและนโยบายความเป็นส่วนตัวก่อนสมัคร'); return; }
   if (!SUPABASE) { setAuthError('signup', 'ระบบสมัครยังไม่พร้อม · ลองอีกครั้ง'); return; }
   const btn = document.getElementById('signup-btn');
   btn.disabled = true; btn.textContent = 'กำลังสมัคร...';
+  const consentedAt = new Date().toISOString();
   try {
     const { data, error } = await SUPABASE.auth.signUp({
       email, password: pw,
-      options: { data: { studio_name: studio } }
+      options: { data: {
+        studio_name: studio,
+        consented_at: consentedAt,
+        consent_version: CONSENT_VERSION,
+        consent_terms: true,
+        consent_privacy: true
+      } }
     });
     if (error) {
       const m = error.message || '';
@@ -8118,7 +8240,12 @@ async function doSignup() {
     }
     // If user is set on signUp response, we are auto-confirmed (Supabase project config)
     if (data && data.session) {
-      CURRENT_USER = { id: data.user.id, email: data.user.email, signupStudio: studio };
+      CURRENT_USER = {
+        id: data.user.id,
+        email: data.user.email,
+        signupStudio: studio,
+        signupConsent: { consentedAt: consentedAt, version: CONSENT_VERSION, terms: true, privacy: true }
+      };
       finishAuthAndStartApp();
     } else if (data && data.user && !data.session) {
       // Email confirmation required
@@ -8621,6 +8748,13 @@ const PROFILE = {
   taxYearStart:1,        // เดือนที่เริ่มปีงบ (1=ม.ค., 10=ต.ค. เป็นต้น)
   // v1.9.39 · Sequential tax invoice numbering (legal compliance for VAT-registered users)
   taxInvoiceCounters: {},  // { '2026': 7 } → next invoice will be TI-2026-008
+  // v1.9.42 · Active consent record (PDPA + legal protection)
+  consent: {
+    consentedAt: '',       // ISO timestamp when user ticked the consent box at signup
+    version: '',           // Which version of ToS/Privacy they agreed to
+    terms: false,          // True = explicit ToS acceptance
+    privacy: false         // True = explicit Privacy Policy acceptance
+  },
   // === PIT Helper (Tax T6, v1.8.7) — แสดงเฉพาะในหน้า PIT Helper ไม่กระทบฟอร์มอื่น ===
   pit: {
     enabled: false,           // ผู้ใช้เปิดใช้หน้า PIT ครั้งแรกหรือยัง
@@ -18351,6 +18485,19 @@ async function initAfterAuth() {
   }
   // 2) Load data from localStorage (now reflects cloud state if applicable)
   loadData();
+  // v1.9.42 · If user just signed up with consent · persist it into PROFILE
+  // (so the consent is saved locally + synced to cloud via normal saveData flow)
+  try {
+    if (CURRENT_USER && CURRENT_USER.signupConsent && (!PROFILE.consent || !PROFILE.consent.consentedAt)) {
+      PROFILE.consent = {
+        consentedAt: CURRENT_USER.signupConsent.consentedAt || new Date().toISOString(),
+        version: CURRENT_USER.signupConsent.version || CONSENT_VERSION,
+        terms: !!CURRENT_USER.signupConsent.terms,
+        privacy: !!CURRENT_USER.signupConsent.privacy
+      };
+      saveData();
+    }
+  } catch(e) { console.warn('consent persist failed', e); }
   loadWallpaper();
   loadFontSize();
   renderHomeUpcoming();
