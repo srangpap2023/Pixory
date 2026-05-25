@@ -130,21 +130,10 @@
   .job-row .customer { font-size: 14px; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .job-row .meta { font-size: 12px; color: #7c7066; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .job-row .price { font-size: 13px; color: #3a2f25; margin-top: 4px; font-weight: 500; }
-  /* v2.5.9 · Multi-day badge under date in date-block */
-  .job-row .date-block .multi-day-badge {
-    margin-top: 4px;
-    background: linear-gradient(135deg, #E8732C, #C85A18);
-    color: #fff;
-    font-size: 9px;
-    font-weight: 700;
-    padding: 1px 4px;
-    border-radius: 4px;
-    text-align: center;
-    letter-spacing: 0.3px;
-    line-height: 1.2;
-    white-space: nowrap;
-  }
-  body.dark-theme .job-row .date-block .multi-day-badge { background: linear-gradient(135deg, #ff8a3d, #d56022); color: #fff; }
+  /* v2.5.10 · Multi-day · show date range in .date-block */
+  .job-row .date-block.range { min-width: 64px; padding: 6px 6px; }
+  .job-row .date-block.range .day { font-size: 14px; letter-spacing: -0.3px; white-space: nowrap; }
+  .job-row .date-block.range .month { margin-top: 3px; }
   /* v2.5.0 · Countdown hint under meta */
   .job-row .job-countdown { font-size: 11px; margin-top: 3px; font-weight: 500; display: inline-block; }
   .job-row .job-countdown.today  { color: #b91c1c; font-weight: 600; }
@@ -6898,7 +6887,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.9';
+const PIXORY_VERSION = '2.5.10';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6909,6 +6898,18 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.10': {
+    date: '2026-05-25',
+    title: 'การ์ดงานหลายวัน · แสดงช่วงวันที่',
+    subtitle: 'งานที่มีหลายช่วงคนละวัน · จะแสดง "14–15 พ.ย." ในกล่องวันที่ ไม่ใช่แค่วันแรก',
+    items: [
+      {
+        icon: '📅',
+        title: 'Date range "14–15 พ.ย."',
+        desc: 'งานที่มี 2+ ช่วงคนละวัน เห็นช่วงวันชัดในการ์ด · ถ้าข้ามเดือนแสดงเดือนของวันสุดท้าย เช่น "31 ต.ค.–2 พ.ย."'
+      }
+    ]
+  },
   '2.5.9': {
     date: '2026-05-25',
     title: 'การ์ดงานหลายวัน · เห็นได้ทันที',
@@ -12151,13 +12152,30 @@ function renderJobs(list, container) {
     row.onclick = () => openJob(j.code);
     // v2.5.2 · show multi-loc indicator in card meta
     const locLabel = (typeof getJobLocationLabel === 'function') ? getJobLocationLabel(j) : (j.loc || '');
-    // v2.5.9 · multi-day badge inside date-block
-    const dayCount = (typeof getJobDayCount === 'function') ? getJobDayCount(j) : 1;
-    const multiDayBadge = dayCount > 1
-      ? `<div class="multi-day-badge">${dayCount} ${LANG === 'en' ? 'days' : 'วัน'}</div>`
-      : '';
+    // v2.5.10 · multi-day · show date range "14-15" in date-block
+    let dayHtml, monthHtml = MONTHS_TH_SHORT[dp.m], rangeCls = '';
+    const dates = (j.sessions || []).map(s => s && s.date).filter(Boolean);
+    const uniqueDates = Array.from(new Set(dates)).sort();
+    if (uniqueDates.length > 1) {
+      const firstD = new Date(uniqueDates[0]);
+      const lastD = new Date(uniqueDates[uniqueDates.length - 1]);
+      const firstDay = firstD.getDate();
+      const lastDay  = lastD.getDate();
+      const sameMonth = firstD.getMonth() === lastD.getMonth() && firstD.getFullYear() === lastD.getFullYear();
+      if (sameMonth) {
+        dayHtml = firstDay + '–' + lastDay;
+        monthHtml = MONTHS_TH_SHORT[firstD.getMonth()];
+      } else {
+        // Cross-month: show "14 พย.–1 ธค."
+        dayHtml = firstDay + ' ' + MONTHS_TH_SHORT[firstD.getMonth()] + '–' + lastDay;
+        monthHtml = MONTHS_TH_SHORT[lastD.getMonth()];
+      }
+      rangeCls = ' range';
+    } else {
+      dayHtml = dp.d;
+    }
     row.innerHTML = `
-      <div class="${cls}"><div class="day">${dp.d}</div><div class="month">${MONTHS_TH_SHORT[dp.m]}</div>${multiDayBadge}</div>
+      <div class="${cls}${rangeCls}"><div class="day">${dayHtml}</div><div class="month">${monthHtml}</div></div>
       <div class="info">
         <p class="customer">${j.customer}</p>
         <p class="meta">${j.type} · ${escapeHtml(locLabel || '—')}</p>
