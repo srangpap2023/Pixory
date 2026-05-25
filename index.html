@@ -6721,7 +6721,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.2.0';
+const PIXORY_VERSION = '2.2.1';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6732,6 +6732,33 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.2.1': {
+    date: '2026-05-25',
+    title: 'ปลอดภัยขึ้น · ระบบสมัครรัดกุมขึ้น',
+    subtitle: 'แก้ตามผลตรวจ QA · เพิ่มการตรวจสอบหลายจุด',
+    items: [
+      {
+        icon: '🔐',
+        title: 'ตรวจสอบรหัสผ่านเข้มขึ้น',
+        desc: 'รหัสผ่านต้อง 8 ตัวอักษรขึ้นไป · มีตัวอักษร + ตัวเลข · ปลอดภัยกว่าเดิม'
+      },
+      {
+        icon: '📧',
+        title: 'ตรวจรูปแบบอีเมล',
+        desc: 'แจ้งทันทีถ้าอีเมลผิดรูปแบบ · ไม่ต้องรอ Supabase ตอบกลับ'
+      },
+      {
+        icon: '💰',
+        title: 'เตือนถ้ามัดจำสูงกว่าราคาขาย',
+        desc: 'ใบเสนอราคา · ระบบเช็คให้ว่ามัดจำไม่ผิดปกติ · ป้องกันพิมพ์ผิด'
+      },
+      {
+        icon: '💾',
+        title: 'ที่เก็บข้อมูลเต็ม → ล้างของเก่าอัตโนมัติ',
+        desc: 'ถ้าพื้นที่เต็ม · ระบบลบ snapshot เก่าให้แล้วบันทึกใหม่ · ลดความเสี่ยงข้อมูลหาย'
+      }
+    ]
+  },
   '2.2.0': {
     date: '2026-05-25',
     title: 'สมัครเร็วขึ้น · กรอกครั้งเดียว',
@@ -8768,7 +8795,21 @@ function checkReConsentNeeded() {
   return true;
 }
 
+// v2.2.1 · C2/C3 · Defensive validation helpers
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+function isValidEmail(email) { return EMAIL_REGEX.test(String(email || '').trim()); }
+function isStrongPassword(pw) {
+  if (!pw || pw.length < 8) return { ok: false, reason: 'รหัสผ่านต้องอย่างน้อย 8 ตัวอักษร' };
+  if (!/[A-Z]/.test(pw) && !/[a-z]/.test(pw)) return { ok: false, reason: 'รหัสผ่านต้องมีตัวอักษร (a-z หรือ A-Z)' };
+  if (!/[0-9]/.test(pw)) return { ok: false, reason: 'รหัสผ่านต้องมีตัวเลขอย่างน้อย 1 ตัว' };
+  if (/^(password|123456|12345678|qwerty)$/i.test(pw)) return { ok: false, reason: 'รหัสผ่านนี้พบบ่อยเกินไป · กรุณาตั้งใหม่' };
+  return { ok: true };
+}
+let _signupInProgress = false; // Race-condition guard
+
 async function doSignup() {
+  // v2.2.1 · Prevent double-submit race
+  if (_signupInProgress) return;
   clearAuthMsg('signup');
   const email = (document.getElementById('signup-email').value || '').trim();
   const pw = document.getElementById('signup-password').value || '';
@@ -8779,11 +8820,17 @@ async function doSignup() {
   const phone = phoneEl ? (phoneEl.value || '').trim() : '';
   const line  = lineEl  ? (lineEl.value  || '').trim() : '';
   const consentEl = document.getElementById('signup-consent');
-  const consented = !!(consentEl && consentEl.checked);
+  // v2.2.1 · C2 · Defensive consent check · re-validate just before API call
+  const consented = !!(consentEl && consentEl.checked && consentEl.offsetParent !== null);
   if (!email || !pw) { setAuthError('signup', 'กรุณากรอกอีเมลและรหัสผ่าน'); return; }
-  if (pw.length < 6) { setAuthError('signup', 'รหัสผ่านต้องอย่างน้อย 6 ตัวอักษร'); return; }
+  // v2.2.1 · C3 · Email format
+  if (!isValidEmail(email)) { setAuthError('signup', 'รูปแบบอีเมลไม่ถูกต้อง · ตัวอย่าง you@example.com'); return; }
+  // v2.2.1 · C3 · Password strength
+  const pwCheck = isStrongPassword(pw);
+  if (!pwCheck.ok) { setAuthError('signup', pwCheck.reason); return; }
   if (!consented) { setAuthError('signup', 'กรุณาอ่านและยอมรับข้อกำหนดการใช้บริการและนโยบายความเป็นส่วนตัวก่อนสมัคร'); return; }
   if (!SUPABASE) { setAuthError('signup', 'ระบบสมัครยังไม่พร้อม · ลองอีกครั้ง'); return; }
+  _signupInProgress = true;
   const btn = document.getElementById('signup-btn');
   btn.disabled = true; btn.textContent = 'กำลังสมัคร...';
   const consentedAt = new Date().toISOString();
@@ -8834,6 +8881,8 @@ async function doSignup() {
   } catch(e) {
     setAuthError('signup', 'เกิดข้อผิดพลาด: ' + (e.message || e));
     btn.disabled = false; btn.textContent = t('auth.signupBtn');
+  } finally {
+    _signupInProgress = false;
   }
 }
 
@@ -9406,12 +9455,35 @@ function saveData() {
     try {
       localStorage.setItem(STORAGE_KEY, serialized);
     } catch (quotaErr) {
-      // v1.9.39 · localStorage quota exceeded — warn user (data still in memory + cloud)
-      console.warn('localStorage quota exceeded:', quotaErr);
-      if (typeof toast === 'function') {
-        toast('⚠️ ที่เก็บข้อมูลในเครื่องเต็ม · ลอง Export Backup + ลบงานเก่า · ข้อมูลยังอยู่ใน Cloud');
+      // v2.2.1 · C5 · Quota auto-cleanup → retry → final fallback
+      console.warn('localStorage quota exceeded · attempting cleanup:', quotaErr);
+      let _recovered = false;
+      try {
+        // Step 1 · Remove old backup snapshots (Pixory keeps them with timestamp suffix)
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          // Pixory backup snapshots · old user data from previous logins · debug logs
+          if (k && (k.startsWith('pixory.backup.') || k.startsWith('pixory.snapshot.') || k.startsWith('pixory_old_') || k.includes('.log.'))) {
+            keysToRemove.push(k);
+          }
+        }
+        keysToRemove.forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
+        // Step 2 · Retry save
+        localStorage.setItem(STORAGE_KEY, serialized);
+        _recovered = true;
+        console.warn('quota recovery succeeded · removed ' + keysToRemove.length + ' old entries');
+        if (typeof toast === 'function') {
+          toast('✓ ที่เก็บข้อมูลเต็ม · ล้างของเก่าแล้ว · บันทึกสำเร็จ');
+        }
+      } catch (retryErr) {
+        // Step 3 · Still failing · explicit data-loss warning
+        console.error('quota retry also failed:', retryErr);
+        if (typeof toast === 'function') {
+          toast('⚠️ ที่เก็บข้อมูลในเครื่องเต็ม · การบันทึกล่าสุดอาจไม่สำเร็จ · กรุณา Export Backup ทันที + ลบงานเก่าที่ไม่จำเป็น');
+        }
       }
-      // Don't throw — continue with cloud push
+      // Always continue · cloud sync may still succeed
     }
     // Trigger debounced cloud sync (no-op if not logged in)
     if (typeof debouncedCloudPush === 'function') debouncedCloudPush();
@@ -15819,6 +15891,20 @@ function updateNQTotal() {
 function saveNewQuote(status) {
   const customer = document.getElementById('nq-customer').value.trim();
   if (!customer) { toast(t('toast.errNameRequired')); return; }
+  // v2.2.1 · C4 · Validate deposit doesn't exceed sell amount
+  const _depositCheck = parseFloat(document.getElementById('nq-deposit').value) || 0;
+  const _discCheck = parseFloat((document.getElementById('nq-discount')||{}).value) || 0;
+  // Pre-compute sell to compare against deposit
+  let _totalCheck = 0;
+  Object.values(NQ_SELECTED).forEach(s => _totalCheck += (s.price || 0));
+  Object.values(NQ_ADDONS).forEach(p => _totalCheck += p);
+  _totalCheck += _customTotal('nq');
+  _totalCheck += (typeof _costsTotal === 'function') ? _costsTotal('nq') : 0;
+  _totalCheck += parseFloat((document.getElementById('nq-extratime')||{}).value) || 0;
+  const _sellCheck = Math.max(0, _totalCheck - _discCheck);
+  if (_depositCheck > _sellCheck && _sellCheck > 0) {
+    if (!confirm('⚠ มัดจำ (฿' + Math.round(_depositCheck).toLocaleString() + ') มากกว่าราคาขาย (฿' + Math.round(_sellCheck).toLocaleString() + ')\n\nต้องการบันทึกอยู่หรือไม่?')) return;
+  }
   const nick = (document.getElementById('nq-nick')||{}).value || '';
   const phone = document.getElementById('nq-phone').value || '';
   const line = document.getElementById('nq-line').value || '';
