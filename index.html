@@ -3649,6 +3649,15 @@
         <label data-i18n="auth.studioName">ชื่อสตูดิโอ <span style="color:#a89a8c; font-weight:400;">(ไม่บังคับ)</span></label>
         <input type="text" id="signup-studio" autocomplete="organization" placeholder="เช่น SRANGPAP WEDDING">
       </div>
+      <!-- v2.2.0 · Phone + LINE · auto-filled into PROFILE on first init -->
+      <div class="auth-field">
+        <label>📱 เบอร์โทร <span style="color:#a89a8c; font-weight:400;">(ไม่บังคับ)</span></label>
+        <input type="tel" id="signup-phone" autocomplete="tel" inputmode="tel" placeholder="081-234-5678">
+      </div>
+      <div class="auth-field">
+        <label>💬 LINE <span style="color:#a89a8c; font-weight:400;">(ไม่บังคับ)</span></label>
+        <input type="text" id="signup-line" autocomplete="off" placeholder="@yourstudio">
+      </div>
       <div class="auth-consent">
         <input type="checkbox" id="signup-consent" onchange="updateSignupBtnState()">
         <label for="signup-consent">
@@ -6712,7 +6721,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.1.2';
+const PIXORY_VERSION = '2.2.0';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6723,6 +6732,23 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.2.0': {
+    date: '2026-05-25',
+    title: 'สมัครเร็วขึ้น · กรอกครั้งเดียว',
+    subtitle: 'เพิ่มช่องเบอร์โทร + LINE ในหน้าสมัคร · กรอกแล้วไม่ต้องไปกรอกซ้ำที่ตั้งค่า',
+    items: [
+      {
+        icon: '📱',
+        title: 'เพิ่มเบอร์โทร + LINE ในหน้าสมัคร',
+        desc: 'ทั้ง 2 ช่องเป็น optional · กรอกแล้วระบบจะเติมให้อัตโนมัติในหน้า "ข้อมูลบริษัท" · ไม่ต้องไปกรอกซ้ำ'
+      },
+      {
+        icon: '☁️',
+        title: 'บันทึกขึ้น Cloud อัตโนมัติ',
+        desc: 'ข้อมูลถูกเก็บไว้ทั้งใน auth.users (user_metadata) และ user_data · ดูได้ทุกเครื่อง · กู้คืนได้ถ้าลบเครื่อง'
+      }
+    ]
+  },
   '2.1.2': {
     date: '2026-05-24',
     title: 'ปรับปรุงเล็กน้อย',
@@ -8747,6 +8773,11 @@ async function doSignup() {
   const email = (document.getElementById('signup-email').value || '').trim();
   const pw = document.getElementById('signup-password').value || '';
   const studio = (document.getElementById('signup-studio').value || '').trim();
+  // v2.2.0 · Optional contact fields · auto-fill into PROFILE later
+  const phoneEl = document.getElementById('signup-phone');
+  const lineEl  = document.getElementById('signup-line');
+  const phone = phoneEl ? (phoneEl.value || '').trim() : '';
+  const line  = lineEl  ? (lineEl.value  || '').trim() : '';
   const consentEl = document.getElementById('signup-consent');
   const consented = !!(consentEl && consentEl.checked);
   if (!email || !pw) { setAuthError('signup', 'กรุณากรอกอีเมลและรหัสผ่าน'); return; }
@@ -8761,6 +8792,8 @@ async function doSignup() {
       email, password: pw,
       options: { data: {
         studio_name: studio,
+        signup_phone: phone,
+        signup_line: line,
         consented_at: consentedAt,
         consent_version: CONSENT_VERSION,
         consent_terms: true,
@@ -8781,6 +8814,8 @@ async function doSignup() {
         id: data.user.id,
         email: data.user.email,
         signupStudio: studio,
+        signupPhone: phone,
+        signupLine: line,
         signupConsent: { consentedAt: consentedAt, version: CONSENT_VERSION, terms: true, privacy: true }
       };
       // v2.1.2 · Notify admin (Joe) of new signup · fire-and-forget
@@ -19403,6 +19438,24 @@ async function initAfterAuth() {
       saveData();
     }
   } catch(e) { console.warn('consent persist failed', e); }
+  // v2.2.0 · Auto-fill PROFILE from signup form (phone + LINE)
+  // Only fill if PROFILE field is empty · don't overwrite if user already edited
+  try {
+    let _profileChanged = false;
+    if (CURRENT_USER && CURRENT_USER.signupPhone && !PROFILE.phone) {
+      PROFILE.phone = CURRENT_USER.signupPhone;
+      _profileChanged = true;
+    }
+    if (CURRENT_USER && CURRENT_USER.signupLine && !PROFILE.line) {
+      PROFILE.line = CURRENT_USER.signupLine;
+      _profileChanged = true;
+    }
+    if (CURRENT_USER && CURRENT_USER.signupStudio && !PROFILE.shop) {
+      PROFILE.shop = CURRENT_USER.signupStudio;
+      _profileChanged = true;
+    }
+    if (_profileChanged) saveData();
+  } catch(e) { console.warn('profile autofill failed', e); }
   // v1.9.43 · Check if existing user needs to re-consent (signed up pre-v1.9.42)
   // Delay slightly to let UI settle before showing blocking modal
   try {
