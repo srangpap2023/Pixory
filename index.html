@@ -587,9 +587,13 @@
   .session-block-fields { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 6px; margin-bottom: 6px; }
   .session-block-fields input { padding: 7px 8px; font-size: 12px; border: 0.5px solid #d1d5db; border-radius: 6px; background: white; }
   .session-block-note { width: 100%; padding: 6px 8px; font-size: 12px; border: 0.5px solid #d1d5db; border-radius: 6px; background: white; }
+  /* v2.5.2 · per-session location field */
+  .session-block-loc { width: 100%; padding: 6px 8px 6px 28px; font-size: 12px; border: 0.5px solid #d1d5db; border-radius: 6px; background: white url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237c7066' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z'/><circle cx='12' cy='9' r='3'/></svg>") no-repeat 8px center; }
   body.dark-theme .session-block { background: #1f1f1f; border-color: #2a2a2a; }
   body.dark-theme .session-block-fields input,
-  body.dark-theme .session-block-note { background: #2a2a2a; color: #f5f5f5; border-color: #3a3a3a; }
+  body.dark-theme .session-block-note,
+  body.dark-theme .session-block-loc { background: #2a2a2a; color: #f5f5f5; border-color: #3a3a3a; }
+  body.dark-theme .session-block-loc { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23a8a29e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z'/><circle cx='12' cy='9' r='3'/></svg>"); background-repeat: no-repeat; background-position: 8px center; background-color: #2a2a2a; }
   .btn.secondary { background: white; color: #3a2f25; border: 0.5px solid #d1d5db; }
   .btn.danger { background: #dc2626; }
 
@@ -4310,10 +4314,8 @@
             <span data-i18n="aj.addSession">เพิ่มช่วงเวลา</span>
           </button>
         </div>
-        <div class="form-group" style="margin: 0;">
-          <label data-i18n="lbl.location">สถานที่</label>
-          <input type="text" id="add-location" data-i18n-attr="placeholder" data-i18n="aj.placeholderLocFull" placeholder="เช่น โรงแรมนภาลัย อุดรธานี">
-        </div>
+        <!-- v2.5.2 · top-level สถานที่ removed · loc now per-session inside session block. Hidden input kept so legacy code that reads add-location.value doesn't crash. -->
+        <input type="hidden" id="add-location" value="">
       </div>
 
       <!-- v1.9.19 · แพคเกจหลัก -->
@@ -5063,10 +5065,8 @@
             <span data-i18n="aj.addSession">เพิ่มช่วงเวลา</span>
           </button>
         </div>
-        <div class="form-group" style="margin: 0 0 10px;">
-          <label data-i18n="lbl.location">สถานที่</label>
-          <input type="text" id="nq-loc" data-i18n-attr="placeholder" data-i18n="aj.placeholderLoc" placeholder="จังหวัด/สถานที่">
-        </div>
+        <!-- v2.5.2 · top-level สถานที่ removed · loc now per-session inside session block. Hidden input kept so legacy code that reads nq-loc.value doesn't crash. -->
+        <input type="hidden" id="nq-loc" value="">
       </div>
 
       <!-- v1.9.19 · แพคเกจหลัก -->
@@ -6909,7 +6909,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.1';
+const PIXORY_VERSION = '2.5.2';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6920,6 +6920,23 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.2': {
+    date: '2026-05-25',
+    title: 'แต่ละช่วงเวลามีสถานที่ของตัวเองได้',
+    subtitle: 'งานเช้าที่นึง · งานเย็นอีกที่นึง · ไม่ต้องสร้างแยก 2 งาน',
+    items: [
+      {
+        icon: '📍',
+        title: 'ใส่สถานที่แยกในแต่ละช่วงเวลาได้',
+        desc: 'หน้าสร้างงาน/ใบเสนอ · ช่อง "สถานที่" ย้ายมาอยู่ในแต่ละช่วง · พิมพ์เอง หรือเว้นว่างไว้ก็ได้ · ช่วงใหม่จะลอกจากช่วงก่อนหน้าให้อัตโนมัติ'
+      },
+      {
+        icon: '🗂',
+        title: 'หน้ารายการงาน · แสดง +N ที่อีก',
+        desc: 'ถ้างานมี 2 ที่ จะเห็น "The Athenee · +1 ที่อีก" บนการ์ด · กดเข้าไปดูครบในรายละเอียดงาน'
+      }
+    ]
+  },
   '2.5.0': {
     date: '2026-05-25',
     title: 'หน้า "งาน" จัดใหม่หมด · ตามงานง่ายขึ้น',
@@ -11961,11 +11978,13 @@ function renderJobs(list, container) {
     const row = document.createElement('div');
     row.className = 'job-row';
     row.onclick = () => openJob(j.code);
+    // v2.5.2 · show multi-loc indicator in card meta
+    const locLabel = (typeof getJobLocationLabel === 'function') ? getJobLocationLabel(j) : (j.loc || '');
     row.innerHTML = `
       <div class="${cls}"><div class="day">${dp.d}</div><div class="month">${MONTHS_TH_SHORT[dp.m]}</div></div>
       <div class="info">
         <p class="customer">${j.customer}</p>
-        <p class="meta">${j.type} · ${j.loc}</p>
+        <p class="meta">${j.type} · ${escapeHtml(locLabel || '—')}</p>
         ${countdown}
         <div class="price">${fmt(j.sell)} ${remainHtml}</div>
       </div>
@@ -11994,14 +12013,19 @@ function renderJobSessionsList(j) {
     const hrs = calcSessionHours(s);
     totalHours += hrs;
     const ico = getSessionIcon(idx);
+    // v2.5.2 · show per-session location if set
+    const locLine = s.loc && s.loc.trim()
+      ? `<div style="font-size:12px; color:#7c7066; margin-top:3px; display:flex; align-items:center; gap:4px;"><span style="font-size:11px;">📍</span><span>${escapeHtml(s.loc)}</span></div>`
+      : '';
     html += `<div style="display:flex; gap:10px; padding:8px 0; ${idx < sessions.length - 1 ? 'border-bottom:0.5px solid #f3f4f6;' : ''}">
       <div style="width:50px; text-align:center; background:${idx === 0 ? '#E1F5EE' : '#FEF3C7'}; padding:6px 4px; border-radius:8px; flex-shrink:0;">
         <div style="font-size:14px; font-weight:600; color:${idx === 0 ? '#0F6E56' : '#92400e'};">${dp.d}</div>
         <div style="font-size:9px; color:${idx === 0 ? '#0F6E56' : '#92400e'};">${MONTHS_TH_SHORT[dp.m]}</div>
       </div>
       <div style="flex:1; min-width:0;">
-        <div style="font-size:13px; font-weight:500;">${ico} ${s.label || 'ช่วงที่ ' + (idx+1)}</div>
+        <div style="font-size:13px; font-weight:500;">${ico} ${escapeHtml(s.label || 'ช่วงที่ ' + (idx+1))}</div>
         <div style="font-size:12px; color:#7c7066; margin-top:2px;">${s.start} – ${s.end} · ${hrs} ชม.</div>
+        ${locLine}
       </div>
     </div>`;
   });
@@ -14501,7 +14525,11 @@ function editCurrentJob() {
   if (typeof renderJobBillableBanner === 'function') renderJobBillableBanner(j);
   ADD_TEAM = new Set(j.team || []);
   ADD_TEAM_WAGES = j.teamWages ? {...j.teamWages} : {};
+  // v2.5.2 · ensure session 1 has loc populated from legacy j.loc
   ADD_SESSIONS = getJobSessions(j).map(s => ({...s}));
+  if (ADD_SESSIONS.length > 0 && !ADD_SESSIONS[0].loc && j.loc && j.loc !== '-') {
+    ADD_SESSIONS[0].loc = j.loc;
+  }
   // Populate form
   document.getElementById('add-screen-title').textContent = 'แก้ไขงาน';
   document.getElementById('add-save-btn').textContent = 'บันทึกการแก้ไข';
@@ -14692,7 +14720,8 @@ function collectAddFormData() {
     dateDeposit: (window._currentJob && window._currentJob.dateDeposit) || new Date().toISOString().slice(0,10),
     sessions: ADD_SESSIONS.map(s => ({...s})),
     type,
-    loc: document.getElementById('add-location').value || '-',
+    // v2.5.2 · top-level loc derived from session 1 (kept for backward compat with code that reads j.loc)
+    loc: (ADD_SESSIONS[0] && ADD_SESSIONS[0].loc) || document.getElementById('add-location').value || '-', // v2.5.2 · from session 1
     start: parseInt(startTime.split(':')[0], 10),
     end: parseInt(endTime.split(':')[0], 10),
     team: Array.from(ADD_TEAM),
@@ -15612,7 +15641,11 @@ function editCurrentQuote() {
   if (q.sessions && q.sessions.length) {
     q.sessions.forEach(s => NQ_SESSIONS.push({...s}));
   } else {
-    NQ_SESSIONS.push({ date: q.dateEvent || new Date().toISOString().slice(0,10), start: '14:00', end: '22:00', label: '' });
+    NQ_SESSIONS.push({ date: q.dateEvent || new Date().toISOString().slice(0,10), start: '14:00', end: '22:00', label: '', loc: '' });
+  }
+  // v2.5.2 · ensure session 1 has loc populated from legacy q.loc
+  if (NQ_SESSIONS.length > 0 && !NQ_SESSIONS[0].loc && q.loc && q.loc !== '-') {
+    NQ_SESSIONS[0].loc = q.loc;
   }
   // Quote code displayed (read-only — preserve)
   document.getElementById('new-quote-code').textContent = q.code;
@@ -16456,7 +16489,7 @@ function saveNewQuote(status) {
       contact: phone,
       line: line,
       type: typeEl ? typeEl.textContent.trim() : (old.type || 'Wedding'),
-      loc: document.getElementById('nq-loc').value || '-',
+      loc: (NQ_SESSIONS[0] && NQ_SESSIONS[0].loc) || document.getElementById('nq-loc').value || '-', // v2.5.2 · from session 1
       dateEvent: (NQ_SESSIONS[0] && NQ_SESSIONS[0].date) || old.dateEvent || new Date().toISOString().slice(0,10),
       sessions: NQ_SESSIONS.map(s => ({...s})),
       dateExpire: document.getElementById('nq-expire').value,
@@ -19222,9 +19255,12 @@ function renderSessions(prefix) {
   if (!c) return;
   if (sessions.length === 0) {
     // Auto-add 1 session as default
-    sessions.push({ date: new Date().toISOString().slice(0,10), start: '14:00', end: '22:00', label: '' });
+    sessions.push({ date: new Date().toISOString().slice(0,10), start: '14:00', end: '22:00', label: '', loc: '' });
   }
   c.innerHTML = '';
+  // v2.5.2 · placeholder for loc field (i18n-aware)
+  const locPh = (LANG === 'en') ? 'Location (optional)' : 'สถานที่ (เช่น The Athenee Hotel)';
+  const locPhAlt = (LANG === 'en') ? 'Different location? (optional)' : 'สถานที่ (ถ้าต่างกัน · ไม่บังคับ)';
   sessions.forEach((s, idx) => {
     const block = document.createElement('div');
     block.className = 'session-block';
@@ -19238,7 +19274,8 @@ function renderSessions(prefix) {
         <input type="time" value="${s.start || ''}" onchange="updateSession('${prefix}', ${idx}, 'start', this.value)">
         <input type="time" value="${s.end || ''}" onchange="updateSession('${prefix}', ${idx}, 'end', this.value)">
       </div>
-      <input type="text" class="session-block-note" placeholder="${getSessionLabelPlaceholder(idx)}" value="${s.label || ''}" onchange="updateSession('${prefix}', ${idx}, 'label', this.value)">
+      <input type="text" class="session-block-note" placeholder="${getSessionLabelPlaceholder(idx)}" value="${escapeHtml(s.label || '')}" onchange="updateSession('${prefix}', ${idx}, 'label', this.value)">
+      <input type="text" class="session-block-loc" placeholder="${idx === 0 ? locPh : locPhAlt}" value="${escapeHtml(s.loc || '')}" onchange="updateSession('${prefix}', ${idx}, 'loc', this.value)" style="margin-top:6px;">
     `;
     c.appendChild(block);
   });
@@ -19247,10 +19284,11 @@ function renderSessions(prefix) {
 function addNewSession(prefix) {
   const sessions = sessionsArray(prefix);
   // Default new session: same date as last + after last end time + 1hr (or 17:00-22:00)
+  // v2.5.2 · inherit location from previous session (often same venue · user can override)
   const last = sessions[sessions.length - 1];
   const newSess = last
-    ? { date: last.date, start: last.end || '17:00', end: '22:00', label: '' }
-    : { date: new Date().toISOString().slice(0,10), start: '17:00', end: '22:00', label: '' };
+    ? { date: last.date, start: last.end || '17:00', end: '22:00', label: '', loc: last.loc || '' }
+    : { date: new Date().toISOString().slice(0,10), start: '17:00', end: '22:00', label: '', loc: '' };
   sessions.push(newSess);
   renderSessions(prefix);
 }
@@ -19281,9 +19319,32 @@ function getJobSessions(j) {
   if (j.sessions && j.sessions.length > 0) return j.sessions;
   // Backward compat: synthesize from date + start + end
   if (j.date) {
-    return [{ date: j.date, start: String(j.start || 14).padStart(2,'0') + ':00', end: String(j.end || 22).padStart(2,'0') + ':00', label: '' }];
+    return [{ date: j.date, start: String(j.start || 14).padStart(2,'0') + ':00', end: String(j.end || 22).padStart(2,'0') + ':00', label: '', loc: j.loc || '' }];
   }
   return [];
+}
+
+// v2.5.2 · Returns array of unique non-empty locations across all sessions of a job
+function getJobLocations(j) {
+  const sessions = getJobSessions(j);
+  const set = new Set();
+  sessions.forEach(s => { if (s.loc && s.loc.trim()) set.add(s.loc.trim()); });
+  // Fallback to top-level j.loc if no session has loc
+  if (set.size === 0 && j.loc && j.loc.trim()) set.add(j.loc.trim());
+  return Array.from(set);
+}
+
+// v2.5.2 · Get primary location label for compact display (card / calendar / lists)
+//   - 0 locs    → '' (or '—' if showFallback)
+//   - 1 loc     → 'The Athenee'
+//   - N locs    → 'The Athenee · +2 ที่อีก'
+function getJobLocationLabel(j) {
+  const locs = getJobLocations(j);
+  if (locs.length === 0) return '';
+  if (locs.length === 1) return locs[0];
+  const extra = locs.length - 1;
+  const suffix = (LANG === 'en') ? ' · +' + extra + ' more' : ' · +' + extra + ' ที่อีก';
+  return locs[0] + suffix;
 }
 
 function renderAddJobScreen() {
