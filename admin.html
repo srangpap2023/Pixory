@@ -3,88 +3,205 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>🛡 Pixory Admin</title>
+<title>🛡 Pixory Admin · Monitor</title>
 <link rel="icon" type="image/png" href="./icon-192.png">
 <style>
   :root {
-    --bg: #0d0a07;
-    --panel: rgba(26,21,16,0.72);
-    --ink: #e8ddd0;
-    --muted: #8a7d6e;
-    --accent: #d4a574;
-    --accent-dim: rgba(212,165,116,0.4);
-    --line: rgba(255,255,255,0.08);
-    --green: #22c55e;
-    --green-dim: rgba(34,197,94,0.18);
-    --gray: #6b7280;
+    --bg: #0e0a08;
+    --panel: rgba(26,18,13,0.72);
+    --ink: #f5f5f5;
+    --muted: #a89a8c;
+    --accent: #d8704a;
+    --accent-2: #f4a36a;
+    --line: rgba(216,112,74,0.15);
+    --green: #6ee0a7;
+    --yellow: #fbbf24;
     --red: #ef4444;
+    --purple: #c084fc;
   }
-  *{box-sizing:border-box;margin:0;padding:0;font-family:'IBM Plex Sans Thai','SF Pro Text','Sukhumvit Set',system-ui,sans-serif}
-  body{background:var(--bg);color:var(--ink);min-height:100vh;padding:0;overflow-x:hidden}
-
-  /* Background gradient */
-  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top, rgba(212,165,116,0.06), transparent 60%), radial-gradient(ellipse at bottom right, rgba(212,165,116,0.04), transparent 50%);z-index:-1;pointer-events:none}
-
-  .topbar{background:rgba(13,10,7,0.78);backdrop-filter:blur(20px);border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
-  .topbar .brand{font-size:16px;font-weight:700;color:var(--ink)}
-  .topbar .brand .icon{color:var(--accent);margin-right:6px}
-  .topbar .meta{font-size:11.5px;color:var(--muted)}
-
-  .container{max-width:920px;margin:0 auto;padding:20px 16px 60px}
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Sarabun", -apple-system, sans-serif; }
+  body { background: var(--bg); color: var(--ink); min-height: 100vh; padding: 16px; }
+  body::before { content: ''; position: fixed; inset: 0;
+    background: radial-gradient(ellipse at top, rgba(216,112,74,.08), transparent 60%),
+                radial-gradient(ellipse at bottom right, rgba(216,112,74,.04), transparent 50%);
+    z-index: -1; pointer-events: none; }
 
   /* === Login screen === */
-  .login-wrap{display:flex;align-items:center;justify-content:center;min-height:80vh;padding:20px}
-  .login-card{width:100%;max-width:360px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:28px 22px;backdrop-filter:blur(20px)}
-  .login-card .logo{text-align:center;font-size:36px;margin-bottom:6px}
-  .login-card .title{text-align:center;font-size:18px;font-weight:700;margin-bottom:4px}
-  .login-card .sub{text-align:center;font-size:12px;color:var(--muted);margin-bottom:22px}
-  .field{margin-bottom:14px}
-  .field label{display:block;font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
-  .field input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:var(--ink);font-size:14px;outline:none;font-family:inherit}
-  .field input:focus{border-color:var(--accent-dim);background:rgba(255,255,255,0.06)}
-  .btn-primary{width:100%;background:linear-gradient(135deg,var(--accent),#b88a55);color:#1a1410;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px}
-  .btn-primary:hover{opacity:0.94}
-  .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
-  .login-error{margin-top:12px;padding:9px 12px;border-radius:10px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;font-size:12px;display:none}
+  .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 80vh; padding: 20px; }
+  .login-card { width: 100%; max-width: 380px; background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 28px 22px; backdrop-filter: blur(20px); }
+  .login-card .logo { text-align: center; font-size: 36px; margin-bottom: 6px; }
+  .login-card .title { text-align: center; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .login-card .sub { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 22px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 11.5px; color: var(--muted); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .field input { width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px; color: var(--ink); font-size: 14px; outline: none; font-family: inherit; }
+  .field input:focus { border-color: var(--accent); background: rgba(255,255,255,.06); }
+  .btn-primary { width: 100%; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: white; border: none; border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 6px; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .login-error { margin-top: 12px; padding: 9px 12px; border-radius: 10px; background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; font-size: 12px; display: none; }
 
   /* === Dashboard === */
-  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px}
-  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;backdrop-filter:blur(20px)}
-  .kpi .lbl{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.4px}
-  .kpi .val{font-size:22px;font-weight:700;color:var(--ink);margin-top:6px}
-  .kpi .val .unit{font-size:12px;color:var(--muted);font-weight:500;margin-left:4px}
+  .dashboard { max-width: 1440px; margin: 0 auto; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; margin-bottom: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; backdrop-filter: blur(20px); }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-logo { width: 38px; height: 38px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); border-radius: 11px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+  .brand-title { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; }
+  .brand-title .pill { font-size: 10px; color: var(--accent-2); background: rgba(216,112,74,.2); padding: 2px 7px; border-radius: 5px; margin-left: 6px; font-weight: 700; }
+  .brand-sub { font-size: 9.5px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-top: 1px; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--muted); }
+  .topbar-right .status { font-family: "JetBrains Mono", monospace; }
+  .topbar-right .live { color: var(--green); font-weight: 700; }
+  .btn-mini { background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 8px; padding: 6px 11px; font-size: 11.5px; color: var(--ink); cursor: pointer; font-family: inherit; font-weight: 600; }
+  .btn-mini:hover { background: rgba(216,112,74,.15); }
+  .btn-logout { color: #fca5a5; border-color: rgba(239,68,68,.25); }
 
-  .controls{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-  .controls .updated{font-size:11.5px;color:var(--muted)}
-  .btn-mini{background:rgba(255,255,255,0.05);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:12px;color:var(--ink);cursor:pointer;font-family:inherit;font-weight:600}
-  .btn-mini:hover{background:rgba(255,255,255,0.08)}
-  .btn-logout{color:#fca5a5;border-color:rgba(239,68,68,0.25)}
+  /* North star */
+  .north-star { background: linear-gradient(135deg, rgba(216,112,74,.2), rgba(216,112,74,.06)); border: 1px solid rgba(216,112,74,.35); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px; display: flex; align-items: center; gap: 20px; position: relative; overflow: hidden; }
+  .north-star::after { content: '⭐'; position: absolute; top: 50%; right: 26px; transform: translateY(-50%); font-size: 64px; opacity: .15; }
+  .ns-label { font-size: 10px; color: var(--accent-2); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+  .ns-title { font-size: 14px; color: white; font-weight: 600; margin-bottom: 8px; }
+  .ns-value { font-size: 48px; font-weight: 800; line-height: 1; letter-spacing: -1.5px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .ns-unit { font-size: 15px; color: var(--accent-2); margin-left: 6px; font-weight: 600; }
+  .ns-trend { font-size: 12px; color: var(--green); margin-top: 4px; font-weight: 600; }
 
-  .users-list{display:grid;gap:10px}
-  .user-row{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;backdrop-filter:blur(20px);display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
-  .status-dot{width:10px;height:10px;border-radius:50%;background:var(--gray);box-shadow:0 0 0 0 currentColor;flex-shrink:0}
-  .status-dot.online{background:var(--green);box-shadow:0 0 8px var(--green-dim)}
-  .user-info .shop{font-size:14px;font-weight:700;color:var(--ink);word-break:break-word}
-  .user-info .shop.empty{color:var(--muted);font-weight:500;font-style:italic}
-  .user-info .email{font-size:12px;font-weight:500;color:var(--accent);word-break:break-all;margin-top:3px}
-  .user-info .email.fallback{color:var(--muted);font-family:ui-monospace,monospace;font-size:11px}
-  .user-info .profile-email{font-size:11px;color:var(--muted);word-break:break-all;margin-top:2px}
-  .user-info .meta{font-size:11px;color:var(--muted);margin-top:6px;display:flex;flex-wrap:wrap;gap:6px 12px}
-  .user-info .meta .item{display:inline-flex;align-items:center;gap:3px}
-  .user-info .meta .item.old-version{color:#fbbf24}
-  .last-seen{font-size:11.5px;color:var(--muted);text-align:right;white-space:nowrap}
-  .last-seen.online{color:var(--green);font-weight:600}
+  /* KPI grid */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px; backdrop-filter: blur(20px); }
+  .kpi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; margin-bottom: 4px; }
+  .kpi-value { font-size: 26px; font-weight: 800; color: white; letter-spacing: -1px; line-height: 1; }
+  .kpi-sub { font-size: 10px; color: var(--muted); margin-top: 4px; }
+  .kpi-sub.up { color: var(--green); }
+  .kpi-sub.warn { color: var(--yellow); }
+  .kpi-sub.bad { color: var(--red); }
 
-  .empty{text-align:center;padding:60px 20px;color:var(--muted)}
-  .empty .icon{font-size:42px;margin-bottom:10px;opacity:0.5}
-  .empty .title{font-size:14px;font-weight:600;margin-bottom:4px}
-  .empty .sub{font-size:12px}
+  /* Sections */
+  .section-title { font-size: 12px; font-weight: 700; color: white; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .section-title .badge { background: rgba(216,112,74,.2); color: var(--accent-2); padding: 1px 8px; border-radius: 50px; font-size: 10px; font-weight: 700; }
 
-  .footer-note{margin-top:30px;font-size:10.5px;color:var(--muted);text-align:center;line-height:1.6}
+  /* Stage cards */
+  .stage-block { display: flex; gap: 14px; margin-bottom: 16px; align-items: stretch; }
+  .stage-donut-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
+  .stage-donut { width: 96px; height: 96px; border-radius: 50%; position: relative; flex-shrink: 0; }
+  .stage-donut::after { content: ''; position: absolute; inset: 18%; background: var(--bg); border-radius: 50%; }
+  .donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; }
+  .donut-num { font-size: 24px; font-weight: 800; color: white; line-height: 1; }
+  .donut-label { font-size: 8px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+  .stage-grid { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .stage-card { background: var(--panel); border-radius: 12px; padding: 12px 14px; border: 1px solid; backdrop-filter: blur(20px); }
+  .stage-card.ghost { border-color: rgba(239,68,68,.3); background: rgba(239,68,68,.07); }
+  .stage-card.tire { border-color: rgba(251,191,36,.3); background: rgba(251,191,36,.07); }
+  .stage-card.active { border-color: rgba(110,224,167,.3); background: rgba(110,224,167,.07); }
+  .stage-card.champion { border-color: rgba(192,132,252,.3); background: rgba(192,132,252,.07); }
+  .stage-emoji { font-size: 22px; margin-bottom: 4px; }
+  .stage-name { font-size: 11px; font-weight: 700; color: white; margin-bottom: 4px; }
+  .stage-count { font-size: 26px; font-weight: 800; line-height: 1; letter-spacing: -1px; }
+  .stage-card.ghost .stage-count { color: var(--red); }
+  .stage-card.tire .stage-count { color: var(--yellow); }
+  .stage-card.active .stage-count { color: var(--green); }
+  .stage-card.champion .stage-count { color: var(--purple); }
+  .stage-desc { font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+  .stage-pct { font-size: 10px; color: var(--accent-2); margin-top: 2px; font-weight: 600; }
 
-  @media (max-width:480px){
-    .user-row{grid-template-columns:auto 1fr;row-gap:6px}
-    .last-seen{grid-column:2/3;text-align:left}
+  /* Row · 2 columns */
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+
+  /* Funnel */
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; backdrop-filter: blur(20px); }
+  .funnel-step { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.06); }
+  .funnel-step:last-child { border-bottom: none; }
+  .funnel-num { width: 22px; height: 22px; background: rgba(216,112,74,.25); color: var(--accent-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+  .funnel-label { flex: 1; font-size: 12px; color: white; }
+  .funnel-bar-wrap { flex: 2; background: rgba(255,255,255,.06); border-radius: 6px; height: 18px; position: relative; overflow: hidden; min-width: 80px; }
+  .funnel-bar { height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); border-radius: 6px; display: flex; align-items: center; padding-left: 8px; color: white; font-size: 10px; font-weight: 700; transition: width .3s; }
+  .funnel-pct { flex: 0 0 48px; text-align: right; font-size: 12px; font-weight: 700; color: var(--accent-2); }
+  .funnel-drop { flex: 0 0 64px; font-size: 10px; color: var(--red); font-weight: 600; text-align: right; }
+
+  /* Insights */
+  .insight-list { display: flex; flex-direction: column; gap: 8px; }
+  .insight-item { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: #d4c8b8; line-height: 1.5; }
+  .insight-icon { flex-shrink: 0; font-size: 14px; }
+  .insight-item b { color: var(--accent-2); font-weight: 700; }
+
+  /* Champion / At-risk panel */
+  .panel.champion-panel { border-color: rgba(192,132,252,.3); background: linear-gradient(135deg, rgba(192,132,252,.08), rgba(192,132,252,.03)); }
+  .panel.risk-panel { border-color: rgba(239,68,68,.3); background: linear-gradient(135deg, rgba(239,68,68,.08), rgba(239,68,68,.03)); }
+  .panel-title { font-size: 12px; font-weight: 700; color: white; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .panel-title .count { background: rgba(255,255,255,.1); padding: 1px 7px; border-radius: 50px; font-size: 10px; margin-left: 4px; }
+  .mini-user { display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 5px; background: rgba(0,0,0,.25); border-radius: 8px; }
+  .mini-user:last-child { margin-bottom: 0; }
+  .avatar { width: 30px; height: 30px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 800; flex-shrink: 0; text-transform: uppercase; }
+  .avatar.purple { background: linear-gradient(135deg, var(--purple), #a855f7); }
+  .avatar.red { background: linear-gradient(135deg, #fca5a5, var(--red)); }
+  .mini-info { flex: 1; min-width: 0; }
+  .mini-name { font-size: 12px; font-weight: 700; color: white; }
+  .mini-detail { font-size: 10px; color: var(--muted); margin-top: 1px; }
+  .mini-action-btn { background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: white; border: none; padding: 5px 11px; border-radius: 7px; font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit; flex-shrink: 0; }
+  .mini-action-btn.purple { background: linear-gradient(135deg, var(--purple), #a855f7); }
+
+  /* User table */
+  .table-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; backdrop-filter: blur(20px); }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th { background: rgba(0,0,0,.3); color: var(--accent-2); font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; padding: 10px 12px; text-align: left; font-weight: 700; border-bottom: 1px solid var(--line); }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: background .15s; }
+  tbody tr:hover { background: rgba(216,112,74,.04); }
+  td { padding: 10px 12px; color: var(--ink); vertical-align: middle; }
+  .stage-tag { display: inline-block; padding: 2px 8px; border-radius: 50px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+  .stage-tag.ghost { background: rgba(239,68,68,.2); color: #fca5a5; }
+  .stage-tag.tire { background: rgba(251,191,36,.2); color: #fde68a; }
+  .stage-tag.active { background: rgba(110,224,167,.2); color: #a7f3d0; }
+  .stage-tag.champion { background: rgba(192,132,252,.2); color: #d8b4fe; }
+  .score { font-family: "JetBrains Mono", monospace; font-weight: 700; padding: 2px 7px; border-radius: 5px; font-size: 11px; }
+  .score.high { background: rgba(110,224,167,.2); color: var(--green); }
+  .score.mid { background: rgba(251,191,36,.2); color: var(--yellow); }
+  .score.low { background: rgba(239,68,68,.2); color: #fca5a5; }
+  .email-cell { font-family: ui-monospace, monospace; font-size: 10.5px; color: var(--muted); }
+  .name-cell b { color: white; font-weight: 700; }
+  .last-action { color: var(--muted); font-size: 11px; }
+  .last-action b { color: var(--accent-2); font-weight: 600; }
+  .icon-btn { width: 26px; height: 26px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 6px; color: var(--accent-2); cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; margin-right: 4px; }
+  .icon-btn:hover { background: rgba(216,112,74,.2); }
+  .online-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); margin-left: 6px; }
+  .online-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+  /* DM Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 9999; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(6px); }
+  .modal-overlay.show { display: flex; }
+  .modal-card { width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; background: #1a120d; border: 1px solid rgba(216,112,74,.3); border-radius: 18px; padding: 22px; }
+  .modal-title { font-size: 16px; font-weight: 800; color: white; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+  .modal-close { background: rgba(255,255,255,.1); border: none; color: white; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: 16px; }
+  .modal-contact-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .modal-contact-item { display: flex; gap: 8px; align-items: center; padding: 7px 10px; background: rgba(255,255,255,.04); border-radius: 8px; font-size: 12px; }
+  .modal-contact-item.missing { opacity: .4; }
+  .modal-contact-label { color: var(--muted); width: 56px; flex-shrink: 0; }
+  .modal-contact-value { color: white; font-family: ui-monospace, monospace; flex: 1; }
+  .modal-templates { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+  .tpl-btn { background: rgba(255,255,255,.06); border: 1px solid var(--line); color: var(--ink); padding: 6px 11px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .tpl-btn:hover, .tpl-btn.active { background: rgba(216,112,74,.2); border-color: var(--accent); color: var(--accent-2); }
+  .modal-textarea { width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 10px; padding: 12px; color: white; font-size: 13px; min-height: 160px; font-family: inherit; resize: vertical; outline: none; line-height: 1.5; }
+  .modal-textarea:focus { border-color: var(--accent); }
+  .modal-channels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 12px; }
+  .channel-btn { padding: 10px; background: rgba(255,255,255,.06); border: 1px solid var(--line); color: white; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; text-align: center; transition: all .15s; }
+  .channel-btn:hover { background: rgba(216,112,74,.2); border-color: var(--accent); }
+  .channel-btn:disabled { opacity: .3; cursor: not-allowed; }
+  .channel-btn .ic { font-size: 18px; display: block; margin-bottom: 3px; }
+  .channel-btn.primary { background: linear-gradient(135deg, var(--accent-2), var(--accent)); border-color: transparent; }
+  .modal-hint { font-size: 10px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+
+  .empty { text-align: center; padding: 50px 20px; color: var(--muted); }
+  .empty .icon { font-size: 42px; margin-bottom: 8px; opacity: 0.5; }
+  .empty .title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+
+  .footer-note { margin-top: 24px; font-size: 10px; color: var(--muted); text-align: center; line-height: 1.6; padding-top: 14px; border-top: 1px solid var(--line); }
+  .footer-note strong { color: var(--accent); }
+
+  @media (max-width: 768px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .stage-block { flex-direction: column; }
+    .stage-grid { grid-template-columns: repeat(2, 1fr); }
+    .row-2 { grid-template-columns: 1fr; }
+    .modal-channels { grid-template-columns: repeat(2, 1fr); }
+    table { font-size: 11px; }
+    th, td { padding: 8px 6px; }
   }
 </style>
 </head>
@@ -94,7 +211,7 @@
 <div id="login-screen" class="login-wrap">
   <div class="login-card">
     <div class="logo">🛡</div>
-    <div class="title">Pixory Admin</div>
+    <div class="title">Pixory Admin · Monitor</div>
     <div class="sub">เข้าสู่ระบบด้วยบัญชี Supabase ของแอดมิน</div>
     <form id="login-form">
       <div class="field">
@@ -113,35 +230,184 @@
 
 <!-- ===== Dashboard screen ===== -->
 <div id="dashboard-screen" style="display:none;">
-  <div class="topbar">
-    <div class="brand"><span class="icon">🛡</span>Pixory Admin</div>
-    <div class="meta" id="admin-email-display"></div>
-  </div>
-  <div class="container">
+  <div class="dashboard">
 
-    <div class="summary">
-      <div class="kpi"><div class="lbl">👥 ผู้ใช้ทั้งหมด</div><div class="val" id="kpi-users">—</div></div>
-      <div class="kpi"><div class="lbl">🟢 ออนไลน์ตอนนี้</div><div class="val" id="kpi-online">—</div></div>
-      <div class="kpi"><div class="lbl">📱 Devices รวม</div><div class="val" id="kpi-devices">—</div></div>
-      <div class="kpi"><div class="lbl">📋 งานในระบบ</div><div class="val" id="kpi-jobs">—</div></div>
-    </div>
-
-    <div class="controls">
-      <div style="display:flex;flex-direction:column;gap:2px;">
-        <div class="updated" id="updated-text">รีเฟรชล่าสุด: —</div>
-        <div class="updated" style="font-size:10.5px;color:#22c55e;" id="realtime-status">○ connecting...</div>
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-logo">🛡</div>
+        <div>
+          <div class="brand-title">Pixory <span class="pill">ADMIN</span></div>
+          <div class="brand-sub">USER MONITOR · ENGAGEMENT INSIGHTS</div>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;">
+      <div class="topbar-right">
+        <span class="status" id="time-display">—</span>
+        <span id="realtime-status">○ connecting...</span>
         <button class="btn-mini" id="refresh-btn">🔄 รีเฟรช</button>
-        <button class="btn-mini btn-logout" id="logout-btn">ออกจากระบบ</button>
+        <button class="btn-mini btn-logout" id="logout-btn">ออกระบบ</button>
       </div>
     </div>
 
-    <div id="users-list" class="users-list"></div>
+    <!-- North Star -->
+    <div class="north-star">
+      <div style="flex:1;">
+        <div class="ns-label">🌟 NORTH STAR METRIC</div>
+        <div class="ns-title">ใบเสนอที่ออกใน 7 วันล่าสุด · รวมทุก user</div>
+        <div>
+          <span class="ns-value" id="ns-value">—</span>
+          <span class="ns-unit">ใบเสนอ</span>
+        </div>
+        <div class="ns-trend" id="ns-trend">—</div>
+      </div>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-label">👥 TOTAL USERS</div>
+        <div class="kpi-value" id="kpi-users">—</div>
+        <div class="kpi-sub" id="kpi-users-sub"></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">🟢 ACTIVE TODAY</div>
+        <div class="kpi-value" id="kpi-active-today">—</div>
+        <div class="kpi-sub" id="kpi-active-sub"></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">🎯 ACTIVATION RATE</div>
+        <div class="kpi-value" id="kpi-activation">—</div>
+        <div class="kpi-sub" id="kpi-activation-sub"></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">⚠ AT RISK</div>
+        <div class="kpi-value" id="kpi-risk">—</div>
+        <div class="kpi-sub bad" id="kpi-risk-sub"></div>
+      </div>
+    </div>
+
+    <!-- Stage Classification -->
+    <div class="section-title">🏷 USER STAGE CLASSIFICATION <span class="badge" id="total-tag">—</span></div>
+    <div class="stage-block">
+      <div class="stage-donut-wrap">
+        <div class="stage-donut" id="stage-donut">
+          <div class="donut-center">
+            <div class="donut-num" id="donut-num">—</div>
+            <div class="donut-label">USERS</div>
+          </div>
+        </div>
+      </div>
+      <div class="stage-grid">
+        <div class="stage-card ghost">
+          <div class="stage-emoji">👻</div>
+          <div class="stage-name">Ghost</div>
+          <div class="stage-count" id="stage-ghost">—</div>
+          <div class="stage-pct" id="stage-ghost-pct">—</div>
+          <div class="stage-desc">ไม่กลับมา 7+ วัน</div>
+        </div>
+        <div class="stage-card tire">
+          <div class="stage-emoji">🪞</div>
+          <div class="stage-name">Tire-kicker</div>
+          <div class="stage-count" id="stage-tire">—</div>
+          <div class="stage-pct" id="stage-tire-pct">—</div>
+          <div class="stage-desc">กลับมาบ้าง · ใช้น้อย</div>
+        </div>
+        <div class="stage-card active">
+          <div class="stage-emoji">✨</div>
+          <div class="stage-name">Active</div>
+          <div class="stage-count" id="stage-active">—</div>
+          <div class="stage-pct" id="stage-active-pct">—</div>
+          <div class="stage-desc">ใช้สม่ำเสมอ · มี jobs ≥3</div>
+        </div>
+        <div class="stage-card champion">
+          <div class="stage-emoji">🚀</div>
+          <div class="stage-name">Champion</div>
+          <div class="stage-count" id="stage-champion">—</div>
+          <div class="stage-pct" id="stage-champion-pct">—</div>
+          <div class="stage-desc">ใช้หนัก · ขอ testimonial!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funnel + Insights -->
+    <div class="row-2">
+      <div class="panel">
+        <div class="section-title">📊 CONVERSION FUNNEL</div>
+        <div id="funnel-content"></div>
+      </div>
+      <div class="panel">
+        <div class="section-title">💡 SMART INSIGHTS</div>
+        <div class="insight-list" id="insights-list"></div>
+      </div>
+    </div>
+
+    <!-- Champions + At-Risk -->
+    <div class="row-2">
+      <div class="panel champion-panel">
+        <div class="panel-title">🚀 CHAMPIONS · ขอ testimonial <span class="count" id="champion-count">—</span></div>
+        <div id="champions-list"></div>
+      </div>
+      <div class="panel risk-panel">
+        <div class="panel-title">⚠️ AT-RISK · ใกล้ churn <span class="count" id="risk-count">—</span></div>
+        <div id="risk-list"></div>
+      </div>
+    </div>
+
+    <!-- User Table -->
+    <div class="section-title">👥 ALL USERS <span class="badge" id="user-count">—</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>STAGE</th>
+            <th>ผู้ใช้</th>
+            <th>เบอร์ · LINE</th>
+            <th>LAST ACTION</th>
+            <th>เข้าครั้งล่าสุด</th>
+            <th>SCORE</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody id="users-table"></tbody>
+      </table>
+    </div>
 
     <div class="footer-note">
-      Online = activity ภายใน 45 วินาทีล่าสุด · Realtime push + fallback polling ทุก 10 วินาที<br>
-      เห็นเฉพาะ summary stats · ไม่เห็นข้อมูลธุรกิจของผู้ใช้
+      <strong>POWERED BY PIXORY</strong> · Admin Monitor v1.0 · realtime + polling ทุก 10 วินาที<br>
+      เห็นเฉพาะ aggregate stats + action type (ไม่เห็นข้อมูลธุรกิจของผู้ใช้)
+    </div>
+  </div>
+</div>
+
+<!-- DM Modal -->
+<div id="dm-modal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-title">
+      <span>💬 ส่งข้อความถึง <span id="dm-user-name">—</span></span>
+      <button class="modal-close" onclick="closeDmModal()">✕</button>
+    </div>
+
+    <div class="modal-contact-list" id="dm-contacts"></div>
+
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600;">Template:</div>
+    <div class="modal-templates">
+      <button class="tpl-btn active" data-tpl="active">Active</button>
+      <button class="tpl-btn" data-tpl="reactivate">Reactivate</button>
+      <button class="tpl-btn" data-tpl="champion">Champion · ขอ Testimonial</button>
+    </div>
+
+    <textarea class="modal-textarea" id="dm-text" placeholder="ข้อความ..."></textarea>
+
+    <div style="font-size:11px;color:var(--muted);margin-top:12px;font-weight:600;">ส่งทาง:</div>
+    <div class="modal-channels">
+      <button class="channel-btn" id="ch-line" disabled><span class="ic">💬</span>LINE</button>
+      <button class="channel-btn primary" id="ch-email"><span class="ic">📧</span>Email</button>
+      <button class="channel-btn" id="ch-sms" disabled><span class="ic">📱</span>SMS</button>
+      <button class="channel-btn" id="ch-copy"><span class="ic">📋</span>Copy</button>
+    </div>
+
+    <div class="modal-hint">
+      💡 คลิก LINE/Email/SMS → จะเปิดแอพ messenger ของคุณพร้อมข้อความ pre-fill<br>
+      💡 Copy → copy ข้อความเข้า clipboard เพื่อใช้ใน FB Messenger หรืออื่นๆ
     </div>
   </div>
 </div>
@@ -149,24 +415,20 @@
 <!-- Supabase JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ⛔ STRICT RULE — DO NOT add any of the following to admin.html (ever):
-//   - Service Worker registration (do not register sw.js)
-//   - Release notes display / "What's New" modal
-//   - Auto-update banner ("New version available · click to reload")
-//   - Version check / version comparison popups
-//   - Any kind of update notification / nag
-// This page is a SILENT read-only monitoring tool · keep it that way.
-// ===== CONFIG =====
+// ⛔ STRICT RULE — DO NOT add Service Worker, version checks, or update banners to admin.html.
+// This is a SILENT read-only monitoring tool.
+
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_d_Pp52QFpipDvj4JlhCzNw_mBpgyEvE';
-const ADMIN_EMAIL  = 'srangpap2023@gmail.com';  // only this email can see all data (enforced by RLS)
-const ONLINE_THRESHOLD_SEC = 45;                // online if active within last 45 seconds
-const REFRESH_INTERVAL_MS  = 10 * 1000;         // fallback polling · realtime push handles instant updates
+const ADMIN_EMAIL  = 'srangpap2023@gmail.com';
+const ONLINE_THRESHOLD_SEC = 45;
+const REFRESH_INTERVAL_MS  = 10 * 1000;
 
 let SUPABASE = null;
-let _refreshTimer = null;
-let _realtimeChannel = null;
-let _onlineTickTimer = null;
+let _refreshTimer = null, _realtimeChannel = null, _onlineTickTimer = null, _timeTickTimer = null;
+let _lastUsers = [];
+let _dmCurrentUser = null;
+let _dmCurrentTpl = 'active';
 
 function init() {
   try {
@@ -177,16 +439,32 @@ function init() {
     showLoginError('ไม่สามารถเชื่อมต่อ Supabase: ' + e.message);
     return;
   }
-  // Check existing session
   SUPABASE.auth.getSession().then(({ data }) => {
-    if (data && data.session && data.session.user) {
-      enterDashboard(data.session.user);
-    }
+    if (data && data.session && data.session.user) enterDashboard(data.session.user);
   });
-  // Wire login form
   document.getElementById('login-form').addEventListener('submit', onLogin);
   document.getElementById('logout-btn').addEventListener('click', onLogout);
   document.getElementById('refresh-btn').addEventListener('click', () => loadDashboard(true));
+  // DM template selector
+  document.querySelectorAll('.tpl-btn').forEach(b => {
+    b.addEventListener('click', () => { setDmTemplate(b.dataset.tpl); });
+  });
+  document.getElementById('ch-line').addEventListener('click', () => sendDm('line'));
+  document.getElementById('ch-email').addEventListener('click', () => sendDm('email'));
+  document.getElementById('ch-sms').addEventListener('click', () => sendDm('sms'));
+  document.getElementById('ch-copy').addEventListener('click', () => sendDm('copy'));
+  document.getElementById('dm-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'dm-modal') closeDmModal();
+  });
+  // Live clock
+  updateClock();
+  _timeTickTimer = setInterval(updateClock, 1000);
+}
+
+function updateClock() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  document.getElementById('time-display').textContent = `${pad(d.getDate())}/${pad(d.getMonth()+1)} · ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
 async function onLogin(e) {
@@ -194,26 +472,21 @@ async function onLogin(e) {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
   const btn = document.getElementById('login-btn');
-  btn.disabled = true;
-  btn.textContent = 'กำลังเข้าสู่ระบบ...';
+  btn.disabled = true; btn.textContent = 'กำลังเข้าสู่ระบบ...';
   showLoginError('');
   try {
     const { data, error } = await SUPABASE.auth.signInWithPassword({ email, password });
     if (error) { showLoginError('Login ไม่สำเร็จ: ' + error.message); return; }
     if (!data || !data.user) { showLoginError('ไม่พบข้อมูลผู้ใช้'); return; }
     enterDashboard(data.user);
-  } catch (e) {
-    showLoginError('Error: ' + (e.message || e));
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'เข้าสู่ระบบ';
-  }
+  } catch (e) { showLoginError('Error: ' + (e.message || e)); }
+  finally { btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ'; }
 }
 
 async function onLogout() {
   try { await SUPABASE.auth.signOut(); } catch (e) {}
-  if (_refreshTimer) { clearInterval(_refreshTimer); _refreshTimer = null; }
-  if (_onlineTickTimer) { clearInterval(_onlineTickTimer); _onlineTickTimer = null; }
+  if (_refreshTimer) clearInterval(_refreshTimer);
+  if (_onlineTickTimer) clearInterval(_onlineTickTimer);
   if (_realtimeChannel) { try { SUPABASE.removeChannel(_realtimeChannel); } catch (e) {} _realtimeChannel = null; }
   document.getElementById('dashboard-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = '';
@@ -225,215 +498,461 @@ function showLoginError(msg) {
   const el = document.getElementById('login-error');
   if (!el) return;
   if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
-  el.textContent = msg;
-  el.style.display = '';
+  el.textContent = msg; el.style.display = '';
 }
 
 function enterDashboard(user) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('dashboard-screen').style.display = '';
-  document.getElementById('admin-email-display').textContent = user.email;
   if (user.email !== ADMIN_EMAIL) {
-    // Non-admin signed in · RLS will likely block but we warn here
-    document.getElementById('users-list').innerHTML = `
-      <div class="empty">
-        <div class="icon">🔒</div>
-        <div class="title">ไม่ใช่บัญชี admin</div>
-        <div class="sub">บัญชีนี้ไม่มีสิทธิ์ดูข้อมูลผู้ใช้ทั้งหมด · กรุณา logout แล้ว login ด้วย email ${ADMIN_EMAIL}</div>
-      </div>`;
+    document.getElementById('users-table').innerHTML = `<tr><td colspan="7" class="empty"><div class="icon">🔒</div><div class="title">ไม่ใช่บัญชี admin</div></td></tr>`;
     return;
   }
   loadDashboard(true);
   if (_refreshTimer) clearInterval(_refreshTimer);
   _refreshTimer = setInterval(() => loadDashboard(false), REFRESH_INTERVAL_MS);
-  // Subscribe to realtime postgres_changes on user_data · admin sees changes instantly
   subscribeToRealtime();
-  // Tick every 5s to refresh "X seconds ago" text & online dots without re-fetching
   if (_onlineTickTimer) clearInterval(_onlineTickTimer);
-  _onlineTickTimer = setInterval(refreshOnlineStatusOnly, 5000);
+  _onlineTickTimer = setInterval(() => { if (_lastUsers.length) renderDashboard(_lastUsers); }, 5000);
 }
-
-let _lastRows = [];
 
 function subscribeToRealtime() {
   if (!SUPABASE || _realtimeChannel) return;
   try {
-    _realtimeChannel = SUPABASE
-      .channel('admin:user_data')
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'user_data' },
-        function (payload) {
-          // Re-fetch on any change · ensures we get complete row (RLS-safe)
-          loadDashboard(false);
-        }
-      )
-      .subscribe(function (status) {
-        if (status === 'SUBSCRIBED') {
-          const el = document.getElementById('realtime-status');
-          if (el) el.textContent = '⚡ realtime';
-        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          const el = document.getElementById('realtime-status');
+    _realtimeChannel = SUPABASE.channel('admin:user_data')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_data' },
+        () => loadDashboard(false))
+      .subscribe(status => {
+        const el = document.getElementById('realtime-status');
+        if (status === 'SUBSCRIBED') { if (el) el.innerHTML = '<span class="live">● Live</span>'; }
+        else if (['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(status)) {
           if (el) el.textContent = '○ polling only';
         }
       });
-  } catch (e) {
-    console.warn('Realtime subscribe failed:', e);
-  }
-}
-
-// Tick "X seconds ago" + online dots without re-querying Supabase (saves reads)
-function refreshOnlineStatusOnly() {
-  if (!_lastRows || _lastRows.length === 0) return;
-  renderDashboard(_lastRows);
+  } catch (e) { console.warn('Realtime subscribe failed:', e); }
 }
 
 async function loadDashboard(showLoading) {
-  const list = document.getElementById('users-list');
   if (showLoading) {
-    list.innerHTML = '<div class="empty"><div class="icon">⏳</div><div class="title">กำลังโหลด...</div></div>';
+    document.getElementById('users-table').innerHTML = '<tr><td colspan="7" class="empty"><div class="icon">⏳</div><div class="title">กำลังโหลด...</div></td></tr>';
   }
   try {
-    const { data: rows, error } = await SUPABASE
-      .from('user_data')
+    const { data: rows, error } = await SUPABASE.from('user_data')
       .select('user_id, data, device_id, updated_at')
       .order('updated_at', { ascending: false });
     if (error) {
-      list.innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">โหลดข้อมูลไม่สำเร็จ</div><div class="sub">${escapeHtml(error.message)}</div><div class="sub" style="margin-top:8px;">เช็คว่า RLS policy ตั้งค่าให้บัญชี admin อ่านได้แล้วหรือยัง</div></div>`;
+      document.getElementById('users-table').innerHTML = `<tr><td colspan="7" class="empty"><div class="icon">⚠️</div><div class="title">โหลดข้อมูลไม่สำเร็จ</div><div>${escapeHtml(error.message)}</div></td></tr>`;
       return;
     }
-    _lastRows = rows || [];
-    renderDashboard(_lastRows);
+    _lastUsers = processRows(rows || []);
+    renderDashboard(_lastUsers);
   } catch (e) {
-    list.innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">Error</div><div class="sub">${escapeHtml(e.message || e)}</div></div>`;
+    document.getElementById('users-table').innerHTML = `<tr><td colspan="7" class="empty"><div class="icon">⚠️</div><div class="title">Error</div><div>${escapeHtml(e.message || e)}</div></td></tr>`;
   }
 }
 
-function renderDashboard(rows) {
-  const now = Date.now();
-  const usersByEmail = new Map();
-  let totalDevices = 0;
-  let totalJobs = 0;
+// === USER STAGE CLASSIFIER ===
+// Computes stage based on actions + recency
+function classifyStage(user) {
+  const daysSinceSignup = (Date.now() - user.signupAt) / 86400000;
+  const daysSinceActive = (Date.now() - user.updatedAt) / 86400000;
+  const totalItems = user.jobCount + user.quoteCount;
 
+  // Champion: heavy use + active
+  if (totalItems >= 10 && daysSinceActive < 3) return 'champion';
+  // Ghost: no activity for 7+ days
+  if (daysSinceActive >= 7) return 'ghost';
+  // Active: has real items + recent
+  if (totalItems >= 3 && daysSinceActive < 5) return 'active';
+  // Tire-kicker: comes back but minimal data
+  return 'tire';
+}
+
+// === ENGAGEMENT SCORE (0-100) ===
+function computeScore(user) {
+  let score = 0;
+  if (user.quoteCount >= 1) score += 30;
+  if (user.jobCount >= 1) score += 30;
+  if (user.pushEnabled) score += 15;
+  if (user.hasPayment) score += 15;
+  if (user.custCount >= 3) score += 10;
+  if (user.pdfGenerated) score += 10;
+  const daysIdle = (Date.now() - user.updatedAt) / 86400000;
+  if (daysIdle >= 7) score -= 20;
+  if (daysIdle >= 14) score -= 20; // Total -40 for 14+ days
+  return Math.max(0, Math.min(100, score));
+}
+
+// === PROCESS RAW ROWS · group by user, compute stage + score ===
+function processRows(rows) {
+  const now = Date.now();
+  const map = new Map();
   rows.forEach(row => {
     const d = row.data || {};
     const meta = d._meta || {};
     const profile = d.PROFILE || {};
-    const email = meta.email || row.user_id;  // auth email · fallback to user_id if not synced with v1.9.34+
-    const emailIsFallback = !meta.email;       // true if showing UUID instead of real email
+    const ns = d.NOTIF_SETTINGS || {};
+    const email = meta.email || row.user_id;
+    const emailIsFallback = !meta.email;
     const shop = String(profile.shop || '').trim();
-    const profileEmail = String(profile.email || '').trim();
+    const phone = String(profile.phone || '').trim();
+    const line = String(profile.line || '').trim();
     const updatedAt = new Date(row.updated_at).getTime();
-    const secondsAgo = Math.max(0, Math.floor((now - updatedAt) / 1000));
-    const minutesAgo = Math.floor(secondsAgo / 60);
-    const isOnline = secondsAgo < ONLINE_THRESHOLD_SEC;
-    const jobCount = Array.isArray(d.JOBS) ? d.JOBS.length : 0;
-    const quoteCount = Array.isArray(d.QUOTES) ? d.QUOTES.length : 0;
-    const custCount = d.CUSTOMER_INFO ? Object.keys(d.CUSTOMER_INFO).length : 0;
-    const appVersion = meta.app_version || '—';
-
-    totalJobs += jobCount;
-
-    // Group by email (a user can have multiple rows from different devices · we take latest)
-    if (!usersByEmail.has(email)) {
-      usersByEmail.set(email, {
-        email,
-        emailIsFallback,
-        shop,
-        profileEmail,
-        updatedAt,
-        secondsAgo,
-        minutesAgo,
-        isOnline,
-        appVersion,
-        jobCount,
-        quoteCount,
-        custCount,
-        devices: new Set([row.device_id].filter(Boolean))
+    const jobs = Array.isArray(d.JOBS) ? d.JOBS : [];
+    const quotes = Array.isArray(d.QUOTES) ? d.QUOTES : [];
+    const customers = d.CUSTOMER_INFO || {};
+    const lastAction = profile.LAST_ACTION || { type: '', at: '', code: '' };
+    const pushEnabled = !!ns.pushEnabled;
+    const hasPayment = jobs.some(j => Array.isArray(j.payments) && j.payments.length > 0);
+    const pdfGenerated = lastAction.type === 'generated_pdf' ||
+                         jobs.some(j => j._pdfGenerated) ||
+                         quotes.some(q => q._pdfGenerated);
+    // Signup time (rough estimate · use earliest payment / quote / job date or fallback to updated_at)
+    let signupAt = updatedAt;
+    const allDates = [...jobs, ...quotes].map(x => x._createdAt || x.date).filter(Boolean);
+    if (allDates.length) {
+      const earliest = Math.min(...allDates.map(d => new Date(d).getTime()).filter(t => !isNaN(t)));
+      if (earliest > 0 && earliest < updatedAt) signupAt = earliest;
+    }
+    if (!map.has(email)) {
+      map.set(email, {
+        email, emailIsFallback, shop, phone, line,
+        updatedAt, signupAt,
+        jobCount: jobs.length, quoteCount: quotes.length, custCount: Object.keys(customers).length,
+        appVersion: meta.app_version || '—',
+        devices: new Set([row.device_id].filter(Boolean)),
+        lastAction, pushEnabled, hasPayment, pdfGenerated,
+        quotes: quotes,
+        ns: ns
       });
     } else {
-      const u = usersByEmail.get(email);
+      const u = map.get(email);
       if (row.device_id) u.devices.add(row.device_id);
-      // Keep the most recent row's stats
-      if (updatedAt > u.updatedAt) {
-        u.updatedAt = updatedAt;
-        u.secondsAgo = secondsAgo;
-        u.minutesAgo = minutesAgo;
-        u.isOnline = isOnline;
-        u.appVersion = appVersion;
-        u.jobCount = jobCount;
-        u.quoteCount = quoteCount;
-        u.custCount = custCount;
-        u.shop = shop;
-        u.profileEmail = profileEmail;
-        u.emailIsFallback = emailIsFallback;
-      }
+      if (updatedAt > u.updatedAt) Object.assign(u, {
+        updatedAt, shop, phone, line, jobCount: jobs.length, quoteCount: quotes.length,
+        custCount: Object.keys(customers).length, lastAction, pushEnabled, hasPayment, pdfGenerated,
+        appVersion: meta.app_version || '—', quotes, ns
+      });
     }
   });
+  const users = Array.from(map.values());
+  users.forEach(u => {
+    u.stage = classifyStage(u);
+    u.score = computeScore(u);
+    u.secondsAgo = Math.floor((now - u.updatedAt) / 1000);
+    u.isOnline = u.secondsAgo < ONLINE_THRESHOLD_SEC;
+  });
+  return users.sort((a,b) => b.score - a.score || b.updatedAt - a.updatedAt);
+}
 
-  const users = Array.from(usersByEmail.values()).sort((a, b) => b.updatedAt - a.updatedAt);
-  users.forEach(u => { totalDevices += u.devices.size; });
+function renderDashboard(users) {
+  const totalUsers = users.length;
+  const now = Date.now();
+  const ONE_DAY = 86400000, SEVEN_DAYS = 7 * ONE_DAY;
 
-  document.getElementById('kpi-users').textContent = users.length;
-  document.getElementById('kpi-online').textContent = users.filter(u => u.isOnline).length;
-  document.getElementById('kpi-devices').textContent = totalDevices;
-  document.getElementById('kpi-jobs').textContent = totalJobs;
+  // === North Star: quotes in last 7 days ===
+  let nsCount = 0, nsPrevWeek = 0;
+  users.forEach(u => {
+    (u.quotes || []).forEach(q => {
+      const t = new Date(q._createdAt || q.date || 0).getTime();
+      if (!isNaN(t)) {
+        if (t > now - SEVEN_DAYS) nsCount++;
+        else if (t > now - SEVEN_DAYS * 2) nsPrevWeek++;
+      }
+    });
+  });
+  document.getElementById('ns-value').textContent = nsCount;
+  const trend = nsPrevWeek > 0 ? Math.round(((nsCount - nsPrevWeek) / nsPrevWeek) * 100) : (nsCount > 0 ? 100 : 0);
+  const trendEl = document.getElementById('ns-trend');
+  if (nsPrevWeek === 0 && nsCount > 0) trendEl.textContent = `↗ ใหม่! สัปดาห์ก่อน 0 ใบ → สัปดาห์นี้ ${nsCount} ใบ`;
+  else if (trend > 0) trendEl.textContent = `↗ +${trend}% จากสัปดาห์ที่แล้ว (${nsPrevWeek} → ${nsCount})`;
+  else if (trend < 0) { trendEl.textContent = `↘ ${trend}% จากสัปดาห์ที่แล้ว (${nsPrevWeek} → ${nsCount})`; trendEl.style.color = 'var(--red)'; }
+  else trendEl.textContent = `— เท่ากับสัปดาห์ที่แล้ว`;
 
-  const list = document.getElementById('users-list');
-  if (users.length === 0) {
-    list.innerHTML = '<div class="empty"><div class="icon">👤</div><div class="title">ยังไม่มีผู้ใช้</div><div class="sub">รอจนกว่าจะมีคน login + sync ครั้งแรก</div></div>';
-  } else {
-    list.innerHTML = users.map(u => renderUserRow(u)).join('');
+  // === KPIs ===
+  const activeToday = users.filter(u => u.secondsAgo < ONE_DAY / 1000).length;
+  const activated = users.filter(u => u.quoteCount >= 1).length;
+  const atRisk = users.filter(u => {
+    const days = u.secondsAgo / 86400;
+    return days > 3 && days < 14 && (u.jobCount + u.quoteCount) >= 1;
+  });
+
+  document.getElementById('kpi-users').textContent = totalUsers;
+  document.getElementById('kpi-users-sub').textContent = totalUsers > 0 ? `Cohort latest: ${formatTimeAgo(Math.min(...users.map(u => u.signupAt)))}` : '';
+  document.getElementById('kpi-active-today').textContent = activeToday;
+  const damau = totalUsers ? Math.round((activeToday/totalUsers)*100) : 0;
+  document.getElementById('kpi-active-sub').textContent = `DAU/MAU ${damau}%` + (damau >= 20 ? ' · ดี' : ' · ต่ำกว่าเป้า');
+  document.getElementById('kpi-active-sub').className = damau >= 20 ? 'kpi-sub up' : 'kpi-sub warn';
+  const actPct = totalUsers ? Math.round((activated/totalUsers)*100) : 0;
+  document.getElementById('kpi-activation').textContent = actPct + '%';
+  document.getElementById('kpi-activation-sub').textContent = `${activated}/${totalUsers} สร้างใบเสนอแรกแล้ว · เป้า 50%`;
+  document.getElementById('kpi-activation-sub').className = actPct >= 50 ? 'kpi-sub up' : 'kpi-sub warn';
+  document.getElementById('kpi-risk').textContent = atRisk.length;
+  document.getElementById('kpi-risk-sub').textContent = atRisk.length > 0 ? 'เคย active · ใกล้ churn' : 'ไม่มี · ดี!';
+
+  // === Stage classification ===
+  const byStage = { ghost: 0, tire: 0, active: 0, champion: 0 };
+  users.forEach(u => byStage[u.stage]++);
+  ['ghost','tire','active','champion'].forEach(s => {
+    document.getElementById('stage-' + s).textContent = byStage[s];
+    document.getElementById('stage-' + s + '-pct').textContent = totalUsers ? Math.round((byStage[s]/totalUsers)*100) + '%' : '0%';
+  });
+  document.getElementById('donut-num').textContent = totalUsers;
+  document.getElementById('total-tag').textContent = totalUsers + ' ราย';
+  // Donut conic gradient
+  const total = Math.max(1, totalUsers);
+  const ghostPct = (byStage.ghost/total) * 100;
+  const tirePct = ghostPct + (byStage.tire/total) * 100;
+  const activePct = tirePct + (byStage.active/total) * 100;
+  document.getElementById('stage-donut').style.background = `conic-gradient(
+    var(--red) 0% ${ghostPct}%,
+    var(--yellow) ${ghostPct}% ${tirePct}%,
+    var(--green) ${tirePct}% ${activePct}%,
+    var(--purple) ${activePct}% 100%
+  )`;
+
+  // === Funnel ===
+  const funnelData = [
+    { num: 1, label: 'Signup', count: totalUsers },
+    { num: 2, label: 'Wizard เสร็จ', count: users.filter(u => u.shop).length },
+    { num: 3, label: 'ใบเสนอแรก', count: activated },
+    { num: 4, label: 'งานแรก', count: users.filter(u => u.jobCount >= 1).length },
+    { num: 5, label: 'PDF generated', count: users.filter(u => u.pdfGenerated).length }
+  ];
+  document.getElementById('funnel-content').innerHTML = funnelData.map((s, i) => {
+    const pct = totalUsers ? Math.round((s.count/totalUsers)*100) : 0;
+    const prevPct = i > 0 ? (totalUsers ? Math.round((funnelData[i-1].count/totalUsers)*100) : 0) : 100;
+    const drop = i > 0 ? pct - prevPct : 0;
+    return `
+      <div class="funnel-step">
+        <div class="funnel-num">${s.num}</div>
+        <div class="funnel-label">${s.label}</div>
+        <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${Math.max(pct, 1)}%;">${s.count}</div></div>
+        <div class="funnel-pct">${pct}%</div>
+        <div class="funnel-drop">${drop < 0 ? (drop) + '%' : ''}${drop < -30 ? ' 🚨' : ''}</div>
+      </div>`;
+  }).join('');
+
+  // === Smart Insights ===
+  const insights = [];
+  if (atRisk.length > 0) {
+    insights.push({ icon: '⏰', html: `<b>${atRisk.length} user ใกล้ churn</b> · ดู At-Risk panel ด้านล่าง · ส่ง DM ทักทาย`, color: 'warn' });
   }
-  const now2 = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  document.getElementById('updated-text').textContent = `รีเฟรชล่าสุด: ${pad(now2.getHours())}:${pad(now2.getMinutes())}:${pad(now2.getSeconds())}`;
+  const champions = users.filter(u => u.stage === 'champion');
+  if (champions.length > 0) {
+    insights.push({ icon: '⭐', html: `<b>${champions.length} Champion${champions.length > 1 ? 's' : ''}!</b> · ขอ testimonial เพื่อโพสในกลุ่ม FB`, color: 'good' });
+  }
+  if (actPct < 30 && totalUsers >= 5) {
+    insights.push({ icon: '⚠', html: `<b>Activation rate ต่ำ (${actPct}%)</b> · พิจารณา onboarding tour · สอนสร้างใบเสนอแรก`, color: 'warn' });
+  }
+  if (trend > 0) {
+    insights.push({ icon: '📈', html: `<b>North Star +${trend}%</b> · ปฏิทินกลยุทธ์สัปดาห์นี้ work · ทำซ้ำ`, color: 'good' });
+  }
+  if (byStage.ghost > 0) {
+    insights.push({ icon: '👻', html: `<b>${byStage.ghost} Ghost users</b> · ส่ง email broadcast ขอ feedback สั้นๆ`, color: 'warn' });
+  }
+  if (insights.length === 0) {
+    insights.push({ icon: '✨', html: 'ทุกอย่างดูดี · ไม่มี action ที่ต้องทำตอนนี้', color: 'good' });
+  }
+  document.getElementById('insights-list').innerHTML = insights.map(i => `
+    <div class="insight-item">
+      <span class="insight-icon">${i.icon}</span>
+      <div>${i.html}</div>
+    </div>`).join('');
+
+  // === Champions panel ===
+  document.getElementById('champion-count').textContent = champions.length;
+  document.getElementById('champions-list').innerHTML = champions.length ? champions.slice(0, 5).map(u => `
+    <div class="mini-user">
+      <div class="avatar purple">${getInitials(u.shop || u.email)}</div>
+      <div class="mini-info">
+        <div class="mini-name">${escapeHtml(u.shop || u.email.split('@')[0])}</div>
+        <div class="mini-detail">${u.quoteCount} quotes · ${u.jobCount} jobs · score ${u.score}</div>
+      </div>
+      <button class="mini-action-btn purple" onclick='openDmModal(${JSON.stringify(u.email)}, "champion")'>DM ขอ Quote</button>
+    </div>`).join('') : '<div style="text-align:center;color:var(--muted);padding:14px;font-size:12px;">ยังไม่มี Champion · ต้องการ user ที่มี ≥10 quotes/jobs</div>';
+
+  // === At-Risk panel ===
+  document.getElementById('risk-count').textContent = atRisk.length;
+  document.getElementById('risk-list').innerHTML = atRisk.length ? atRisk.slice(0, 5).map(u => `
+    <div class="mini-user">
+      <div class="avatar red">${getInitials(u.shop || u.email)}</div>
+      <div class="mini-info">
+        <div class="mini-name">${escapeHtml(u.shop || u.email.split('@')[0])}</div>
+        <div class="mini-detail">${u.quoteCount}q · ${u.jobCount}j · ไม่เข้า ${formatDays(u.secondsAgo)}</div>
+      </div>
+      <button class="mini-action-btn" onclick='openDmModal(${JSON.stringify(u.email)}, "reactivate")'>DM ทักทาย</button>
+    </div>`).join('') : '<div style="text-align:center;color:var(--muted);padding:14px;font-size:12px;">ไม่มี user ใกล้ churn · ดีเยี่ยม!</div>';
+
+  // === User Table ===
+  document.getElementById('user-count').textContent = totalUsers + ' รายการ';
+  document.getElementById('users-table').innerHTML = users.map(u => renderUserRow(u)).join('');
 }
 
 function renderUserRow(u) {
-  const lastSeen = formatLastSeen(u.minutesAgo, u.isOnline, u.secondsAgo);
-  const isOldVersion = u.appVersion !== '—' && u.appVersion !== window.__LATEST_VERSION__ && window.__LATEST_VERSION__;
-  // Studio name display · empty placeholder if not set yet
-  const shopHtml = u.shop
-    ? `<div class="shop">🏪 ${escapeHtml(u.shop)}</div>`
-    : `<div class="shop empty">🏪 ยังไม่ตั้งชื่อร้าน</div>`;
-  // Auth email (or user_id fallback if not synced with v1.9.34+)
-  const emailHtml = u.emailIsFallback
-    ? `<div class="email fallback">${escapeHtml(u.email)} <span style="font-style:italic;">(รอ sync v1.9.34+ เพื่อเห็น email จริง)</span></div>`
-    : `<div class="email">📧 ${escapeHtml(u.email)}</div>`;
-  // Profile contact email (if user set one in their profile & it differs from auth email)
-  const profileEmailHtml = (u.profileEmail && u.profileEmail !== u.email)
-    ? `<div class="profile-email">✉️ ติดต่อ: ${escapeHtml(u.profileEmail)}</div>`
-    : '';
+  const stageLabels = { ghost: '👻 Ghost', tire: '🪞 Tire-kicker', active: '✨ Active', champion: '🚀 Champion' };
+  const scoreClass = u.score >= 60 ? 'high' : (u.score >= 30 ? 'mid' : 'low');
+  const lastActionLabel = formatActionLabel(u.lastAction);
+  const lastSeen = formatLastSeen(u.secondsAgo);
+  const rowBg = (u.stage === 'ghost' || u.score < 30) ? 'background:rgba(239,68,68,.04);' : '';
   return `
-    <div class="user-row">
-      <div class="status-dot ${u.isOnline ? 'online' : ''}"></div>
-      <div class="user-info">
-        ${shopHtml}
-        ${emailHtml}
-        ${profileEmailHtml}
-        <div class="meta">
-          <span class="item ${isOldVersion ? 'old-version' : ''}">v${escapeHtml(u.appVersion)}${isOldVersion ? ' (เก่า)' : ''}</span>
-          <span class="item">📱 ${u.devices.size} device${u.devices.size > 1 ? 's' : ''}</span>
-          <span class="item">📋 ${u.jobCount} งาน</span>
-          <span class="item">📄 ${u.quoteCount} ใบเสนอ</span>
-          <span class="item">👥 ${u.custCount} ลูกค้า</span>
-        </div>
-      </div>
-      <div class="last-seen ${u.isOnline ? 'online' : ''}">${lastSeen}</div>
-    </div>
-  `;
+    <tr style="${rowBg}">
+      <td><span class="stage-tag ${u.stage}">${stageLabels[u.stage]}</span></td>
+      <td class="name-cell"><b>${escapeHtml(u.shop || u.email.split('@')[0])}</b><br><span class="email-cell">${escapeHtml(u.email)}</span></td>
+      <td style="font-size:11px;">
+        ${u.phone ? '📱 ' + escapeHtml(u.phone) : '<span style="color:var(--muted);">—</span>'}<br>
+        ${u.line ? '💬 ' + escapeHtml(u.line) : '<span style="color:var(--muted);">—</span>'}
+      </td>
+      <td class="last-action">${lastActionLabel}</td>
+      <td style="font-size:11px;">${lastSeen}<span class="online-dot ${u.isOnline ? 'live' : ''}"></span></td>
+      <td><span class="score ${scoreClass}">${u.score}</span></td>
+      <td>
+        <button class="icon-btn" onclick='openDmModal(${JSON.stringify(u.email)}, "active")' title="DM">💬</button>
+        <button class="icon-btn" onclick='alert("Notes feature coming soon")' title="Notes">📝</button>
+      </td>
+    </tr>`;
 }
 
-function formatLastSeen(minutesAgo, isOnline, secondsAgo) {
-  if (isOnline) return '🟢 ออนไลน์';
-  if (typeof secondsAgo === 'number' && secondsAgo < 120) return `${secondsAgo} วินาทีที่แล้ว`;
-  if (minutesAgo < 60) return `${minutesAgo} นาทีที่แล้ว`;
-  const hours = Math.floor(minutesAgo / 60);
-  if (hours < 24) return `${hours} ชม.ที่แล้ว`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days} วันที่แล้ว`;
-  const months = Math.floor(days / 30);
-  return `${months} เดือนที่แล้ว`;
+// ========== DM MODAL ==========
+function openDmModal(email, defaultTpl) {
+  const user = _lastUsers.find(u => u.email === email);
+  if (!user) return;
+  _dmCurrentUser = user;
+  _dmCurrentTpl = defaultTpl || 'active';
+  document.getElementById('dm-user-name').textContent = user.shop || user.email.split('@')[0];
+
+  // Contacts
+  document.getElementById('dm-contacts').innerHTML = `
+    <div class="modal-contact-item ${user.email ? '' : 'missing'}">
+      <span class="modal-contact-label">📧 Email</span>
+      <span class="modal-contact-value">${escapeHtml(user.email || 'ไม่มี')}</span>
+    </div>
+    <div class="modal-contact-item ${user.phone ? '' : 'missing'}">
+      <span class="modal-contact-label">📱 Phone</span>
+      <span class="modal-contact-value">${escapeHtml(user.phone || 'ไม่ได้กรอก')}</span>
+    </div>
+    <div class="modal-contact-item ${user.line ? '' : 'missing'}">
+      <span class="modal-contact-label">💬 LINE</span>
+      <span class="modal-contact-value">${escapeHtml(user.line || 'ไม่ได้กรอก')}</span>
+    </div>
+  `;
+
+  // Channels availability
+  document.getElementById('ch-line').disabled = !user.line;
+  document.getElementById('ch-sms').disabled = !user.phone;
+  document.getElementById('ch-email').disabled = !user.email;
+
+  setDmTemplate(_dmCurrentTpl);
+  document.getElementById('dm-modal').classList.add('show');
+}
+
+function closeDmModal() {
+  document.getElementById('dm-modal').classList.remove('show');
+  _dmCurrentUser = null;
+}
+
+function setDmTemplate(tpl) {
+  _dmCurrentTpl = tpl;
+  document.querySelectorAll('.tpl-btn').forEach(b => b.classList.toggle('active', b.dataset.tpl === tpl));
+  const u = _dmCurrentUser;
+  if (!u) return;
+  const name = u.shop || (u.email ? u.email.split('@')[0] : 'พี่');
+  const templates = {
+    active: `สวัสดีครับ ${name} · ขอบคุณที่ลอง Pixory ครับ 🙏
+
+เห็น${u.shop ? 'สตูดิโอ' : 'พี่'}กำลังใช้แอพอยู่ · มีอะไรที่งง
+หรืออยากให้ผมช่วยอธิบายเพิ่มมั้ยครับ
+
+ขอ feedback หน่อย · จะเอามาพัฒนาแอพให้ตรงใจครับ
+
+— Joe (ผู้พัฒนา Pixory)`,
+    reactivate: `สวัสดีครับ ${name}
+
+ห่างหายจาก Pixory ไปสักพักเลยครับ · มีอะไรติดขัด
+หรือฟีเจอร์ที่อยากให้เพิ่มมั้ย
+
+ตอนนี้ผมพัฒนา v2.2 มีปรับ UI ใหม่ + Push Notifications
+ลองดูได้เลย · ถ้ามีคำถามอะไร ทักผมได้ครับ
+
+— Joe (ผู้พัฒนา Pixory)`,
+    champion: `สวัสดีครับ ${name}
+
+ขอบคุณที่ใช้ Pixory เป็นประจำครับ · เห็นใช้สร้างไป
+${u.quoteCount} ใบเสนอ · ${u.jobCount} งานแล้ว · เก่งมาก!
+
+ถ้าสะดวก · ผมอยากขอ feedback สั้นๆ 2-3 ประโยค
+เพื่อแชร์ในกลุ่มให้ช่างภาพคนอื่นเห็น
+จะใช้ชื่อสตูดิโอ + รูป หรือ anonymous ก็ได้
+
+ถ้า OK ส่งกลับมาผมเลยนะครับ 🙏
+
+— Joe`
+  };
+  document.getElementById('dm-text').value = templates[tpl] || templates.active;
+}
+
+function sendDm(channel) {
+  const u = _dmCurrentUser;
+  if (!u) return;
+  const text = document.getElementById('dm-text').value;
+  if (channel === 'line' && u.line) {
+    const lineId = u.line.replace(/^@/, '');
+    window.open('https://line.me/R/ti/p/@' + encodeURIComponent(lineId), '_blank');
+    navigator.clipboard.writeText(text);
+    alert('💬 เปิด LINE แล้ว · ข้อความ copy เข้า clipboard · แปะ (Cmd+V) ในแชท');
+  } else if (channel === 'email' && u.email) {
+    const subject = 'Pixory · มีอะไรงงมั้ยครับ';
+    window.location.href = `mailto:${u.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+  } else if (channel === 'sms' && u.phone) {
+    const phone = u.phone.replace(/[^0-9+]/g, '');
+    window.location.href = `sms:${phone}?body=${encodeURIComponent(text)}`;
+  } else if (channel === 'copy') {
+    navigator.clipboard.writeText(text).then(() => alert('📋 Copy ข้อความเข้า clipboard แล้ว · แปะใน FB Messenger หรือที่อื่น'));
+  }
+}
+
+// ========== HELPERS ==========
+function formatActionLabel(la) {
+  if (!la || !la.type) return '<span style="color:var(--muted);">ไม่มี action</span>';
+  const labels = {
+    created_quote: '📋 สร้างใบเสนอ',
+    created_job: '💼 สร้างงาน',
+    converted_quote: '✅ แปลง quote → job',
+    generated_pdf: '📄 สร้าง PDF',
+    logged_payment: '💰 บันทึกชำระ',
+    added_customer: '👤 เพิ่มลูกค้า'
+  };
+  const label = labels[la.type] || la.type;
+  const ago = la.at ? formatLastSeen(Math.floor((Date.now() - new Date(la.at).getTime())/1000)) : '';
+  return `<b>${label}</b>${la.code ? ' · ' + escapeHtml(la.code) : ''}<br>${ago}`;
+}
+
+function formatLastSeen(secondsAgo) {
+  if (secondsAgo < 60) return `${secondsAgo} วินาที`;
+  const m = Math.floor(secondsAgo/60);
+  if (m < 60) return `${m} นาทีที่แล้ว`;
+  const h = Math.floor(m/60);
+  if (h < 24) return `${h} ชม.ที่แล้ว`;
+  const d = Math.floor(h/24);
+  if (d < 30) return `${d} วันที่แล้ว`;
+  return Math.floor(d/30) + ' เดือนที่แล้ว';
+}
+
+function formatDays(secondsAgo) {
+  const days = Math.floor(secondsAgo/86400);
+  if (days < 1) return 'วันนี้';
+  return days + ' วัน';
+}
+
+function formatTimeAgo(timestamp) {
+  if (!timestamp) return '—';
+  return formatLastSeen(Math.floor((Date.now() - timestamp)/1000));
+}
+
+function getInitials(s) {
+  if (!s) return '?';
+  const parts = String(s).trim().split(/\s+/);
+  return (parts[0]?.[0] || '?').toUpperCase() + (parts[1]?.[0] || '').toUpperCase();
 }
 
 function escapeHtml(s) {
@@ -442,7 +961,6 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-// Boot
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
 </script>
