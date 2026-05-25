@@ -2391,6 +2391,46 @@
     cursor: pointer;
   }
   body.dark-theme .auth-consent a { color: #f4a36a; }
+  /* v2.3.1 · Genre chips multi-select */
+  .genre-wrap { margin-bottom: 14px; }
+  .genre-label {
+    font-size: 12px; color: #5a4a3a; font-weight: 600;
+    margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+  }
+  body.dark-theme .genre-label { color: #d4d4d8; }
+  .genre-label .sub { color: #a89a8c; font-weight: 400; font-size: 11px; }
+  .genre-chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 10px; background: #fafaf7;
+    border: 1px solid #e5e0d8; border-radius: 12px;
+  }
+  body.dark-theme .genre-chips { background: rgba(255,255,255,.04); border-color: #3a3a3a; }
+  .genre-chip {
+    padding: 6px 12px; border-radius: 50px;
+    background: white; border: 1px solid #e5e0d8;
+    font-size: 12.5px; font-weight: 500; color: #5a4a3a;
+    cursor: pointer; user-select: none;
+    transition: all .15s;
+  }
+  body.dark-theme .genre-chip { background: rgba(255,255,255,.06); border-color: #4a4a4a; color: #d4d4d8; }
+  .genre-chip:hover { background: #fef3eb; border-color: #f4d4b8; }
+  body.dark-theme .genre-chip:hover { background: rgba(216,112,74,.15); }
+  .genre-chip.active {
+    background: linear-gradient(135deg, #e87f5a, #d8704a);
+    border-color: transparent; color: white; font-weight: 700;
+    box-shadow: 0 2px 6px rgba(216,112,74,.3);
+  }
+  .genre-other-input {
+    width: 100%; margin-top: 8px;
+    padding: 9px 12px; border-radius: 10px;
+    background: white; border: 1px solid #e5e0d8;
+    font-size: 13px; color: #2a1f17; outline: none;
+    font-family: inherit;
+    display: none;
+  }
+  body.dark-theme .genre-other-input { background: rgba(255,255,255,.06); border-color: #4a4a4a; color: #f5f5f5; }
+  .genre-other-input:focus { border-color: #d8704a; }
+  .genre-other-input.show { display: block; }
   .auth-btn:disabled {
     background: #d1d5db;
     color: #a89a8c;
@@ -3657,6 +3697,26 @@
       <div class="auth-field">
         <label>💬 LINE <span style="color:#a89a8c; font-weight:400;">(ไม่บังคับ)</span></label>
         <input type="text" id="signup-line" autocomplete="off" placeholder="@yourstudio">
+      </div>
+      <!-- v2.3.1 · Multi-select genre chips · for segmentation + future personalization -->
+      <div class="genre-wrap">
+        <div class="genre-label">📸 ประเภทงานที่ถ่าย <span class="sub">(เลือกได้หลายข้อ · ไม่บังคับ)</span></div>
+        <div class="genre-chips" id="signup-genre-chips">
+          <div class="genre-chip" data-genre="wedding">💍 Wedding</div>
+          <div class="genre-chip" data-genre="prewedding">📸 Pre-wedding</div>
+          <div class="genre-chip" data-genre="family">👨‍👩‍👧 ครอบครัว · Portrait</div>
+          <div class="genre-chip" data-genre="newborn">👶 Newborn · Maternity</div>
+          <div class="genre-chip" data-genre="graduation">🎓 รับปริญญา</div>
+          <div class="genre-chip" data-genre="ordination">🙏 งานบวช</div>
+          <div class="genre-chip" data-genre="event">🏢 Event · งานบริษัท</div>
+          <div class="genre-chip" data-genre="concert">🎵 คอนเสิร์ต · Music</div>
+          <div class="genre-chip" data-genre="product">🛍 Product · Commercial</div>
+          <div class="genre-chip" data-genre="food">🥘 Food</div>
+          <div class="genre-chip" data-genre="travel">✈️ Travel · Lifestyle</div>
+          <div class="genre-chip" data-genre="pet">🐕 Pet</div>
+          <div class="genre-chip" data-genre="other">📝 อื่นๆ (ระบุ)</div>
+        </div>
+        <input type="text" id="signup-genre-other" class="genre-other-input" placeholder="ระบุประเภทงานเพิ่ม (เช่น สถาปัตยกรรม · กีฬา)" maxlength="80">
       </div>
       <div class="auth-consent">
         <input type="checkbox" id="signup-consent" onchange="updateSignupBtnState()">
@@ -6721,7 +6781,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.3.0';
+const PIXORY_VERSION = '2.3.1';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6732,6 +6792,18 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.3.1': {
+    date: '2026-05-25',
+    title: 'เลือกประเภทงานตอนสมัคร',
+    subtitle: 'บอก Pixory ว่าคุณเป็นช่างภาพประเภทไหน · เพื่อปรับแอพให้ตรงใจ',
+    items: [
+      {
+        icon: '📸',
+        title: 'เลือกประเภทงานหลายแบบได้',
+        desc: 'ในหน้าสมัคร · เลือกได้เลย Wedding · Pre-wedding · ครอบครัว · งานบวช · Event · Product ฯลฯ · เลือกได้หลายข้อ · มี "อื่นๆ" ระบุเองได้'
+      }
+    ]
+  },
   '2.3.0': {
     date: '2026-05-25',
     title: 'ปรับปรุงประสิทธิภาพ',
@@ -8807,6 +8879,38 @@ function checkReConsentNeeded() {
   return true;
 }
 
+// v2.3.1 · Genre chips multi-select handler
+const PIXORY_GENRES = ['wedding','prewedding','family','newborn','graduation','ordination','event','concert','product','food','travel','pet','other'];
+function _wireGenreChips() {
+  const chips = document.querySelectorAll('#signup-genre-chips .genre-chip');
+  const otherInput = document.getElementById('signup-genre-other');
+  if (!chips.length) return;
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('active');
+      // Show "อื่นๆ" input only when "other" chip is active
+      if (chip.dataset.genre === 'other' && otherInput) {
+        otherInput.classList.toggle('show', chip.classList.contains('active'));
+        if (!chip.classList.contains('active')) otherInput.value = '';
+        else otherInput.focus();
+      }
+    });
+  });
+}
+function _getSelectedGenres() {
+  const arr = [];
+  document.querySelectorAll('#signup-genre-chips .genre-chip.active').forEach(c => {
+    if (c.dataset.genre) arr.push(c.dataset.genre);
+  });
+  return arr;
+}
+// Wire on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _wireGenreChips);
+} else {
+  _wireGenreChips();
+}
+
 // v2.2.1 · C2/C3 · Defensive validation helpers
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 function isValidEmail(email) { return EMAIL_REGEX.test(String(email || '').trim()); }
@@ -8831,6 +8935,10 @@ async function doSignup() {
   const lineEl  = document.getElementById('signup-line');
   const phone = phoneEl ? (phoneEl.value || '').trim() : '';
   const line  = lineEl  ? (lineEl.value  || '').trim() : '';
+  // v2.3.1 · Multi-select genres + free-text other
+  const genres = _getSelectedGenres();
+  const genreOther = (document.getElementById('signup-genre-other')||{}).value || '';
+  const genreOtherClean = String(genreOther).trim().slice(0, 80);
   const consentEl = document.getElementById('signup-consent');
   // v2.2.1 · C2 · Defensive consent check · re-validate just before API call
   const consented = !!(consentEl && consentEl.checked && consentEl.offsetParent !== null);
@@ -8853,6 +8961,8 @@ async function doSignup() {
         studio_name: studio,
         signup_phone: phone,
         signup_line: line,
+        signup_genres: genres,             // v2.3.1 · array of selected genres
+        signup_genres_other: genreOtherClean, // v2.3.1 · free text if "other" picked
         consented_at: consentedAt,
         consent_version: CONSENT_VERSION,
         consent_terms: true,
@@ -8875,6 +8985,8 @@ async function doSignup() {
         signupStudio: studio,
         signupPhone: phone,
         signupLine: line,
+        signupGenres: genres,
+        signupGenresOther: genreOtherClean,
         signupConsent: { consentedAt: consentedAt, version: CONSENT_VERSION, terms: true, privacy: true }
       };
       // v2.1.2 · Notify admin (Joe) of new signup · fire-and-forget
@@ -9385,6 +9497,9 @@ const PROFILE = {
   taxYearStart:1,        // เดือนที่เริ่มปีงบ (1=ม.ค., 10=ต.ค. เป็นต้น)
   // v1.9.39 · Sequential tax invoice numbering (legal compliance for VAT-registered users)
   taxInvoiceCounters: {},  // { '2026': 7 } → next invoice will be TI-2026-008
+  // v2.3.1 · Photographer genre tags · used for segmentation + future personalization
+  studioGenres: [],         // array of genre codes (e.g. ['wedding', 'prewedding'])
+  studioGenresOther: '',    // free text if "other" selected
   // v2.3.0 · Analytics · last user action (admin engagement tracking)
   // Stored only on this device + synced to cloud · admin sees aggregate stats only
   // No content stored · just action type + timestamp for engagement classification
@@ -19588,6 +19703,15 @@ async function initAfterAuth() {
     }
     if (CURRENT_USER && CURRENT_USER.signupStudio && !PROFILE.shop) {
       PROFILE.shop = CURRENT_USER.signupStudio;
+      _profileChanged = true;
+    }
+    // v2.3.1 · Auto-fill genres from signup
+    if (CURRENT_USER && Array.isArray(CURRENT_USER.signupGenres) && CURRENT_USER.signupGenres.length > 0 && (!Array.isArray(PROFILE.studioGenres) || PROFILE.studioGenres.length === 0)) {
+      PROFILE.studioGenres = CURRENT_USER.signupGenres.slice();
+      _profileChanged = true;
+    }
+    if (CURRENT_USER && CURRENT_USER.signupGenresOther && !PROFILE.studioGenresOther) {
+      PROFILE.studioGenresOther = CURRENT_USER.signupGenresOther;
       _profileChanged = true;
     }
     if (_profileChanged) saveData();
