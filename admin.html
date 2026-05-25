@@ -673,6 +673,18 @@
       </div>
     </div>
 
+    <!-- v2.2 C5 · Privacy / PII redact mode -->
+    <div class="panel">
+      <div class="panel-title">🔒 ความเป็นส่วนตัว</div>
+      <div class="settings-row">
+        <div class="left">
+          <div class="label">🙈 ซ่อนข้อมูลส่วนตัว (Redact)</div>
+          <div class="desc">มาส์ก email · เบอร์ · LINE เป็น j***@gmail.com · 08x-xxx-1234 · ใช้ตอนแคปหน้าจอหรือ demo</div>
+        </div>
+        <div class="switch" id="sw-redact" onclick="toggleNotifSetting('redact')"></div>
+      </div>
+    </div>
+
     <div class="panel">
       <div class="panel-title">⚙ บัญชี</div>
       <div class="settings-row" style="border-bottom:none;">
@@ -687,7 +699,7 @@
     <div class="panel">
       <div class="panel-title">ℹ เกี่ยวกับ</div>
       <div style="font-size:12px; color: var(--muted); line-height:1.6;">
-        Pixory Admin Monitor · v2.4.0<br>
+        Pixory Admin Monitor · v2.2<br>
         Mobile-first · Apple Health Style<br><br>
         • Realtime sync + polling 10s<br>
         • Live notification toast + sound<br>
@@ -765,7 +777,27 @@ const ONLINE_THRESHOLD_SEC = 45;
 const REFRESH_INTERVAL_MS  = 10 * 1000;
 
 const NOTIF_PREFS_KEY = 'pixory.admin.notifPrefs';
-const DEFAULT_NOTIF_PREFS = { signup: true, quote: true, job: true, payment: true, sound: true };
+const DEFAULT_NOTIF_PREFS = { signup: true, quote: true, job: true, payment: true, sound: true, redact: false };
+
+// v2.2 C5 · PII redaction helpers
+function redactEmail(email) {
+  if (!email || !_notifPrefs.redact) return email || '';
+  const [user, domain] = String(email).split('@');
+  if (!domain) return user.charAt(0) + '***';
+  return user.charAt(0) + '***@' + domain;
+}
+function redactPhone(phone) {
+  if (!phone || !_notifPrefs.redact) return phone || '';
+  const s = String(phone).replace(/[^0-9+]/g, '');
+  if (s.length < 6) return '***';
+  return s.slice(0, 3) + '-xxx-' + s.slice(-4);
+}
+function redactLine(line) {
+  if (!line || !_notifPrefs.redact) return line || '';
+  const s = String(line);
+  if (s.length <= 2) return '***';
+  return s.charAt(0) + '***' + s.charAt(s.length - 1);
+}
 
 let SUPABASE = null;
 let _refreshTimer = null, _realtimeChannel = null, _onlineTickTimer = null;
@@ -794,9 +826,11 @@ function toggleNotifSetting(key) {
   _notifPrefs[key] = !_notifPrefs[key];
   saveNotifPrefs();
   syncNotifSwitches();
+  // v2.2 C5 · re-render Users + Home so PII redaction takes effect immediately
+  if (key === 'redact' && _lastUsers && _lastUsers.length) renderAll(_lastUsers);
 }
 function syncNotifSwitches() {
-  ['signup','quote','job','payment','sound'].forEach(k => {
+  ['signup','quote','job','payment','sound','redact'].forEach(k => {
     const el = document.getElementById('sw-' + k);
     if (el) el.classList.toggle('on', !!_notifPrefs[k]);
   });
@@ -1060,11 +1094,11 @@ function renderHome(users) {
   const now = Date.now();
   const SEVEN_DAYS = 7 * 86400000;
 
-  // North Star · v2.1 · Pixory uses q.dateSent (when quote was created) · not _createdAt
+  // North Star · v2.2 C4 · use ONLY creation timestamp (dateSent) · NOT dateEvent (future shoot date inflates)
   let nsCount = 0, nsPrevWeek = 0;
   users.forEach(u => {
     (u.quotes || []).forEach(q => {
-      const t = new Date(q._createdAt || q.dateSent || q.dateEvent || q.date || 0).getTime();
+      const t = new Date(q._createdAt || q.dateSent || 0).getTime();
       if (!isNaN(t) && t > 0) {
         if (t > now - SEVEN_DAYS) nsCount++;
         else if (t > now - SEVEN_DAYS * 2) nsPrevWeek++;
@@ -1263,7 +1297,7 @@ function renderUsersView(users) {
   container.innerHTML = html;
 }
 
-// v2.0 · Compact one-line user row
+// v2.0 · Compact one-line user row · v2.2 C5 · redact-aware name
 function renderUserRow(u) {
   const scoreClass = u.score >= 60 ? 'high' : (u.score >= 30 ? 'mid' : 'low');
   const initials = getInitials(u.shop || u.email);
@@ -1274,10 +1308,12 @@ function renderUserRow(u) {
   const timeHtml = `<span>${formatLastSeen(u.secondsAgo)}</span>`;
   const actionTag = isActionNeeded(u) ? '<span style="color:#fde68a; font-weight:700;">🔥</span>' : '';
   const emailSafe = JSON.stringify(u.email);
+  // If shop exists use shop; else use email username (redacted if redact mode on)
+  const displayName = u.shop ? u.shop : (_notifPrefs.redact ? redactEmail(u.email).split('@')[0] : u.email.split('@')[0]);
   return `<div class="user-row ${u.stage}" onclick='openUserSheet(${emailSafe})'>
     <div class="user-row-avatar ${avatarClass}">${liveDot}${initials}</div>
     <div class="user-row-mid">
-      <div class="user-row-name">${stageEmoji} ${escapeHtml(u.shop || u.email.split('@')[0])} ${actionTag}</div>
+      <div class="user-row-name">${stageEmoji} ${escapeHtml(displayName)} ${actionTag}</div>
       <div class="user-row-sub">${onlineHtml}${timeHtml}<span>📋 ${u.quoteCount} Quo · 💼 ${u.jobCount} Job</span></div>
     </div>
     <div class="user-row-right">
@@ -1340,13 +1376,18 @@ function openUserSheet(email) {
   const liveRing = u.isOnline ? '<div class="live-ring"></div>' : '';
   const onlineText = u.isOnline ? `<span class="udc-online">🟢 ออนไลน์ ${formatLastSeen(u.secondsAgo)}</span>` : `<span>${formatLastSeen(u.secondsAgo)}</span>`;
   const lastAction = formatActionLabel(u.lastAction);
-  document.getElementById('user-sheet-name').textContent = u.shop || u.email.split('@')[0];
+  // v2.2 C5 · apply redaction to displayed PII
+  const showEmail = redactEmail(u.email);
+  const showPhone = u.phone ? redactPhone(u.phone) : '';
+  const showLine  = u.line  ? redactLine(u.line)  : '';
+  const displayShop = u.shop || (_notifPrefs.redact ? redactEmail(u.email).split('@')[0] : u.email.split('@')[0]);
+  document.getElementById('user-sheet-name').textContent = displayShop;
   document.getElementById('user-sheet-body').innerHTML = `
     <div class="udc-top">
       <div class="user-avatar ${avatarClass}" style="width:48px;height:48px;font-size:15px;">${liveRing}${initials}</div>
       <div class="udc-info">
-        <div class="udc-name">${escapeHtml(u.shop || u.email.split('@')[0])}</div>
-        <div class="udc-email">${escapeHtml(u.email)}</div>
+        <div class="udc-name">${escapeHtml(displayShop)}</div>
+        <div class="udc-email">${escapeHtml(showEmail)}</div>
       </div>
       <div class="udc-tag-row">
         <span class="stage-tag ${u.stage}">${stageLabels[u.stage]}</span>
@@ -1356,7 +1397,7 @@ function openUserSheet(email) {
     <div class="udc-meta">
       ${onlineText}<span>📋 ${u.quoteCount} Quo</span><span>💼 ${u.jobCount} Job</span><span>👥 ${u.custCount} ลูกค้า</span>
     </div>
-    ${u.phone || u.line ? `<div class="udc-contacts">${u.phone ? '📱 ' + escapeHtml(u.phone) : ''}${u.phone && u.line ? ' · ' : ''}${u.line ? '💬 ' + escapeHtml(u.line) : ''}</div>` : ''}
+    ${u.phone || u.line ? `<div class="udc-contacts">${u.phone ? '📱 ' + escapeHtml(showPhone) : ''}${u.phone && u.line ? ' · ' : ''}${u.line ? '💬 ' + escapeHtml(showLine) : ''}</div>` : ''}
     ${u.studioGenres && u.studioGenres.length ? `<div class="udc-genres">${formatGenres(u.studioGenres, u.studioGenresOther)}</div>` : ''}
     <div class="udc-action">${lastAction}</div>
     <div class="udc-btn-row">
@@ -1398,7 +1439,7 @@ function renderInsights(users) {
 
   // Smart insights
   let nsCount = 0;
-  users.forEach(u => { (u.quotes||[]).forEach(q => { const t = new Date(q._createdAt||q.dateSent||q.dateEvent||q.date||0).getTime(); if (!isNaN(t) && t > 0 && t > now-SEVEN_DAYS) nsCount++; }); });
+  users.forEach(u => { (u.quotes||[]).forEach(q => { const t = new Date(q._createdAt||q.dateSent||0).getTime(); if (!isNaN(t) && t > 0 && t > now-SEVEN_DAYS) nsCount++; }); });
   const champions = users.filter(u => u.stage === 'champion');
   const atRisk = users.filter(u => { const days = u.secondsAgo / 86400; return days > 3 && days < 14 && (u.jobCount + u.quoteCount) >= 1; });
   const activated = users.filter(u => u.quoteCount >= 1).length;
