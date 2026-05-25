@@ -6909,7 +6909,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.0';
+const PIXORY_VERSION = '2.5.1';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -10097,6 +10097,10 @@ const I18N = {
   'custom.subtotal':     { th: 'รวมงานพิเศษ', en: 'Custom subtotal' },
   'custom.empty':        { th: 'ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง', en: 'No items yet · tap "+ Add item" below' },
   'custom.namePh':       { th: 'ชื่อรายการ (เช่น ช่างวิดีโอ)', en: 'Item name (e.g. Videographer)' },
+  'custom.categoryLabel':   { th: '🏷 หมวด', en: '🏷 Category' },
+  'custom.categoryDefault': { th: 'ตามประเภทงาน', en: 'Same as job type' },
+  'custom.pricePh':         { th: 'ราคา', en: 'Price' },
+  'custom.empty':           { th: 'ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง', en: 'No items yet · tap "+ Add Item" below' },
   'custom.pricePh':      { th: 'ราคา', en: 'Price' },
   'custom.descPh':       { th: 'รายละเอียด (ไม่บังคับ · เช่น ถ่าย full HD · 2 ชม.)', en: 'Details (optional · e.g. full HD · 2 hrs)' },
   'cost.title':          { th: '💸 ต้นทุนงาน', en: '💸 Job Cost' },
@@ -11893,8 +11897,22 @@ function renderJobs(list, container) {
     // Longest time since shoot first (most urgent to deliver)
     list.sort((a,b) => new Date(a.date) - new Date(b.date));
   } else if (currentFilter === 'debt') {
-    // Largest balance first
-    list.sort((a,b) => (b.remain || 0) - (a.remain || 0));
+    // v2.5.1 · เรียงตามวันใกล้ที่สุดก่อน (Joe's request) — split into "upcoming" group then "past" group
+    // Upcoming jobs sorted nearest-first · past jobs sorted most-recent-first (least time elapsed)
+    const todayMs = Date.now();
+    list.sort((a, b) => {
+      const aMs = new Date(a.date).getTime();
+      const bMs = new Date(b.date).getTime();
+      const aFuture = aMs >= todayMs;
+      const bFuture = bMs >= todayMs;
+      // Future before past
+      if (aFuture && !bFuture) return -1;
+      if (!aFuture && bFuture) return 1;
+      // Both future: nearest first
+      if (aFuture && bFuture) return aMs - bMs;
+      // Both past: most recent first (smallest gap from today)
+      return bMs - aMs;
+    });
   } else if (currentFilter === 'closed') {
     // Most recently closed first
     list.sort((a,b) => new Date(b.date) - new Date(a.date));
