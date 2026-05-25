@@ -130,6 +130,16 @@
   .job-row .customer { font-size: 14px; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .job-row .meta { font-size: 12px; color: #7c7066; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .job-row .price { font-size: 13px; color: #3a2f25; margin-top: 4px; font-weight: 500; }
+  /* v2.5.0 · Countdown hint under meta */
+  .job-row .job-countdown { font-size: 11px; margin-top: 3px; font-weight: 500; display: inline-block; }
+  .job-row .job-countdown.today  { color: #b91c1c; font-weight: 600; }
+  .job-row .job-countdown.soon   { color: #c2410c; font-weight: 600; }
+  .job-row .job-countdown.future { color: #7c7066; }
+  .job-row .job-countdown.past   { color: #1d4ed8; font-style: italic; }
+  body.dark-theme .job-row .job-countdown.today  { color: #fca5a5; }
+  body.dark-theme .job-row .job-countdown.soon   { color: #fdba74; }
+  body.dark-theme .job-row .job-countdown.future { color: #a8a29e; }
+  body.dark-theme .job-row .job-countdown.past   { color: #93c5fd; }
 
   .pill { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 8px; font-weight: 500; }
   .pill.paid { background: #d1fae5; color: #065f46; }
@@ -4019,12 +4029,13 @@
         <button class="pxy-search-clear" onclick="document.getElementById('jobs-search').value='';reRenderJobsOrQuotes();this.style.display='none';" style="display:none;">×</button>
       </div>
 
-      <!-- Jobs filters -->
+      <!-- Jobs filters · v2.5.0 · 5-tab structure -->
       <div id="jobs-filter-row" style="display: flex; gap: 6px; padding: 0 16px 12px; overflow-x: auto;">
         <div class="chip active" onclick="filterJobs('all', this)" data-i18n="filter.all">ทั้งหมด</div>
-        <div class="chip" onclick="filterJobs('booked', this)" data-i18n="filter.booked">จอง</div>
+        <div class="chip" onclick="filterJobs('upcoming', this)" data-i18n="filter.upcoming">กำลังจะถึง</div>
+        <div class="chip" onclick="filterJobs('wait_deliver', this)" data-i18n="filter.waitDeliver">รอส่งงาน</div>
+        <div class="chip" onclick="filterJobs('debt', this)" data-i18n="filter.debt">ค้างชำระ</div>
         <div class="chip" onclick="filterJobs('closed', this)" data-i18n="filter.closed">ปิดงาน</div>
-        <div class="chip" onclick="filterJobs('debt', this)" data-i18n="filter.debt">ค้างเงิน</div>
       </div>
 
       <!-- Quotes filters -->
@@ -4085,10 +4096,8 @@
           <span class="k" data-i18n="job.jobStatus">สถานะงาน</span>
           <span class="v"><select id="job-status-edit" onchange="changeJobStatus(this.value)" style="padding:6px 10px; font-size:13px; border-radius:8px; border:0.5px solid #d1d5db; background:white;"></select></span>
         </div>
-        <div class="detail-row">
-          <span class="k" data-i18n="job.deliveryStatus">สถานะส่งงาน</span>
-          <span class="v"><select id="job-delivery-edit" onchange="changeJobDelivery(this.value)" style="padding:6px 10px; font-size:13px; border-radius:8px; border:0.5px solid #d1d5db; background:white;"></select></span>
-        </div>
+        <!-- v2.5.0 · สถานะส่งงาน UI hidden · field preserved in data for backward compat. Original delivery select hidden but kept so legacy code that reads `job-delivery-edit` doesn't crash -->
+        <select id="job-delivery-edit" style="display:none;" onchange="changeJobDelivery(this.value)"></select>
       </div>
 
       <div class="detail-block">
@@ -5864,12 +5873,76 @@
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-pink)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M16 44 L44 16 L72 16 L72 44 L44 72 Z" fill="#fff"/><circle cx="58" cy="30" r="5" fill="#e94e8d"/></svg></div><div><div class="row-title">ประเภทงาน</div><div class="row-sub" id="hub-jobtypes-sub">Wedding · Pre-wed ฯลฯ</div></div></div>
             <div class="right">›</div>
           </div>
+          <!-- v2.5.0 · Custom job statuses -->
+          <div class="settings-row" onclick="goTo('settings-jobstatuses')">
+            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-teal)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="20" y="22" width="48" height="44" rx="6" fill="#fff"/><rect x="26" y="30" width="36" height="5" rx="2" fill="url(#ic-teal)"/><rect x="26" y="40" width="28" height="5" rx="2" fill="url(#ic-teal)" opacity="0.7"/><rect x="26" y="50" width="32" height="5" rx="2" fill="url(#ic-teal)" opacity="0.5"/></svg></div><div><div class="row-title">สถานะงานของฉัน</div><div class="row-sub" id="hub-jobstatuses-sub">รอถ่าย · รอส่งงาน · ปิดงาน + ของคุณเอง</div></div></div>
+            <div class="right">›</div>
+          </div>
           <div class="settings-row" onclick="goTo('settings-source')">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-orange)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 36 L40 30 L62 18 L62 66 L40 54 L22 48 Z" fill="#fff"/><rect x="22" y="36" width="10" height="12" fill="#fff"/><path d="M28 48 L26 64 L34 64 L32 48 Z" fill="#fff"/></svg></div><div><div class="row-title">Source ลูกค้า</div><div class="row-sub" id="hub-source-sub">Facebook · Referral ฯลฯ</div></div></div>
             <div class="right">›</div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- ====== SCREEN: SETTINGS · JOB STATUSES (v2.5.0) ====== -->
+    <div class="screen" id="screen-settings-jobstatuses">
+      <div class="header">
+        <button class="back" onclick="goTo('settings-hub-packages')">‹</button>
+        <h1>🏷 สถานะงานของฉัน</h1>
+        <span style="width: 22px;"></span>
+      </div>
+
+      <div style="padding: 12px 16px 8px; font-size: 12.5px; color: #7c7066; line-height: 1.5;">
+        แอพมี <strong>3 สถานะหลัก</strong> ที่แก้ชื่อได้แต่ลบไม่ได้ · เพราะแท็บในหน้า "งาน" ทำงานจากสถานะนี้<br>
+        เพิ่ม <strong>สถานะของคุณเอง</strong>ได้ · เช่น "ตัดต่อ" · "ปรับแสง" · "ส่ง preview" · แต่ละอันต้องเลือกว่าจัดอยู่ใน 1 ใน 3 หลัก
+      </div>
+
+      <div style="padding: 0 16px 12px;">
+        <div style="font-size:11px; color:#7c7066; text-transform:uppercase; letter-spacing:.5px; margin: 10px 4px 6px; font-weight:600;">สถานะหลัก · 3 อัน (ลบไม่ได้)</div>
+        <div id="job-status-defaults-list"></div>
+
+        <div style="font-size:11px; color:#7c7066; text-transform:uppercase; letter-spacing:.5px; margin: 16px 4px 6px; font-weight:600;">สถานะของคุณเอง</div>
+        <div id="job-status-customs-list"></div>
+
+        <button class="add-tile" onclick="openJobStatusEdit(-1)" style="margin-top:10px;">
+          <span class="add-tile-icon">+</span>
+          <span>เพิ่มสถานะใหม่</span>
+        </button>
+
+        <div style="background:#fef7eb; border:1px solid #f5e6c5; border-radius:10px; padding:10px 12px; margin-top:16px; font-size:11.5px; color:#7c4a14;">
+          💡 <strong>เคล็ดลับ:</strong> ลองเพิ่ม "ตัดต่อ" หรือ "ทำโทนสี" แล้วเลือก map กับ <strong>รอส่งงาน</strong> · งานที่ใช้สถานะนี้จะอยู่ในแท็บ "รอส่งงาน" ในหน้างาน
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SCREEN: SETTINGS · JOB STATUS EDIT ====== -->
+    <div class="screen" id="screen-settings-jobstatus-edit">
+      <div class="header">
+        <button class="back" onclick="goTo('settings-jobstatuses')">‹</button>
+        <h1 id="js-edit-title">สถานะใหม่</h1>
+        <span style="width: 22px;"></span>
+      </div>
+      <div class="form-group" style="margin: 16px 16px 10px;">
+        <label>ชื่อสถานะ <span style="color:#dc2626;">*</span></label>
+        <input type="text" id="js-edit-label" placeholder="เช่น ตัดต่อ · ปรับแสง · ส่ง preview" maxlength="40">
+      </div>
+      <div class="form-group" style="margin: 0 16px 10px;" id="js-edit-stage-block">
+        <label>จัดอยู่ในกลุ่มไหน <span style="color:#dc2626;">*</span></label>
+        <select id="js-edit-stage" style="width:100%; padding:10px 12px; font-size:14px; border-radius:10px; border:0.5px solid #d1d5db; background:white;">
+          <option value="wait_shoot">รอถ่าย · งานนี้อยู่ในแท็บ "กำลังจะถึง"</option>
+          <option value="wait_deliver" selected>รอส่งงาน · งานนี้อยู่ในแท็บ "รอส่งงาน"</option>
+          <option value="closed">ปิดงาน · งานนี้อยู่ในแท็บ "ปิดงาน"</option>
+        </select>
+        <div style="font-size:11px; color:#7c7066; margin-top:5px;">เลือกว่างานที่ใช้สถานะนี้ควรอยู่ในแท็บไหน</div>
+      </div>
+      <div id="js-edit-default-info" style="display:none; margin: 0 16px 10px; padding: 10px 12px; background:#fef7eb; border-radius:8px; font-size:12px; color:#7c4a14;">
+        🔒 สถานะหลักไม่สามารถเปลี่ยนกลุ่มได้ · แต่แก้ชื่อได้
+      </div>
+      <button class="btn" onclick="saveJobStatusEdit()" style="margin: 12px 16px;">บันทึก</button>
+      <button id="js-edit-delete-btn" class="btn secondary" onclick="deleteJobStatus()" style="margin: 0 16px 12px; display:none; color:#dc2626;">ลบสถานะนี้</button>
+      <button class="btn secondary" onclick="goTo('settings-jobstatuses')" style="margin: 0 16px 24px;">ยกเลิก</button>
     </div>
 
     <!-- ====== SERVICE DETAIL (manage packages within a service) ====== -->
@@ -6634,8 +6707,61 @@ const ADDONS = [
   {key:'profile', name:'Profile', price:6000},
 ];
 const JOB_TYPES = ['Wedding','Pre-wedding','Engagement','Profile','Photobooth only','Video only','Other'];
-const JOB_STATUSES = ['จอง','ถ่ายแล้ว','กำลังตัดต่อ','ส่งงานแล้ว','ปิดงาน'];
-const DELIVERY_STATUSES = ['ยังไม่ถ่าย','รอตัดต่อ','กำลังตัดต่อ','ส่งไฟล์แล้ว','ส่งอัลบั้มแล้ว'];
+const JOB_STATUSES = ['จอง','ถ่ายแล้ว','กำลังตัดต่อ','ส่งงานแล้ว','ปิดงาน']; // legacy · kept for backward compat
+const DELIVERY_STATUSES = ['ยังไม่ถ่าย','รอตัดต่อ','กำลังตัดต่อ','ส่งไฟล์แล้ว','ส่งอัลบั้มแล้ว']; // legacy · UI hidden in v2.5.0 but field preserved
+// v2.5.0 · 3 stage groups for tab filtering · all custom statuses must map to one of these
+const JOB_STAGES = ['wait_shoot', 'wait_deliver', 'closed'];
+const DEFAULT_JOB_STATUSES = [
+  { label: 'รอถ่าย',   stage: 'wait_shoot',   isDefault: true },
+  { label: 'รอส่งงาน', stage: 'wait_deliver', isDefault: true },
+  { label: 'ปิดงาน',   stage: 'closed',       isDefault: true }
+];
+// v2.5.0 · Map legacy jobStatus values → v2.5 labels (used by migration)
+const V25_JOB_STATUS_MIGRATION = {
+  'จอง': 'รอถ่าย',
+  'ถ่ายแล้ว': 'รอส่งงาน',
+  'กำลังตัดต่อ': 'รอส่งงาน',
+  'ส่งงานแล้ว': 'ปิดงาน',
+  'ปิดงาน': 'ปิดงาน'
+};
+// v2.5.0 · Get the user's available job statuses (defaults + customs)
+function getJobStatuses() {
+  if (PROFILE && Array.isArray(PROFILE.jobStatuses) && PROFILE.jobStatuses.length > 0) {
+    return PROFILE.jobStatuses;
+  }
+  return DEFAULT_JOB_STATUSES.slice();
+}
+// v2.5.0 · Map a stored jobStatus label → stage code
+function getStageFromJobStatus(label) {
+  if (!label) return 'wait_shoot';
+  const list = getJobStatuses();
+  const found = list.find(s => s.label === label);
+  if (found) return found.stage;
+  // Legacy fallback: try migration map
+  const migrated = V25_JOB_STATUS_MIGRATION[label];
+  if (migrated) {
+    const found2 = list.find(s => s.label === migrated);
+    if (found2) return found2.stage;
+  }
+  return 'wait_shoot';
+}
+// v2.5.0 · Returns true if "shoot date + 1 day at 05:00" has passed
+function jobShootDatePassed(j) {
+  if (!j || !j.date) return false;
+  const shoot = new Date(j.date);
+  if (isNaN(shoot.getTime())) return false;
+  // Move to next day at 05:00 local time
+  shoot.setDate(shoot.getDate() + 1);
+  shoot.setHours(5, 0, 0, 0);
+  return Date.now() >= shoot.getTime();
+}
+// v2.5.0 · Returns one of 3 money status levels for a job
+function getMoneyStatus(j) {
+  const paid = (j.sell || 0) - (j.remain || 0);
+  if (paid >= (j.sell || 0) && (j.sell || 0) > 0) return 'paid';      // 🟢 ชำระครบ
+  if (paid > 0) return 'partial';                                       // 🟡 มีมัดจำ · ค้าง ฿X
+  return 'none';                                                        // 🔴 ยังไม่ได้รับเงิน
+}
 const SOURCES = ['Facebook','Instagram DM','Website','Referral','ลูกค้าเก่ากลับมา','Walk-in','Other'];
 const EXPENSE_CATS = ['เดินทาง','ที่พัก','อุปกรณ์ถ่าย','เช่าอุปกรณ์','ค่ากินทีม','Software/Subscription','Marketing/โฆษณา','ค่าตัดต่อจ้างนอก','อื่นๆ'];
 
@@ -6763,6 +6889,8 @@ function goTo(name) {
   document.body.classList.toggle('wizard-mode', name === 'wizard');
   if (name === 'settings-hub-packages') renderServicesList();
   if (name === 'service-detail') renderServiceDetail();
+  // v2.5.0 · Custom job statuses
+  if (name === 'settings-jobstatuses' && typeof renderJobStatusesSettings === 'function') renderJobStatusesSettings();
   if (name === 'settings-font-size') renderFontSizeOptions();
   if (name === 'equipment') renderEquipmentList();
   if (name.startsWith('settings')) updateSettingsSubcounts();
@@ -6781,7 +6909,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.4.1';
+const PIXORY_VERSION = '2.5.0';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6792,6 +6920,33 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.0': {
+    date: '2026-05-25',
+    title: 'หน้า "งาน" จัดใหม่หมด · ตามงานง่ายขึ้น',
+    subtitle: 'แท็บใหม่ที่เรียงตามขั้นตอนงานจริง + ตั้งชื่อสถานะของตัวเองได้',
+    items: [
+      {
+        icon: '🗂',
+        title: 'แท็บใหม่ 5 อัน · ตามขั้นตอนงานจริง',
+        desc: 'ทั้งหมด · กำลังจะถึง · รอส่งงาน · ค้างชำระ · ปิดงาน · แอพจะย้ายงานเข้าแท็บที่ถูกต้องให้อัตโนมัติเมื่อผ่านวันถ่าย'
+      },
+      {
+        icon: '🏷',
+        title: 'ตั้งชื่อสถานะงานเองได้',
+        desc: 'ไปที่ ตั้งค่า → แพ็คเกจ & ราคา → สถานะงานของฉัน · เพิ่ม "ตัดต่อ" หรือ "ปรับแสง" หรืออะไรก็ได้ที่ตรงกับงานของคุณ · เลือกได้ว่าจะให้อยู่ในแท็บไหน'
+      },
+      {
+        icon: '💰',
+        title: 'การ์ดงานชัดขึ้น · บอกสถานะเงิน 3 ระดับ',
+        desc: 'ชำระครบ ✓ · ค้างชำระ · ยังไม่ได้รับเงิน · พร้อม countdown บอกว่า "อีก 3 วัน" หรือ "วันนี้" หรือ "ผ่านมาแล้ว 5 วัน"'
+      },
+      {
+        icon: '⚡',
+        title: 'แอพเลื่อนงานให้อัตโนมัติ',
+        desc: 'งานที่ผ่านวันถ่ายมาแล้วเกินตี 5 ของวันถัดมา · จะถูกย้ายไปอยู่แท็บ "รอส่งงาน" ทันที · ไม่ต้องเปลี่ยนสถานะเอง'
+      }
+    ]
+  },
   '2.4.1': {
     date: '2026-05-25',
     title: 'แก้บั๊กแสดงข้อความผิด',
@@ -9691,7 +9846,35 @@ function loadData() {
     }
     // === Migration: backfill payments[] for jobs created before payment-log feature ===
     migrateBackfillPayments();
+    // === Migration v2.5.0: migrate legacy jobStatus values + ensure PROFILE.jobStatuses exists ===
+    migrateV25JobStatuses();
   } catch(e) { console.warn('load failed', e); }
+}
+
+// v2.5.0 · One-time migration · run on every load but only does work if needed
+function migrateV25JobStatuses() {
+  // 1) Ensure PROFILE.jobStatuses exists (defaults to 3 stage defaults)
+  if (!Array.isArray(PROFILE.jobStatuses) || PROFILE.jobStatuses.length === 0) {
+    PROFILE.jobStatuses = DEFAULT_JOB_STATUSES.map(s => ({ ...s }));
+  }
+  // 2) Migrate legacy jobStatus values on each JOB (once per job)
+  if (PROFILE._v25JobStatusMigrated) return;
+  let migrated = 0;
+  JOBS.forEach(j => {
+    if (!j.jobStatus) return;
+    const newLabel = V25_JOB_STATUS_MIGRATION[j.jobStatus];
+    if (newLabel && newLabel !== j.jobStatus) {
+      // Preserve original for safety in case user wants to undo
+      if (!j._legacyJobStatus) j._legacyJobStatus = j.jobStatus;
+      j.jobStatus = newLabel;
+      migrated++;
+    }
+  });
+  PROFILE._v25JobStatusMigrated = true;
+  if (migrated > 0) {
+    console.info('[v2.5.0] migrated ' + migrated + ' job statuses to new 3-stage system');
+  }
+  // 3) saveData() is called by the caller after loadData(), so changes persist naturally
 }
 
 // One-time migration: jobs created in older versions have deposit > 0 but no payments[]
@@ -10283,11 +10466,17 @@ const I18N = {
   'db.byMonth':         { th: 'เปรียบเทียบ 12 เดือนของปีนี้', en: 'Compare 12 months this year' },
   'db.byCategory':      { th: 'หมวดไหนใช้เงินเยอะสุด', en: 'Top spending categories' },
 
-  // Job filters
+  // Job filters · v2.5.0
   'filter.all':         { th: 'ทั้งหมด', en: 'All' },
-  'filter.booked':      { th: 'จอง', en: 'Booked' },
+  'filter.booked':      { th: 'จอง', en: 'Booked' }, // legacy
+  'filter.upcoming':    { th: 'กำลังจะถึง', en: 'Upcoming' },
+  'filter.waitDeliver': { th: 'รอส่งงาน', en: 'To Deliver' },
   'filter.closed':      { th: 'ปิดงาน', en: 'Closed' },
-  'filter.debt':        { th: 'ค้างเงิน', en: 'Unpaid' },
+  'filter.debt':        { th: 'ค้างชำระ', en: 'Unpaid' },
+  // Money status · v2.5.0 · 3 levels
+  'money.paid':         { th: 'ชำระครบ', en: 'Paid' },
+  'money.partial':      { th: 'ค้างชำระ', en: 'Partial' },
+  'money.none':         { th: 'ยังไม่ได้รับเงิน', en: 'Unpaid' },
   'filter.pending':     { th: 'รออนุมัติ', en: 'Pending' },
   'filter.approved':    { th: 'อนุมัติแล้ว', en: 'Approved' },
   'filter.rejected':    { th: 'ปฏิเสธ', en: 'Rejected' },
@@ -11276,9 +11465,26 @@ function setCurrentJobFilter(f) {
 }
 
 function jobsForFilter(f) {
-  if (f === 'booked') return JOBS.filter(j => j.jobStatus === 'จอง');
-  if (f === 'closed') return JOBS.filter(j => j.jobStatus === 'ปิดงาน');
-  if (f === 'debt') return JOBS.filter(j => j.remain > 0);
+  // v2.5.0 · 5-tab structure (jobs can appear in multiple tabs — by design)
+  if (f === 'upcoming') {
+    // Shoot date is in the future · not yet closed
+    return JOBS.filter(j => !jobShootDatePassed(j) && getStageFromJobStatus(j.jobStatus) !== 'closed');
+  }
+  if (f === 'wait_deliver') {
+    // Shoot date has passed (after 05:00 next day) · not yet closed
+    return JOBS.filter(j => jobShootDatePassed(j) && getStageFromJobStatus(j.jobStatus) !== 'closed');
+  }
+  if (f === 'debt') {
+    // Money outstanding · regardless of stage
+    return JOBS.filter(j => j.remain > 0);
+  }
+  if (f === 'closed') {
+    return JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'closed');
+  }
+  // Legacy 'booked' filter still works (maps to 'upcoming')
+  if (f === 'booked') {
+    return JOBS.filter(j => !jobShootDatePassed(j) && getStageFromJobStatus(j.jobStatus) !== 'closed');
+  }
   return JOBS;
 }
 
@@ -11680,19 +11886,60 @@ function renderJobs(list, container) {
     }
     return;
   }
-  list = list.slice().sort((a,b) => new Date(a.date) - new Date(b.date));
+  // v2.5.0 · Sort depends on filter context (default: nearest shoot date first)
+  const currentFilter = (typeof _currentJobFilter !== 'undefined') ? _currentJobFilter : 'all';
+  list = list.slice();
+  if (currentFilter === 'wait_deliver') {
+    // Longest time since shoot first (most urgent to deliver)
+    list.sort((a,b) => new Date(a.date) - new Date(b.date));
+  } else if (currentFilter === 'debt') {
+    // Largest balance first
+    list.sort((a,b) => (b.remain || 0) - (a.remain || 0));
+  } else if (currentFilter === 'closed') {
+    // Most recently closed first
+    list.sort((a,b) => new Date(b.date) - new Date(a.date));
+  } else {
+    // Nearest upcoming first
+    list.sort((a,b) => new Date(a.date) - new Date(b.date));
+  }
   const today = new Date();
+  today.setHours(0,0,0,0);
   list.forEach(j => {
     const dp = dateParts(j.date);
     const jd = new Date(j.date);
+    jd.setHours(0,0,0,0);
     const daysAway = Math.round((jd - today) / 86400000);
+    const stage = getStageFromJobStatus(j.jobStatus);
     let cls = 'date-block';
-    if (j.jobStatus === 'จอง' && daysAway >= 0 && daysAway <= 30) cls += ' upcoming';
+    // Date-block color cue (only for non-closed upcoming jobs)
+    if (stage !== 'closed' && daysAway >= 0 && daysAway <= 30) cls += ' upcoming';
     if (j.remain > 0 && daysAway < 7 && daysAway >= 0) cls += ' warn';
+    // v2.5.0 · Money pill — 3 levels · NO มัดจำแล้ว
+    const moneyLvl = getMoneyStatus(j); // 'paid' | 'partial' | 'none'
     let pill = '';
-    if (j.payStatus === 'ชำระครบ') pill = '<span class="pill paid">' + t('status.paid') + '</span>';
-    else if (j.payStatus === 'มัดจำแล้ว') pill = '<span class="pill deposit">' + t('status.deposit') + '</span>';
-    else pill = '<span class="pill unpaid">' + t('status.unpaid') + '</span>';
+    if (moneyLvl === 'paid') {
+      pill = '<span class="pill paid">✓ ' + t('money.paid', 'ชำระครบ') + '</span>';
+    } else if (moneyLvl === 'partial') {
+      pill = '<span class="pill unpaid">' + t('money.partial', 'ค้างชำระ') + '</span>';
+    } else {
+      pill = '<span class="pill unpaid">' + t('money.none', 'ยังไม่ได้รับเงิน') + '</span>';
+    }
+    // v2.5.0 · Countdown hint (small text under date)
+    let countdown = '';
+    if (stage !== 'closed') {
+      if (daysAway === 0) countdown = '<div class="job-countdown today">วันนี้</div>';
+      else if (daysAway === 1) countdown = '<div class="job-countdown soon">พรุ่งนี้</div>';
+      else if (daysAway > 1 && daysAway <= 7) countdown = '<div class="job-countdown soon">อีก ' + daysAway + ' วัน</div>';
+      else if (daysAway > 7) countdown = '<div class="job-countdown future">อีก ' + daysAway + ' วัน</div>';
+      else if (daysAway < 0) countdown = '<div class="job-countdown past">ผ่านมา ' + Math.abs(daysAway) + ' วัน</div>';
+    }
+    // Remaining balance — only shown if partial (paid > 0 but not full)
+    let remainHtml = '';
+    if (moneyLvl === 'partial') {
+      remainHtml = `<span style="color:#dc2626; font-size:11px;">· ค้าง ${fmt(j.remain)}</span>`;
+    } else if (moneyLvl === 'none' && (j.sell || 0) > 0) {
+      remainHtml = `<span style="color:#dc2626; font-size:11px;">· ยังไม่รับเงิน</span>`;
+    }
     const row = document.createElement('div');
     row.className = 'job-row';
     row.onclick = () => openJob(j.code);
@@ -11701,7 +11948,8 @@ function renderJobs(list, container) {
       <div class="info">
         <p class="customer">${j.customer}</p>
         <p class="meta">${j.type} · ${j.loc}</p>
-        <div class="price">${fmt(j.sell)} ${j.remain > 0 ? `<span style="color:#dc2626; font-size:11px;">· เหลือ ${fmt(j.remain)}</span>` : ''}</div>
+        ${countdown}
+        <div class="price">${fmt(j.sell)} ${remainHtml}</div>
       </div>
       <div style="display:flex; align-items:flex-start;">${pill}</div>
     `;
@@ -11863,7 +12111,7 @@ function openJob(code) {
   pp.className = 'pill ' + (j.payStatus === 'ชำระครบ' ? 'paid' : j.payStatus === 'มัดจำแล้ว' ? 'deposit' : 'unpaid');
   pp.textContent = statusLabel(j.payStatus);
   let sp = document.getElementById('job-status-pill');
-  sp.className = 'pill ' + (j.jobStatus === 'ปิดงาน' ? 'closed' : 'booked');
+  sp.className = 'pill ' + (getStageFromJobStatus(j.jobStatus) === 'closed' ? 'closed' : 'booked');
   sp.textContent = statusLabel(j.jobStatus);
   const paid = j.sell - j.remain;
   const pct = j.sell > 0 ? (paid / j.sell * 100) : 0;
@@ -11979,16 +12227,36 @@ function openJob(code) {
     }
   }
 
-  // Populate status dropdowns
+  // Populate status dropdowns · v2.5.0 · use getJobStatuses() (defaults + customs)
   const statusSel = document.getElementById('job-status-edit');
   if (statusSel) {
     statusSel.innerHTML = '';
-    JOB_STATUSES.forEach(s => {
-      const o = document.createElement('option'); o.value = s; o.textContent = statusLabel(s);
-      if (s === j.jobStatus) o.selected = true;
+    const statuses = getJobStatuses();
+    // Add a separator-style optgroup for clarity (defaults vs customs)
+    const defaults = statuses.filter(s => s.isDefault);
+    const customs  = statuses.filter(s => !s.isDefault);
+    defaults.forEach(s => {
+      const o = document.createElement('option'); o.value = s.label; o.textContent = s.label;
+      if (s.label === j.jobStatus) o.selected = true;
       statusSel.appendChild(o);
     });
+    if (customs.length > 0) {
+      const og = document.createElement('optgroup'); og.label = 'กำหนดเอง';
+      customs.forEach(s => {
+        const o = document.createElement('option'); o.value = s.label; o.textContent = s.label;
+        if (s.label === j.jobStatus) o.selected = true;
+        og.appendChild(o);
+      });
+      statusSel.appendChild(og);
+    }
+    // If current j.jobStatus is not in any list (e.g. orphan after status deleted), add it back
+    if (j.jobStatus && !statuses.find(s => s.label === j.jobStatus)) {
+      const o = document.createElement('option'); o.value = j.jobStatus; o.textContent = j.jobStatus + ' (ไม่ทราบสถานะ)';
+      o.selected = true;
+      statusSel.insertBefore(o, statusSel.firstChild);
+    }
   }
+  // v2.5.0 · delivery select still populated for backward compat (UI hidden)
   const delSel = document.getElementById('job-delivery-edit');
   if (delSel) {
     delSel.innerHTML = '';
@@ -12007,7 +12275,9 @@ function changeJobStatus(newStatus) {
   saveData();
   const sp = document.getElementById('job-status-pill');
   if (sp) {
-    sp.className = 'pill ' + (newStatus === 'ปิดงาน' ? 'closed' : 'booked');
+    // v2.5.0 · use stage for class · label can now be customized
+    const stage = getStageFromJobStatus(newStatus);
+    sp.className = 'pill ' + (stage === 'closed' ? 'closed' : 'booked');
     sp.textContent = newStatus;
   }
   updateHomeKPIs();
@@ -13372,7 +13642,7 @@ function computeNotifications() {
     const daysAway = Math.round((jd - today) / 86400000);
 
     // Upcoming job — fire when daysAway is at or below configured thresholds
-    if (j.jobStatus !== 'ปิดงาน' && daysAway >= 0) {
+    if (getStageFromJobStatus(j.jobStatus) !== 'closed' && daysAway >= 0) {
       const max = Math.max(jobMaxBefore, briefMax);
       if (daysAway <= max) {
         let level = 'info';
@@ -13427,7 +13697,7 @@ function computeNotifications() {
     }
 
     // Delivery pending — fire X days AFTER job date as configured
-    if (NS.deliveryAfterOn && daysAway < 0 && j.jobStatus !== 'ปิดงาน' && j.delivery !== 'ส่งอัลบั้มแล้ว') {
+    if (NS.deliveryAfterOn && daysAway < 0 && getStageFromJobStatus(j.jobStatus) !== 'closed' && j.delivery !== 'ส่งอัลบั้มแล้ว') {
       const daysPassed = -daysAway;
       if (daysPassed >= NS.deliveryAfter) {
         items.push({
@@ -13547,7 +13817,7 @@ function updateHomeKPIs() {
   const margin = totalRev > 0 ? Math.round(profit / totalRev * 100) : 0;
   const debt = yearJobs.reduce((s,j) => s + (j.remain || 0), 0);
   const debtCount = yearJobs.filter(j => (j.remain || 0) > 0).length;
-  const openJobs = yearJobs.filter(j => j.jobStatus === 'จอง').length;
+  const openJobs = yearJobs.filter(j => getStageFromJobStatus(j.jobStatus) !== 'closed').length;
 
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   set('home-kpi-revenue', fmtK(totalRev));
@@ -14417,8 +14687,8 @@ function collectAddFormData() {
     other: ADD_ADDONS.profile || null,
     total, sell, discount, deposit, remain,
     payStatus,
-    jobStatus: 'จอง',
-    delivery: 'ยังไม่ถ่าย',
+    jobStatus: 'รอถ่าย', // v2.5.0 · was 'จอง'
+    delivery: 'ยังไม่ถ่าย', // legacy field · UI hidden but preserved
     source: document.getElementById('addSource').value,
     teamCost, travelCost, otherCost,
     profit,
@@ -15200,7 +15470,7 @@ function convertQuoteToJob(code) {
     total: q.total, sell: q.sell, discount: q.discount,
     deposit: qDeposit, remain: qRemain, payStatus: qPayStatus,
     depositPaidDate: qDeposit > 0 ? today : null,
-    jobStatus: 'จอง', delivery: 'ยังไม่ถ่าย',
+    jobStatus: 'รอถ่าย', delivery: 'ยังไม่ถ่าย', // v2.5.0 · was 'จอง' · delivery legacy
     source: 'Quote ' + q.code,
     teamCost: 0, otherCost: 0, travelCost: 0, profit: q.sell,
     note: 'มาจากใบเสนอ ' + q.code,
@@ -16902,7 +17172,7 @@ function renderMonthJobsList() {
     items.forEach(it => {
       const j = it.job;
       const s = it.session;
-      const isClosed = j.jobStatus === 'ปิดงาน';
+      const isClosed = getStageFromJobStatus(j.jobStatus) === 'closed';
       const cInfo = (j.customer && CUSTOMER_INFO[j.customer]) ? CUSTOMER_INFO[j.customer] : {};
       const nick = cInfo.nickname || j.custNick || '';
       const custDisplay = j.customer + (nick && nick !== j.customer ? ' (' + nick + ')' : '');
@@ -17042,7 +17312,12 @@ function openCustomerDetail(name) {
   } else {
     jobs.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(j => {
       const dp = dateParts(j.date);
-      const pill = j.payStatus === 'ชำระครบ' ? 'paid' : j.payStatus === 'มัดจำแล้ว' ? 'deposit' : 'unpaid';
+      // v2.5.0 · 3-level money status (no มัดจำแล้ว)
+      const moneyLvl = getMoneyStatus(j);
+      const pillCls = moneyLvl === 'paid' ? 'paid' : 'unpaid';
+      const pillTxt = moneyLvl === 'paid' ? '✓ ' + t('money.paid', 'ชำระครบ')
+                    : moneyLvl === 'partial' ? t('money.partial', 'ค้างชำระ')
+                    : t('money.none', 'ยังไม่ได้รับเงิน');
       const row = document.createElement('div');
       row.className = 'job-row';
       row.style.margin = '0 0 8px';
@@ -17054,7 +17329,7 @@ function openCustomerDetail(name) {
           <p class="meta">${j.type} · ${j.loc}</p>
           <div class="price">${fmt(j.sell)}${j.remain > 0 ? ` <span style="color:#dc2626; font-size:11px;">เหลือ ${fmt(j.remain)}</span>` : ''}</div>
         </div>
-        <span class="pill ${pill}">${statusLabel(j.payStatus)}</span>`;
+        <span class="pill ${pillCls}">${pillTxt}</span>`;
       hist.appendChild(row);
     });
   }
@@ -19512,7 +19787,7 @@ function renderHomeActive() {
   today.setHours(0,0,0,0);
   // "Active" = jobStatus='จอง' AND (date upcoming within 30 days OR already passed but delivery not done)
   const active = JOBS.filter(j => {
-    if (j.jobStatus === 'ปิดงาน') return false;
+    if (getStageFromJobStatus(j.jobStatus) === 'closed') return false;
     const jd = new Date(j.date);
     const days = Math.round((jd - today) / 86400000);
     // upcoming within 30 days, OR overdue (past date but not closed)
@@ -19535,10 +19810,12 @@ function renderHomeActive() {
     const dp = dateParts(j.date);
     const jd = new Date(j.date);
     const daysAway = Math.round((jd - today) / 86400000);
+    // v2.5.0 · 3-level money status (no มัดจำแล้ว)
+    const moneyLvl = getMoneyStatus(j);
     let pill = '';
-    if (j.payStatus === 'ชำระครบ') pill = '<span class="pill paid">' + t('status.paid') + '</span>';
-    else if (j.payStatus === 'มัดจำแล้ว') pill = '<span class="pill deposit">' + t('status.deposit') + '</span>';
-    else pill = '<span class="pill unpaid">' + t('status.unpaid') + '</span>';
+    if (moneyLvl === 'paid') pill = '<span class="pill paid">✓ ' + t('money.paid', 'ชำระครบ') + '</span>';
+    else if (moneyLvl === 'partial') pill = '<span class="pill unpaid">' + t('money.partial', 'ค้างชำระ') + '</span>';
+    else pill = '<span class="pill unpaid">' + t('money.none', 'ยังไม่ได้รับเงิน') + '</span>';
     let countdown = '';
     if (daysAway === 0) countdown = '<span style="color:#dc2626; font-size:11px; font-weight:600;">วันนี้!</span>';
     else if (daysAway > 0 && daysAway <= 7) countdown = '<span style="color:#d97706; font-size:11px; font-weight:600;">อีก ' + daysAway + ' วัน</span>';
@@ -19564,6 +19841,158 @@ function renderHomeActive() {
 }
 
 // ========== SETTINGS LISTS ==========
+// v2.5.0 · Custom job statuses · render in settings screen
+function renderJobStatusesSettings() {
+  if (!Array.isArray(PROFILE.jobStatuses) || PROFILE.jobStatuses.length === 0) {
+    PROFILE.jobStatuses = DEFAULT_JOB_STATUSES.map(s => ({ ...s }));
+  }
+  const defaults = PROFILE.jobStatuses.filter(s => s.isDefault);
+  const customs  = PROFILE.jobStatuses.filter(s => !s.isDefault);
+  const stageNames = { wait_shoot: 'รอถ่าย', wait_deliver: 'รอส่งงาน', closed: 'ปิดงาน' };
+  const stageColors = { wait_shoot: '#f59e0b', wait_deliver: '#3b82f6', closed: '#10b981' };
+
+  // Render defaults
+  const dEl = document.getElementById('job-status-defaults-list');
+  if (dEl) {
+    dEl.innerHTML = defaults.map((s, i) => {
+      const realIdx = PROFILE.jobStatuses.indexOf(s);
+      const stageBadge = `<span style="display:inline-block; font-size:10px; padding:2px 6px; border-radius:6px; background:${stageColors[s.stage]}22; color:${stageColors[s.stage]}; font-weight:600;">${stageNames[s.stage]}</span>`;
+      return `<div class="item-row" onclick="openJobStatusEdit(${realIdx})">
+        <div style="flex:1; min-width:0;">
+          <div class="item-name">${escapeHtml(s.label)} 🔒</div>
+          <div class="item-sub" style="margin-top:3px;">${stageBadge}</div>
+        </div>
+        <div class="item-action">›</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Render customs
+  const cEl = document.getElementById('job-status-customs-list');
+  if (cEl) {
+    if (customs.length === 0) {
+      cEl.innerHTML = '<div style="text-align:center; color:#7c7066; font-size:12.5px; padding:14px 8px; background:#fafaf9; border-radius:10px; border:1px dashed #e5e7eb;">ยังไม่มีสถานะที่คุณเพิ่ม · กด <strong>+ เพิ่มสถานะใหม่</strong> ด้านล่าง</div>';
+    } else {
+      cEl.innerHTML = customs.map((s, i) => {
+        const realIdx = PROFILE.jobStatuses.indexOf(s);
+        const stageBadge = `<span style="display:inline-block; font-size:10px; padding:2px 6px; border-radius:6px; background:${stageColors[s.stage]}22; color:${stageColors[s.stage]}; font-weight:600;">${stageNames[s.stage]}</span>`;
+        return `<div class="item-row" onclick="openJobStatusEdit(${realIdx})">
+          <div style="flex:1; min-width:0;">
+            <div class="item-name">${escapeHtml(s.label)}</div>
+            <div class="item-sub" style="margin-top:3px;">${stageBadge}</div>
+          </div>
+          <button onclick="event.stopPropagation(); deleteJobStatusByIndex(${realIdx})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;">🗑</button>
+          <div class="item-action">›</div>
+        </div>`;
+      }).join('');
+    }
+  }
+  // Update hub subline
+  const hubSub = document.getElementById('hub-jobstatuses-sub');
+  if (hubSub) {
+    hubSub.textContent = defaults.length + ' หลัก' + (customs.length > 0 ? ' + ' + customs.length + ' ของคุณ' : '');
+  }
+}
+
+// v2.5.0 · Open edit screen for a job status (-1 = new)
+let _editingJobStatusIdx = -1;
+function openJobStatusEdit(idx) {
+  _editingJobStatusIdx = idx;
+  const titleEl = document.getElementById('js-edit-title');
+  const labelEl = document.getElementById('js-edit-label');
+  const stageEl = document.getElementById('js-edit-stage');
+  const stageBlock = document.getElementById('js-edit-stage-block');
+  const defInfo = document.getElementById('js-edit-default-info');
+  const delBtn = document.getElementById('js-edit-delete-btn');
+  if (idx === -1) {
+    // New
+    titleEl.textContent = 'เพิ่มสถานะใหม่';
+    labelEl.value = '';
+    stageEl.value = 'wait_deliver';
+    stageBlock.style.display = '';
+    defInfo.style.display = 'none';
+    delBtn.style.display = 'none';
+  } else {
+    const s = PROFILE.jobStatuses[idx];
+    if (!s) return;
+    titleEl.textContent = s.isDefault ? 'แก้ชื่อสถานะหลัก' : 'แก้สถานะ';
+    labelEl.value = s.label;
+    stageEl.value = s.stage;
+    if (s.isDefault) {
+      // Default: can rename but not change stage, can't delete
+      stageBlock.style.display = 'none';
+      defInfo.style.display = '';
+      delBtn.style.display = 'none';
+    } else {
+      stageBlock.style.display = '';
+      defInfo.style.display = 'none';
+      delBtn.style.display = '';
+    }
+  }
+  goTo('settings-jobstatus-edit');
+  setTimeout(() => labelEl.focus(), 100);
+}
+
+function saveJobStatusEdit() {
+  const labelEl = document.getElementById('js-edit-label');
+  const stageEl = document.getElementById('js-edit-stage');
+  const newLabel = (labelEl.value || '').trim();
+  const newStage = stageEl.value;
+  if (!newLabel) { toast('กรุณาใส่ชื่อสถานะ'); return; }
+  if (newLabel.length > 40) { toast('ชื่อสถานะยาวเกินไป'); return; }
+  // Check duplicate label
+  const existing = PROFILE.jobStatuses.findIndex((s, i) => s.label === newLabel && i !== _editingJobStatusIdx);
+  if (existing !== -1) { toast('มีสถานะชื่อนี้อยู่แล้ว'); return; }
+  if (_editingJobStatusIdx === -1) {
+    // New custom
+    PROFILE.jobStatuses.push({ label: newLabel, stage: newStage, isDefault: false });
+  } else {
+    const s = PROFILE.jobStatuses[_editingJobStatusIdx];
+    const oldLabel = s.label;
+    s.label = newLabel;
+    if (!s.isDefault) s.stage = newStage;
+    // If label changed: update all jobs that reference the old label
+    if (oldLabel !== newLabel) {
+      let updated = 0;
+      JOBS.forEach(j => {
+        if (j.jobStatus === oldLabel) { j.jobStatus = newLabel; updated++; }
+      });
+      if (updated > 0) console.info('[v2.5.0] renamed status on ' + updated + ' jobs');
+    }
+  }
+  saveData();
+  renderJobStatusesSettings();
+  toast('บันทึกแล้ว');
+  goTo('settings-jobstatuses');
+}
+
+function deleteJobStatus() {
+  if (_editingJobStatusIdx === -1) return;
+  deleteJobStatusByIndex(_editingJobStatusIdx);
+}
+
+function deleteJobStatusByIndex(idx) {
+  const s = PROFILE.jobStatuses[idx];
+  if (!s || s.isDefault) { toast('สถานะหลักลบไม่ได้'); return; }
+  // Check how many jobs use this status
+  const using = JOBS.filter(j => j.jobStatus === s.label).length;
+  let msg = 'ลบสถานะ "' + s.label + '" ใช่ไหม?';
+  if (using > 0) {
+    const stageNames = { wait_shoot: 'รอถ่าย', wait_deliver: 'รอส่งงาน', closed: 'ปิดงาน' };
+    msg = 'มีงาน ' + using + ' งาน ใช้สถานะ "' + s.label + '" อยู่\n\nถ้าลบ · งานเหล่านั้นจะเปลี่ยนกลับเป็น "' + stageNames[s.stage] + '" อัตโนมัติ\n\nยืนยันลบ?';
+  }
+  if (!confirm(msg)) return;
+  // Fallback: any job using this status → set to the default with same stage
+  const stageDefault = PROFILE.jobStatuses.find(x => x.isDefault && x.stage === s.stage);
+  const fallbackLabel = stageDefault ? stageDefault.label : 'รอถ่าย';
+  JOBS.forEach(j => { if (j.jobStatus === s.label) j.jobStatus = fallbackLabel; });
+  PROFILE.jobStatuses.splice(idx, 1);
+  saveData();
+  renderJobStatusesSettings();
+  toast('ลบแล้ว');
+  goTo('settings-jobstatuses');
+}
+
 function renderSettingsLists() {
   // Photo packages
   let html = '';
