@@ -6883,7 +6883,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.5';
+const PIXORY_VERSION = '2.5.6';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6894,6 +6894,23 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.6': {
+    date: '2026-05-25',
+    title: 'แก้ Donut chart · แสดงทุกหมวดในงานเดียว',
+    subtitle: 'งานที่มีหลายแพคเกจคนละหมวด (Wedding + Video + Photobooth) · แต่ละแพคเกจจะกระจายเข้าหมวดของตัวเอง',
+    items: [
+      {
+        icon: '🎬',
+        title: 'Video / Cinematography ไม่หายไปอีกแล้ว',
+        desc: 'งานแต่งที่มีแพคเกจ Video ในด้วย · ส่วนของ Video จะอยู่ในหมวด Cinematography ตามที่ตั้งไว้ในแพคเกจ · ไม่ใช่รวมไปอยู่ Wedding Photography หมด'
+      },
+      {
+        icon: '⚖️',
+        title: 'ส่วนลดถูกแบ่งสัดส่วนให้ทุกแพคเกจ',
+        desc: 'ถ้าให้ส่วนลด 10k บนงานที่มี 3 แพคเกจ · แต่ละแพคเกจจะลดสัดส่วนตามราคาเดิม · ผลรวม chart = "รายได้รวม" KPI ตรงเป๊ะ'
+      }
+    ]
+  },
   '2.5.5': {
     date: '2026-05-25',
     title: 'แก้บั๊ก donut chart นับเกิน',
@@ -19704,17 +19721,61 @@ function renderDashboard() {
   document.getElementById('db-quote-won').textContent = wonCount;
   document.getElementById('db-conv-rate').textContent = convRate + '%';
 
-  // -- Revenue mix by JOB_TYPE (v2.5.5 · use j.sell to match KPI · no double-counting)
-  // Mental model: JOB_TYPE = หมวด (category) · serviceName = แพคเกจในหมวดนั้น
-  // Bucket by j.type (or deriveJobType fallback) · value = j.sell (already net of discount)
+  // -- Revenue mix by JOB_TYPE (v2.5.6 · proportional allocation per component)
+  // Each job may have multiple packages with DIFFERENT categories
+  // (e.g. Wedding job with ภาพนิ่ง→Wedding + Video→Cinematography + Photobooth→Photo Booth)
+  // Algorithm:
+  //   1) gross = sum of all components (services + addons + customItems)
+  //   2) ratio = j.sell / gross  (handles discount proportionally)
+  //   3) each component contributes (component.price * ratio) to its mapped category
   // Total of all buckets = sum(j.sell) = "รายได้รวม" KPI · always consistent
   const svc = {};
   yearJobs.forEach(j => {
-    const jobBucket = (j.type && j.type.trim())
+    const sell = parseFloat(j.sell) || 0;
+    if (!(sell > 0)) return;
+    const fallback = (j.type && j.type.trim())
       || (typeof deriveJobType === 'function' ? deriveJobType(j) : null)
       || 'อื่นๆ';
-    const revenue = parseFloat(j.sell) || 0;
-    if (revenue > 0) svc[jobBucket] = (svc[jobBucket] || 0) + revenue;
+    // Step 1: collect components with their categories
+    let gross = 0;
+    const components = [];
+    // Selected services · category = master service's defaultJobType
+    if (j.selectedServices) {
+      Object.values(j.selectedServices).forEach(s => {
+        const p = parseFloat(s && s.price) || 0;
+        if (!(p > 0)) return;
+        const master = (Array.isArray(SERVICES) ? SERVICES : []).find(x =>
+          x.id === s.serviceId || x.name === s.serviceName
+        );
+        const cat = (master && (master.defaultJobType || master.category)) || fallback;
+        gross += p;
+        components.push({ price: p, category: cat });
+      });
+    }
+    // Add-ons · use job's main category
+    if (j.qr)    { gross += j.qr;    components.push({ price: j.qr,    category: fallback }); }
+    if (j.other) { gross += j.other; components.push({ price: j.other, category: fallback }); }
+    // Custom items · respect ci.category override
+    if (Array.isArray(j.customItems)) {
+      j.customItems.forEach(ci => {
+        const p = parseFloat(ci && ci.price) || 0;
+        if (!(p > 0)) return;
+        const cat = (ci && ci.category && String(ci.category).trim()) || fallback;
+        gross += p;
+        components.push({ price: p, category: cat });
+      });
+    }
+    // NOTE: billableCosts NOT included · they sit outside j.sell
+    // Step 2: distribute j.sell proportionally
+    if (gross > 0 && components.length > 0) {
+      const ratio = sell / gross; // ≤ 1 when there's a discount
+      components.forEach(c => {
+        svc[c.category] = (svc[c.category] || 0) + c.price * ratio;
+      });
+    } else {
+      // Edge case: sell > 0 but no components recorded → put all into fallback
+      svc[fallback] = (svc[fallback] || 0) + sell;
+    }
   });
 
   // -- Source mix
