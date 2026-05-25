@@ -251,6 +251,90 @@
   .udc-btn-row { display: flex; gap: 6px; margin-top: 10px; }
   .udc-btn-row .user-action { flex: 1; padding: 9px; font-size: 12.5px; }
 
+  /* === v2.0 · Compact user row · ~56px tall === */
+  .user-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; margin: 0 16px 6px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; cursor: pointer;
+    transition: transform .08s, background .15s;
+  }
+  .user-row:active { transform: scale(0.985); background: rgba(255,255,255,.04); }
+  .user-row.ghost { border-left: 3px solid var(--red); }
+  .user-row.tire { border-left: 3px solid var(--yellow); }
+  .user-row.active { border-left: 3px solid var(--green); }
+  .user-row.champion { border-left: 3px solid var(--purple); }
+  .user-row-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #f0eada, #d4c8b8);
+    color: #5c4f44; font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    position: relative;
+  }
+  .user-row-avatar.purple { background: linear-gradient(135deg, #a78bfa, #7c3aed); color: white; }
+  .user-row-avatar.red    { background: linear-gradient(135deg, #fca5a5, #dc2626); color: white; }
+  .user-row-avatar.green  { background: linear-gradient(135deg, #86efac, #16a34a); color: white; }
+  .user-row-avatar .live-dot {
+    position: absolute; bottom: -1px; right: -1px;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--green); border: 2px solid var(--bg);
+    animation: pulse-ring 2s infinite;
+  }
+  .user-row-mid { flex: 1; min-width: 0; }
+  .user-row-name {
+    font-size: 13.5px; color: white; font-weight: 700;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .user-row-sub {
+    font-size: 11px; color: var(--muted); margin-top: 2px;
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  }
+  .user-row-sub .online { color: var(--green); font-weight: 700; }
+  .user-row-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .user-row-right .score { padding: 3px 7px; font-size: 11px; }
+  .user-row-dm {
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    color: white; border: none;
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; cursor: pointer; flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(216,112,74,.3);
+  }
+  .user-row-chevron { color: var(--muted); font-size: 14px; font-weight: 600; }
+
+  /* === Priority sections (top of Users view) === */
+  .priority-section {
+    margin: 0 16px 16px;
+  }
+  .priority-section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .priority-section-title {
+    font-size: 13px; color: white; font-weight: 800;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .priority-section-count {
+    font-size: 11px; color: var(--muted); font-weight: 600;
+  }
+  .priority-empty {
+    padding: 12px; background: var(--panel); border: 1px dashed var(--line);
+    border-radius: 12px; text-align: center; font-size: 12px; color: var(--muted);
+  }
+  .priority-section .user-row { margin: 0 0 6px; }
+
+  /* === Skeleton loader === */
+  .skel-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; margin: 0 16px 6px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; opacity: 0.6;
+  }
+  .skel-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.12), rgba(255,255,255,.05)); background-size: 200% 100%; animation: skel-shimmer 1.5s infinite; flex-shrink: 0; }
+  .skel-line { flex: 1; height: 12px; border-radius: 6px; background: linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.12), rgba(255,255,255,.05)); background-size: 200% 100%; animation: skel-shimmer 1.5s infinite; }
+  .skel-line.short { max-width: 60%; }
+  @keyframes skel-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
   /* === Filter chips === */
   .filter-chips {
     display: flex; gap: 6px; padding: 8px 16px 14px;
@@ -489,18 +573,32 @@
   <!-- ============ VIEW: USERS ============ -->
   <div class="view" id="view-users">
     <div style="padding: 16px 22px 8px;">
-      <div style="font-size: 22px; font-weight: 800; color: white; margin-bottom: 4px;">ผู้ใช้ทั้งหมด</div>
+      <div style="font-size: 22px; font-weight: 800; color: white; margin-bottom: 4px;">ผู้ใช้</div>
       <div style="font-size: 12px; color: var(--muted);"><span id="users-total-text">—</span></div>
     </div>
+    <!-- v2.0 · Priority sections (only shown when filter = 'all') -->
+    <div id="priority-sections"></div>
     <div class="filter-chips" id="filter-chips">
       <button class="filter-chip active" data-filter="all">ทั้งหมด</button>
       <button class="filter-chip" data-filter="champion">🚀 Champions</button>
       <button class="filter-chip" data-filter="active">✨ Active</button>
-      <button class="filter-chip" data-filter="tire">🪞 Tire-kicker</button>
+      <button class="filter-chip" data-filter="tire">🪞 Tire</button>
       <button class="filter-chip" data-filter="ghost">👻 Ghost</button>
       <button class="filter-chip" data-filter="online">🟢 Online</button>
     </div>
     <div id="users-cards"></div>
+  </div>
+
+  <!-- v2.0 · User detail bottom-sheet -->
+  <div id="user-sheet" class="modal-overlay" onclick="if(event.target.id==='user-sheet')closeUserSheet()">
+    <div class="modal-card">
+      <div class="modal-handle"></div>
+      <div class="modal-title">
+        <span id="user-sheet-name">—</span>
+        <button class="modal-close" onclick="closeUserSheet()">✕</button>
+      </div>
+      <div id="user-sheet-body"></div>
+    </div>
   </div>
 
   <!-- ============ VIEW: INSIGHTS ============ -->
@@ -807,6 +905,15 @@ function enterApp(user) {
     document.getElementById('view-home').innerHTML = `<div class="empty"><div class="icon">🔒</div><div class="title">ไม่ใช่บัญชี admin</div><div style="font-size:12px;margin-top:8px;color:var(--muted);">login ด้วย ${ADMIN_EMAIL}</div></div>`;
     return;
   }
+  // v2.0 · Skeleton loader while initial data loads
+  const usersCards = document.getElementById('users-cards');
+  if (usersCards) {
+    let skel = '';
+    for (let i = 0; i < 5; i++) {
+      skel += `<div class="skel-row"><div class="skel-avatar"></div><div style="flex:1;"><div class="skel-line"></div><div class="skel-line short" style="margin-top:6px;"></div></div></div>`;
+    }
+    usersCards.innerHTML = skel;
+  }
   loadDashboard(true);
   if (_refreshTimer) clearInterval(_refreshTimer);
   _refreshTimer = setInterval(() => loadDashboard(false), REFRESH_INTERVAL_MS);
@@ -1074,19 +1181,153 @@ function setUserFilter(filter) {
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === filter));
   renderUsersView(_lastUsers);
 }
+
+// v2.0 · Compute "action needed" users (at-risk · 3-14 days idle + has activity)
+function isActionNeeded(u) {
+  const days = u.secondsAgo / 86400;
+  return days > 3 && days < 14 && (u.jobCount + u.quoteCount) >= 1 && u.stage !== 'champion';
+}
+
+// v2.0 · Sort users by importance: at-risk → online → champion → active → tire → ghost
+function sortByImportance(users) {
+  const stageWeight = { champion: 3, active: 2, tire: 1, ghost: 0 };
+  return users.slice().sort((a, b) => {
+    // Action needed bubbles to top
+    const aAction = isActionNeeded(a) ? 1 : 0;
+    const bAction = isActionNeeded(b) ? 1 : 0;
+    if (aAction !== bAction) return bAction - aAction;
+    // Online next
+    if (a.isOnline !== b.isOnline) return b.isOnline ? 1 : -1;
+    // Then stage
+    const aw = stageWeight[a.stage] || 0;
+    const bw = stageWeight[b.stage] || 0;
+    if (aw !== bw) return bw - aw;
+    // Then score
+    return (b.score || 0) - (a.score || 0);
+  });
+}
+
 function renderUsersView(users) {
+  // Render priority sections (only when no filter)
+  const prio = document.getElementById('priority-sections');
+  if (prio) {
+    if (_currentUserFilter === 'all') {
+      prio.style.display = '';
+      renderPrioritySections(users);
+    } else {
+      prio.style.display = 'none';
+    }
+  }
+  // Filter
   let filtered = users;
   if (_currentUserFilter === 'online') filtered = users.filter(u => u.isOnline);
   else if (_currentUserFilter !== 'all') filtered = users.filter(u => u.stage === _currentUserFilter);
-  document.getElementById('users-total-text').textContent = `${filtered.length} ราย${_currentUserFilter !== 'all' ? ' (กรอง ' + _currentUserFilter + ')' : ''}`;
+  // Sort by importance
+  filtered = sortByImportance(filtered);
+  // Header text
+  const totalEl = document.getElementById('users-total-text');
+  if (totalEl) {
+    const onlineN = users.filter(u => u.isOnline).length;
+    const champN = users.filter(u => u.stage === 'champion').length;
+    const actionN = users.filter(isActionNeeded).length;
+    if (_currentUserFilter === 'all') {
+      totalEl.innerHTML = `${users.length} ราย · 🟢 ${onlineN} online · ⭐ ${champN} champs · 🔥 ${actionN} ต้องดู`;
+    } else {
+      totalEl.textContent = `${filtered.length} ราย (กรอง ${_currentUserFilter})`;
+    }
+  }
   const container = document.getElementById('users-cards');
   if (filtered.length === 0) {
     container.innerHTML = '<div class="empty"><div class="icon">👤</div><div class="title">ไม่มีผู้ใช้ที่ตรง filter</div></div>';
     return;
   }
-  container.innerHTML = filtered.map(u => renderUserDetailCard(u)).join('');
+  // Filter heading
+  const filterLabel = _currentUserFilter === 'all' ? '📋 ผู้ใช้ทั้งหมด' :
+    (_currentUserFilter === 'champion' ? '🚀 Champions' :
+     _currentUserFilter === 'active'   ? '✨ Active' :
+     _currentUserFilter === 'tire'     ? '🪞 Tire-kicker' :
+     _currentUserFilter === 'ghost'    ? '👻 Ghost' :
+     _currentUserFilter === 'online'   ? '🟢 Online ตอนนี้' : '');
+  let html = `<div class="priority-section" style="margin-top:8px;">
+    <div class="priority-section-head">
+      <div class="priority-section-title">${filterLabel}</div>
+      <div class="priority-section-count">${filtered.length} ราย</div>
+    </div>
+    ${filtered.map(renderUserRow).join('')}
+  </div>`;
+  container.innerHTML = html;
 }
-function renderUserDetailCard(u) {
+
+// v2.0 · Compact one-line user row
+function renderUserRow(u) {
+  const scoreClass = u.score >= 60 ? 'high' : (u.score >= 30 ? 'mid' : 'low');
+  const initials = getInitials(u.shop || u.email);
+  const avatarClass = u.stage === 'champion' ? 'purple' : (u.stage === 'ghost' ? 'red' : (u.stage === 'active' ? 'green' : ''));
+  const liveDot = u.isOnline ? '<div class="live-dot"></div>' : '';
+  const stageEmoji = ({ ghost: '👻', tire: '🪞', active: '✨', champion: '🚀' })[u.stage] || '';
+  const onlineHtml = u.isOnline ? `<span class="online">🟢 online</span>` : '';
+  const timeHtml = `<span>${formatLastSeen(u.secondsAgo)}</span>`;
+  const actionTag = isActionNeeded(u) ? '<span style="color:#fde68a; font-weight:700;">🔥</span>' : '';
+  const emailSafe = JSON.stringify(u.email);
+  return `<div class="user-row ${u.stage}" onclick='openUserSheet(${emailSafe})'>
+    <div class="user-row-avatar ${avatarClass}">${liveDot}${initials}</div>
+    <div class="user-row-mid">
+      <div class="user-row-name">${stageEmoji} ${escapeHtml(u.shop || u.email.split('@')[0])} ${actionTag}</div>
+      <div class="user-row-sub">${onlineHtml}${timeHtml}<span>📋 ${u.quoteCount}q · 💼 ${u.jobCount}j</span></div>
+    </div>
+    <div class="user-row-right">
+      <span class="score ${scoreClass}">${u.score}</span>
+      <button class="user-row-dm" onclick='event.stopPropagation();openDmModal(${emailSafe}, "active")' title="DM">💬</button>
+    </div>
+  </div>`;
+}
+
+// v2.0 · Priority sections at top
+function renderPrioritySections(users) {
+  const container = document.getElementById('priority-sections');
+  if (!container) return;
+  const online = users.filter(u => u.isOnline);
+  const actionNeeded = users.filter(isActionNeeded).sort((a, b) => b.secondsAgo - a.secondsAgo);
+  const champions = users.filter(u => u.stage === 'champion').sort((a, b) => (b.score || 0) - (a.score || 0));
+
+  let html = '';
+  if (online.length > 0) {
+    html += `<div class="priority-section">
+      <div class="priority-section-head">
+        <div class="priority-section-title">🟢 Online ตอนนี้</div>
+        <div class="priority-section-count">${online.length} ราย</div>
+      </div>
+      ${online.slice(0, 5).map(renderUserRow).join('')}
+    </div>`;
+  }
+  if (actionNeeded.length > 0) {
+    html += `<div class="priority-section">
+      <div class="priority-section-head">
+        <div class="priority-section-title">🔥 ต้องดูวันนี้ <span style="font-size:11px;color:var(--muted);font-weight:400;">(at-risk)</span></div>
+        <div class="priority-section-count">${actionNeeded.length} ราย</div>
+      </div>
+      ${actionNeeded.slice(0, 5).map(renderUserRow).join('')}
+    </div>`;
+  }
+  if (champions.length > 0) {
+    html += `<div class="priority-section">
+      <div class="priority-section-head">
+        <div class="priority-section-title">⭐ Champions</div>
+        <div class="priority-section-count">${champions.length} ราย</div>
+      </div>
+      ${champions.slice(0, 5).map(renderUserRow).join('')}
+    </div>`;
+  }
+  if (!html) {
+    html = '<div class="priority-empty">ยังไม่มีผู้ใช้ใน priority sections · ลองดู "ทั้งหมด" ด้านล่าง</div>';
+  }
+  container.innerHTML = html;
+}
+
+// v2.0 · Bottom-sheet for user detail
+function openUserSheet(email) {
+  const u = _lastUsers.find(x => x.email === email);
+  if (!u) return;
   const stageLabels = { ghost: '👻 Ghost', tire: '🪞 Tire-kicker', active: '✨ Active', champion: '🚀 Champion' };
   const scoreClass = u.score >= 60 ? 'high' : (u.score >= 30 ? 'mid' : 'low');
   const initials = getInitials(u.shop || u.email);
@@ -1094,34 +1335,33 @@ function renderUserDetailCard(u) {
   const liveRing = u.isOnline ? '<div class="live-ring"></div>' : '';
   const onlineText = u.isOnline ? `<span class="udc-online">🟢 ออนไลน์ ${formatLastSeen(u.secondsAgo)}</span>` : `<span>${formatLastSeen(u.secondsAgo)}</span>`;
   const lastAction = formatActionLabel(u.lastAction);
-  return `
-    <div class="user-detail-card ${u.stage}">
-      <div class="udc-top">
-        <div class="user-avatar ${avatarClass}" style="width:48px;height:48px;font-size:15px;">${liveRing}${initials}</div>
-        <div class="udc-info">
-          <div class="udc-name">${escapeHtml(u.shop || u.email.split('@')[0])}</div>
-          <div class="udc-email">${escapeHtml(u.email)}</div>
-        </div>
-        <div class="udc-tag-row">
-          <span class="stage-tag ${u.stage}">${stageLabels[u.stage]}</span>
-          <span class="score ${scoreClass}">${u.score}</span>
-        </div>
+  document.getElementById('user-sheet-name').textContent = u.shop || u.email.split('@')[0];
+  document.getElementById('user-sheet-body').innerHTML = `
+    <div class="udc-top">
+      <div class="user-avatar ${avatarClass}" style="width:48px;height:48px;font-size:15px;">${liveRing}${initials}</div>
+      <div class="udc-info">
+        <div class="udc-name">${escapeHtml(u.shop || u.email.split('@')[0])}</div>
+        <div class="udc-email">${escapeHtml(u.email)}</div>
       </div>
-      <div class="udc-meta">
-        ${onlineText}<span>📋 ${u.quoteCount}q</span><span>💼 ${u.jobCount}j</span><span>👥 ${u.custCount}c</span>
+      <div class="udc-tag-row">
+        <span class="stage-tag ${u.stage}">${stageLabels[u.stage]}</span>
+        <span class="score ${scoreClass}">${u.score}</span>
       </div>
-      ${u.phone || u.line ? `
-        <div class="udc-contacts">
-          ${u.phone ? '📱 ' + escapeHtml(u.phone) : ''}
-          ${u.phone && u.line ? ' · ' : ''}
-          ${u.line ? '💬 ' + escapeHtml(u.line) : ''}
-        </div>` : ''}
-      ${u.studioGenres && u.studioGenres.length ? `<div class="udc-genres">${formatGenres(u.studioGenres, u.studioGenresOther)}</div>` : ''}
-      <div class="udc-action">${lastAction}</div>
-      <div class="udc-btn-row">
-        <button class="user-action" onclick='openDmModal(${JSON.stringify(u.email)}, "active")'>💬 DM ทักทาย</button>
-      </div>
-    </div>`;
+    </div>
+    <div class="udc-meta">
+      ${onlineText}<span>📋 ${u.quoteCount} quotes</span><span>💼 ${u.jobCount} jobs</span><span>👥 ${u.custCount} customers</span>
+    </div>
+    ${u.phone || u.line ? `<div class="udc-contacts">${u.phone ? '📱 ' + escapeHtml(u.phone) : ''}${u.phone && u.line ? ' · ' : ''}${u.line ? '💬 ' + escapeHtml(u.line) : ''}</div>` : ''}
+    ${u.studioGenres && u.studioGenres.length ? `<div class="udc-genres">${formatGenres(u.studioGenres, u.studioGenresOther)}</div>` : ''}
+    <div class="udc-action">${lastAction}</div>
+    <div class="udc-btn-row">
+      <button class="user-action" onclick='closeUserSheet();openDmModal(${JSON.stringify(u.email)}, "active")'>💬 DM ทักทาย</button>
+    </div>
+  `;
+  document.getElementById('user-sheet').classList.add('show');
+}
+function closeUserSheet() {
+  document.getElementById('user-sheet').classList.remove('show');
 }
 
 // ============ INSIGHTS VIEW ============
