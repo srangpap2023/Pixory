@@ -6781,7 +6781,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.3.1';
+const PIXORY_VERSION = '2.4.1';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6792,6 +6792,18 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.4.1': {
+    date: '2026-05-25',
+    title: 'แก้บั๊กแสดงข้อความผิด',
+    subtitle: 'หน้า "แพคเกจกำหนดเอง" เคยขึ้นข้อความเป็นชื่อตัวแปร · ตอนนี้เป็นภาษาไทยตามปกติแล้ว',
+    items: [
+      {
+        icon: '🐛',
+        title: 'แก้คำว่า "custom.categoryLabel" ที่โผล่ขึ้นมาแทนข้อความไทย',
+        desc: 'ในการ์ด "แพคเกจแบบกำหนดรายละเอียดเอง" · ช่อง "หมวด" และตัวเลือก "ตามประเภทงาน" จะแสดงเป็นภาษาไทยตามปกติ · ไม่โชว์ชื่อตัวแปรอีกต่อไป'
+      }
+    ]
+  },
   '2.3.1': {
     date: '2026-05-25',
     title: 'เลือกประเภทงานตอนสมัคร',
@@ -15479,7 +15491,7 @@ function renderCostList(ctx) {
   const listEl = document.getElementById(_costsListId(ctx));
   if (!listEl) return;
   // v1.9.20 · i18n
-  const _tt = (k, fb) => (typeof t === 'function' ? t(k) : fb);
+  const _tt = (k, fb) => (typeof t === 'function' ? t(k, fb) : fb);
   const _emptyMsg = (ctx === 'add')
     ? '<div style="text-align:center; color:#a89a8c; font-size:11.5px; padding:4px 0 8px;">ยังไม่มีรายการอื่น · กดเพิ่มด้านล่าง</div>'
     : '<div style="text-align:center; color:#a89a8c; font-size:12px; padding:8px 0 10px;">' + _tt('cost.empty', 'ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง') + '</div>';
@@ -15720,7 +15732,7 @@ function renderCustomList(ctx) {
   if (!listEl) return;
   const arr = _customGetState(ctx);
   // v1.9.20 · i18n
-  const _tt = (k, fb) => (typeof t === 'function' ? t(k) : fb);
+  const _tt = (k, fb) => (typeof t === 'function' ? t(k, fb) : fb);
   const _emptyMsg = _tt('custom.empty', 'ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง');
   const _namePh = _tt('custom.namePh', 'ชื่อรายการ (เช่น ช่างวิดีโอ)');
   const _pricePh = _tt('custom.pricePh', 'ราคา');
@@ -19119,7 +19131,7 @@ function updateAddTotal() {
   const bdEl = document.getElementById('add-final-breakdown');
   if (bdEl) {
     // v1.9.20 · i18n
-    const _tt = (k, fb) => (typeof t === 'function' ? t(k) : fb);
+    const _tt = (k, fb) => (typeof t === 'function' ? t(k, fb) : fb);
     const _L_subtotal = _tt('final.subtotal', 'รวมก่อนส่วนลด');
     const _L_discount = _tt('final.discount', 'ส่วนลด');
     const _L_sell = _tt('final.sellPrice', 'ราคาขาย (สัญญา)');
