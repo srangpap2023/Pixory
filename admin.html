@@ -382,6 +382,26 @@
   .insight-item b { color: var(--accent-2); font-weight: 700; }
   .insight-icon { flex-shrink: 0; font-size: 16px; }
 
+  /* === v2.4 · Cohort table === */
+  .cohort-tbl { width: 100%; border-collapse: collapse; font-size: 11.5px; color: #d4c8b8; }
+  .cohort-tbl th { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; padding: 6px 4px; text-align: left; border-bottom: 1px solid var(--line); }
+  .cohort-tbl td { padding: 7px 4px; border-bottom: 1px dashed var(--line); }
+  .cohort-tbl td:nth-child(n+3) { text-align: center; }
+  .cohort-pct { font-weight: 700; }
+  .cohort-pct.good { color: #6ee0a7; }
+  .cohort-pct.mid { color: var(--yellow); }
+  .cohort-pct.bad { color: #fca5a5; }
+  .cohort-pct.na { color: var(--muted); font-style: italic; font-weight: 500; }
+
+  /* === v2.4 · Engagement / lead source bars (reuse .genre-bar style with custom labels) === */
+  .eng-bar, .src-bar { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+  .eng-bar:last-child, .src-bar:last-child { border-bottom: none; }
+  .eng-bar-label, .src-bar-label { font-size: 11.5px; color: white; flex: 0 0 110px; }
+  .eng-bar-wrap, .src-bar-wrap { flex: 1; background: rgba(255,255,255,.06); border-radius: 5px; height: 16px; overflow: hidden; }
+  .eng-bar-fill { height: 100%; background: linear-gradient(90deg, #6ee0a7, #16a34a); border-radius: 5px; display: flex; align-items: center; padding-left: 6px; color: white; font-size: 9.5px; font-weight: 700; }
+  .src-bar-fill { height: 100%; background: linear-gradient(90deg, #8fc0ff, #3b82f6); border-radius: 5px; display: flex; align-items: center; padding-left: 6px; color: white; font-size: 9.5px; font-weight: 700; }
+  .eng-bar-pct, .src-bar-pct { font-size: 10.5px; font-weight: 700; min-width: 36px; text-align: right; color: var(--muted); }
+
   /* === Settings === */
   .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--line); }
   .settings-row:last-child { border-bottom: none; }
@@ -605,7 +625,55 @@
   <div class="view" id="view-insights">
     <div style="padding: 16px 22px 8px;">
       <div style="font-size: 22px; font-weight: 800; color: white;">Insights</div>
-      <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">รายงาน · funnel · genres · smart recommendations</div>
+      <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">รายงาน · metrics · funnel · genres · smart recommendations</div>
+    </div>
+
+    <!-- v2.4 · #1 GMV + Cash KPI cards (2 across) -->
+    <div class="stats-grid" style="padding: 0 16px 4px;">
+      <div class="stat">
+        <div class="stat-icon">💸</div>
+        <div class="stat-label">GMV รวมทั้งหมด</div>
+        <div class="stat-value" id="metric-gmv">—</div>
+        <div class="stat-sub" id="metric-gmv-sub">รวมยอดออกใบเรียกเก็บ</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">💵</div>
+        <div class="stat-label">เงินสดเข้ารวม</div>
+        <div class="stat-value" id="metric-cashin">—</div>
+        <div class="stat-sub" id="metric-cashin-sub">รวมเงินที่ลูกค้าจ่ายแล้ว</div>
+      </div>
+    </div>
+
+    <!-- v2.4 · #2 + #3 · Conversion + TTFQ KPIs -->
+    <div class="stats-grid" style="padding: 0 16px 4px;">
+      <div class="stat">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-label">Quote→Job Conv.</div>
+        <div class="stat-value" id="metric-conv">—</div>
+        <div class="stat-sub" id="metric-conv-sub">— / — ใบ</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">⏱</div>
+        <div class="stat-label">TTFQ (median)</div>
+        <div class="stat-value" id="metric-ttfq">—</div>
+        <div class="stat-sub" id="metric-ttfq-sub">signup → ใบเสนอแรก</div>
+      </div>
+    </div>
+
+    <!-- v2.4 · #7 · Payment Collection Health -->
+    <div class="stats-grid" style="padding: 0 16px 4px;">
+      <div class="stat">
+        <div class="stat-icon">💰</div>
+        <div class="stat-label">Payment Health</div>
+        <div class="stat-value" id="metric-payhealth">—</div>
+        <div class="stat-sub" id="metric-payhealth-sub">งานที่บันทึกชำระ</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">📊</div>
+        <div class="stat-label">เก็บได้เฉลี่ย</div>
+        <div class="stat-value" id="metric-collectavg">—</div>
+        <div class="stat-sub" id="metric-collectavg-sub">% เก็บได้ต่อใบ</div>
+      </div>
     </div>
 
     <!-- Smart Insights -->
@@ -618,6 +686,26 @@
     <div class="panel">
       <div class="panel-title">📊 Conversion Funnel</div>
       <div id="funnel-content"></div>
+    </div>
+
+    <!-- v2.4 · #4 · D7/D30 Retention by cohort -->
+    <div class="panel">
+      <div class="panel-title">📅 D7/D30 Retention</div>
+      <div style="font-size:11px; color:var(--muted); margin-bottom:8px;">กลุ่มที่สมัครพร้อมกัน · กี่คนยังใช้แอพในวันที่ 7 / 30</div>
+      <div id="cohort-table"></div>
+    </div>
+
+    <!-- v2.4 · #5 · Lead Source -->
+    <div class="panel">
+      <div class="panel-title">📡 Lead Source · จากทุกผู้ใช้รวมกัน</div>
+      <div id="lead-source-bars"></div>
+    </div>
+
+    <!-- v2.4 · #6 · Engagement Pareto -->
+    <div class="panel">
+      <div class="panel-title">📊 Engagement Distribution</div>
+      <div style="font-size:11px; color:var(--muted); margin-bottom:8px;">ผู้ใช้แต่ละกลุ่มมีกี่คน · ดูว่าฐาน healthy หรือไม่</div>
+      <div id="engagement-bars"></div>
     </div>
 
     <!-- Genre breakdown -->
@@ -699,7 +787,7 @@
     <div class="panel">
       <div class="panel-title">ℹ เกี่ยวกับ</div>
       <div style="font-size:12px; color: var(--muted); line-height:1.6;">
-        Pixory Admin Monitor · v2.2<br>
+        Pixory Admin Monitor · v2.4<br>
         Mobile-first · Apple Health Style<br><br>
         • Realtime sync + polling 10s<br>
         • Live notification toast + sound<br>
@@ -956,11 +1044,21 @@ function enterApp(user) {
   _onlineTickTimer = setInterval(() => { if (_lastUsers.length) renderAll(_lastUsers); }, 5000);
 }
 
+// v2.3 M7 · Debounce realtime reloads · prevents thrashing when 100+ users heartbeat
+let _realtimeReloadTimer = null;
+function _debouncedReload() {
+  if (_realtimeReloadTimer) clearTimeout(_realtimeReloadTimer);
+  _realtimeReloadTimer = setTimeout(() => {
+    _realtimeReloadTimer = null;
+    loadDashboard(false);
+  }, 2000); // 2s debounce
+}
+
 function subscribeToRealtime() {
   if (!SUPABASE || _realtimeChannel) return;
   try {
     _realtimeChannel = SUPABASE.channel('admin:user_data')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_data' }, () => loadDashboard(false))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_data' }, () => _debouncedReload())
       .subscribe(status => {
         const pill = document.getElementById('live-pill');
         if (!pill) return;
@@ -991,7 +1089,7 @@ async function loadDashboard(showLoading) {
   }
   try {
     const { data: rows, error } = await SUPABASE.from('user_data')
-      .select('user_id, data, device_id, updated_at')
+      .select('user_id, data, device_id, updated_at, created_at')
       .order('updated_at', { ascending: false });
     if (error) {
       document.getElementById('activity-feed').innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">โหลดไม่สำเร็จ</div><div style="font-size:11px;margin-top:6px;color:var(--muted);">${escapeHtml(error.message)}</div></div>`;
@@ -1005,8 +1103,9 @@ async function loadDashboard(showLoading) {
 }
 
 function classifyStage(user) {
-  // v2.1 · Tightened: Active means USED THE APP RECENTLY (< 2 days)
+  // v2.3 M5 · Active threshold loosened to include brand-new users (items=1+day=0)
   // Champion = high engagement + very recent
+  // Active = used app recently + has some activity (≥1 item · day<2)
   // Tire = had activity but went quiet (2-7 days)
   // Ghost = idle ≥7 days OR no items + idle ≥3 days
   const daysSinceActive = (Date.now() - user.updatedAt) / 86400000;
@@ -1014,19 +1113,21 @@ function classifyStage(user) {
   if (totalItems >= 10 && daysSinceActive < 2) return 'champion';
   if (daysSinceActive >= 7) return 'ghost';
   if (totalItems === 0 && daysSinceActive >= 3) return 'ghost';
-  if (totalItems >= 2 && daysSinceActive < 2) return 'active';
+  if (totalItems >= 1 && daysSinceActive < 2) return 'active'; // was ≥2
   return 'tire';
 }
 function computeScore(user) {
+  // v2.3 M9 · Bonuses for "noise" features (push) only count if user has real activity
   let score = 0;
+  const hasActivity = user.quoteCount >= 1 || user.jobCount >= 1;
   if (user.quoteCount >= 1) score += 30;
-  if (user.jobCount >= 1) score += 30;
-  if (user.pushEnabled) score += 15;
-  if (user.hasPayment) score += 15;
-  if (user.custCount >= 3) score += 10;
-  if (user.pdfGenerated) score += 10;
+  if (user.jobCount >= 1)   score += 30;
+  if (user.pushEnabled && hasActivity) score += 15; // gated · push w/o activity ≠ engagement
+  if (user.hasPayment)      score += 15;
+  if (user.custCount >= 3)  score += 10;
+  if (user.pdfGenerated && hasActivity) score += 10; // gated · PDF gen of empty data is gaming
   const daysIdle = (Date.now() - user.updatedAt) / 86400000;
-  if (daysIdle >= 7) score -= 20;
+  if (daysIdle >= 7)  score -= 20;
   if (daysIdle >= 14) score -= 20;
   return Math.max(0, Math.min(100, score));
 }
@@ -1045,6 +1146,10 @@ function processRows(rows) {
     const phone = String(profile.phone || '').trim();
     const line = String(profile.line || '').trim();
     const updatedAt = new Date(row.updated_at).getTime();
+    // v2.4 · signup approximation = earliest created_at across user's rows (multi-device)
+    // Mark as fallback when we don't have a real created_at, so cohort/TTFQ can exclude
+    const hasSignup = !!row.created_at;
+    const signupAt = hasSignup ? new Date(row.created_at).getTime() : updatedAt;
     const jobs = Array.isArray(d.JOBS) ? d.JOBS : [];
     const quotes = Array.isArray(d.QUOTES) ? d.QUOTES : [];
     const customers = d.CUSTOMER_INFO || {};
@@ -1056,18 +1161,24 @@ function processRows(rows) {
     const pdfGenerated = lastAction.type === 'generated_pdf';
     if (!map.has(email)) {
       map.set(email, {
-        email, emailIsFallback, shop, phone, line, updatedAt,
+        email, emailIsFallback, shop, phone, line, updatedAt, signupAt, hasSignup,
         jobCount: jobs.length, quoteCount: quotes.length, custCount: Object.keys(customers).length,
         appVersion: meta.app_version || '—',
         lastAction, pushEnabled, hasPayment, pdfGenerated,
-        quotes, ns, studioGenres, studioGenresOther
+        jobs, quotes, ns, studioGenres, studioGenresOther
       });
     } else {
       const u = map.get(email);
+      // signupAt: keep the EARLIEST real signup across devices · prefer real over fallback
+      if (hasSignup && (!u.hasSignup || signupAt < u.signupAt)) {
+        u.signupAt = signupAt; u.hasSignup = true;
+      } else if (!u.hasSignup && signupAt < u.signupAt) {
+        u.signupAt = signupAt;
+      }
       if (updatedAt > u.updatedAt) Object.assign(u, {
         updatedAt, shop, phone, line, jobCount: jobs.length, quoteCount: quotes.length,
         custCount: Object.keys(customers).length, lastAction, pushEnabled, hasPayment, pdfGenerated,
-        appVersion: meta.app_version || '—', quotes, ns, studioGenres, studioGenresOther
+        appVersion: meta.app_version || '—', jobs, quotes, ns, studioGenres, studioGenresOther
       });
     }
   });
@@ -1221,10 +1332,16 @@ function setUserFilter(filter) {
   renderUsersView(_lastUsers);
 }
 
-// v2.0 · Compute "action needed" users (at-risk · 3-14 days idle + has activity)
+// v2.3 M6 · Action needed = at-risk (3-14d idle w/ activity) OR active+low-score (early signal)
 function isActionNeeded(u) {
+  if (u.stage === 'champion') return false;
   const days = u.secondsAgo / 86400;
-  return days > 3 && days < 14 && (u.jobCount + u.quoteCount) >= 1 && u.stage !== 'champion';
+  const hasActivity = (u.jobCount + u.quoteCount) >= 1;
+  // Classic at-risk pattern (used to be active · now silent 3-14 days)
+  if (days > 3 && days < 14 && hasActivity) return true;
+  // v2.3 M6 · early-stage active user with low engagement (might churn soon)
+  if (u.stage === 'active' && (u.score || 0) < 40) return true;
+  return false;
 }
 
 // v2.0 · Sort users by importance: at-risk → online → champion → active → tire → ghost
@@ -1416,6 +1533,15 @@ function renderInsights(users) {
   const now = Date.now();
   const SEVEN_DAYS = 7 * 86400000;
 
+  // v2.4 · 7 new metrics
+  try { renderMetricGMV(users); } catch (e) { console.warn('GMV metric:', e); }
+  try { renderMetricConversion(users); } catch (e) { console.warn('Conv metric:', e); }
+  try { renderMetricTTFQ(users); } catch (e) { console.warn('TTFQ metric:', e); }
+  try { renderCohortRetention(users); } catch (e) { console.warn('Cohort:', e); }
+  try { renderLeadSource(users); } catch (e) { console.warn('LeadSource:', e); }
+  try { renderEngagementPareto(users); } catch (e) { console.warn('Engagement:', e); }
+  try { renderPaymentHealth(users); } catch (e) { console.warn('PayHealth:', e); }
+
   // Funnel
   const funnelData = [
     { num: 1, label: 'Signup', count: totalUsers },
@@ -1475,6 +1601,212 @@ function formatGenres(arr, other) {
     return m ? m.emoji + ' ' + m.label : g;
   }).join(' · ');
 }
+// ============ v2.4 · 7 NEW METRICS ============
+
+// #1 · GMV + Cash In · sum across all users
+function renderMetricGMV(users) {
+  let gmv = 0;
+  let cashIn = 0;
+  users.forEach(u => {
+    (u.jobs || []).forEach(j => {
+      gmv += parseFloat(j.sell) || 0;
+      (j.payments || []).forEach(p => { cashIn += parseFloat(p.amount) || 0; });
+    });
+  });
+  const fmt = n => '฿' + (n >= 1000000 ? (n/1000000).toFixed(1) + 'M' : n >= 1000 ? (n/1000).toFixed(1) + 'K' : Math.round(n).toLocaleString());
+  const elGmv = document.getElementById('metric-gmv');
+  const elCash = document.getElementById('metric-cashin');
+  if (elGmv)  elGmv.textContent  = fmt(gmv);
+  if (elCash) elCash.textContent = fmt(cashIn);
+  const gmvSub = document.getElementById('metric-gmv-sub');
+  if (gmvSub) gmvSub.textContent = users.reduce((s,u)=>s+u.jobCount,0) + ' งานในระบบ';
+  const cashSub = document.getElementById('metric-cashin-sub');
+  if (cashSub && gmv > 0) cashSub.textContent = 'เก็บได้ ' + Math.round((cashIn/gmv)*100) + '% ของยอด';
+}
+
+// #2 · Quote → Job Conversion Rate
+function renderMetricConversion(users) {
+  let totalQuotes = 0, converted = 0;
+  users.forEach(u => {
+    (u.quotes || []).forEach(q => {
+      totalQuotes++;
+      if (q.status === 'converted' || q.convertedJobCode) converted++;
+    });
+  });
+  const rate = totalQuotes > 0 ? Math.round((converted/totalQuotes)*100) : 0;
+  const el = document.getElementById('metric-conv');
+  const sub = document.getElementById('metric-conv-sub');
+  if (el)  el.textContent  = totalQuotes > 0 ? rate + '%' : '—';
+  if (sub) sub.textContent = converted + ' / ' + totalQuotes + ' ใบ';
+  if (el) el.style.color = rate >= 60 ? '#6ee0a7' : (rate >= 30 ? 'var(--yellow)' : '#fca5a5');
+}
+
+// #3 · Time to First Quote (median, hours) — signupAt → earliest quote.dateSent
+function renderMetricTTFQ(users) {
+  const ttfqHrs = [];
+  users.forEach(u => {
+    // v2.4 · only count users with REAL signup timestamp · skip data-sync-only users
+    if (!u.hasSignup || !u.signupAt || !u.quotes || !u.quotes.length) return;
+    let earliestQuoteAt = Infinity;
+    u.quotes.forEach(q => {
+      const t = new Date(q._createdAt || q.dateSent || 0).getTime();
+      if (!isNaN(t) && t > 0 && t < earliestQuoteAt) earliestQuoteAt = t;
+    });
+    if (earliestQuoteAt === Infinity) return;
+    const hrs = (earliestQuoteAt - u.signupAt) / 3600000;
+    if (hrs >= 0 && hrs < 24 * 60) ttfqHrs.push(hrs); // ignore extreme outliers (>60 days)
+  });
+  ttfqHrs.sort((a, b) => a - b);
+  const median = ttfqHrs.length ? ttfqHrs[Math.floor(ttfqHrs.length / 2)] : null;
+  const el = document.getElementById('metric-ttfq');
+  const sub = document.getElementById('metric-ttfq-sub');
+  if (!el) return;
+  if (median == null) { el.textContent = '—'; if (sub) sub.textContent = 'ยังไม่มี user สร้างใบเสนอ'; return; }
+  el.textContent = median < 1 ? Math.round(median * 60) + ' นาที' : (median < 24 ? median.toFixed(1) + ' ชม.' : (median/24).toFixed(1) + ' วัน');
+  if (sub) sub.textContent = ttfqHrs.length + ' user · median';
+  el.style.color = median < 2 ? '#6ee0a7' : (median < 24 ? 'var(--yellow)' : '#fca5a5');
+}
+
+// #4 · D7/D30 Retention by signup cohort (weekly)
+function renderCohortRetention(users) {
+  const now = Date.now();
+  const DAY = 86400000;
+  // Only include users with REAL signup timestamp (not fallback)
+  const valid = users.filter(u => u.hasSignup && u.signupAt);
+  const excluded = users.length - valid.length;
+  // Group users by signup week (ISO-ish · Monday-start)
+  const cohorts = new Map();
+  valid.forEach(u => {
+    const d = new Date(u.signupAt);
+    const day = d.getDay(); // 0=Sun
+    const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((day + 6) % 7));
+    const key = monday.toISOString().slice(0, 10);
+    if (!cohorts.has(key)) cohorts.set(key, { mondayMs: monday.getTime(), users: [] });
+    cohorts.get(key).users.push(u);
+  });
+  const rows = Array.from(cohorts.entries())
+    .map(([key, c]) => {
+      const cohortAgeDays = (now - c.mondayMs) / DAY;
+      let d7 = 0, d30 = 0;
+      c.users.forEach(u => {
+        // "Active" = updated within +-D days of cohort start. We approximate: did user have activity by day D after signup?
+        const daysSinceSignup = (u.updatedAt - u.signupAt) / DAY;
+        if (daysSinceSignup >= 7) d7++;
+        if (daysSinceSignup >= 30) d30++;
+      });
+      return { weekStart: key, size: c.users.length, d7, d30, cohortAgeDays };
+    })
+    .sort((a, b) => new Date(b.weekStart) - new Date(a.weekStart))
+    .slice(0, 8); // last 8 cohorts max
+
+  const el = document.getElementById('cohort-table');
+  if (!el) return;
+  const excludedNote = excluded > 0 ? `<div style="font-size:10.5px; color:var(--muted); margin-top:6px; font-style:italic;">ไม่นับ ${excluded} ผู้ใช้ที่ไม่มีข้อมูลวันสมัครจริง (data sync เก่า)</div>` : '';
+  if (!rows.length) { el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:14px;font-size:11.5px;">ยังไม่มีข้อมูล signup ที่จับได้</div>' + excludedNote; return; }
+  const cls = (pct, age, dThresh) => age < dThresh ? 'na' : (pct >= 50 ? 'good' : (pct >= 25 ? 'mid' : 'bad'));
+  let html = '<table class="cohort-tbl"><thead><tr><th>สมัครสัปดาห์ของ</th><th>ขนาด</th><th>D7</th><th>D30</th></tr></thead><tbody>';
+  rows.forEach(r => {
+    const monthShort = new Date(r.weekStart).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+    const d7Pct  = r.size > 0 ? Math.round((r.d7  / r.size) * 100) : 0;
+    const d30Pct = r.size > 0 ? Math.round((r.d30 / r.size) * 100) : 0;
+    const d7Txt  = r.cohortAgeDays >= 7  ? d7Pct + '%'  : '—';
+    const d30Txt = r.cohortAgeDays >= 30 ? d30Pct + '%' : '—';
+    html += `<tr>
+      <td>${monthShort}</td>
+      <td>${r.size}</td>
+      <td><span class="cohort-pct ${cls(d7Pct, r.cohortAgeDays, 7)}">${d7Txt}</span></td>
+      <td><span class="cohort-pct ${cls(d30Pct, r.cohortAgeDays, 30)}">${d30Txt}</span></td>
+    </tr>`;
+  });
+  html += '</tbody></table>' + excludedNote;
+  el.innerHTML = html;
+}
+
+// #5 · Lead Source aggregated across all users' jobs
+function renderLeadSource(users) {
+  const counts = {};
+  users.forEach(u => {
+    (u.jobs || []).forEach(j => {
+      let src = (j.source || 'ไม่ระบุ').trim() || 'ไม่ระบุ';
+      // v2.4 · Normalize quote-derived sources · "Quote QT-2026-001" → "📄 จากใบเสนอ"
+      if (/^Quote\s+/i.test(src)) src = '📄 จากใบเสนอ';
+      counts[src] = (counts[src] || 0) + 1;
+    });
+  });
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const total = entries.reduce((s, e) => s + e[1], 0);
+  const el = document.getElementById('lead-source-bars');
+  if (!el) return;
+  if (!entries.length) { el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:14px;font-size:11.5px;">ยังไม่มีงานในระบบ</div>'; return; }
+  const max = entries[0][1];
+  el.innerHTML = entries.map(([src, n]) => {
+    const pct = total > 0 ? Math.round((n/total)*100) : 0;
+    const wPct = Math.round((n/max)*100);
+    return `<div class="src-bar">
+      <div class="src-bar-label">${escapeHtml(src)}</div>
+      <div class="src-bar-wrap"><div class="src-bar-fill" style="width:${wPct}%;">${n}</div></div>
+      <div class="src-bar-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// #6 · Engagement Pareto (bucketed)
+function renderEngagementPareto(users) {
+  const buckets = [
+    { label: '0 รายการ (ghost)', min: 0, max: 0, count: 0 },
+    { label: '1-2 รายการ', min: 1, max: 2, count: 0 },
+    { label: '3-5 รายการ', min: 3, max: 5, count: 0 },
+    { label: '6-10 รายการ', min: 6, max: 10, count: 0 },
+    { label: '10+ (power)', min: 11, max: Infinity, count: 0 }
+  ];
+  users.forEach(u => {
+    const items = (u.jobCount || 0) + (u.quoteCount || 0);
+    const b = buckets.find(b => items >= b.min && items <= b.max);
+    if (b) b.count++;
+  });
+  const total = users.length;
+  const max = Math.max(...buckets.map(b => b.count), 1);
+  const el = document.getElementById('engagement-bars');
+  if (!el) return;
+  el.innerHTML = buckets.map(b => {
+    const pct = total > 0 ? Math.round((b.count/total)*100) : 0;
+    const wPct = Math.round((b.count/max)*100);
+    return `<div class="eng-bar">
+      <div class="eng-bar-label">${b.label}</div>
+      <div class="eng-bar-wrap"><div class="eng-bar-fill" style="width:${wPct}%;">${b.count}</div></div>
+      <div class="eng-bar-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// #7 · Payment Collection Health
+function renderPaymentHealth(users) {
+  let totalJobs = 0, jobsWithPay = 0;
+  let sumSell = 0, sumPaid = 0;
+  users.forEach(u => {
+    (u.jobs || []).forEach(j => {
+      totalJobs++;
+      const sell = parseFloat(j.sell) || 0;
+      sumSell += sell;
+      const paid = (j.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+      sumPaid += paid;
+      if (paid > 0) jobsWithPay++;
+    });
+  });
+  const payPct = totalJobs > 0 ? Math.round((jobsWithPay/totalJobs)*100) : 0;
+  const collectPct = sumSell > 0 ? Math.round((sumPaid/sumSell)*100) : 0;
+  const el = document.getElementById('metric-payhealth');
+  const sub = document.getElementById('metric-payhealth-sub');
+  const elAvg = document.getElementById('metric-collectavg');
+  const subAvg = document.getElementById('metric-collectavg-sub');
+  if (el)    el.textContent = totalJobs > 0 ? payPct + '%' : '—';
+  if (sub)   sub.textContent = jobsWithPay + ' / ' + totalJobs + ' งาน';
+  if (elAvg) elAvg.textContent = sumSell > 0 ? collectPct + '%' : '—';
+  if (subAvg) subAvg.textContent = '฿' + Math.round(sumPaid/1000) + 'K / ฿' + Math.round(sumSell/1000) + 'K';
+  if (el)    el.style.color = payPct >= 70 ? '#6ee0a7' : (payPct >= 40 ? 'var(--yellow)' : '#fca5a5');
+  if (elAvg) elAvg.style.color = collectPct >= 70 ? '#6ee0a7' : (collectPct >= 40 ? 'var(--yellow)' : '#fca5a5');
+}
+
 function renderGenreBars(users) {
   const counts = {}; let userWithData = 0;
   users.forEach(u => {
@@ -1503,6 +1835,8 @@ function renderGenreBars(users) {
 }
 
 // ============ NOTIFY ============
+// v2.3 M8 · cleaner "first quote/job" detection (was: u.quoteCount === u.quoteCount - prev.quoteCount · self-equal · worked by accident)
+// Correct logic: "first" = prev.count was 0 AND now > 0
 function detectAndNotify(users) {
   if (_isFirstRender) { _prevSnapshot = snapshotUsers(users); _isFirstRender = false; return; }
   users.forEach(u => {
@@ -1514,11 +1848,13 @@ function detectAndNotify(users) {
     }
     if (!prev) return;
     if (_notifPrefs.quote && u.quoteCount > prev.quoteCount) {
-      const tag = (u.quoteCount === u.quoteCount - prev.quoteCount) ? ' · ใบแรก! 🎉' : '';
+      const isFirst = prev.quoteCount === 0; // M8 fix · prev=0 + now>0 = first ever
+      const tag = isFirst ? ' · ใบแรก! 🎉' : '';
       showToast({ type: 'quote', title: '📋 สร้างใบเสนอ' + tag, body: `<b>${escapeHtml(name)}</b><br>รวม ${u.quoteCount} ใบ`, time: 'เมื่อกี้', onClick: () => openDmModal(u.email, 'active') });
     }
     if (_notifPrefs.job && u.jobCount > prev.jobCount) {
-      const tag = (u.jobCount === u.jobCount - prev.jobCount) ? ' · งานแรก! 🎉' : '';
+      const isFirst = prev.jobCount === 0; // M8 fix
+      const tag = isFirst ? ' · งานแรก! 🎉' : '';
       showToast({ type: 'job', title: '💼 สร้างงาน' + tag, body: `<b>${escapeHtml(name)}</b><br>รวม ${u.jobCount} งาน`, time: 'เมื่อกี้', onClick: () => openDmModal(u.email, 'active') });
     }
     if (_notifPrefs.payment && u.lastAction && u.lastAction.type === 'logged_payment' && u.lastAction.at !== prev.lastActionAt) {
