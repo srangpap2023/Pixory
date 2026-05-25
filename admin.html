@@ -328,6 +328,12 @@
       </div>
     </div>
 
+    <!-- Genre breakdown -->
+    <div class="section-title">📸 GENRE BREAKDOWN · ประเภทช่างภาพ <span class="badge" id="genre-with-data">—</span></div>
+    <div class="panel" style="margin-bottom: 16px;">
+      <div id="genre-bars"></div>
+    </div>
+
     <!-- Funnel + Insights -->
     <div class="row-2">
       <div class="panel">
@@ -361,6 +367,7 @@
             <th>STAGE</th>
             <th>ผู้ใช้</th>
             <th>เบอร์ · LINE</th>
+            <th>ประเภทงาน</th>
             <th>LAST ACTION</th>
             <th>เข้าครั้งล่าสุด</th>
             <th>SCORE</th>
@@ -505,7 +512,7 @@ function enterDashboard(user) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('dashboard-screen').style.display = '';
   if (user.email !== ADMIN_EMAIL) {
-    document.getElementById('users-table').innerHTML = `<tr><td colspan="7" class="empty"><div class="icon">🔒</div><div class="title">ไม่ใช่บัญชี admin</div></td></tr>`;
+    document.getElementById('users-table').innerHTML = `<tr><td colspan="8" class="empty"><div class="icon">🔒</div><div class="title">ไม่ใช่บัญชี admin</div></td></tr>`;
     return;
   }
   loadDashboard(true);
@@ -534,20 +541,20 @@ function subscribeToRealtime() {
 
 async function loadDashboard(showLoading) {
   if (showLoading) {
-    document.getElementById('users-table').innerHTML = '<tr><td colspan="7" class="empty"><div class="icon">⏳</div><div class="title">กำลังโหลด...</div></td></tr>';
+    document.getElementById('users-table').innerHTML = '<tr><td colspan="8" class="empty"><div class="icon">⏳</div><div class="title">กำลังโหลด...</div></td></tr>';
   }
   try {
     const { data: rows, error } = await SUPABASE.from('user_data')
       .select('user_id, data, device_id, updated_at')
       .order('updated_at', { ascending: false });
     if (error) {
-      document.getElementById('users-table').innerHTML = `<tr><td colspan="7" class="empty"><div class="icon">⚠️</div><div class="title">โหลดข้อมูลไม่สำเร็จ</div><div>${escapeHtml(error.message)}</div></td></tr>`;
+      document.getElementById('users-table').innerHTML = `<tr><td colspan="8" class="empty"><div class="icon">⚠️</div><div class="title">โหลดข้อมูลไม่สำเร็จ</div><div>${escapeHtml(error.message)}</div></td></tr>`;
       return;
     }
     _lastUsers = processRows(rows || []);
     renderDashboard(_lastUsers);
   } catch (e) {
-    document.getElementById('users-table').innerHTML = `<tr><td colspan="7" class="empty"><div class="icon">⚠️</div><div class="title">Error</div><div>${escapeHtml(e.message || e)}</div></td></tr>`;
+    document.getElementById('users-table').innerHTML = `<tr><td colspan="8" class="empty"><div class="icon">⚠️</div><div class="title">Error</div><div>${escapeHtml(e.message || e)}</div></td></tr>`;
   }
 }
 
@@ -602,6 +609,8 @@ function processRows(rows) {
     const quotes = Array.isArray(d.QUOTES) ? d.QUOTES : [];
     const customers = d.CUSTOMER_INFO || {};
     const lastAction = profile.LAST_ACTION || { type: '', at: '', code: '' };
+    const studioGenres = Array.isArray(profile.studioGenres) ? profile.studioGenres : [];
+    const studioGenresOther = String(profile.studioGenresOther || '').trim();
     const pushEnabled = !!ns.pushEnabled;
     const hasPayment = jobs.some(j => Array.isArray(j.payments) && j.payments.length > 0);
     const pdfGenerated = lastAction.type === 'generated_pdf' ||
@@ -623,7 +632,8 @@ function processRows(rows) {
         devices: new Set([row.device_id].filter(Boolean)),
         lastAction, pushEnabled, hasPayment, pdfGenerated,
         quotes: quotes,
-        ns: ns
+        ns: ns,
+        studioGenres, studioGenresOther
       });
     } else {
       const u = map.get(email);
@@ -631,7 +641,8 @@ function processRows(rows) {
       if (updatedAt > u.updatedAt) Object.assign(u, {
         updatedAt, shop, phone, line, jobCount: jobs.length, quoteCount: quotes.length,
         custCount: Object.keys(customers).length, lastAction, pushEnabled, hasPayment, pdfGenerated,
-        appVersion: meta.app_version || '—', quotes, ns
+        appVersion: meta.app_version || '—', quotes, ns,
+        studioGenres, studioGenresOther
       });
     }
   });
@@ -710,6 +721,9 @@ function renderDashboard(users) {
     var(--green) ${tirePct}% ${activePct}%,
     var(--purple) ${activePct}% 100%
   )`;
+
+  // === Genre breakdown ===
+  renderGenreBars(users);
 
   // === Funnel ===
   const funnelData = [
@@ -803,6 +817,7 @@ function renderUserRow(u) {
         ${u.phone ? '📱 ' + escapeHtml(u.phone) : '<span style="color:var(--muted);">—</span>'}<br>
         ${u.line ? '💬 ' + escapeHtml(u.line) : '<span style="color:var(--muted);">—</span>'}
       </td>
+      <td style="font-size:11px; max-width:180px;">${formatGenres(u.studioGenres, u.studioGenresOther)}</td>
       <td class="last-action">${lastActionLabel}</td>
       <td style="font-size:11px;">${lastSeen}<span class="online-dot ${u.isOnline ? 'live' : ''}"></span></td>
       <td><span class="score ${scoreClass}">${u.score}</span></td>
@@ -909,6 +924,62 @@ function sendDm(channel) {
   } else if (channel === 'copy') {
     navigator.clipboard.writeText(text).then(() => alert('📋 Copy ข้อความเข้า clipboard แล้ว · แปะใน FB Messenger หรือที่อื่น'));
   }
+}
+
+// ========== GENRE HELPERS (v2.3.1) ==========
+const GENRE_LABELS = {
+  wedding:    { emoji: '💍', label: 'Wedding · งานแต่ง' },
+  prewedding: { emoji: '📸', label: 'Pre-wedding' },
+  family:     { emoji: '👨‍👩‍👧', label: 'ครอบครัว · Portrait' },
+  newborn:    { emoji: '👶', label: 'Newborn · Maternity' },
+  graduation: { emoji: '🎓', label: 'รับปริญญา' },
+  ordination: { emoji: '🙏', label: 'งานบวช' },
+  event:      { emoji: '🏢', label: 'Event · งานบริษัท' },
+  concert:    { emoji: '🎵', label: 'คอนเสิร์ต' },
+  product:    { emoji: '🛍', label: 'Product · Commercial' },
+  food:       { emoji: '🥘', label: 'Food' },
+  travel:     { emoji: '✈️', label: 'Travel · Lifestyle' },
+  pet:        { emoji: '🐕', label: 'Pet' },
+  other:      { emoji: '📝', label: 'อื่นๆ' }
+};
+function formatGenres(arr, other) {
+  if (!Array.isArray(arr) || arr.length === 0) return '<span style="color:var(--muted);">—</span>';
+  const items = arr.map(g => {
+    if (g === 'other' && other) return `📝 ${escapeHtml(other)}`;
+    const m = GENRE_LABELS[g];
+    return m ? m.emoji + ' ' + m.label.split(' ·')[0] : g;
+  });
+  return items.join(' · ');
+}
+function renderGenreBars(users) {
+  const counts = {};
+  let userWithData = 0;
+  users.forEach(u => {
+    if (Array.isArray(u.studioGenres) && u.studioGenres.length > 0) {
+      userWithData++;
+      u.studioGenres.forEach(g => { counts[g] = (counts[g] || 0) + 1; });
+    }
+  });
+  document.getElementById('genre-with-data').textContent = userWithData + '/' + users.length + ' ระบุแล้ว';
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  if (entries.length === 0) {
+    document.getElementById('genre-bars').innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;font-size:12px;">ยังไม่มี user ที่ระบุประเภทงาน · feature นี้มีตั้งแต่ v2.3.1</div>';
+    return;
+  }
+  const max = Math.max(...entries.map(e => e[1]));
+  document.getElementById('genre-bars').innerHTML = entries.map(([g, n]) => {
+    const meta = GENRE_LABELS[g] || { emoji: '❓', label: g };
+    const pct = Math.round((n / users.length) * 100);
+    const widthPct = Math.round((n / max) * 100);
+    return `
+      <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px dashed rgba(255,255,255,.04);">
+        <div style="width:160px; font-size:12px; color:white; flex-shrink:0;">${meta.emoji} ${meta.label}</div>
+        <div style="flex:1; background:rgba(255,255,255,.06); border-radius:6px; height:20px; overflow:hidden;">
+          <div style="height:100%; width:${widthPct}%; background:linear-gradient(90deg, var(--accent-2), var(--accent)); border-radius:6px; display:flex; align-items:center; padding-left:8px; color:white; font-size:10px; font-weight:700;">${n}</div>
+        </div>
+        <div style="flex:0 0 50px; text-align:right; font-size:12px; font-weight:700; color:var(--accent-2);">${pct}%</div>
+      </div>`;
+  }).join('');
 }
 
 // ========== HELPERS ==========
