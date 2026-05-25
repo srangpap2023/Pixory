@@ -6883,7 +6883,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.6';
+const PIXORY_VERSION = '2.5.7';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6894,6 +6894,23 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.7': {
+    date: '2026-05-25',
+    title: 'นับค่าเดินทาง/ที่พักเข้ารายได้',
+    subtitle: 'รายการ "ค่าใช้จ่ายในงานนี้" ที่ลูกค้าจ่ายเรา · ตอนนี้ถูกนับเป็นรายได้ + กระจายเข้าหมวด',
+    items: [
+      {
+        icon: '💰',
+        title: 'รายได้รวมแม่นยำขึ้น',
+        desc: 'เก่า: ค่าเดินทาง/ที่พักที่เก็บลูกค้าเพิ่ม · ไม่ถูกนับเข้ารายได้ ใหม่: นับเป็นรายได้ pass-through · แสดงในทั้ง KPI และ Donut chart'
+      },
+      {
+        icon: '📊',
+        title: 'กระจายตามสัดส่วนแพคเกจในงาน',
+        desc: 'งาน Wedding ภาพนิ่ง+Video+Photobooth + ค่าเดินทาง · ค่าเดินทางจะถูกกระจายเข้าทั้ง 3 หมวดตามสัดส่วนของแพคเกจ · ผลรวมในชาร์ท = รายได้รวมเป๊ะ'
+      }
+    ]
+  },
   '2.5.6': {
     date: '2026-05-25',
     title: 'แก้ Donut chart · แสดงทุกหมวดในงานเดียว',
@@ -14008,15 +14025,23 @@ function renderHomeHero() {
   });
   const selYear = parseInt(sel.value, 10) || thisYear;
 
-  // Compute revenue per month
+  // Compute revenue per month · v2.5.7 · include billableCosts (pass-through revenue)
+  function jobRev(j) {
+    let bc = 0;
+    if (Array.isArray(j.billableCosts)) {
+      bc = j.billableCosts.reduce((s, c) => s + (parseFloat(c && c.price) || 0), 0);
+    }
+    return (j.sell || 0) + bc;
+  }
   const months = new Array(12).fill(0);
   let totalRev = 0;
   JOBS.forEach(j => {
     if (!j.date) return;
     const d = new Date(j.date);
     if (d.getFullYear() === selYear) {
-      months[d.getMonth()] += (j.sell || 0);
-      totalRev += (j.sell || 0);
+      const r = jobRev(j);
+      months[d.getMonth()] += r;
+      totalRev += r;
     }
   });
   // Prev year revenue for delta
@@ -14024,7 +14049,7 @@ function renderHomeHero() {
   JOBS.forEach(j => {
     if (!j.date) return;
     const d = new Date(j.date);
-    if (d.getFullYear() === selYear - 1) prevRev += (j.sell || 0);
+    if (d.getFullYear() === selYear - 1) prevRev += jobRev(j);
   });
 
   // Labels
@@ -19679,7 +19704,14 @@ function renderDashboard() {
   const yearJobs = JOBS.filter(j => new Date(j.date).getFullYear() === yr);
   const yearExp = EXPENSES.filter(e => new Date(e.date).getFullYear() === yr);
 
-  const income = yearJobs.reduce((s,j) => s + (j.sell || 0), 0);
+  // v2.5.7 · include billableCosts (pass-through revenue · travel/lodging billed to customer)
+  const income = yearJobs.reduce((s, j) => {
+    let billable = 0;
+    if (Array.isArray(j.billableCosts)) {
+      billable = j.billableCosts.reduce((ss, c) => ss + (parseFloat(c && c.price) || 0), 0);
+    }
+    return s + (j.sell || 0) + billable;
+  }, 0);
   // Cash-in: sum of actual payments received this year (deposit + balance + manual receive)
   // Cross-year safe: a 2025 job whose balance paid in 2026 counts in 2026
   const totalCashIn = JOBS.reduce((s, j) => {
@@ -19721,18 +19753,28 @@ function renderDashboard() {
   document.getElementById('db-quote-won').textContent = wonCount;
   document.getElementById('db-conv-rate').textContent = convRate + '%';
 
-  // -- Revenue mix by JOB_TYPE (v2.5.6 · proportional allocation per component)
+  // -- Revenue mix by JOB_TYPE (v2.5.7 · proportional allocation incl. billableCosts)
   // Each job may have multiple packages with DIFFERENT categories
   // (e.g. Wedding job with ภาพนิ่ง→Wedding + Video→Cinematography + Photobooth→Photo Booth)
   // Algorithm:
-  //   1) gross = sum of all components (services + addons + customItems)
-  //   2) ratio = j.sell / gross  (handles discount proportionally)
-  //   3) each component contributes (component.price * ratio) to its mapped category
-  // Total of all buckets = sum(j.sell) = "รายได้รวม" KPI · always consistent
+  //   1) gross = sum of in-package components (services + addons + customItems)
+  //   2) netRevenue = j.sell + sum(billableCosts) — actual money the customer paid
+  //   3) ratio = netRevenue / gross
+  //   4) each component contributes (component.price * ratio) to its mapped category
+  // Total of all buckets = sum(j.sell + billableCosts) · matches "รายได้รวม" KPI
   const svc = {};
   yearJobs.forEach(j => {
     const sell = parseFloat(j.sell) || 0;
-    if (!(sell > 0)) return;
+    // billableCosts · pass-through revenue (travel/lodging billed to customer)
+    let billableTotal = 0;
+    if (Array.isArray(j.billableCosts)) {
+      j.billableCosts.forEach(ci => {
+        const p = parseFloat(ci && ci.price) || 0;
+        if (p > 0) billableTotal += p;
+      });
+    }
+    const netRevenue = sell + billableTotal;
+    if (!(netRevenue > 0)) return;
     const fallback = (j.type && j.type.trim())
       || (typeof deriveJobType === 'function' ? deriveJobType(j) : null)
       || 'อื่นๆ';
@@ -19765,16 +19807,15 @@ function renderDashboard() {
         components.push({ price: p, category: cat });
       });
     }
-    // NOTE: billableCosts NOT included · they sit outside j.sell
-    // Step 2: distribute j.sell proportionally
+    // Step 2: distribute netRevenue (sell + billable) proportionally
     if (gross > 0 && components.length > 0) {
-      const ratio = sell / gross; // ≤ 1 when there's a discount
+      const ratio = netRevenue / gross;
       components.forEach(c => {
         svc[c.category] = (svc[c.category] || 0) + c.price * ratio;
       });
     } else {
-      // Edge case: sell > 0 but no components recorded → put all into fallback
-      svc[fallback] = (svc[fallback] || 0) + sell;
+      // Edge case: revenue > 0 but no components → put all into fallback
+      svc[fallback] = (svc[fallback] || 0) + netRevenue;
     }
   });
 
@@ -19785,7 +19826,14 @@ function renderDashboard() {
   // -- Monthly
   const monthlyIn = new Array(12).fill(0);
   const monthlyOut = new Array(12).fill(0);
-  yearJobs.forEach(j => { monthlyIn[new Date(j.date).getMonth()] += (j.sell || 0); });
+  // v2.5.7 · monthly revenue includes billableCosts (matches main income KPI)
+  yearJobs.forEach(j => {
+    let bc = 0;
+    if (Array.isArray(j.billableCosts)) {
+      bc = j.billableCosts.reduce((s, c) => s + (parseFloat(c && c.price) || 0), 0);
+    }
+    monthlyIn[new Date(j.date).getMonth()] += (j.sell || 0) + bc;
+  });
   yearJobs.forEach(j => {
     const m = new Date(j.date).getMonth();
     // v1.9.31 · include costItems multi-item sum in monthly expense bar
