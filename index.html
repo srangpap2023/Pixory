@@ -3985,8 +3985,8 @@
       </div>
 
       <div class="chart-card">
-        <div class="chart-title" data-i18n="dbcard.byService">📊 รายได้แยกบริการ</div>
-        <div class="chart-sub" data-i18n="db.byService">สัดส่วนรายได้ของแต่ละบริการ</div>
+        <div class="chart-title" data-i18n="dbcard.byService">📊 รายได้แยกประเภทงาน</div>
+        <div class="chart-sub" data-i18n="db.byService">สัดส่วนรายได้ของแต่ละประเภทงาน</div>
         <div class="chart-wrap"><canvas id="chart-service"></canvas></div>
       </div>
 
@@ -4294,16 +4294,8 @@
       <!-- Tab: งาน -->
       <div class="settings-section">
         <div class="sec-title">📅 รายละเอียดงาน</div>
-        <div class="form-group" style="margin: 0 0 10px;">
-          <label data-i18n="lbl.jobType">ประเภทงาน</label>
-          <div class="chip-row" id="add-type-row">
-            <div class="chip active" onclick="selectOne(this, 'job-type')">Wedding</div>
-            <div class="chip" onclick="selectOne(this, 'job-type')">Pre-wedding</div>
-            <div class="chip" onclick="selectOne(this, 'job-type')">Engagement</div>
-            <div class="chip" onclick="selectOne(this, 'job-type')">Profile</div>
-            <div class="chip" onclick="selectOne(this, 'job-type')">Photobooth only</div>
-          </div>
-        </div>
+        <!-- v2.5.4 · ประเภทงาน chip removed · auto-derived from selected packages (each service has its own category in Settings) -->
+        <div id="add-type-row" style="display:none;"></div>
         <div class="form-group" style="margin: 0 0 8px;">
           <label><span data-i18n="lbl.workSchedule">⏱ เวลาทำงาน</span> <span class="req">*</span></label>
         </div>
@@ -5046,15 +5038,8 @@
       <!-- งาน -->
       <div class="settings-section">
         <div class="sec-title" data-i18n="aj.jobInfo">📋 ข้อมูลงาน</div>
-        <div class="form-group" style="margin: 0 0 10px;">
-          <label data-i18n="lbl.jobType">ประเภทงาน</label>
-          <div class="chip-row" id="nq-type-row">
-            <div class="chip active" onclick="selectOne(this, 'nq-type')">Wedding</div>
-            <div class="chip" onclick="selectOne(this, 'nq-type')">Pre-wedding</div>
-            <div class="chip" onclick="selectOne(this, 'nq-type')">Engagement</div>
-            <div class="chip" onclick="selectOne(this, 'nq-type')">Profile</div>
-          </div>
-        </div>
+        <!-- v2.5.4 · ประเภทงาน chip removed · auto-derived from selected packages -->
+        <div id="nq-type-row" style="display:none;"></div>
         <div class="form-group" style="margin: 0 0 8px;">
           <label data-i18n="lbl.workSchedule">⏱ เวลาทำงาน</label>
         </div>
@@ -5983,12 +5968,13 @@
         <label>เลือกสี</label>
         <div class="chip-row" id="svc-color-row"></div>
       </div>
-      <!-- v1.9.4 · Default Job Type · auto-applied when this service's package picked on Add Job -->
+      <!-- v2.5.4 · ประเภทงานของบริการนี้ · ใช้จัดประเภทงานในหน้าสรุป donut chart -->
       <div class="form-group" style="margin: 0 16px 10px;">
-        <label>ประเภทงานเริ่มต้น <span style="color:#a89a8c; font-size:11px;">(เลือก package ในหมวดนี้ตอนสร้างงาน → set ให้ทันที)</span></label>
+        <label>ประเภทงานของบริการนี้ <span style="color:#dc2626;">*</span></label>
         <select id="svc-default-jobtype">
-          <option value="">— ไม่ระบุ —</option>
+          <option value="">— เลือกประเภท —</option>
         </select>
+        <div style="font-size:11px; color:#7c7066; margin-top:5px;">งานที่เลือกแพคเกจของบริการนี้จะถูกจัดเข้าประเภทนี้ในหน้าสรุปอัตโนมัติ</div>
       </div>
       <button class="btn" onclick="saveServiceEdit()">บันทึก</button>
       <button class="btn secondary" onclick="cancelServiceEdit()">ยกเลิก</button>
@@ -6824,21 +6810,9 @@ function dateParts(s) {
 }
 
 // v1.9.4 · Auto-set Job Type chip when first package picked (uses service.defaultJobType)
+// v2.5.4 · chip is hidden · keep function as no-op for backward compat
 function autoSetJobTypeFromService(ctx, jobType) {
-  if (!jobType) return;
-  const rowId = ctx === 'add' ? 'add-type-row' : 'nq-type-row';
-  const row = document.getElementById(rowId);
-  if (!row) return;
-  const chips = row.querySelectorAll('.chip');
-  let matched = false;
-  chips.forEach(c => {
-    if (c.textContent.trim() === jobType) {
-      chips.forEach(x => x.classList.remove('active'));
-      c.classList.add('active');
-      matched = true;
-    }
-  });
-  if (matched && typeof toast === 'function') toast('ตั้งประเภทงานเป็น "' + jobType + '" ตามแพคเกจให้ครับ');
+  // No-op · type is now derived on save via deriveJobType()
 }
 
 // ========== NAV ==========
@@ -6909,7 +6883,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.2';
+const PIXORY_VERSION = '2.5.4';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6920,6 +6894,45 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.4': {
+    date: '2026-05-25',
+    title: 'ตัดช่อง "ประเภทงาน" ออก · แอพคำนวณให้เอง',
+    subtitle: 'หน้าสร้างงาน/ใบเสนอราคา ลดช่องไป 1 ช่อง · แอพดูจากแพคเกจที่เลือกแล้วบอกได้ทันที',
+    items: [
+      {
+        icon: '🤖',
+        title: 'ประเภทงานถูกคำนวณอัตโนมัติ',
+        desc: 'แอพจะดูจากแพคเกจที่ใหญ่สุด (ราคาสูงสุด) แล้วจัดเข้าประเภทงานให้เอง · ไม่ต้องกดเลือกประเภทงานอีกแล้ว'
+      },
+      {
+        icon: '⚙️',
+        title: 'ตั้งค่าได้ว่าบริการไหนเป็นประเภทอะไร',
+        desc: 'ไปที่ ตั้งค่า → แพ็คเกจ & ราคา → แตะบริการ → "ประเภทงานของบริการนี้" · แอพจะเดาให้ครั้งแรกจากงานเก่า · ตรวจสอบและแก้ได้ทุกเมื่อ'
+      },
+      {
+        icon: '✨',
+        title: 'ของเก่าไม่มีผลกระทบ',
+        desc: 'งานและใบเสนอเดิม ยังคงประเภทเดิมไว้ · เฉพาะงานใหม่ที่จะถูกคำนวณอัตโนมัติ'
+      }
+    ]
+  },
+  '2.5.3': {
+    date: '2026-05-25',
+    title: 'แก้ donut chart หน้าสรุป · จัดตามประเภทงาน',
+    subtitle: 'รายได้แยก "ประเภทงาน" ตรงตามใจคิด · ไม่ผสมกับชื่อแพคเกจอีก',
+    items: [
+      {
+        icon: '📊',
+        title: 'รายได้รวมเข้าด้วยกันถูกต้อง',
+        desc: 'เก่า: ภาพนิ่งวันงาน · Wedding Photography · Photobooth แยกกัน 6 ก้อน · ตอนนี้รวมเป็น Wedding Photography · Pre-wedding · Photo Booth ตามประเภทงานจริง'
+      },
+      {
+        icon: '🏷',
+        title: 'หัวข้อ chart เปลี่ยนชื่อเป็น "รายได้แยกประเภทงาน"',
+        desc: 'ชัดเจนว่าเป็นการแบ่งตามหมวด · ส่วนแพคเกจในแต่ละหมวดดูได้ในรายละเอียดงาน'
+      }
+    ]
+  },
   '2.5.2': {
     date: '2026-05-25',
     title: 'แต่ละช่วงเวลามีสถานที่ของตัวเองได้',
@@ -9865,7 +9878,80 @@ function loadData() {
     migrateBackfillPayments();
     // === Migration v2.5.0: migrate legacy jobStatus values + ensure PROFILE.jobStatuses exists ===
     migrateV25JobStatuses();
+    // === Migration v2.5.4: infer category for each SERVICE from job usage ===
+    migrateV254ServiceCategory();
   } catch(e) { console.warn('load failed', e); }
+}
+
+// v2.5.4 · Derive job type from selected services / custom items
+// Returns the JOB_TYPE that this job should be classified as
+// Used both at save time (to set j.type) and at display time (chart bucketing)
+function deriveJobType(j) {
+  if (!j) return (JOB_TYPES && JOB_TYPES[0]) || 'อื่นๆ';
+  // 1) Use max-priced service's category
+  let bestSvc = null;
+  let bestPrice = -1;
+  if (j.selectedServices) {
+    Object.values(j.selectedServices).forEach(s => {
+      const p = parseFloat(s && s.price) || 0;
+      if (p > bestPrice) { bestPrice = p; bestSvc = s; }
+    });
+  }
+  if (bestSvc && bestSvc.serviceName) {
+    // Look up the master SERVICE record by name (or id) to find its category
+    // v2.5.4 · uses existing v1.9.4 field `defaultJobType` (same semantic as our "category")
+    const master = (Array.isArray(SERVICES) ? SERVICES : []).find(x =>
+      x.id === bestSvc.serviceId ||
+      x.name === bestSvc.serviceName
+    );
+    if (master && (master.defaultJobType || master.category)) {
+      return master.defaultJobType || master.category;
+    }
+  }
+  // 2) First customItem with explicit category
+  if (Array.isArray(j.customItems)) {
+    for (const ci of j.customItems) {
+      if (ci && ci.category && String(ci.category).trim()) return String(ci.category).trim();
+    }
+  }
+  // 3) Fall back to existing j.type (preserves historical jobs that already had a type)
+  if (j.type && j.type.trim()) return j.type;
+  // 4) Last resort
+  return (JOB_TYPES && JOB_TYPES[0]) || 'อื่นๆ';
+}
+
+// v2.5.4 · One-time migration · infer defaultJobType for each SERVICE from existing job usage
+function migrateV254ServiceCategory() {
+  if (!Array.isArray(SERVICES) || SERVICES.length === 0) return;
+  if (PROFILE._v254ServiceCatMigrated) return;
+  const usageByService = {}; // serviceId or name → { jobType: count }
+  (JOBS || []).forEach(j => {
+    if (!j.type || !j.selectedServices) return;
+    Object.values(j.selectedServices).forEach(s => {
+      const key = s.serviceId || s.serviceName;
+      if (!key) return;
+      if (!usageByService[key]) usageByService[key] = {};
+      usageByService[key][j.type] = (usageByService[key][j.type] || 0) + 1;
+    });
+  });
+  let updated = 0;
+  SERVICES.forEach(svc => {
+    // Use existing v1.9.4 defaultJobType field as our "category"
+    const existing = svc.defaultJobType || svc.category;
+    if (existing && String(existing).trim()) return; // already set
+    const usage = usageByService[svc.id] || usageByService[svc.name];
+    if (usage) {
+      // Pick the most common JOB_TYPE
+      const sorted = Object.entries(usage).sort((a, b) => b[1] - a[1]);
+      svc.defaultJobType = sorted[0][0];
+      updated++;
+    } else if (JOB_TYPES && JOB_TYPES.length > 0) {
+      svc.defaultJobType = JOB_TYPES[0];
+      updated++;
+    }
+  });
+  PROFILE._v254ServiceCatMigrated = true;
+  if (updated > 0) console.info('[v2.5.4] inferred defaultJobType for ' + updated + ' services');
 }
 
 // v2.5.0 · One-time migration · run on every load but only does work if needed
@@ -10482,7 +10568,7 @@ const I18N = {
   'db.avgJob':          { th: '🎯 มูลค่าต่องาน', en: '🎯 Avg per Job' },
   'db.avgSub':          { th: 'เฉลี่ย / งาน', en: 'avg / job' },
   'db.teamWages':       { th: 'ค่าแรงทีม + ค่าใช้จ่าย', en: 'Team wages + costs' },
-  'db.byService':       { th: 'สัดส่วนรายได้ของแต่ละบริการ', en: 'Revenue share by service' },
+  'db.byService':       { th: 'สัดส่วนรายได้ของแต่ละประเภทงาน', en: 'Revenue share by job type' },
   'db.bySource':        { th: 'ลูกค้ามาจากช่องทางไหนบ้าง (จำนวนงาน)', en: 'Where customers come from (job count)' },
   'db.byMonth':         { th: 'เปรียบเทียบ 12 เดือนของปีนี้', en: 'Compare 12 months this year' },
   'db.byCategory':      { th: 'หมวดไหนใช้เงินเยอะสุด', en: 'Top spending categories' },
@@ -10645,7 +10731,7 @@ const I18N = {
   'home.setupShop':     { th: 'ตั้งชื่อร้าน →', en: 'Set studio name →' },
 
   // Dashboard chart card titles
-  'dbcard.byService':   { th: '📊 รายได้แยกบริการ', en: '📊 Revenue by Service' },
+  'dbcard.byService':   { th: '📊 รายได้แยกประเภทงาน', en: '📊 Revenue by Job Type' },
   'dbcard.bySource':    { th: '📣 Source ลูกค้า', en: '📣 Customer Sources' },
   'dbcard.byMonth':     { th: '📈 รายได้/รายจ่ายรายเดือน', en: '📈 Monthly Revenue/Expense' },
   'dbcard.byCategory':  { th: '💸 หมวดค่าใช้จ่าย', en: '💸 Expense Categories' },
@@ -14668,8 +14754,14 @@ function collectAddFormData() {
   const endTime = firstSess.end || '22:00';
   const eventDate = firstSess.date;
 
-  const typeEl = document.querySelector('#add-type-row .chip.active');
-  const type = typeEl ? typeEl.textContent.trim() : 'Wedding';
+  // v2.5.4 · type chip removed · derive from services + customItems
+  // Build a temporary job-like object for deriveJobType()
+  const _tmpJobForType = {
+    selectedServices: ADD_SELECTED || {},
+    customItems: (typeof _customGetState === 'function' ? _customGetState('add') : []) || [],
+    type: (window._currentJob && window._currentJob.type) || ''
+  };
+  const type = (typeof deriveJobType === 'function') ? deriveJobType(_tmpJobForType) : ((window._currentJob && window._currentJob.type) || 'Wedding');
 
   let payStatus = 'รอมัดจำ';
   if (deposit > 0 && remain > 0) payStatus = 'มัดจำแล้ว';
@@ -16434,7 +16526,14 @@ function saveNewQuote(status) {
     }
   }
 
-  const typeEl = document.querySelector('#nq-type-row .chip.active');
+  // v2.5.4 · type chip removed · derive from services + custom items
+  const _tmpQuoteForType = {
+    selectedServices: NQ_SELECTED || {},
+    customItems: (typeof _customGetState === 'function' ? _customGetState('nq') : []) || [],
+    type: (_editingQuoteCode && (function(){ const _idx = QUOTES.findIndex(q => q.code === _editingQuoteCode); return _idx >= 0 ? (QUOTES[_idx].type || '') : ''; })()) || ''
+  };
+  const _derivedType = (typeof deriveJobType === 'function') ? deriveJobType(_tmpQuoteForType) : '';
+  const typeEl = _derivedType ? { textContent: _derivedType } : null; // legacy code reads typeEl.textContent
 
   // Tax T2 — read tax UI state + customer denormalization
   const _sell = Math.max(0, total - disc);
@@ -19593,37 +19692,35 @@ function renderDashboard() {
   document.getElementById('db-quote-won').textContent = wonCount;
   document.getElementById('db-conv-rate').textContent = convRate + '%';
 
-  // -- Service mix (from selectedServices) · v1.9.27 also include custom items + billable cost items
+  // -- Revenue mix by JOB_TYPE (v2.5.3 · was: by serviceName which mixed PACKAGE names with TYPE names)
+  // Mental model: JOB_TYPE = หมวด (category) · serviceName = แพคเกจในหมวดนั้น
+  // The donut chart shows the หมวด-level breakdown · package-level breakdown is shown in job detail
   const svc = {};
   yearJobs.forEach(j => {
+    const jobBucket = j.type || 'อื่นๆ';
+    // selectedServices · always bucket by JOB_TYPE (was bucketing by serviceName · wrong)
     if (j.selectedServices) {
       Object.values(j.selectedServices).forEach(s => {
-        if (!svc[s.serviceName]) svc[s.serviceName] = 0;
-        svc[s.serviceName] += (s.price || 0);
+        svc[jobBucket] = (svc[jobBucket] || 0) + (s.price || 0);
       });
     }
-    if (j.qr) { svc['QR'] = (svc['QR'] || 0) + j.qr; }
-    if (j.other) { svc['อื่นๆ'] = (svc['อื่นๆ'] || 0) + j.other; }
-    // v1.9.27 · Custom items: bucket by item.category if set, else fall back to job's main service name (j.type)
+    // QR / Other addons · bucket by JOB_TYPE
+    if (j.qr)    svc[jobBucket] = (svc[jobBucket] || 0) + j.qr;
+    if (j.other) svc[jobBucket] = (svc[jobBucket] || 0) + j.other;
+    // Custom items · respect explicit category override · else fall back to job's type
     if (Array.isArray(j.customItems)) {
-      const _jobBucket = j.type || 'อื่นๆ';
       j.customItems.forEach(ci => {
         const price = parseFloat(ci && ci.price) || 0;
         if (!(price > 0)) return;
-        const bucket = (ci && ci.category && String(ci.category).trim()) || _jobBucket;
-        if (!svc[bucket]) svc[bucket] = 0;
-        svc[bucket] += price;
+        const bucket = (ci && ci.category && String(ci.category).trim()) || jobBucket;
+        svc[bucket] = (svc[bucket] || 0) + price;
       });
     }
-    // v1.9.27 · Billable cost items carried from Quote (revenue · NOT job.costItems which is internal)
-    // Always inherit job's main service (per user choice A)
+    // Billable cost items (from quotes) · bucket by JOB_TYPE
     if (Array.isArray(j.billableCosts)) {
-      const _jobBucket = j.type || 'อื่นๆ';
       j.billableCosts.forEach(ci => {
         const price = parseFloat(ci && ci.price) || 0;
-        if (!(price > 0)) return;
-        if (!svc[_jobBucket]) svc[_jobBucket] = 0;
-        svc[_jobBucket] += price;
+        if (price > 0) svc[jobBucket] = (svc[jobBucket] || 0) + price;
       });
     }
   });
