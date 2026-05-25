@@ -6754,8 +6754,8 @@ const RELEASE_NOTES = {
       },
       {
         icon: '💾',
-        title: 'ที่เก็บข้อมูลเต็ม → ล้างของเก่าอัตโนมัติ',
-        desc: 'ถ้าพื้นที่เต็ม · ระบบลบ snapshot เก่าให้แล้วบันทึกใหม่ · ลดความเสี่ยงข้อมูลหาย'
+        title: 'ที่เก็บข้อมูลเต็ม → ล้างไฟล์สำรองเก่าอัตโนมัติ',
+        desc: 'ถ้าพื้นที่ในเครื่องเต็ม · ระบบจะลบ "ไฟล์สำรองอัตโนมัติ" (snapshot ที่สร้างก่อน sync แต่ละครั้ง · ปกติเก็บ 3 ชุดล่าสุด) แล้วบันทึกข้อมูลปัจจุบันใหม่ · ข้อมูลหลัก/ลูกค้า/งานของคุณไม่ถูกแตะ'
       }
     ]
   },
@@ -9456,25 +9456,28 @@ function saveData() {
       localStorage.setItem(STORAGE_KEY, serialized);
     } catch (quotaErr) {
       // v2.2.1 · C5 · Quota auto-cleanup → retry → final fallback
+      // What we DELETE (safe): backup snapshots created by snapshotLocalForRecovery()
+      //   Pattern: STORAGE_KEY + '__snapshot_YYYY-MM-DD' · keeps last 3 normally
+      //   During quota crisis · we drop ALL snapshots for current user (they're just safety nets)
+      // What we KEEP (never delete): main data, other user's data, device_id, settings
       console.warn('localStorage quota exceeded · attempting cleanup:', quotaErr);
-      let _recovered = false;
       try {
-        // Step 1 · Remove old backup snapshots (Pixory keeps them with timestamp suffix)
+        // Step 1 · Remove snapshot backups for current user (and legacy if any)
+        const snapshotPrefix = STORAGE_KEY + '__snapshot_';
+        const legacySnapshotPrefix = 'srangpap_wedding_data_v2__snapshot_';
         const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
           const k = localStorage.key(i);
-          // Pixory backup snapshots · old user data from previous logins · debug logs
-          if (k && (k.startsWith('pixory.backup.') || k.startsWith('pixory.snapshot.') || k.startsWith('pixory_old_') || k.includes('.log.'))) {
+          if (k && (k.startsWith(snapshotPrefix) || k.startsWith(legacySnapshotPrefix))) {
             keysToRemove.push(k);
           }
         }
         keysToRemove.forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
         // Step 2 · Retry save
         localStorage.setItem(STORAGE_KEY, serialized);
-        _recovered = true;
-        console.warn('quota recovery succeeded · removed ' + keysToRemove.length + ' old entries');
+        console.warn('quota recovery succeeded · removed ' + keysToRemove.length + ' old snapshots');
         if (typeof toast === 'function') {
-          toast('✓ ที่เก็บข้อมูลเต็ม · ล้างของเก่าแล้ว · บันทึกสำเร็จ');
+          toast('✓ ที่เก็บข้อมูลเต็ม · ล้าง snapshot สำรองเก่า ' + keysToRemove.length + ' รายการ · บันทึกสำเร็จ');
         }
       } catch (retryErr) {
         // Step 3 · Still failing · explicit data-loss warning
