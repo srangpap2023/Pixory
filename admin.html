@@ -2,268 +2,389 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>🛡 Pixory Admin · Monitor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>🛡 Pixory Admin</title>
 <link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0e0a08;
+    --bg-2: #1a120d;
     --panel: rgba(26,18,13,0.72);
     --ink: #f5f5f5;
-    --muted: #a89a8c;
+    --muted: #b8a994;
+    --muted-2: #6b7280;
     --accent: #d8704a;
     --accent-2: #f4a36a;
-    --line: rgba(216,112,74,0.15);
+    --line: rgba(255,255,255,0.06);
+    --line-2: rgba(216,112,74,0.15);
     --green: #6ee0a7;
     --yellow: #fbbf24;
     --red: #ef4444;
     --purple: #c084fc;
+    --blue: #60a5fa;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Sarabun", -apple-system, sans-serif; }
-  body { background: var(--bg); color: var(--ink); min-height: 100vh; padding: 16px; }
-  body::before { content: ''; position: fixed; inset: 0;
-    background: radial-gradient(ellipse at top, rgba(216,112,74,.08), transparent 60%),
-                radial-gradient(ellipse at bottom right, rgba(216,112,74,.04), transparent 50%);
-    z-index: -1; pointer-events: none; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Sarabun", -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 100%);
+    color: var(--ink);
+    min-height: 100vh; min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  body::before { content:''; position: fixed; inset: 0;
+    background: radial-gradient(ellipse at top, rgba(216,112,74,.06), transparent 60%);
+    z-index: -1; pointer-events: none;
+  }
 
   /* === Login screen === */
-  .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 80vh; padding: 20px; }
-  .login-card { width: 100%; max-width: 380px; background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 28px 22px; backdrop-filter: blur(20px); }
-  .login-card .logo { text-align: center; font-size: 36px; margin-bottom: 6px; }
-  .login-card .title { text-align: center; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-  .login-card .sub { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 22px; }
+  .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  .login-card { width: 100%; max-width: 380px; background: var(--panel); border: 1px solid var(--line-2); border-radius: 24px; padding: 32px 24px; backdrop-filter: blur(20px); }
+  .login-card .logo { text-align: center; font-size: 42px; margin-bottom: 8px; }
+  .login-card .title { text-align: center; font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .login-card .sub { text-align: center; font-size: 12.5px; color: var(--muted); margin-bottom: 24px; }
   .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 11.5px; color: var(--muted); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .field input { width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px; color: var(--ink); font-size: 14px; outline: none; font-family: inherit; }
+  .field label { display: block; font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .field input { width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; color: var(--ink); font-size: 14px; outline: none; font-family: inherit; }
   .field input:focus { border-color: var(--accent); background: rgba(255,255,255,.06); }
-  .btn-primary { width: 100%; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: white; border: none; border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 6px; }
+  .btn-primary { width: 100%; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: white; border: none; border-radius: 12px; padding: 13px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 6px; }
   .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
   .login-error { margin-top: 12px; padding: 9px 12px; border-radius: 10px; background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; font-size: 12px; display: none; }
 
-  /* === Dashboard === */
-  .dashboard { max-width: 1440px; margin: 0 auto; }
-  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; margin-bottom: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; backdrop-filter: blur(20px); }
-  .brand { display: flex; align-items: center; gap: 12px; }
-  .brand-logo { width: 38px; height: 38px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); border-radius: 11px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
-  .brand-title { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; }
-  .brand-title .pill { font-size: 10px; color: var(--accent-2); background: rgba(216,112,74,.2); padding: 2px 7px; border-radius: 5px; margin-left: 6px; font-weight: 700; }
-  .brand-sub { font-size: 9.5px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-top: 1px; }
-  .topbar-right { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--muted); }
-  .topbar-right .status { font-family: "JetBrains Mono", monospace; }
-  .topbar-right .live { color: var(--green); font-weight: 700; }
-  .btn-mini { background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 8px; padding: 6px 11px; font-size: 11.5px; color: var(--ink); cursor: pointer; font-family: inherit; font-weight: 600; }
-  .btn-mini:hover { background: rgba(216,112,74,.15); }
-  .btn-logout { color: #fca5a5; border-color: rgba(239,68,68,.25); }
+  /* === App container === */
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh; min-height: 100dvh;
+    padding-bottom: 100px;
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    position: relative;
+  }
+  /* Wider for desktop · still feels mobile-first */
+  @media (min-width: 768px) {
+    .app { max-width: 540px; }
+  }
 
-  /* North star */
-  .north-star { background: linear-gradient(135deg, rgba(216,112,74,.2), rgba(216,112,74,.06)); border: 1px solid rgba(216,112,74,.35); border-radius: 16px; padding: 18px 22px; margin-bottom: 14px; display: flex; align-items: center; gap: 20px; position: relative; overflow: hidden; }
-  .north-star::after { content: '⭐'; position: absolute; top: 50%; right: 26px; transform: translateY(-50%); font-size: 64px; opacity: .15; }
-  .ns-label { font-size: 10px; color: var(--accent-2); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
-  .ns-title { font-size: 14px; color: white; font-weight: 600; margin-bottom: 8px; }
-  .ns-value { font-size: 48px; font-weight: 800; line-height: 1; letter-spacing: -1.5px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-  .ns-unit { font-size: 15px; color: var(--accent-2); margin-left: 6px; font-weight: 600; }
-  .ns-trend { font-size: 12px; color: var(--green); margin-top: 4px; font-weight: 600; }
+  /* === Header === */
+  .header {
+    padding: 16px 20px 20px;
+    padding-top: calc(16px + env(safe-area-inset-top));
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .greeting { font-size: 13px; color: var(--muted); letter-spacing: 0.3px; }
+  .greeting .name { color: white; font-weight: 800; font-size: 22px; margin-top: 2px; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+  .live-pill { font-size: 9.5px; color: var(--green); background: rgba(110,224,167,.15); padding: 2px 8px; border-radius: 50px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; border: 1px solid rgba(110,224,167,.3); letter-spacing: 0.5px; }
+  .live-pill .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: live-pulse 2s infinite; }
+  .live-pill.off { color: var(--muted-2); background: rgba(255,255,255,.04); border-color: var(--line); }
+  .live-pill.off .dot { background: var(--muted-2); animation: none; }
+  @keyframes live-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .avatar-btn {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 16px;
+    box-shadow: 0 4px 12px rgba(216,112,74,.4); cursor: pointer; border: none;
+    font-family: inherit;
+  }
 
-  /* KPI grid */
-  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
-  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px; backdrop-filter: blur(20px); }
-  .kpi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; margin-bottom: 4px; }
-  .kpi-value { font-size: 26px; font-weight: 800; color: white; letter-spacing: -1px; line-height: 1; }
-  .kpi-sub { font-size: 10px; color: var(--muted); margin-top: 4px; }
-  .kpi-sub.up { color: var(--green); }
-  .kpi-sub.warn { color: var(--yellow); }
-  .kpi-sub.bad { color: var(--red); }
+  /* === Hero · North Star === */
+  .hero {
+    margin: 0 16px 18px;
+    background: linear-gradient(135deg, var(--accent) 0%, #b85534 100%);
+    border-radius: 24px; padding: 22px 22px 20px;
+    color: white; position: relative; overflow: hidden;
+    box-shadow: 0 12px 30px rgba(216,112,74,.3);
+  }
+  .hero::after { content: '⭐'; position: absolute; right: 18px; top: 18px; font-size: 36px; opacity: .25; }
+  .hero-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; opacity: .9; }
+  .hero-title { font-size: 13px; margin-top: 4px; opacity: .85; }
+  .hero-value { font-size: 56px; font-weight: 800; letter-spacing: -2px; line-height: 1; margin-top: 12px; }
+  .hero-unit { font-size: 16px; opacity: .8; margin-left: 4px; }
+  .hero-trend { font-size: 13px; margin-top: 10px; opacity: .95; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; background: rgba(0,0,0,.18); padding: 4px 10px; border-radius: 50px; }
+  .hero-trend.down { color: #fca5a5; }
 
-  /* Sections */
-  .section-title { font-size: 12px; font-weight: 700; color: white; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-  .section-title .badge { background: rgba(216,112,74,.2); color: var(--accent-2); padding: 1px 8px; border-radius: 50px; font-size: 10px; font-weight: 700; }
+  /* === Section heading === */
+  .section-h {
+    padding: 12px 22px 12px;
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .section-h .see-all { color: var(--accent-2); font-size: 11px; letter-spacing: 0.3px; text-transform: none; font-weight: 600; cursor: pointer; background: none; border: none; font-family: inherit; }
+  .section-h .badge { background: rgba(216,112,74,.15); color: var(--accent-2); padding: 1px 7px; border-radius: 50px; font-size: 10px; font-weight: 700; margin-left: 4px; }
 
-  /* Stage cards */
-  .stage-block { display: flex; gap: 14px; margin-bottom: 16px; align-items: stretch; }
-  .stage-donut-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
-  .stage-donut { width: 96px; height: 96px; border-radius: 50%; position: relative; flex-shrink: 0; }
-  .stage-donut::after { content: ''; position: absolute; inset: 18%; background: var(--bg); border-radius: 50%; }
-  .donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; }
-  .donut-num { font-size: 24px; font-weight: 800; color: white; line-height: 1; }
-  .donut-label { font-size: 8px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
-  .stage-grid { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .stage-card { background: var(--panel); border-radius: 12px; padding: 12px 14px; border: 1px solid; backdrop-filter: blur(20px); }
-  .stage-card.ghost { border-color: rgba(239,68,68,.3); background: rgba(239,68,68,.07); }
-  .stage-card.tire { border-color: rgba(251,191,36,.3); background: rgba(251,191,36,.07); }
-  .stage-card.active { border-color: rgba(110,224,167,.3); background: rgba(110,224,167,.07); }
-  .stage-card.champion { border-color: rgba(192,132,252,.3); background: rgba(192,132,252,.07); }
-  .stage-emoji { font-size: 22px; margin-bottom: 4px; }
-  .stage-name { font-size: 11px; font-weight: 700; color: white; margin-bottom: 4px; }
-  .stage-count { font-size: 26px; font-weight: 800; line-height: 1; letter-spacing: -1px; }
-  .stage-card.ghost .stage-count { color: var(--red); }
-  .stage-card.tire .stage-count { color: var(--yellow); }
-  .stage-card.active .stage-count { color: var(--green); }
-  .stage-card.champion .stage-count { color: var(--purple); }
-  .stage-desc { font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
-  .stage-pct { font-size: 10px; color: var(--accent-2); margin-top: 2px; font-weight: 600; }
+  /* === Stats Grid 2x2 === */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px 8px; }
+  .stat {
+    background: rgba(255,255,255,.04); border: 1px solid var(--line-2);
+    border-radius: 18px; padding: 14px 16px;
+  }
+  .stat-icon { font-size: 22px; margin-bottom: 4px; }
+  .stat-label { font-size: 10.5px; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; }
+  .stat-value { font-size: 26px; font-weight: 800; color: white; margin-top: 4px; letter-spacing: -0.5px; line-height: 1; }
+  .stat-sub { font-size: 10px; color: var(--green); margin-top: 4px; font-weight: 600; }
+  .stat-sub.warn { color: var(--yellow); }
+  .stat-sub.bad { color: var(--red); }
 
-  /* Row · 2 columns */
-  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  /* === Stages horizontal scroll === */
+  .stages-scroll {
+    display: flex; gap: 10px;
+    padding: 0 16px 8px;
+    overflow-x: auto; scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+  }
+  .stages-scroll::-webkit-scrollbar { display: none; }
+  .stage-pill {
+    flex-shrink: 0; width: 130px;
+    padding: 16px; border-radius: 18px;
+    background: rgba(255,255,255,.04); border: 1px solid;
+    scroll-snap-align: start;
+    cursor: pointer;
+  }
+  .stage-pill.ghost { border-color: rgba(239,68,68,.3); background: rgba(239,68,68,.06); }
+  .stage-pill.tire { border-color: rgba(251,191,36,.3); background: rgba(251,191,36,.06); }
+  .stage-pill.active { border-color: rgba(110,224,167,.3); background: rgba(110,224,167,.06); }
+  .stage-pill.champion { border-color: rgba(192,132,252,.3); background: rgba(192,132,252,.06); }
+  .stage-pill-emoji { font-size: 24px; }
+  .stage-pill-count { font-size: 32px; font-weight: 800; line-height: 1; margin-top: 6px; letter-spacing: -1px; }
+  .stage-pill.ghost .stage-pill-count { color: var(--red); }
+  .stage-pill.tire .stage-pill-count { color: var(--yellow); }
+  .stage-pill.active .stage-pill-count { color: var(--green); }
+  .stage-pill.champion .stage-pill-count { color: var(--purple); }
+  .stage-pill-name { font-size: 11px; color: white; font-weight: 600; margin-top: 4px; }
+  .stage-pill-pct { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
-  /* Funnel */
-  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; backdrop-filter: blur(20px); }
-  .funnel-step { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.06); }
-  .funnel-step:last-child { border-bottom: none; }
-  .funnel-num { width: 22px; height: 22px; background: rgba(216,112,74,.25); color: var(--accent-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
-  .funnel-label { flex: 1; font-size: 12px; color: white; }
-  .funnel-bar-wrap { flex: 2; background: rgba(255,255,255,.06); border-radius: 6px; height: 18px; position: relative; overflow: hidden; min-width: 80px; }
-  .funnel-bar { height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); border-radius: 6px; display: flex; align-items: center; padding-left: 8px; color: white; font-size: 10px; font-weight: 700; transition: width .3s; }
-  .funnel-pct { flex: 0 0 48px; text-align: right; font-size: 12px; font-weight: 700; color: var(--accent-2); }
-  .funnel-drop { flex: 0 0 64px; font-size: 10px; color: var(--red); font-weight: 600; text-align: right; }
+  /* === Activity feed === */
+  .activity-feed { padding: 0 16px; }
+  .activity-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 0; border-bottom: 0.5px solid var(--line);
+    cursor: pointer;
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-icon {
+    width: 36px; height: 36px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .activity-icon.signup { background: rgba(192,132,252,.2); }
+  .activity-icon.quote { background: rgba(96,165,250,.2); }
+  .activity-icon.job { background: rgba(110,224,167,.2); }
+  .activity-icon.payment { background: rgba(251,191,36,.2); }
+  .activity-icon.user { background: rgba(216,112,74,.2); }
+  .activity-text { flex: 1; min-width: 0; }
+  .activity-title { font-size: 13.5px; color: white; font-weight: 700; line-height: 1.3; }
+  .activity-sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  .activity-time { font-size: 10.5px; color: var(--muted-2); flex-shrink: 0; margin-top: 3px; }
 
-  /* Insights */
-  .insight-list { display: flex; flex-direction: column; gap: 8px; }
-  .insight-item { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: #d4c8b8; line-height: 1.5; }
-  .insight-icon { flex-shrink: 0; font-size: 14px; }
-  .insight-item b { color: var(--accent-2); font-weight: 700; }
+  /* === User list === */
+  .user-list { padding: 0 16px; }
+  .user-row {
+    display: flex; gap: 12px; align-items: center;
+    padding: 12px 0; border-bottom: 0.5px solid var(--line);
+  }
+  .user-row:last-child { border-bottom: none; }
+  .user-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 14px;
+    flex-shrink: 0; position: relative;
+  }
+  .user-avatar.purple { background: linear-gradient(135deg, #c084fc, #a855f7); }
+  .user-avatar.red { background: linear-gradient(135deg, #fca5a5, #ef4444); }
+  .user-avatar.green { background: linear-gradient(135deg, #6ee0a7, #10b981); }
+  .user-avatar .live-ring {
+    position: absolute; inset: -3px;
+    border-radius: 50%; border: 2px solid var(--green);
+    animation: pulse-ring 2s infinite;
+  }
+  @keyframes pulse-ring { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.12); opacity: 0.4; } }
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { font-size: 14px; color: white; font-weight: 700; }
+  .user-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .user-action {
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    color: white; border: none;
+    padding: 8px 14px; border-radius: 10px;
+    font-size: 12px; font-weight: 700; font-family: inherit;
+    box-shadow: 0 3px 8px rgba(216,112,74,.3); cursor: pointer;
+    flex-shrink: 0;
+  }
 
-  /* Champion / At-risk panel */
-  .panel.champion-panel { border-color: rgba(192,132,252,.3); background: linear-gradient(135deg, rgba(192,132,252,.08), rgba(192,132,252,.03)); }
-  .panel.risk-panel { border-color: rgba(239,68,68,.3); background: linear-gradient(135deg, rgba(239,68,68,.08), rgba(239,68,68,.03)); }
-  .panel-title { font-size: 12px; font-weight: 700; color: white; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-  .panel-title .count { background: rgba(255,255,255,.1); padding: 1px 7px; border-radius: 50px; font-size: 10px; margin-left: 4px; }
-  .mini-user { display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 5px; background: rgba(0,0,0,.25); border-radius: 8px; }
-  .mini-user:last-child { margin-bottom: 0; }
-  .avatar { width: 30px; height: 30px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 800; flex-shrink: 0; text-transform: uppercase; }
-  .avatar.purple { background: linear-gradient(135deg, var(--purple), #a855f7); }
-  .avatar.red { background: linear-gradient(135deg, #fca5a5, var(--red)); }
-  .mini-info { flex: 1; min-width: 0; }
-  .mini-name { font-size: 12px; font-weight: 700; color: white; }
-  .mini-detail { font-size: 10px; color: var(--muted); margin-top: 1px; }
-  .mini-action-btn { background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: white; border: none; padding: 5px 11px; border-radius: 7px; font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit; flex-shrink: 0; }
-  .mini-action-btn.purple { background: linear-gradient(135deg, var(--purple), #a855f7); }
-
-  /* User table */
-  .table-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; backdrop-filter: blur(20px); }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  thead th { background: rgba(0,0,0,.3); color: var(--accent-2); font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; padding: 10px 12px; text-align: left; font-weight: 700; border-bottom: 1px solid var(--line); }
-  tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: background .15s; }
-  tbody tr:hover { background: rgba(216,112,74,.04); }
-  td { padding: 10px 12px; color: var(--ink); vertical-align: middle; }
+  /* === User detail card (Users tab) === */
+  .user-detail-card {
+    margin: 0 16px 10px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px; padding: 14px;
+    backdrop-filter: blur(20px);
+  }
+  .user-detail-card.ghost { border-left: 4px solid var(--red); }
+  .user-detail-card.tire { border-left: 4px solid var(--yellow); }
+  .user-detail-card.active { border-left: 4px solid var(--green); }
+  .user-detail-card.champion { border-left: 4px solid var(--purple); }
+  .udc-top { display: flex; gap: 12px; align-items: flex-start; }
+  .udc-info { flex: 1; min-width: 0; }
+  .udc-name { font-size: 15px; color: white; font-weight: 800; word-break: break-word; }
+  .udc-email { font-size: 11px; color: var(--muted); font-family: ui-monospace, monospace; margin-top: 2px; word-break: break-all; }
+  .udc-tag-row { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
   .stage-tag { display: inline-block; padding: 2px 8px; border-radius: 50px; font-size: 10px; font-weight: 700; white-space: nowrap; }
   .stage-tag.ghost { background: rgba(239,68,68,.2); color: #fca5a5; }
   .stage-tag.tire { background: rgba(251,191,36,.2); color: #fde68a; }
   .stage-tag.active { background: rgba(110,224,167,.2); color: #a7f3d0; }
   .stage-tag.champion { background: rgba(192,132,252,.2); color: #d8b4fe; }
-  .score { font-family: "JetBrains Mono", monospace; font-weight: 700; padding: 2px 7px; border-radius: 5px; font-size: 11px; }
+  .score { font-weight: 800; padding: 2px 7px; border-radius: 5px; font-size: 11px; font-family: ui-monospace, monospace; }
   .score.high { background: rgba(110,224,167,.2); color: var(--green); }
   .score.mid { background: rgba(251,191,36,.2); color: var(--yellow); }
   .score.low { background: rgba(239,68,68,.2); color: #fca5a5; }
-  .email-cell { font-family: ui-monospace, monospace; font-size: 10.5px; color: var(--muted); }
-  .name-cell b { color: white; font-weight: 700; }
-  .last-action { color: var(--muted); font-size: 11px; }
-  .last-action b { color: var(--accent-2); font-weight: 600; }
-  .icon-btn { width: 26px; height: 26px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 6px; color: var(--accent-2); cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; margin-right: 4px; }
-  .icon-btn:hover { background: rgba(216,112,74,.2); }
-  .online-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); margin-left: 6px; }
-  .online-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .udc-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 11.5px; color: var(--muted); margin: 8px 0; }
+  .udc-meta .item { display: inline-flex; align-items: center; gap: 3px; }
+  .udc-online { color: var(--green); font-weight: 700; }
+  .udc-contacts { font-size: 11.5px; color: var(--muted); margin: 6px 0; line-height: 1.5; }
+  .udc-genres { font-size: 11.5px; color: #d4c8b8; margin: 6px 0; line-height: 1.5; }
+  .udc-action { font-size: 11.5px; color: var(--muted); padding-top: 8px; border-top: 1px dashed var(--line); margin-top: 8px; line-height: 1.4; }
+  .udc-action b { color: var(--accent-2); font-weight: 700; }
+  .udc-btn-row { display: flex; gap: 6px; margin-top: 10px; }
+  .udc-btn-row .user-action { flex: 1; padding: 9px; font-size: 12.5px; }
 
-  /* DM Modal */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 9999; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(6px); }
-  .modal-overlay.show { display: flex; }
-  .modal-card { width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; background: #1a120d; border: 1px solid rgba(216,112,74,.3); border-radius: 18px; padding: 22px; }
-  .modal-title { font-size: 16px; font-weight: 800; color: white; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-  .modal-close { background: rgba(255,255,255,.1); border: none; color: white; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: 16px; }
-  .modal-contact-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-  .modal-contact-item { display: flex; gap: 8px; align-items: center; padding: 7px 10px; background: rgba(255,255,255,.04); border-radius: 8px; font-size: 12px; }
-  .modal-contact-item.missing { opacity: .4; }
-  .modal-contact-label { color: var(--muted); width: 56px; flex-shrink: 0; }
-  .modal-contact-value { color: white; font-family: ui-monospace, monospace; flex: 1; }
-  .modal-templates { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
-  .tpl-btn { background: rgba(255,255,255,.06); border: 1px solid var(--line); color: var(--ink); padding: 6px 11px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; }
-  .tpl-btn:hover, .tpl-btn.active { background: rgba(216,112,74,.2); border-color: var(--accent); color: var(--accent-2); }
-  .modal-textarea { width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 10px; padding: 12px; color: white; font-size: 13px; min-height: 160px; font-family: inherit; resize: vertical; outline: none; line-height: 1.5; }
-  .modal-textarea:focus { border-color: var(--accent); }
-  .modal-channels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 12px; }
-  .channel-btn { padding: 10px; background: rgba(255,255,255,.06); border: 1px solid var(--line); color: white; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; text-align: center; transition: all .15s; }
-  .channel-btn:hover { background: rgba(216,112,74,.2); border-color: var(--accent); }
-  .channel-btn:disabled { opacity: .3; cursor: not-allowed; }
-  .channel-btn .ic { font-size: 18px; display: block; margin-bottom: 3px; }
-  .channel-btn.primary { background: linear-gradient(135deg, var(--accent-2), var(--accent)); border-color: transparent; }
-  .modal-hint { font-size: 10px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+  /* === Filter chips === */
+  .filter-chips {
+    display: flex; gap: 6px; padding: 8px 16px 14px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .filter-chips::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    flex-shrink: 0; padding: 7px 14px; border-radius: 50px;
+    background: rgba(255,255,255,.05); border: 1px solid var(--line);
+    color: var(--muted); font-size: 12.5px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+  }
+  .filter-chip.active {
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    color: white; border-color: transparent;
+    box-shadow: 0 2px 6px rgba(216,112,74,.3);
+  }
 
-  .empty { text-align: center; padding: 50px 20px; color: var(--muted); }
+  /* === Insights · funnel === */
+  .panel {
+    margin: 0 16px 14px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 16px; padding: 16px;
+    backdrop-filter: blur(20px);
+  }
+  .panel-title { font-size: 13px; font-weight: 700; color: white; margin-bottom: 12px; }
+  .funnel-step { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  .funnel-step:last-child { border-bottom: none; }
+  .funnel-num { width: 22px; height: 22px; background: rgba(216,112,74,.25); color: var(--accent-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+  .funnel-label { flex: 1; font-size: 12px; color: white; }
+  .funnel-bar-wrap { flex: 1.5; background: rgba(255,255,255,.06); border-radius: 6px; height: 18px; overflow: hidden; }
+  .funnel-bar { height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); border-radius: 6px; display: flex; align-items: center; padding-left: 8px; color: white; font-size: 10px; font-weight: 700; transition: width .3s; }
+  .funnel-pct { font-size: 11.5px; font-weight: 700; color: var(--accent-2); min-width: 36px; text-align: right; }
+
+  /* === Genre bars === */
+  .genre-bar { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+  .genre-bar:last-child { border-bottom: none; }
+  .genre-bar-label { font-size: 11.5px; color: white; flex: 0 0 110px; }
+  .genre-bar-wrap { flex: 1; background: rgba(255,255,255,.06); border-radius: 5px; height: 16px; overflow: hidden; }
+  .genre-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); border-radius: 5px; display: flex; align-items: center; padding-left: 6px; color: white; font-size: 9.5px; font-weight: 700; }
+  .genre-bar-pct { font-size: 10.5px; color: var(--accent-2); font-weight: 700; min-width: 32px; text-align: right; }
+
+  /* === Insights items === */
+  .insight-item { display: flex; gap: 8px; align-items: flex-start; padding: 8px 0; font-size: 12.5px; color: #d4c8b8; line-height: 1.5; }
+  .insight-item b { color: var(--accent-2); font-weight: 700; }
+  .insight-icon { flex-shrink: 0; font-size: 16px; }
+
+  /* === Settings === */
+  .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row .left { flex: 1; min-width: 0; padding-right: 12px; }
+  .settings-row .label { font-size: 14px; font-weight: 600; color: white; }
+  .settings-row .desc { font-size: 11.5px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  .switch { width: 46px; height: 28px; background: #3a3a3a; border-radius: 14px; position: relative; cursor: pointer; flex-shrink: 0; transition: background .2s; }
+  .switch.on { background: linear-gradient(180deg, var(--accent-2), var(--accent)); }
+  .switch::after { content: ''; width: 24px; height: 24px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .switch.on::after { transform: translateX(18px); }
+
+  /* === Empty state === */
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
   .empty .icon { font-size: 42px; margin-bottom: 8px; opacity: 0.5; }
   .empty .title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
 
-  .footer-note { margin-top: 24px; font-size: 10px; color: var(--muted); text-align: center; line-height: 1.6; padding-top: 14px; border-top: 1px solid var(--line); }
-  .footer-note strong { color: var(--accent); }
+  /* === Bottom Tab Bar === */
+  .tab-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(14,10,8,.92); backdrop-filter: blur(24px);
+    border-top: 0.5px solid var(--line-2);
+    display: flex;
+    padding: 8px 6px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    z-index: 50;
+  }
+  .tab-bar-inner { max-width: 480px; margin: 0 auto; display: flex; width: 100%; }
+  @media (min-width: 768px) { .tab-bar-inner { max-width: 540px; } }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 4px; color: var(--muted-2); cursor: pointer;
+    background: none; border: none; font-family: inherit;
+  }
+  .tab-item.active { color: var(--accent-2); }
+  .tab-item .ic { font-size: 22px; line-height: 1; }
+  .tab-item .lbl { font-size: 10px; font-weight: 600; }
 
-  /* v2.3.2 · Online status badge prominent */
-  .online-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 50px; font-size: 10.5px; font-weight: 700; background: rgba(110,224,167,.15); color: var(--green); border: 1px solid rgba(110,224,167,.3); }
-  .online-badge .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; box-shadow: 0 0 6px var(--green); animation: live-pulse 2s infinite; }
-  @keyframes live-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+  /* === Tab views (show/hide) === */
+  .view { display: none; }
+  .view.active { display: block; }
 
-  /* v2.3.2 · Toast notifications · slide in from top right */
-  .toast-stack { position: fixed; top: 16px; right: 16px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; pointer-events: none; }
+  /* === Toast === */
+  .toast-stack { position: fixed; top: env(safe-area-inset-top, 8px); right: 12px; left: 12px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; max-width: 460px; margin: 0 auto; }
   .toast { background: linear-gradient(135deg, #2a1f17, #3a2820); border: 1px solid rgba(216,112,74,.4); border-radius: 14px; padding: 12px 14px; color: white; box-shadow: 0 12px 32px rgba(0,0,0,.5); pointer-events: auto; animation: toast-slide .3s ease-out; cursor: pointer; }
-  @keyframes toast-slide { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-  .toast.signup { border-color: rgba(192,132,252,.5); background: linear-gradient(135deg, #3a2447, #2a1d3a); }
-  .toast.quote { border-color: rgba(96,165,250,.5); background: linear-gradient(135deg, #1d2a47, #1a2440); }
-  .toast.job { border-color: rgba(110,224,167,.5); background: linear-gradient(135deg, #1d3a2a, #173025); }
-  .toast.payment { border-color: rgba(251,191,36,.5); background: linear-gradient(135deg, #3a2e1d, #302414); }
+  @keyframes toast-slide { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .toast.signup { border-color: rgba(192,132,252,.5); }
+  .toast.quote { border-color: rgba(96,165,250,.5); }
+  .toast.job { border-color: rgba(110,224,167,.5); }
+  .toast.payment { border-color: rgba(251,191,36,.5); }
   .toast-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
   .toast-title { font-size: 13px; font-weight: 800; }
   .toast-time { font-size: 10px; color: var(--muted); }
   .toast-body { font-size: 12px; color: #d4c8b8; line-height: 1.4; }
   .toast-x { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0 0 0 8px; }
 
-  /* v2.3.2 · Settings panel modal */
-  .settings-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
-  .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(255,255,255,.04); border-radius: 10px; }
-  .settings-row .left { flex: 1; min-width: 0; }
-  .settings-row .label { font-size: 13px; font-weight: 600; color: white; }
-  .settings-row .desc { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
-  .switch { width: 42px; height: 24px; background: #3a3a3a; border-radius: 12px; position: relative; cursor: pointer; flex-shrink: 0; transition: background .2s; }
-  .switch.on { background: linear-gradient(180deg, var(--accent-2), var(--accent)); }
-  .switch::after { content: ''; width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
-  .switch.on::after { transform: translateX(18px); }
-
-  /* v2.3.2 · DM button on mobile · always visible · primary style */
-  .btn-dm { background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: white; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; box-shadow: 0 2px 5px rgba(216,112,74,.3); }
-  .btn-dm:hover { transform: translateY(-1px); }
-
-  /* v2.3.2 · Mobile table → card view */
-  .mobile-only { display: none; }
-  .desktop-only { display: revert; }
-
-  @media (max-width: 768px) {
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .stage-block { flex-direction: column; }
-    .stage-grid { grid-template-columns: repeat(2, 1fr); }
-    .row-2 { grid-template-columns: 1fr; }
-    .modal-channels { grid-template-columns: repeat(2, 1fr); }
-    .toast-stack { right: 8px; left: 8px; max-width: none; }
-    /* Switch to mobile card layout */
-    .desktop-only { display: none !important; }
-    .mobile-only { display: block !important; }
-    .table-wrap { background: transparent; border: none; padding: 0; }
-    .users-cards { display: flex; flex-direction: column; gap: 10px; }
-    .user-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; backdrop-filter: blur(20px); }
-    .user-card.ghost { border-left: 4px solid var(--red); }
-    .user-card.tire { border-left: 4px solid var(--yellow); }
-    .user-card.active { border-left: 4px solid var(--green); }
-    .user-card.champion { border-left: 4px solid var(--purple); }
-    .uc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
-    .uc-top-left { flex: 1; min-width: 0; }
-    .uc-name { font-size: 14px; font-weight: 800; color: white; word-break: break-word; }
-    .uc-email { font-size: 11px; color: var(--muted); font-family: ui-monospace, monospace; margin-top: 2px; word-break: break-all; }
-    .uc-stage-score { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-    .uc-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 11px; color: var(--muted); margin: 6px 0; }
-    .uc-meta .item { display: inline-flex; align-items: center; gap: 3px; }
-    .uc-genres { font-size: 11px; color: #d4c8b8; margin: 6px 0; }
-    .uc-action-row { font-size: 11px; color: var(--muted); padding-top: 8px; border-top: 1px dashed rgba(255,255,255,.06); margin-top: 8px; }
-    .uc-action-row b { color: var(--accent-2); }
-    .uc-actions { display: flex; gap: 6px; margin-top: 10px; }
-    .uc-actions .btn-dm { flex: 1; padding: 8px; font-size: 12px; }
+  /* === DM Modal === */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 9999; align-items: flex-end; justify-content: center; padding: 0; backdrop-filter: blur(6px); }
+  .modal-overlay.show { display: flex; }
+  @media (min-width: 600px) { .modal-overlay { align-items: center; padding: 20px; } }
+  .modal-card {
+    width: 100%; max-width: 480px;
+    max-height: 92vh; overflow-y: auto;
+    background: #1a120d; border: 1px solid rgba(216,112,74,.3);
+    border-radius: 22px 22px 0 0;
+    padding: 22px;
+    padding-bottom: calc(22px + env(safe-area-inset-bottom));
   }
-    th, td { padding: 8px 6px; }
-  }
+  @media (min-width: 600px) { .modal-card { border-radius: 22px; } }
+  .modal-handle { width: 36px; height: 4px; background: rgba(255,255,255,.2); border-radius: 2px; margin: -8px auto 16px; }
+  .modal-title { font-size: 16px; font-weight: 800; color: white; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+  .modal-close { background: rgba(255,255,255,.1); border: none; color: white; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 16px; font-family: inherit; }
+  .modal-contact-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .modal-contact-item { display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: rgba(255,255,255,.04); border-radius: 10px; font-size: 12.5px; }
+  .modal-contact-item.missing { opacity: .4; }
+  .modal-contact-label { color: var(--muted); width: 60px; flex-shrink: 0; }
+  .modal-contact-value { color: white; font-family: ui-monospace, monospace; flex: 1; word-break: break-all; }
+  .modal-templates { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  .tpl-btn { background: rgba(255,255,255,.06); border: 1px solid var(--line); color: var(--ink); padding: 7px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .tpl-btn.active { background: rgba(216,112,74,.2); border-color: var(--accent); color: var(--accent-2); }
+  .modal-textarea { width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 12px; padding: 12px; color: white; font-size: 13px; min-height: 160px; font-family: inherit; resize: vertical; outline: none; line-height: 1.5; }
+  .modal-textarea:focus { border-color: var(--accent); }
+  .modal-channels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 14px; }
+  .channel-btn { padding: 12px 6px; background: rgba(255,255,255,.06); border: 1px solid var(--line); color: white; border-radius: 12px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; text-align: center; }
+  .channel-btn:disabled { opacity: .3; cursor: not-allowed; }
+  .channel-btn .ic { font-size: 18px; display: block; margin-bottom: 3px; }
+  .channel-btn.primary { background: linear-gradient(135deg, var(--accent-2), var(--accent)); border-color: transparent; }
+  .modal-hint { font-size: 11px; color: var(--muted); margin-top: 12px; line-height: 1.5; padding: 10px; background: rgba(0,0,0,.2); border-radius: 8px; }
 </style>
 </head>
 <body>
@@ -272,8 +393,8 @@
 <div id="login-screen" class="login-wrap">
   <div class="login-card">
     <div class="logo">🛡</div>
-    <div class="title">Pixory Admin · Monitor</div>
-    <div class="sub">เข้าสู่ระบบด้วยบัญชี Supabase ของแอดมิน</div>
+    <div class="title">Pixory Admin</div>
+    <div class="sub">เข้าสู่ระบบด้วยบัญชี Supabase แอดมิน</div>
     <form id="login-form">
       <div class="field">
         <label>Email</label>
@@ -289,214 +410,134 @@
   </div>
 </div>
 
-<!-- ===== Dashboard screen ===== -->
-<div id="dashboard-screen" style="display:none;">
-  <div class="dashboard">
+<!-- ===== Main App ===== -->
+<div id="app-screen" class="app" style="display:none;">
 
-    <div class="topbar">
-      <div class="brand">
-        <div class="brand-logo">🛡</div>
-        <div>
-          <div class="brand-title">Pixory <span class="pill">ADMIN</span></div>
-          <div class="brand-sub">USER MONITOR · ENGAGEMENT INSIGHTS</div>
-        </div>
+  <!-- Header (shared) -->
+  <div class="header">
+    <div class="greeting">
+      <span id="greet-text">สวัสดี · ขอให้เป็นวันที่ดี</span>
+      <div class="name">
+        Pixory Admin
+        <span class="live-pill off" id="live-pill"><span class="dot"></span>connecting</span>
       </div>
-      <div class="topbar-right">
-        <span class="status" id="time-display">—</span>
-        <span id="realtime-status">○ connecting...</span>
-        <button class="btn-mini" id="settings-btn" title="ตั้งค่าแจ้งเตือน">⚙ ตั้งค่า</button>
-        <button class="btn-mini" id="refresh-btn">🔄 รีเฟรช</button>
-        <button class="btn-mini btn-logout" id="logout-btn">ออกระบบ</button>
+    </div>
+    <button class="avatar-btn" id="avatar-btn" onclick="switchTab('settings')">J</button>
+  </div>
+
+  <!-- ============ VIEW: HOME ============ -->
+  <div class="view active" id="view-home">
+    <!-- Hero · North Star -->
+    <div class="hero">
+      <div class="hero-label">🌟 NORTH STAR</div>
+      <div class="hero-title">ใบเสนอที่ออกใน 7 วันล่าสุด</div>
+      <div>
+        <span class="hero-value" id="ns-value">—</span>
+        <span class="hero-unit">ใบเสนอ</span>
+      </div>
+      <div class="hero-trend" id="ns-trend">—</div>
+    </div>
+
+    <!-- Stats 2x2 -->
+    <div class="section-h">วันนี้</div>
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">Total</div>
+        <div class="stat-value" id="kpi-users">—</div>
+        <div class="stat-sub" id="kpi-users-sub">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">🟢</div>
+        <div class="stat-label">Active</div>
+        <div class="stat-value" id="kpi-active">—</div>
+        <div class="stat-sub" id="kpi-active-sub">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-label">Activation</div>
+        <div class="stat-value" id="kpi-activation">—</div>
+        <div class="stat-sub warn" id="kpi-activation-sub">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">⚠</div>
+        <div class="stat-label">At Risk</div>
+        <div class="stat-value" id="kpi-risk">—</div>
+        <div class="stat-sub bad" id="kpi-risk-sub">—</div>
       </div>
     </div>
 
-    <!-- North Star -->
-    <div class="north-star">
-      <div style="flex:1;">
-        <div class="ns-label">🌟 NORTH STAR METRIC</div>
-        <div class="ns-title">ใบเสนอที่ออกใน 7 วันล่าสุด · รวมทุก user</div>
-        <div>
-          <span class="ns-value" id="ns-value">—</span>
-          <span class="ns-unit">ใบเสนอ</span>
-        </div>
-        <div class="ns-trend" id="ns-trend">—</div>
-      </div>
+    <!-- Stages scroll -->
+    <div class="section-h">User Stage <button class="see-all" onclick="switchTab('users')">ดูทั้งหมด ›</button></div>
+    <div class="stages-scroll" id="stages-scroll"></div>
+
+    <!-- Live activity -->
+    <div class="section-h">🔴 LIVE ACTIVITY <span class="badge" id="activity-count">—</span></div>
+    <div class="activity-feed" id="activity-feed"><div class="empty"><div class="icon">⏳</div><div class="title">กำลังโหลด...</div></div></div>
+
+    <!-- Champions -->
+    <div class="section-h">🚀 Champions <span class="badge" id="champion-count">0</span></div>
+    <div class="user-list" id="champions-list"><div class="empty" style="padding:20px;"><div class="title" style="font-size:12px;">ยังไม่มี Champion</div></div></div>
+
+    <!-- At-Risk -->
+    <div class="section-h">⚠️ At-Risk <span class="badge" id="risk-count">0</span></div>
+    <div class="user-list" id="risk-list"><div class="empty" style="padding:20px;"><div class="title" style="font-size:12px;">ไม่มี user ใกล้ churn 🎉</div></div></div>
+
+    <div style="padding: 30px 0 0; text-align: center; color: #4a3a30; font-size: 11px;">— จบรายการ —</div>
+  </div>
+
+  <!-- ============ VIEW: USERS ============ -->
+  <div class="view" id="view-users">
+    <div style="padding: 16px 22px 8px;">
+      <div style="font-size: 22px; font-weight: 800; color: white; margin-bottom: 4px;">ผู้ใช้ทั้งหมด</div>
+      <div style="font-size: 12px; color: var(--muted);"><span id="users-total-text">—</span></div>
+    </div>
+    <div class="filter-chips" id="filter-chips">
+      <button class="filter-chip active" data-filter="all">ทั้งหมด</button>
+      <button class="filter-chip" data-filter="champion">🚀 Champions</button>
+      <button class="filter-chip" data-filter="active">✨ Active</button>
+      <button class="filter-chip" data-filter="tire">🪞 Tire-kicker</button>
+      <button class="filter-chip" data-filter="ghost">👻 Ghost</button>
+      <button class="filter-chip" data-filter="online">🟢 Online</button>
+    </div>
+    <div id="users-cards"></div>
+  </div>
+
+  <!-- ============ VIEW: INSIGHTS ============ -->
+  <div class="view" id="view-insights">
+    <div style="padding: 16px 22px 8px;">
+      <div style="font-size: 22px; font-weight: 800; color: white;">Insights</div>
+      <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">รายงาน · funnel · genres · smart recommendations</div>
     </div>
 
-    <!-- KPI Grid -->
-    <div class="kpi-grid">
-      <div class="kpi">
-        <div class="kpi-label">👥 TOTAL USERS</div>
-        <div class="kpi-value" id="kpi-users">—</div>
-        <div class="kpi-sub" id="kpi-users-sub"></div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">🟢 ACTIVE TODAY</div>
-        <div class="kpi-value" id="kpi-active-today">—</div>
-        <div class="kpi-sub" id="kpi-active-sub"></div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">🎯 ACTIVATION RATE</div>
-        <div class="kpi-value" id="kpi-activation">—</div>
-        <div class="kpi-sub" id="kpi-activation-sub"></div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">⚠ AT RISK</div>
-        <div class="kpi-value" id="kpi-risk">—</div>
-        <div class="kpi-sub bad" id="kpi-risk-sub"></div>
-      </div>
+    <!-- Smart Insights -->
+    <div class="panel">
+      <div class="panel-title">💡 Smart Insights</div>
+      <div id="insights-list"></div>
     </div>
 
-    <!-- Stage Classification -->
-    <div class="section-title">🏷 USER STAGE CLASSIFICATION <span class="badge" id="total-tag">—</span></div>
-    <div class="stage-block">
-      <div class="stage-donut-wrap">
-        <div class="stage-donut" id="stage-donut">
-          <div class="donut-center">
-            <div class="donut-num" id="donut-num">—</div>
-            <div class="donut-label">USERS</div>
-          </div>
-        </div>
-      </div>
-      <div class="stage-grid">
-        <div class="stage-card ghost">
-          <div class="stage-emoji">👻</div>
-          <div class="stage-name">Ghost</div>
-          <div class="stage-count" id="stage-ghost">—</div>
-          <div class="stage-pct" id="stage-ghost-pct">—</div>
-          <div class="stage-desc">ไม่กลับมา 7+ วัน</div>
-        </div>
-        <div class="stage-card tire">
-          <div class="stage-emoji">🪞</div>
-          <div class="stage-name">Tire-kicker</div>
-          <div class="stage-count" id="stage-tire">—</div>
-          <div class="stage-pct" id="stage-tire-pct">—</div>
-          <div class="stage-desc">กลับมาบ้าง · ใช้น้อย</div>
-        </div>
-        <div class="stage-card active">
-          <div class="stage-emoji">✨</div>
-          <div class="stage-name">Active</div>
-          <div class="stage-count" id="stage-active">—</div>
-          <div class="stage-pct" id="stage-active-pct">—</div>
-          <div class="stage-desc">ใช้สม่ำเสมอ · มี jobs ≥3</div>
-        </div>
-        <div class="stage-card champion">
-          <div class="stage-emoji">🚀</div>
-          <div class="stage-name">Champion</div>
-          <div class="stage-count" id="stage-champion">—</div>
-          <div class="stage-pct" id="stage-champion-pct">—</div>
-          <div class="stage-desc">ใช้หนัก · ขอ testimonial!</div>
-        </div>
-      </div>
+    <!-- Funnel -->
+    <div class="panel">
+      <div class="panel-title">📊 Conversion Funnel</div>
+      <div id="funnel-content"></div>
     </div>
 
     <!-- Genre breakdown -->
-    <div class="section-title">📸 GENRE BREAKDOWN · ประเภทช่างภาพ <span class="badge" id="genre-with-data">—</span></div>
-    <div class="panel" style="margin-bottom: 16px;">
+    <div class="panel">
+      <div class="panel-title">📸 Genre Breakdown · <span style="font-size:11px;color:var(--muted);font-weight:400;" id="genre-with-data">—</span></div>
       <div id="genre-bars"></div>
     </div>
-
-    <!-- Funnel + Insights -->
-    <div class="row-2">
-      <div class="panel">
-        <div class="section-title">📊 CONVERSION FUNNEL</div>
-        <div id="funnel-content"></div>
-      </div>
-      <div class="panel">
-        <div class="section-title">💡 SMART INSIGHTS</div>
-        <div class="insight-list" id="insights-list"></div>
-      </div>
-    </div>
-
-    <!-- Champions + At-Risk -->
-    <div class="row-2">
-      <div class="panel champion-panel">
-        <div class="panel-title">🚀 CHAMPIONS · ขอ testimonial <span class="count" id="champion-count">—</span></div>
-        <div id="champions-list"></div>
-      </div>
-      <div class="panel risk-panel">
-        <div class="panel-title">⚠️ AT-RISK · ใกล้ churn <span class="count" id="risk-count">—</span></div>
-        <div id="risk-list"></div>
-      </div>
-    </div>
-
-    <!-- User Table (desktop) / Cards (mobile) -->
-    <div class="section-title">👥 ALL USERS <span class="badge" id="user-count">—</span></div>
-    <div class="desktop-only">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>STAGE</th>
-              <th>ผู้ใช้</th>
-              <th>เบอร์ · LINE</th>
-              <th>ประเภทงาน</th>
-              <th>LAST ACTION</th>
-              <th>เข้าครั้งล่าสุด</th>
-              <th>SCORE</th>
-              <th>ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody id="users-table"></tbody>
-        </table>
-      </div>
-    </div>
-    <div class="mobile-only">
-      <div class="users-cards" id="users-cards"></div>
-    </div>
-
-    <div class="footer-note">
-      <strong>POWERED BY PIXORY</strong> · Admin Monitor v1.0 · realtime + polling ทุก 10 วินาที<br>
-      เห็นเฉพาะ aggregate stats + action type (ไม่เห็นข้อมูลธุรกิจของผู้ใช้)
-    </div>
   </div>
-</div>
 
-<!-- DM Modal -->
-<div id="dm-modal" class="modal-overlay">
-  <div class="modal-card">
-    <div class="modal-title">
-      <span>💬 ส่งข้อความถึง <span id="dm-user-name">—</span></span>
-      <button class="modal-close" onclick="closeDmModal()">✕</button>
+  <!-- ============ VIEW: SETTINGS ============ -->
+  <div class="view" id="view-settings">
+    <div style="padding: 16px 22px 8px;">
+      <div style="font-size: 22px; font-weight: 800; color: white;">⚙ ตั้งค่า</div>
+      <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">การแจ้งเตือนและบัญชี</div>
     </div>
 
-    <div class="modal-contact-list" id="dm-contacts"></div>
-
-    <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600;">Template:</div>
-    <div class="modal-templates">
-      <button class="tpl-btn active" data-tpl="active">Active</button>
-      <button class="tpl-btn" data-tpl="reactivate">Reactivate</button>
-      <button class="tpl-btn" data-tpl="champion">Champion · ขอ Testimonial</button>
-    </div>
-
-    <textarea class="modal-textarea" id="dm-text" placeholder="ข้อความ..."></textarea>
-
-    <div style="font-size:11px;color:var(--muted);margin-top:12px;font-weight:600;">ส่งทาง:</div>
-    <div class="modal-channels">
-      <button class="channel-btn" id="ch-line" disabled><span class="ic">💬</span>LINE</button>
-      <button class="channel-btn primary" id="ch-email"><span class="ic">📧</span>Email</button>
-      <button class="channel-btn" id="ch-sms" disabled><span class="ic">📱</span>SMS</button>
-      <button class="channel-btn" id="ch-copy"><span class="ic">📋</span>Copy</button>
-    </div>
-
-    <div class="modal-hint">
-      💡 คลิก LINE/Email/SMS → จะเปิดแอพ messenger ของคุณพร้อมข้อความ pre-fill<br>
-      💡 Copy → copy ข้อความเข้า clipboard เพื่อใช้ใน FB Messenger หรืออื่นๆ
-    </div>
-  </div>
-</div>
-
-<!-- v2.3.2 · Toast notification stack -->
-<div class="toast-stack" id="toast-stack"></div>
-
-<!-- v2.3.2 · Settings modal -->
-<div id="settings-modal" class="modal-overlay">
-  <div class="modal-card" style="max-width: 480px;">
-    <div class="modal-title">
-      <span>⚙ ตั้งค่าแจ้งเตือน Admin</span>
-      <button class="modal-close" onclick="closeSettingsModal()">✕</button>
-    </div>
-    <div class="settings-list">
+    <div class="panel">
+      <div class="panel-title">🔔 แจ้งเตือนในแอพ</div>
       <div class="settings-row">
         <div class="left">
           <div class="label">🎉 มีคนสมัครใหม่</div>
@@ -507,7 +548,7 @@
       <div class="settings-row">
         <div class="left">
           <div class="label">📋 สร้างใบเสนอ</div>
-          <div class="desc">เด้งทุกครั้งที่ user สร้างใบเสนอราคา</div>
+          <div class="desc">เด้งทุกครั้งที่ user สร้างใบเสนอ</div>
         </div>
         <div class="switch" id="sw-quote" onclick="toggleNotifSetting('quote')"></div>
       </div>
@@ -521,7 +562,7 @@
       <div class="settings-row">
         <div class="left">
           <div class="label">💰 บันทึกการชำระ</div>
-          <div class="desc">เด้งเมื่อ user บันทึกชำระเงินใหม่</div>
+          <div class="desc">เด้งเมื่อ user บันทึกชำระเงิน</div>
         </div>
         <div class="switch" id="sw-payment" onclick="toggleNotifSetting('payment')"></div>
       </div>
@@ -533,18 +574,91 @@
         <div class="switch" id="sw-sound" onclick="toggleNotifSetting('sound')"></div>
       </div>
     </div>
-    <div style="font-size: 11px; color: var(--muted); padding: 10px 14px; background: rgba(255,255,255,.03); border-radius: 8px; line-height: 1.5;">
-      💡 การตั้งค่าเก็บใน browser ของคุณ · จะใช้บน device นี้เท่านั้น<br>
-      💡 ถ้าปิด tab admin หรือเปลี่ยน browser · จะไม่ได้รับ notification
+
+    <div class="panel">
+      <div class="panel-title">⚙ บัญชี</div>
+      <div class="settings-row" style="border-bottom:none;">
+        <div class="left">
+          <div class="label" id="acc-email-display">—</div>
+          <div class="desc">บัญชี admin ที่ login อยู่</div>
+        </div>
+      </div>
+      <button class="btn-primary" style="background: rgba(239,68,68,.15); color:#fca5a5; border:1px solid rgba(239,68,68,.3); margin-top:10px;" id="logout-btn">ออกจากระบบ</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">ℹ เกี่ยวกับ</div>
+      <div style="font-size:12px; color: var(--muted); line-height:1.6;">
+        Pixory Admin Monitor · v2.4.0<br>
+        Mobile-first · Apple Health Style<br><br>
+        • Realtime sync + polling 10s<br>
+        • Live notification toast + sound<br>
+        • 4 user stages · engagement score<br>
+        • DM via LINE / Email / SMS
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Supabase JS -->
+<!-- ===== Bottom Tab Bar ===== -->
+<div class="tab-bar" id="tab-bar" style="display:none;">
+  <div class="tab-bar-inner">
+    <button class="tab-item active" onclick="switchTab('home')" data-tab="home">
+      <div class="ic">🏠</div>
+      <div class="lbl">Home</div>
+    </button>
+    <button class="tab-item" onclick="switchTab('users')" data-tab="users">
+      <div class="ic">👥</div>
+      <div class="lbl">Users</div>
+    </button>
+    <button class="tab-item" onclick="switchTab('insights')" data-tab="insights">
+      <div class="ic">📊</div>
+      <div class="lbl">Insights</div>
+    </button>
+    <button class="tab-item" onclick="switchTab('settings')" data-tab="settings">
+      <div class="ic">⚙</div>
+      <div class="lbl">Settings</div>
+    </button>
+  </div>
+</div>
+
+<!-- ===== Toast Stack ===== -->
+<div class="toast-stack" id="toast-stack"></div>
+
+<!-- ===== DM Modal ===== -->
+<div id="dm-modal" class="modal-overlay" onclick="if(event.target.id==='dm-modal')closeDmModal()">
+  <div class="modal-card">
+    <div class="modal-handle"></div>
+    <div class="modal-title">
+      <span>💬 DM <span id="dm-user-name">—</span></span>
+      <button class="modal-close" onclick="closeDmModal()">✕</button>
+    </div>
+    <div class="modal-contact-list" id="dm-contacts"></div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600;">เลือก Template:</div>
+    <div class="modal-templates">
+      <button class="tpl-btn active" data-tpl="active">ทักทาย</button>
+      <button class="tpl-btn" data-tpl="reactivate">Reactivate</button>
+      <button class="tpl-btn" data-tpl="champion">ขอ Testimonial</button>
+    </div>
+    <textarea class="modal-textarea" id="dm-text" placeholder="ข้อความ..."></textarea>
+    <div style="font-size:11px;color:var(--muted);margin-top:12px;font-weight:600;">ส่งผ่าน:</div>
+    <div class="modal-channels">
+      <button class="channel-btn" id="ch-line" disabled><span class="ic">💬</span>LINE</button>
+      <button class="channel-btn primary" id="ch-email"><span class="ic">📧</span>Email</button>
+      <button class="channel-btn" id="ch-sms" disabled><span class="ic">📱</span>SMS</button>
+      <button class="channel-btn" id="ch-copy"><span class="ic">📋</span>Copy</button>
+    </div>
+    <div class="modal-hint">
+      💡 LINE/Email/SMS → เปิด messenger ของคุณพร้อมข้อความ pre-fill<br>
+      💡 Copy → copy เข้า clipboard เพื่อใช้ใน FB Messenger หรืออื่นๆ
+    </div>
+  </div>
+</div>
+
+<!-- ===== Supabase + JS ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ⛔ STRICT RULE — DO NOT add Service Worker, version checks, or update banners to admin.html.
-// This is a SILENT read-only monitoring tool.
+// ⛔ STRICT RULE — Silent read-only monitoring tool. No Service Worker, version checks, or update banners.
 
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_d_Pp52QFpipDvj4JlhCzNw_mBpgyEvE';
@@ -552,20 +666,22 @@ const ADMIN_EMAIL  = 'srangpap2023@gmail.com';
 const ONLINE_THRESHOLD_SEC = 45;
 const REFRESH_INTERVAL_MS  = 10 * 1000;
 
+const NOTIF_PREFS_KEY = 'pixory.admin.notifPrefs';
+const DEFAULT_NOTIF_PREFS = { signup: true, quote: true, job: true, payment: true, sound: true };
+
 let SUPABASE = null;
-let _refreshTimer = null, _realtimeChannel = null, _onlineTickTimer = null, _timeTickTimer = null;
+let _refreshTimer = null, _realtimeChannel = null, _onlineTickTimer = null;
 let _lastUsers = [];
 let _dmCurrentUser = null;
 let _dmCurrentTpl = 'active';
-
-// v2.3.2 · Notification settings (persisted in localStorage)
-const NOTIF_PREFS_KEY = 'pixory.admin.notifPrefs';
-const DEFAULT_NOTIF_PREFS = { signup: true, quote: true, job: true, payment: true, sound: true };
 let _notifPrefs = loadNotifPrefs();
-let _prevSnapshot = null; // { email: { lastActionAt, jobCount, quoteCount } }
-let _isFirstRender = true; // skip notifications on initial load
+let _prevSnapshot = null;
+let _isFirstRender = true;
 let _audioCtx = null;
+let _currentTab = 'home';
+let _currentUserFilter = 'all';
 
+// ============ NOTIF PREFS ============
 function loadNotifPrefs() {
   try {
     const raw = localStorage.getItem(NOTIF_PREFS_KEY);
@@ -587,15 +703,8 @@ function syncNotifSwitches() {
     if (el) el.classList.toggle('on', !!_notifPrefs[k]);
   });
 }
-function openSettingsModal() {
-  syncNotifSwitches();
-  document.getElementById('settings-modal').classList.add('show');
-}
-function closeSettingsModal() {
-  document.getElementById('settings-modal').classList.remove('show');
-}
 
-// v2.3.2 · Toast notifications
+// ============ TOAST ============
 function showToast({type, title, body, time, onClick}) {
   const stack = document.getElementById('toast-stack');
   if (!stack) return;
@@ -611,18 +720,14 @@ function showToast({type, title, body, time, onClick}) {
   `;
   if (onClick) toast.addEventListener('click', onClick);
   stack.appendChild(toast);
-  // Auto-dismiss after 8 seconds
   setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; setTimeout(() => toast.remove(), 300); }, 8000);
-  // Play sound
   if (_notifPrefs.sound) playPing();
 }
 function playPing() {
   try {
     if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = _audioCtx.createOscillator();
-    const g = _audioCtx.createGain();
-    o.frequency.value = 880; // A5
-    o.type = 'sine';
+    const o = _audioCtx.createOscillator(); const g = _audioCtx.createGain();
+    o.frequency.value = 880; o.type = 'sine';
     g.gain.setValueAtTime(0.15, _audioCtx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + 0.4);
     o.connect(g); g.connect(_audioCtx.destination);
@@ -630,124 +735,31 @@ function playPing() {
   } catch (e) {}
 }
 
-// v2.3.2 · Detect new events by comparing current snapshot to previous
-function detectAndNotify(users) {
-  if (_isFirstRender) {
-    _prevSnapshot = snapshotUsers(users);
-    _isFirstRender = false;
-    return;
-  }
-  const newSnap = snapshotUsers(users);
-  users.forEach(u => {
-    const prev = _prevSnapshot[u.email];
-    const name = u.shop || u.email.split('@')[0];
-    // New user (didn't exist in prev snapshot)
-    if (!prev && _notifPrefs.signup) {
-      showToast({
-        type: 'signup',
-        title: '🎉 มีคนสมัครใหม่!',
-        body: `<b>${escapeHtml(name)}</b><br>${escapeHtml(u.email)}`,
-        time: 'เมื่อกี้',
-        onClick: () => openDmModal(u.email, 'active')
-      });
-      return;
-    }
-    if (!prev) return;
-    // Quote count increased
-    if (_notifPrefs.quote && u.quoteCount > prev.quoteCount) {
-      const diff = u.quoteCount - prev.quoteCount;
-      const tag = (u.quoteCount === diff) ? ' · ใบเสนอแรก! 🎉' : '';
-      showToast({
-        type: 'quote',
-        title: '📋 สร้างใบเสนอ' + tag,
-        body: `<b>${escapeHtml(name)}</b><br>รวม ${u.quoteCount} ใบ${u.lastAction && u.lastAction.code ? ' · ' + escapeHtml(u.lastAction.code) : ''}`,
-        time: 'เมื่อกี้',
-        onClick: () => openDmModal(u.email, 'active')
-      });
-    }
-    // Job count increased
-    if (_notifPrefs.job && u.jobCount > prev.jobCount) {
-      const diff = u.jobCount - prev.jobCount;
-      const tag = (u.jobCount === diff) ? ' · งานแรก! 🎉' : '';
-      showToast({
-        type: 'job',
-        title: '💼 สร้างงาน' + tag,
-        body: `<b>${escapeHtml(name)}</b><br>รวม ${u.jobCount} งาน`,
-        time: 'เมื่อกี้',
-        onClick: () => openDmModal(u.email, 'active')
-      });
-    }
-    // Payment logged
-    if (_notifPrefs.payment && u.lastAction && u.lastAction.type === 'logged_payment') {
-      const prevAt = prev.lastActionAt;
-      const curAt = u.lastAction.at;
-      if (curAt && curAt !== prevAt) {
-        showToast({
-          type: 'payment',
-          title: '💰 บันทึกชำระเงิน',
-          body: `<b>${escapeHtml(name)}</b>${u.lastAction.code ? ' · ' + escapeHtml(u.lastAction.code) : ''}`,
-          time: 'เมื่อกี้',
-          onClick: () => openDmModal(u.email, 'active')
-        });
-      }
-    }
-  });
-  _prevSnapshot = newSnap;
-}
-function snapshotUsers(users) {
-  const snap = {};
-  users.forEach(u => {
-    snap[u.email] = {
-      jobCount: u.jobCount,
-      quoteCount: u.quoteCount,
-      lastActionAt: u.lastAction ? u.lastAction.at : ''
-    };
-  });
-  return snap;
-}
-
+// ============ INIT / AUTH ============
 function init() {
   try {
     SUPABASE = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, storage: window.localStorage, storageKey: 'pixory.admin.session' }
     });
-  } catch (e) {
-    showLoginError('ไม่สามารถเชื่อมต่อ Supabase: ' + e.message);
-    return;
-  }
+  } catch (e) { showLoginError('ไม่สามารถเชื่อมต่อ Supabase: ' + e.message); return; }
   SUPABASE.auth.getSession().then(({ data }) => {
-    if (data && data.session && data.session.user) enterDashboard(data.session.user);
+    if (data && data.session && data.session.user) enterApp(data.session.user);
   });
   document.getElementById('login-form').addEventListener('submit', onLogin);
   document.getElementById('logout-btn').addEventListener('click', onLogout);
-  document.getElementById('refresh-btn').addEventListener('click', () => loadDashboard(true));
-  // v2.3.2 · Settings button + modal close on overlay click
-  const sb = document.getElementById('settings-btn');
-  if (sb) sb.addEventListener('click', openSettingsModal);
-  const settingsModal = document.getElementById('settings-modal');
-  if (settingsModal) settingsModal.addEventListener('click', (e) => { if (e.target.id === 'settings-modal') closeSettingsModal(); });
-  // DM template selector
+  // DM modal wiring
   document.querySelectorAll('.tpl-btn').forEach(b => {
-    b.addEventListener('click', () => { setDmTemplate(b.dataset.tpl); });
+    b.addEventListener('click', () => setDmTemplate(b.dataset.tpl));
   });
   document.getElementById('ch-line').addEventListener('click', () => sendDm('line'));
   document.getElementById('ch-email').addEventListener('click', () => sendDm('email'));
   document.getElementById('ch-sms').addEventListener('click', () => sendDm('sms'));
   document.getElementById('ch-copy').addEventListener('click', () => sendDm('copy'));
-  document.getElementById('dm-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'dm-modal') closeDmModal();
+  // User filter chips
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.addEventListener('click', () => { setUserFilter(c.dataset.filter); });
   });
-  // Live clock
-  updateClock();
-  _timeTickTimer = setInterval(updateClock, 1000);
 }
-
-function updateClock() {
-  const d = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  document.getElementById('time-display').textContent = `${pad(d.getDate())}/${pad(d.getMonth()+1)} · ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-
 async function onLogin(e) {
   e.preventDefault();
   const email = document.getElementById('login-email').value.trim();
@@ -759,34 +771,40 @@ async function onLogin(e) {
     const { data, error } = await SUPABASE.auth.signInWithPassword({ email, password });
     if (error) { showLoginError('Login ไม่สำเร็จ: ' + error.message); return; }
     if (!data || !data.user) { showLoginError('ไม่พบข้อมูลผู้ใช้'); return; }
-    enterDashboard(data.user);
+    enterApp(data.user);
   } catch (e) { showLoginError('Error: ' + (e.message || e)); }
   finally { btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ'; }
 }
-
 async function onLogout() {
   try { await SUPABASE.auth.signOut(); } catch (e) {}
   if (_refreshTimer) clearInterval(_refreshTimer);
   if (_onlineTickTimer) clearInterval(_onlineTickTimer);
   if (_realtimeChannel) { try { SUPABASE.removeChannel(_realtimeChannel); } catch (e) {} _realtimeChannel = null; }
-  document.getElementById('dashboard-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('tab-bar').style.display = 'none';
   document.getElementById('login-screen').style.display = '';
   document.getElementById('login-email').value = '';
   document.getElementById('login-password').value = '';
 }
-
 function showLoginError(msg) {
   const el = document.getElementById('login-error');
   if (!el) return;
   if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
   el.textContent = msg; el.style.display = '';
 }
-
-function enterDashboard(user) {
+function enterApp(user) {
   document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('dashboard-screen').style.display = '';
+  document.getElementById('app-screen').style.display = '';
+  document.getElementById('tab-bar').style.display = '';
+  // Greeting based on time
+  const h = new Date().getHours();
+  document.getElementById('greet-text').textContent = h < 12 ? 'สวัสดียามเช้า ☀' : (h < 17 ? 'สวัสดียามบ่าย 🌤' : (h < 19 ? 'สวัสดียามเย็น 🌅' : 'สวัสดียามค่ำ 🌙'));
+  // Avatar initial
+  document.getElementById('avatar-btn').textContent = (user.email || '?').charAt(0).toUpperCase();
+  document.getElementById('acc-email-display').textContent = user.email || '—';
+  syncNotifSwitches();
   if (user.email !== ADMIN_EMAIL) {
-    document.getElementById('users-table').innerHTML = `<tr><td colspan="8" class="empty"><div class="icon">🔒</div><div class="title">ไม่ใช่บัญชี admin</div></td></tr>`;
+    document.getElementById('view-home').innerHTML = `<div class="empty"><div class="icon">🔒</div><div class="title">ไม่ใช่บัญชี admin</div><div style="font-size:12px;margin-top:8px;color:var(--muted);">login ด้วย ${ADMIN_EMAIL}</div></div>`;
     return;
   }
   loadDashboard(true);
@@ -794,62 +812,65 @@ function enterDashboard(user) {
   _refreshTimer = setInterval(() => loadDashboard(false), REFRESH_INTERVAL_MS);
   subscribeToRealtime();
   if (_onlineTickTimer) clearInterval(_onlineTickTimer);
-  _onlineTickTimer = setInterval(() => { if (_lastUsers.length) renderDashboard(_lastUsers); }, 5000);
+  _onlineTickTimer = setInterval(() => { if (_lastUsers.length) renderAll(_lastUsers); }, 5000);
 }
 
 function subscribeToRealtime() {
   if (!SUPABASE || _realtimeChannel) return;
   try {
     _realtimeChannel = SUPABASE.channel('admin:user_data')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_data' },
-        () => loadDashboard(false))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_data' }, () => loadDashboard(false))
       .subscribe(status => {
-        const el = document.getElementById('realtime-status');
-        if (status === 'SUBSCRIBED') { if (el) el.innerHTML = '<span class="live">● Live</span>'; }
-        else if (['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(status)) {
-          if (el) el.textContent = '○ polling only';
+        const pill = document.getElementById('live-pill');
+        if (!pill) return;
+        if (status === 'SUBSCRIBED') {
+          pill.classList.remove('off');
+          pill.innerHTML = '<span class="dot"></span>LIVE';
+        } else if (['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(status)) {
+          pill.classList.add('off');
+          pill.innerHTML = '<span class="dot"></span>polling';
         }
       });
-  } catch (e) { console.warn('Realtime subscribe failed:', e); }
+  } catch (e) { console.warn('Realtime failed:', e); }
 }
 
+// ============ TAB SWITCHING ============
+function switchTab(tab) {
+  _currentTab = tab;
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + tab));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============ DATA LOADING / PROCESSING ============
 async function loadDashboard(showLoading) {
   if (showLoading) {
-    document.getElementById('users-table').innerHTML = '<tr><td colspan="8" class="empty"><div class="icon">⏳</div><div class="title">กำลังโหลด...</div></td></tr>';
+    document.getElementById('activity-feed').innerHTML = '<div class="empty"><div class="icon">⏳</div><div class="title">กำลังโหลด...</div></div>';
   }
   try {
     const { data: rows, error } = await SUPABASE.from('user_data')
       .select('user_id, data, device_id, updated_at')
       .order('updated_at', { ascending: false });
     if (error) {
-      document.getElementById('users-table').innerHTML = `<tr><td colspan="8" class="empty"><div class="icon">⚠️</div><div class="title">โหลดข้อมูลไม่สำเร็จ</div><div>${escapeHtml(error.message)}</div></td></tr>`;
+      document.getElementById('activity-feed').innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">โหลดไม่สำเร็จ</div><div style="font-size:11px;margin-top:6px;color:var(--muted);">${escapeHtml(error.message)}</div></div>`;
       return;
     }
     _lastUsers = processRows(rows || []);
-    renderDashboard(_lastUsers);
+    renderAll(_lastUsers);
   } catch (e) {
-    document.getElementById('users-table').innerHTML = `<tr><td colspan="8" class="empty"><div class="icon">⚠️</div><div class="title">Error</div><div>${escapeHtml(e.message || e)}</div></td></tr>`;
+    document.getElementById('activity-feed').innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">Error</div><div style="font-size:11px;margin-top:6px;">${escapeHtml(e.message || e)}</div></div>`;
   }
 }
 
-// === USER STAGE CLASSIFIER ===
-// Computes stage based on actions + recency
 function classifyStage(user) {
-  const daysSinceSignup = (Date.now() - user.signupAt) / 86400000;
   const daysSinceActive = (Date.now() - user.updatedAt) / 86400000;
   const totalItems = user.jobCount + user.quoteCount;
-
-  // Champion: heavy use + active
   if (totalItems >= 10 && daysSinceActive < 3) return 'champion';
-  // Ghost: no activity for 7+ days
   if (daysSinceActive >= 7) return 'ghost';
-  // Active: has real items + recent
   if (totalItems >= 3 && daysSinceActive < 5) return 'active';
-  // Tire-kicker: comes back but minimal data
   return 'tire';
 }
-
-// === ENGAGEMENT SCORE (0-100) ===
 function computeScore(user) {
   let score = 0;
   if (user.quoteCount >= 1) score += 30;
@@ -860,11 +881,10 @@ function computeScore(user) {
   if (user.pdfGenerated) score += 10;
   const daysIdle = (Date.now() - user.updatedAt) / 86400000;
   if (daysIdle >= 7) score -= 20;
-  if (daysIdle >= 14) score -= 20; // Total -40 for 14+ days
+  if (daysIdle >= 14) score -= 20;
   return Math.max(0, Math.min(100, score));
 }
 
-// === PROCESS RAW ROWS · group by user, compute stage + score ===
 function processRows(rows) {
   const now = Date.now();
   const map = new Map();
@@ -887,36 +907,21 @@ function processRows(rows) {
     const studioGenresOther = String(profile.studioGenresOther || '').trim();
     const pushEnabled = !!ns.pushEnabled;
     const hasPayment = jobs.some(j => Array.isArray(j.payments) && j.payments.length > 0);
-    const pdfGenerated = lastAction.type === 'generated_pdf' ||
-                         jobs.some(j => j._pdfGenerated) ||
-                         quotes.some(q => q._pdfGenerated);
-    // Signup time (rough estimate · use earliest payment / quote / job date or fallback to updated_at)
-    let signupAt = updatedAt;
-    const allDates = [...jobs, ...quotes].map(x => x._createdAt || x.date).filter(Boolean);
-    if (allDates.length) {
-      const earliest = Math.min(...allDates.map(d => new Date(d).getTime()).filter(t => !isNaN(t)));
-      if (earliest > 0 && earliest < updatedAt) signupAt = earliest;
-    }
+    const pdfGenerated = lastAction.type === 'generated_pdf';
     if (!map.has(email)) {
       map.set(email, {
-        email, emailIsFallback, shop, phone, line,
-        updatedAt, signupAt,
+        email, emailIsFallback, shop, phone, line, updatedAt,
         jobCount: jobs.length, quoteCount: quotes.length, custCount: Object.keys(customers).length,
         appVersion: meta.app_version || '—',
-        devices: new Set([row.device_id].filter(Boolean)),
         lastAction, pushEnabled, hasPayment, pdfGenerated,
-        quotes: quotes,
-        ns: ns,
-        studioGenres, studioGenresOther
+        quotes, ns, studioGenres, studioGenresOther
       });
     } else {
       const u = map.get(email);
-      if (row.device_id) u.devices.add(row.device_id);
       if (updatedAt > u.updatedAt) Object.assign(u, {
         updatedAt, shop, phone, line, jobCount: jobs.length, quoteCount: quotes.length,
         custCount: Object.keys(customers).length, lastAction, pushEnabled, hasPayment, pdfGenerated,
-        appVersion: meta.app_version || '—', quotes, ns,
-        studioGenres, studioGenresOther
+        appVersion: meta.app_version || '—', quotes, ns, studioGenres, studioGenresOther
       });
     }
   });
@@ -930,12 +935,20 @@ function processRows(rows) {
   return users.sort((a,b) => b.score - a.score || b.updatedAt - a.updatedAt);
 }
 
-function renderDashboard(users) {
+// ============ RENDER (all views) ============
+function renderAll(users) {
+  renderHome(users);
+  renderUsersView(users);
+  renderInsights(users);
+  detectAndNotify(users);
+}
+
+function renderHome(users) {
   const totalUsers = users.length;
   const now = Date.now();
-  const ONE_DAY = 86400000, SEVEN_DAYS = 7 * ONE_DAY;
+  const SEVEN_DAYS = 7 * 86400000;
 
-  // === North Star: quotes in last 7 days ===
+  // North Star
   let nsCount = 0, nsPrevWeek = 0;
   users.forEach(u => {
     (u.quotes || []).forEach(q => {
@@ -949,403 +962,363 @@ function renderDashboard(users) {
   document.getElementById('ns-value').textContent = nsCount;
   const trend = nsPrevWeek > 0 ? Math.round(((nsCount - nsPrevWeek) / nsPrevWeek) * 100) : (nsCount > 0 ? 100 : 0);
   const trendEl = document.getElementById('ns-trend');
-  if (nsPrevWeek === 0 && nsCount > 0) trendEl.textContent = `↗ ใหม่! สัปดาห์ก่อน 0 ใบ → สัปดาห์นี้ ${nsCount} ใบ`;
-  else if (trend > 0) trendEl.textContent = `↗ +${trend}% จากสัปดาห์ที่แล้ว (${nsPrevWeek} → ${nsCount})`;
-  else if (trend < 0) { trendEl.textContent = `↘ ${trend}% จากสัปดาห์ที่แล้ว (${nsPrevWeek} → ${nsCount})`; trendEl.style.color = 'var(--red)'; }
+  if (nsPrevWeek === 0 && nsCount > 0) trendEl.textContent = `↗ ใหม่! +${nsCount} ใบในสัปดาห์นี้`;
+  else if (trend > 0) trendEl.textContent = `↗ +${trend}% จากสัปดาห์ที่แล้ว`;
+  else if (trend < 0) { trendEl.textContent = `↘ ${trend}% จากสัปดาห์ที่แล้ว`; trendEl.classList.add('down'); }
+  else if (nsCount === 0) trendEl.textContent = '— ยังไม่มีใบเสนอใน 7 วัน';
   else trendEl.textContent = `— เท่ากับสัปดาห์ที่แล้ว`;
 
-  // === KPIs ===
-  const activeToday = users.filter(u => u.secondsAgo < ONE_DAY / 1000).length;
+  // KPIs
+  const activeToday = users.filter(u => u.secondsAgo < 86400).length;
   const activated = users.filter(u => u.quoteCount >= 1).length;
   const atRisk = users.filter(u => {
     const days = u.secondsAgo / 86400;
     return days > 3 && days < 14 && (u.jobCount + u.quoteCount) >= 1;
   });
+  const champions = users.filter(u => u.stage === 'champion');
 
   document.getElementById('kpi-users').textContent = totalUsers;
-  document.getElementById('kpi-users-sub').textContent = totalUsers > 0 ? `Cohort latest: ${formatTimeAgo(Math.min(...users.map(u => u.signupAt)))}` : '';
-  document.getElementById('kpi-active-today').textContent = activeToday;
+  document.getElementById('kpi-users-sub').textContent = totalUsers > 0 ? 'ทั้งหมดในระบบ' : '—';
+  document.getElementById('kpi-active').textContent = activeToday;
   const damau = totalUsers ? Math.round((activeToday/totalUsers)*100) : 0;
-  document.getElementById('kpi-active-sub').textContent = `DAU/MAU ${damau}%` + (damau >= 20 ? ' · ดี' : ' · ต่ำกว่าเป้า');
-  document.getElementById('kpi-active-sub').className = damau >= 20 ? 'kpi-sub up' : 'kpi-sub warn';
+  const activeSub = document.getElementById('kpi-active-sub');
+  activeSub.textContent = `DAU/MAU ${damau}%`;
+  activeSub.className = 'stat-sub ' + (damau >= 20 ? '' : 'warn');
   const actPct = totalUsers ? Math.round((activated/totalUsers)*100) : 0;
   document.getElementById('kpi-activation').textContent = actPct + '%';
-  document.getElementById('kpi-activation-sub').textContent = `${activated}/${totalUsers} สร้างใบเสนอแรกแล้ว · เป้า 50%`;
-  document.getElementById('kpi-activation-sub').className = actPct >= 50 ? 'kpi-sub up' : 'kpi-sub warn';
+  const actSub = document.getElementById('kpi-activation-sub');
+  actSub.textContent = `${activated}/${totalUsers} ใบเสนอแรก`;
+  actSub.className = 'stat-sub ' + (actPct >= 50 ? '' : 'warn');
   document.getElementById('kpi-risk').textContent = atRisk.length;
-  document.getElementById('kpi-risk-sub').textContent = atRisk.length > 0 ? 'เคย active · ใกล้ churn' : 'ไม่มี · ดี!';
+  document.getElementById('kpi-risk-sub').textContent = atRisk.length > 0 ? 'DM ทันที' : 'ไม่มี · ดี! 🎉';
+  document.getElementById('kpi-risk-sub').className = 'stat-sub ' + (atRisk.length > 0 ? 'bad' : '');
 
-  // === Stage classification ===
+  // Stages
   const byStage = { ghost: 0, tire: 0, active: 0, champion: 0 };
   users.forEach(u => byStage[u.stage]++);
-  ['ghost','tire','active','champion'].forEach(s => {
-    document.getElementById('stage-' + s).textContent = byStage[s];
-    document.getElementById('stage-' + s + '-pct').textContent = totalUsers ? Math.round((byStage[s]/totalUsers)*100) + '%' : '0%';
-  });
-  document.getElementById('donut-num').textContent = totalUsers;
-  document.getElementById('total-tag').textContent = totalUsers + ' ราย';
-  // Donut conic gradient
-  const total = Math.max(1, totalUsers);
-  const ghostPct = (byStage.ghost/total) * 100;
-  const tirePct = ghostPct + (byStage.tire/total) * 100;
-  const activePct = tirePct + (byStage.active/total) * 100;
-  document.getElementById('stage-donut').style.background = `conic-gradient(
-    var(--red) 0% ${ghostPct}%,
-    var(--yellow) ${ghostPct}% ${tirePct}%,
-    var(--green) ${tirePct}% ${activePct}%,
-    var(--purple) ${activePct}% 100%
-  )`;
-
-  // === Genre breakdown ===
-  renderGenreBars(users);
-
-  // === Funnel ===
-  const funnelData = [
-    { num: 1, label: 'Signup', count: totalUsers },
-    { num: 2, label: 'Wizard เสร็จ', count: users.filter(u => u.shop).length },
-    { num: 3, label: 'ใบเสนอแรก', count: activated },
-    { num: 4, label: 'งานแรก', count: users.filter(u => u.jobCount >= 1).length },
-    { num: 5, label: 'PDF generated', count: users.filter(u => u.pdfGenerated).length }
+  const stagesEl = document.getElementById('stages-scroll');
+  const stages = [
+    { key: 'champion', emoji: '🚀', name: 'Champion' },
+    { key: 'active', emoji: '✨', name: 'Active' },
+    { key: 'tire', emoji: '🪞', name: 'Tire-kicker' },
+    { key: 'ghost', emoji: '👻', name: 'Ghost' }
   ];
-  document.getElementById('funnel-content').innerHTML = funnelData.map((s, i) => {
-    const pct = totalUsers ? Math.round((s.count/totalUsers)*100) : 0;
-    const prevPct = i > 0 ? (totalUsers ? Math.round((funnelData[i-1].count/totalUsers)*100) : 0) : 100;
-    const drop = i > 0 ? pct - prevPct : 0;
-    return `
-      <div class="funnel-step">
-        <div class="funnel-num">${s.num}</div>
-        <div class="funnel-label">${s.label}</div>
-        <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${Math.max(pct, 1)}%;">${s.count}</div></div>
-        <div class="funnel-pct">${pct}%</div>
-        <div class="funnel-drop">${drop < 0 ? (drop) + '%' : ''}${drop < -30 ? ' 🚨' : ''}</div>
-      </div>`;
-  }).join('');
-
-  // === Smart Insights ===
-  const insights = [];
-  if (atRisk.length > 0) {
-    insights.push({ icon: '⏰', html: `<b>${atRisk.length} user ใกล้ churn</b> · ดู At-Risk panel ด้านล่าง · ส่ง DM ทักทาย`, color: 'warn' });
-  }
-  const champions = users.filter(u => u.stage === 'champion');
-  if (champions.length > 0) {
-    insights.push({ icon: '⭐', html: `<b>${champions.length} Champion${champions.length > 1 ? 's' : ''}!</b> · ขอ testimonial เพื่อโพสในกลุ่ม FB`, color: 'good' });
-  }
-  if (actPct < 30 && totalUsers >= 5) {
-    insights.push({ icon: '⚠', html: `<b>Activation rate ต่ำ (${actPct}%)</b> · พิจารณา onboarding tour · สอนสร้างใบเสนอแรก`, color: 'warn' });
-  }
-  if (trend > 0) {
-    insights.push({ icon: '📈', html: `<b>North Star +${trend}%</b> · ปฏิทินกลยุทธ์สัปดาห์นี้ work · ทำซ้ำ`, color: 'good' });
-  }
-  if (byStage.ghost > 0) {
-    insights.push({ icon: '👻', html: `<b>${byStage.ghost} Ghost users</b> · ส่ง email broadcast ขอ feedback สั้นๆ`, color: 'warn' });
-  }
-  if (insights.length === 0) {
-    insights.push({ icon: '✨', html: 'ทุกอย่างดูดี · ไม่มี action ที่ต้องทำตอนนี้', color: 'good' });
-  }
-  document.getElementById('insights-list').innerHTML = insights.map(i => `
-    <div class="insight-item">
-      <span class="insight-icon">${i.icon}</span>
-      <div>${i.html}</div>
+  stagesEl.innerHTML = stages.map(s => `
+    <div class="stage-pill ${s.key}" onclick="setUserFilter('${s.key}');switchTab('users')">
+      <div class="stage-pill-emoji">${s.emoji}</div>
+      <div class="stage-pill-count">${byStage[s.key]}</div>
+      <div class="stage-pill-name">${s.name}</div>
+      <div class="stage-pill-pct">${totalUsers ? Math.round((byStage[s.key]/totalUsers)*100) : 0}%</div>
     </div>`).join('');
 
-  // === Champions panel ===
+  // Live activity feed (sorted by lastAction.at desc, limit 8)
+  const withActions = users.filter(u => u.lastAction && u.lastAction.at).slice();
+  withActions.sort((a, b) => new Date(b.lastAction.at).getTime() - new Date(a.lastAction.at).getTime());
+  const feedItems = withActions.slice(0, 8);
+  document.getElementById('activity-count').textContent = withActions.length;
+  document.getElementById('activity-feed').innerHTML = feedItems.length ? feedItems.map(u => renderActivityItem(u)).join('') :
+    '<div class="empty" style="padding:30px;"><div style="font-size:24px;opacity:.5;">🌙</div><div style="font-size:12px;margin-top:6px;color:var(--muted);">ยังไม่มี activity · รอ user เริ่มใช้แอพ</div></div>';
+
+  // Champions
   document.getElementById('champion-count').textContent = champions.length;
-  document.getElementById('champions-list').innerHTML = champions.length ? champions.slice(0, 5).map(u => `
-    <div class="mini-user">
-      <div class="avatar purple">${getInitials(u.shop || u.email)}</div>
-      <div class="mini-info">
-        <div class="mini-name">${escapeHtml(u.shop || u.email.split('@')[0])}</div>
-        <div class="mini-detail">${u.quoteCount} quotes · ${u.jobCount} jobs · score ${u.score}</div>
-      </div>
-      <button class="mini-action-btn purple" onclick='openDmModal(${JSON.stringify(u.email)}, "champion")'>DM ขอ Quote</button>
-    </div>`).join('') : '<div style="text-align:center;color:var(--muted);padding:14px;font-size:12px;">ยังไม่มี Champion · ต้องการ user ที่มี ≥10 quotes/jobs</div>';
+  document.getElementById('champions-list').innerHTML = champions.length
+    ? champions.slice(0, 3).map(u => renderUserRow(u, 'purple', `${u.quoteCount}q · ${u.jobCount}j · score ${u.score}`)).join('')
+    : '<div class="empty" style="padding:18px;"><div style="font-size:11.5px;color:var(--muted);">ยังไม่มี Champion (ต้องมี ≥10 quotes/jobs)</div></div>';
 
-  // === At-Risk panel ===
+  // At Risk
   document.getElementById('risk-count').textContent = atRisk.length;
-  document.getElementById('risk-list').innerHTML = atRisk.length ? atRisk.slice(0, 5).map(u => `
-    <div class="mini-user">
-      <div class="avatar red">${getInitials(u.shop || u.email)}</div>
-      <div class="mini-info">
-        <div class="mini-name">${escapeHtml(u.shop || u.email.split('@')[0])}</div>
-        <div class="mini-detail">${u.quoteCount}q · ${u.jobCount}j · ไม่เข้า ${formatDays(u.secondsAgo)}</div>
-      </div>
-      <button class="mini-action-btn" onclick='openDmModal(${JSON.stringify(u.email)}, "reactivate")'>DM ทักทาย</button>
-    </div>`).join('') : '<div style="text-align:center;color:var(--muted);padding:14px;font-size:12px;">ไม่มี user ใกล้ churn · ดีเยี่ยม!</div>';
-
-  // === User Table (desktop) + Cards (mobile) ===
-  document.getElementById('user-count').textContent = totalUsers + ' รายการ';
-  document.getElementById('users-table').innerHTML = users.map(u => renderUserRow(u)).join('');
-  const cardsEl = document.getElementById('users-cards');
-  if (cardsEl) cardsEl.innerHTML = users.map(u => renderUserCard(u)).join('');
-
-  // === v2.3.2 · Notification detection (after rendering · so user sees toast on top of data) ===
-  detectAndNotify(users);
+  document.getElementById('risk-list').innerHTML = atRisk.length
+    ? atRisk.slice(0, 5).map(u => renderUserRow(u, 'red', `ไม่เข้า ${formatDays(u.secondsAgo)} · ${u.quoteCount}q ${u.jobCount}j`)).join('')
+    : '<div class="empty" style="padding:18px;"><div style="font-size:11.5px;color:var(--muted);">ไม่มี user ใกล้ churn · ดีเยี่ยม!</div></div>';
 }
 
-// v2.3.2 · Mobile card layout · less cramped than table on small screens
-function renderUserCard(u) {
-  const stageLabels = { ghost: '👻 Ghost', tire: '🪞 Tire-kicker', active: '✨ Active', champion: '🚀 Champion' };
-  const scoreClass = u.score >= 60 ? 'high' : (u.score >= 30 ? 'mid' : 'low');
-  const lastActionLabel = formatActionLabel(u.lastAction);
-  const onlineHtml = u.isOnline
-    ? `<span class="online-badge"><span class="dot"></span>ออนไลน์ ${formatLastSeen(u.secondsAgo)}</span>`
-    : `<span style="font-size:11px;color:var(--muted);">${formatLastSeen(u.secondsAgo)}</span>`;
+function renderActivityItem(u) {
+  const labels = {
+    created_quote: { ic: '📋', cls: 'quote', text: 'สร้างใบเสนอ' },
+    created_job: { ic: '💼', cls: 'job', text: 'สร้างงาน' },
+    converted_quote: { ic: '✅', cls: 'job', text: 'แปลง Quote → Job' },
+    generated_pdf: { ic: '📄', cls: 'quote', text: 'สร้าง PDF' },
+    logged_payment: { ic: '💰', cls: 'payment', text: 'บันทึกการชำระ' }
+  };
+  const m = labels[u.lastAction.type] || { ic: '⚡', cls: 'user', text: u.lastAction.type };
+  const name = u.shop || u.email.split('@')[0];
+  const time = formatLastSeen(Math.floor((Date.now() - new Date(u.lastAction.at).getTime())/1000));
+  const isOnline = u.isOnline ? ' <span style="color:var(--green);font-size:10px;">● live</span>' : '';
   return `
-    <div class="user-card ${u.stage}">
-      <div class="uc-top">
-        <div class="uc-top-left">
-          <div class="uc-name">${escapeHtml(u.shop || u.email.split('@')[0])}</div>
-          <div class="uc-email">${escapeHtml(u.email)}</div>
-        </div>
-        <div class="uc-stage-score">
-          <span class="stage-tag ${u.stage}">${stageLabels[u.stage]}</span>
-          <span class="score ${scoreClass}">${u.score}</span>
-        </div>
-      </div>
-      <div class="uc-meta">
-        <span class="item">${onlineHtml}</span>
-        <span class="item">📋 ${u.quoteCount} ใบเสนอ</span>
-        <span class="item">💼 ${u.jobCount} งาน</span>
-        <span class="item">👥 ${u.custCount} ลูกค้า</span>
-      </div>
-      ${u.phone || u.line ? `
-        <div class="uc-meta">
-          ${u.phone ? `<span class="item">📱 ${escapeHtml(u.phone)}</span>` : ''}
-          ${u.line ? `<span class="item">💬 ${escapeHtml(u.line)}</span>` : ''}
-        </div>
-      ` : ''}
-      ${u.studioGenres && u.studioGenres.length ? `<div class="uc-genres">${formatGenres(u.studioGenres, u.studioGenresOther)}</div>` : ''}
-      <div class="uc-action-row">${lastActionLabel}</div>
-      <div class="uc-actions">
-        <button class="btn-dm" onclick='openDmModal(${JSON.stringify(u.email)}, "active")'>💬 DM ทักทาย</button>
+    <div class="activity-item" onclick='openDmModal(${JSON.stringify(u.email)}, "active")'>
+      <div class="activity-icon ${m.cls}">${m.ic}</div>
+      <div class="activity-text">
+        <div class="activity-title">${escapeHtml(name)} ${m.text}${isOnline}</div>
+        <div class="activity-sub">${u.lastAction.code ? escapeHtml(u.lastAction.code) + ' · ' : ''}${time}</div>
       </div>
     </div>`;
 }
 
-function renderUserRow(u) {
+function renderUserRow(u, avatarClass, metaText) {
+  const initials = getInitials(u.shop || u.email);
+  const liveRing = u.isOnline ? '<div class="live-ring"></div>' : '';
+  return `
+    <div class="user-row">
+      <div class="user-avatar ${avatarClass || ''}">${liveRing}${initials}</div>
+      <div class="user-info">
+        <div class="user-name">${escapeHtml(u.shop || u.email.split('@')[0])}</div>
+        <div class="user-meta"><span>${metaText}</span></div>
+      </div>
+      <button class="user-action" onclick='openDmModal(${JSON.stringify(u.email)}, "active")'>💬 DM</button>
+    </div>`;
+}
+
+// ============ USERS VIEW ============
+function setUserFilter(filter) {
+  _currentUserFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === filter));
+  renderUsersView(_lastUsers);
+}
+function renderUsersView(users) {
+  let filtered = users;
+  if (_currentUserFilter === 'online') filtered = users.filter(u => u.isOnline);
+  else if (_currentUserFilter !== 'all') filtered = users.filter(u => u.stage === _currentUserFilter);
+  document.getElementById('users-total-text').textContent = `${filtered.length} ราย${_currentUserFilter !== 'all' ? ' (กรอง ' + _currentUserFilter + ')' : ''}`;
+  const container = document.getElementById('users-cards');
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="icon">👤</div><div class="title">ไม่มีผู้ใช้ที่ตรง filter</div></div>';
+    return;
+  }
+  container.innerHTML = filtered.map(u => renderUserDetailCard(u)).join('');
+}
+function renderUserDetailCard(u) {
   const stageLabels = { ghost: '👻 Ghost', tire: '🪞 Tire-kicker', active: '✨ Active', champion: '🚀 Champion' };
   const scoreClass = u.score >= 60 ? 'high' : (u.score >= 30 ? 'mid' : 'low');
-  const lastActionLabel = formatActionLabel(u.lastAction);
-  const lastSeenHtml = u.isOnline
-    ? `<span class="online-badge"><span class="dot"></span>ออนไลน์ ${formatLastSeen(u.secondsAgo)}</span>`
-    : formatLastSeen(u.secondsAgo);
-  const rowBg = (u.stage === 'ghost' || u.score < 30) ? 'background:rgba(239,68,68,.04);' : '';
+  const initials = getInitials(u.shop || u.email);
+  const avatarClass = u.stage === 'champion' ? 'purple' : (u.stage === 'ghost' ? 'red' : (u.stage === 'active' ? 'green' : ''));
+  const liveRing = u.isOnline ? '<div class="live-ring"></div>' : '';
+  const onlineText = u.isOnline ? `<span class="udc-online">🟢 ออนไลน์ ${formatLastSeen(u.secondsAgo)}</span>` : `<span>${formatLastSeen(u.secondsAgo)}</span>`;
+  const lastAction = formatActionLabel(u.lastAction);
   return `
-    <tr style="${rowBg}">
-      <td><span class="stage-tag ${u.stage}">${stageLabels[u.stage]}</span></td>
-      <td class="name-cell"><b>${escapeHtml(u.shop || u.email.split('@')[0])}</b><br><span class="email-cell">${escapeHtml(u.email)}</span></td>
-      <td style="font-size:11px;">
-        ${u.phone ? '📱 ' + escapeHtml(u.phone) : '<span style="color:var(--muted);">—</span>'}<br>
-        ${u.line ? '💬 ' + escapeHtml(u.line) : '<span style="color:var(--muted);">—</span>'}
-      </td>
-      <td style="font-size:11px; max-width:180px;">${formatGenres(u.studioGenres, u.studioGenresOther)}</td>
-      <td class="last-action">${lastActionLabel}</td>
-      <td style="font-size:11px;">${lastSeenHtml}</td>
-      <td><span class="score ${scoreClass}">${u.score}</span></td>
-      <td>
-        <button class="btn-dm" onclick='openDmModal(${JSON.stringify(u.email)}, "active")' title="DM ทักทาย">💬 DM</button>
-      </td>
-    </tr>`;
+    <div class="user-detail-card ${u.stage}">
+      <div class="udc-top">
+        <div class="user-avatar ${avatarClass}" style="width:48px;height:48px;font-size:15px;">${liveRing}${initials}</div>
+        <div class="udc-info">
+          <div class="udc-name">${escapeHtml(u.shop || u.email.split('@')[0])}</div>
+          <div class="udc-email">${escapeHtml(u.email)}</div>
+        </div>
+        <div class="udc-tag-row">
+          <span class="stage-tag ${u.stage}">${stageLabels[u.stage]}</span>
+          <span class="score ${scoreClass}">${u.score}</span>
+        </div>
+      </div>
+      <div class="udc-meta">
+        ${onlineText}<span>📋 ${u.quoteCount}q</span><span>💼 ${u.jobCount}j</span><span>👥 ${u.custCount}c</span>
+      </div>
+      ${u.phone || u.line ? `
+        <div class="udc-contacts">
+          ${u.phone ? '📱 ' + escapeHtml(u.phone) : ''}
+          ${u.phone && u.line ? ' · ' : ''}
+          ${u.line ? '💬 ' + escapeHtml(u.line) : ''}
+        </div>` : ''}
+      ${u.studioGenres && u.studioGenres.length ? `<div class="udc-genres">${formatGenres(u.studioGenres, u.studioGenresOther)}</div>` : ''}
+      <div class="udc-action">${lastAction}</div>
+      <div class="udc-btn-row">
+        <button class="user-action" onclick='openDmModal(${JSON.stringify(u.email)}, "active")'>💬 DM ทักทาย</button>
+      </div>
+    </div>`;
 }
 
-// ========== DM MODAL ==========
-function openDmModal(email, defaultTpl) {
-  const user = _lastUsers.find(u => u.email === email);
-  if (!user) return;
-  _dmCurrentUser = user;
-  _dmCurrentTpl = defaultTpl || 'active';
-  document.getElementById('dm-user-name').textContent = user.shop || user.email.split('@')[0];
+// ============ INSIGHTS VIEW ============
+function renderInsights(users) {
+  const totalUsers = users.length;
+  const now = Date.now();
+  const SEVEN_DAYS = 7 * 86400000;
 
-  // Contacts
-  document.getElementById('dm-contacts').innerHTML = `
-    <div class="modal-contact-item ${user.email ? '' : 'missing'}">
-      <span class="modal-contact-label">📧 Email</span>
-      <span class="modal-contact-value">${escapeHtml(user.email || 'ไม่มี')}</span>
-    </div>
-    <div class="modal-contact-item ${user.phone ? '' : 'missing'}">
-      <span class="modal-contact-label">📱 Phone</span>
-      <span class="modal-contact-value">${escapeHtml(user.phone || 'ไม่ได้กรอก')}</span>
-    </div>
-    <div class="modal-contact-item ${user.line ? '' : 'missing'}">
-      <span class="modal-contact-label">💬 LINE</span>
-      <span class="modal-contact-value">${escapeHtml(user.line || 'ไม่ได้กรอก')}</span>
-    </div>
-  `;
+  // Funnel
+  const funnelData = [
+    { num: 1, label: 'Signup', count: totalUsers },
+    { num: 2, label: 'Wizard เสร็จ', count: users.filter(u => u.shop).length },
+    { num: 3, label: 'ใบเสนอแรก', count: users.filter(u => u.quoteCount >= 1).length },
+    { num: 4, label: 'งานแรก', count: users.filter(u => u.jobCount >= 1).length },
+    { num: 5, label: 'PDF generated', count: users.filter(u => u.pdfGenerated).length }
+  ];
+  document.getElementById('funnel-content').innerHTML = funnelData.map(s => {
+    const pct = totalUsers ? Math.round((s.count/totalUsers)*100) : 0;
+    return `<div class="funnel-step">
+      <div class="funnel-num">${s.num}</div>
+      <div class="funnel-label">${s.label}</div>
+      <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${Math.max(pct, 2)}%;">${s.count}</div></div>
+      <div class="funnel-pct">${pct}%</div>
+    </div>`;
+  }).join('');
 
-  // Channels availability
-  document.getElementById('ch-line').disabled = !user.line;
-  document.getElementById('ch-sms').disabled = !user.phone;
-  document.getElementById('ch-email').disabled = !user.email;
+  // Genres
+  renderGenreBars(users);
 
-  setDmTemplate(_dmCurrentTpl);
-  document.getElementById('dm-modal').classList.add('show');
+  // Smart insights
+  let nsCount = 0;
+  users.forEach(u => { (u.quotes||[]).forEach(q => { const t = new Date(q._createdAt||q.date||0).getTime(); if (!isNaN(t) && t > now-SEVEN_DAYS) nsCount++; }); });
+  const champions = users.filter(u => u.stage === 'champion');
+  const atRisk = users.filter(u => { const days = u.secondsAgo / 86400; return days > 3 && days < 14 && (u.jobCount + u.quoteCount) >= 1; });
+  const activated = users.filter(u => u.quoteCount >= 1).length;
+  const actPct = totalUsers ? Math.round((activated/totalUsers)*100) : 0;
+  const byStage = { ghost: 0, tire: 0, active: 0, champion: 0 };
+  users.forEach(u => byStage[u.stage]++);
+
+  const insights = [];
+  if (atRisk.length > 0) insights.push({ ic: '⏰', html: `<b>${atRisk.length} user ใกล้ churn</b> · ดู At-Risk ใน Home tab · DM ทักทาย` });
+  if (champions.length > 0) insights.push({ ic: '⭐', html: `<b>${champions.length} Champion!</b> · ขอ testimonial เพื่อโพสในกลุ่ม FB` });
+  if (actPct < 30 && totalUsers >= 5) insights.push({ ic: '⚠', html: `<b>Activation ต่ำ (${actPct}%)</b> · พิจารณา onboarding tour สอนสร้างใบเสนอแรก` });
+  if (nsCount > 0) insights.push({ ic: '📈', html: `<b>${nsCount} ใบเสนอใน 7 วัน</b> · เก็บข้อมูล trend ต่อ` });
+  if (byStage.ghost > 0) insights.push({ ic: '👻', html: `<b>${byStage.ghost} Ghost users</b> · ส่ง email broadcast ขอ feedback` });
+  if (!insights.length) insights.push({ ic: '✨', html: 'ทุกอย่างดูดี · ยังไม่มี action เร่งด่วน' });
+  document.getElementById('insights-list').innerHTML = insights.map(i => `<div class="insight-item"><span class="insight-icon">${i.ic}</span><div>${i.html}</div></div>`).join('');
 }
 
-function closeDmModal() {
-  document.getElementById('dm-modal').classList.remove('show');
-  _dmCurrentUser = null;
-}
-
-function setDmTemplate(tpl) {
-  _dmCurrentTpl = tpl;
-  document.querySelectorAll('.tpl-btn').forEach(b => b.classList.toggle('active', b.dataset.tpl === tpl));
-  const u = _dmCurrentUser;
-  if (!u) return;
-  const name = u.shop || (u.email ? u.email.split('@')[0] : 'พี่');
-  const templates = {
-    active: `สวัสดีครับ ${name} · ขอบคุณที่ลอง Pixory ครับ 🙏
-
-เห็น${u.shop ? 'สตูดิโอ' : 'พี่'}กำลังใช้แอพอยู่ · มีอะไรที่งง
-หรืออยากให้ผมช่วยอธิบายเพิ่มมั้ยครับ
-
-ขอ feedback หน่อย · จะเอามาพัฒนาแอพให้ตรงใจครับ
-
-— Joe (ผู้พัฒนา Pixory)`,
-    reactivate: `สวัสดีครับ ${name}
-
-ห่างหายจาก Pixory ไปสักพักเลยครับ · มีอะไรติดขัด
-หรือฟีเจอร์ที่อยากให้เพิ่มมั้ย
-
-ตอนนี้ผมพัฒนา v2.2 มีปรับ UI ใหม่ + Push Notifications
-ลองดูได้เลย · ถ้ามีคำถามอะไร ทักผมได้ครับ
-
-— Joe (ผู้พัฒนา Pixory)`,
-    champion: `สวัสดีครับ ${name}
-
-ขอบคุณที่ใช้ Pixory เป็นประจำครับ · เห็นใช้สร้างไป
-${u.quoteCount} ใบเสนอ · ${u.jobCount} งานแล้ว · เก่งมาก!
-
-ถ้าสะดวก · ผมอยากขอ feedback สั้นๆ 2-3 ประโยค
-เพื่อแชร์ในกลุ่มให้ช่างภาพคนอื่นเห็น
-จะใช้ชื่อสตูดิโอ + รูป หรือ anonymous ก็ได้
-
-ถ้า OK ส่งกลับมาผมเลยนะครับ 🙏
-
-— Joe`
-  };
-  document.getElementById('dm-text').value = templates[tpl] || templates.active;
-}
-
-function sendDm(channel) {
-  const u = _dmCurrentUser;
-  if (!u) return;
-  const text = document.getElementById('dm-text').value;
-  if (channel === 'line' && u.line) {
-    const lineId = u.line.replace(/^@/, '');
-    window.open('https://line.me/R/ti/p/@' + encodeURIComponent(lineId), '_blank');
-    navigator.clipboard.writeText(text);
-    alert('💬 เปิด LINE แล้ว · ข้อความ copy เข้า clipboard · แปะ (Cmd+V) ในแชท');
-  } else if (channel === 'email' && u.email) {
-    const subject = 'Pixory · มีอะไรงงมั้ยครับ';
-    window.location.href = `mailto:${u.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
-  } else if (channel === 'sms' && u.phone) {
-    const phone = u.phone.replace(/[^0-9+]/g, '');
-    window.location.href = `sms:${phone}?body=${encodeURIComponent(text)}`;
-  } else if (channel === 'copy') {
-    navigator.clipboard.writeText(text).then(() => alert('📋 Copy ข้อความเข้า clipboard แล้ว · แปะใน FB Messenger หรือที่อื่น'));
-  }
-}
-
-// ========== GENRE HELPERS (v2.3.1) ==========
+// ============ GENRE ============
 const GENRE_LABELS = {
-  wedding:    { emoji: '💍', label: 'Wedding · งานแต่ง' },
-  prewedding: { emoji: '📸', label: 'Pre-wedding' },
-  family:     { emoji: '👨‍👩‍👧', label: 'ครอบครัว · Portrait' },
-  newborn:    { emoji: '👶', label: 'Newborn · Maternity' },
-  graduation: { emoji: '🎓', label: 'รับปริญญา' },
-  ordination: { emoji: '🙏', label: 'งานบวช' },
-  event:      { emoji: '🏢', label: 'Event · งานบริษัท' },
-  concert:    { emoji: '🎵', label: 'คอนเสิร์ต' },
-  product:    { emoji: '🛍', label: 'Product · Commercial' },
-  food:       { emoji: '🥘', label: 'Food' },
-  travel:     { emoji: '✈️', label: 'Travel · Lifestyle' },
-  pet:        { emoji: '🐕', label: 'Pet' },
-  other:      { emoji: '📝', label: 'อื่นๆ' }
+  wedding: { emoji: '💍', label: 'Wedding' }, prewedding: { emoji: '📸', label: 'Pre-wedding' },
+  family: { emoji: '👨‍👩‍👧', label: 'ครอบครัว' }, newborn: { emoji: '👶', label: 'Newborn' },
+  graduation: { emoji: '🎓', label: 'รับปริญญา' }, ordination: { emoji: '🙏', label: 'งานบวช' },
+  event: { emoji: '🏢', label: 'Event' }, concert: { emoji: '🎵', label: 'คอนเสิร์ต' },
+  product: { emoji: '🛍', label: 'Product' }, food: { emoji: '🥘', label: 'Food' },
+  travel: { emoji: '✈️', label: 'Travel' }, pet: { emoji: '🐕', label: 'Pet' },
+  other: { emoji: '📝', label: 'อื่นๆ' }
 };
 function formatGenres(arr, other) {
   if (!Array.isArray(arr) || arr.length === 0) return '<span style="color:var(--muted);">—</span>';
-  const items = arr.map(g => {
-    if (g === 'other' && other) return `📝 ${escapeHtml(other)}`;
+  return arr.map(g => {
+    if (g === 'other' && other) return '📝 ' + escapeHtml(other);
     const m = GENRE_LABELS[g];
-    return m ? m.emoji + ' ' + m.label.split(' ·')[0] : g;
-  });
-  return items.join(' · ');
+    return m ? m.emoji + ' ' + m.label : g;
+  }).join(' · ');
 }
 function renderGenreBars(users) {
-  const counts = {};
-  let userWithData = 0;
+  const counts = {}; let userWithData = 0;
   users.forEach(u => {
     if (Array.isArray(u.studioGenres) && u.studioGenres.length > 0) {
       userWithData++;
-      u.studioGenres.forEach(g => { counts[g] = (counts[g] || 0) + 1; });
+      u.studioGenres.forEach(g => { counts[g] = (counts[g]||0)+1; });
     }
   });
-  document.getElementById('genre-with-data').textContent = userWithData + '/' + users.length + ' ระบุแล้ว';
-  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  if (entries.length === 0) {
-    document.getElementById('genre-bars').innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;font-size:12px;">ยังไม่มี user ที่ระบุประเภทงาน · feature นี้มีตั้งแต่ v2.3.1</div>';
+  document.getElementById('genre-with-data').textContent = `${userWithData}/${users.length} ระบุแล้ว`;
+  const entries = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+  if (!entries.length) {
+    document.getElementById('genre-bars').innerHTML = '<div style="text-align:center;color:var(--muted);padding:16px;font-size:11.5px;">ยังไม่มี user ที่ระบุประเภทงาน</div>';
     return;
   }
   const max = Math.max(...entries.map(e => e[1]));
   document.getElementById('genre-bars').innerHTML = entries.map(([g, n]) => {
     const meta = GENRE_LABELS[g] || { emoji: '❓', label: g };
     const pct = Math.round((n / users.length) * 100);
-    const widthPct = Math.round((n / max) * 100);
-    return `
-      <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px dashed rgba(255,255,255,.04);">
-        <div style="width:160px; font-size:12px; color:white; flex-shrink:0;">${meta.emoji} ${meta.label}</div>
-        <div style="flex:1; background:rgba(255,255,255,.06); border-radius:6px; height:20px; overflow:hidden;">
-          <div style="height:100%; width:${widthPct}%; background:linear-gradient(90deg, var(--accent-2), var(--accent)); border-radius:6px; display:flex; align-items:center; padding-left:8px; color:white; font-size:10px; font-weight:700;">${n}</div>
-        </div>
-        <div style="flex:0 0 50px; text-align:right; font-size:12px; font-weight:700; color:var(--accent-2);">${pct}%</div>
-      </div>`;
+    const wPct = Math.round((n / max) * 100);
+    return `<div class="genre-bar">
+      <div class="genre-bar-label">${meta.emoji} ${meta.label}</div>
+      <div class="genre-bar-wrap"><div class="genre-bar-fill" style="width:${wPct}%;">${n}</div></div>
+      <div class="genre-bar-pct">${pct}%</div>
+    </div>`;
   }).join('');
 }
 
-// ========== HELPERS ==========
+// ============ NOTIFY ============
+function detectAndNotify(users) {
+  if (_isFirstRender) { _prevSnapshot = snapshotUsers(users); _isFirstRender = false; return; }
+  users.forEach(u => {
+    const prev = _prevSnapshot[u.email];
+    const name = u.shop || u.email.split('@')[0];
+    if (!prev && _notifPrefs.signup) {
+      showToast({ type: 'signup', title: '🎉 มีคนสมัครใหม่!', body: `<b>${escapeHtml(name)}</b><br>${escapeHtml(u.email)}`, time: 'เมื่อกี้', onClick: () => openDmModal(u.email, 'active') });
+      return;
+    }
+    if (!prev) return;
+    if (_notifPrefs.quote && u.quoteCount > prev.quoteCount) {
+      const tag = (u.quoteCount === u.quoteCount - prev.quoteCount) ? ' · ใบแรก! 🎉' : '';
+      showToast({ type: 'quote', title: '📋 สร้างใบเสนอ' + tag, body: `<b>${escapeHtml(name)}</b><br>รวม ${u.quoteCount} ใบ`, time: 'เมื่อกี้', onClick: () => openDmModal(u.email, 'active') });
+    }
+    if (_notifPrefs.job && u.jobCount > prev.jobCount) {
+      const tag = (u.jobCount === u.jobCount - prev.jobCount) ? ' · งานแรก! 🎉' : '';
+      showToast({ type: 'job', title: '💼 สร้างงาน' + tag, body: `<b>${escapeHtml(name)}</b><br>รวม ${u.jobCount} งาน`, time: 'เมื่อกี้', onClick: () => openDmModal(u.email, 'active') });
+    }
+    if (_notifPrefs.payment && u.lastAction && u.lastAction.type === 'logged_payment' && u.lastAction.at !== prev.lastActionAt) {
+      showToast({ type: 'payment', title: '💰 บันทึกชำระเงิน', body: `<b>${escapeHtml(name)}</b>${u.lastAction.code ? ' · ' + escapeHtml(u.lastAction.code) : ''}`, time: 'เมื่อกี้', onClick: () => openDmModal(u.email, 'active') });
+    }
+  });
+  _prevSnapshot = snapshotUsers(users);
+}
+function snapshotUsers(users) {
+  const snap = {};
+  users.forEach(u => { snap[u.email] = { jobCount: u.jobCount, quoteCount: u.quoteCount, lastActionAt: u.lastAction ? u.lastAction.at : '' }; });
+  return snap;
+}
+
+// ============ DM MODAL ============
+function openDmModal(email, defaultTpl) {
+  const user = _lastUsers.find(u => u.email === email);
+  if (!user) return;
+  _dmCurrentUser = user;
+  _dmCurrentTpl = defaultTpl || 'active';
+  document.getElementById('dm-user-name').textContent = user.shop || user.email.split('@')[0];
+  document.getElementById('dm-contacts').innerHTML = `
+    <div class="modal-contact-item ${user.email ? '' : 'missing'}"><span class="modal-contact-label">📧 Email</span><span class="modal-contact-value">${escapeHtml(user.email || 'ไม่มี')}</span></div>
+    <div class="modal-contact-item ${user.phone ? '' : 'missing'}"><span class="modal-contact-label">📱 Phone</span><span class="modal-contact-value">${escapeHtml(user.phone || 'ไม่ได้กรอก')}</span></div>
+    <div class="modal-contact-item ${user.line ? '' : 'missing'}"><span class="modal-contact-label">💬 LINE</span><span class="modal-contact-value">${escapeHtml(user.line || 'ไม่ได้กรอก')}</span></div>`;
+  document.getElementById('ch-line').disabled = !user.line;
+  document.getElementById('ch-sms').disabled = !user.phone;
+  document.getElementById('ch-email').disabled = !user.email;
+  setDmTemplate(_dmCurrentTpl);
+  document.getElementById('dm-modal').classList.add('show');
+}
+function closeDmModal() { document.getElementById('dm-modal').classList.remove('show'); _dmCurrentUser = null; }
+function setDmTemplate(tpl) {
+  _dmCurrentTpl = tpl;
+  document.querySelectorAll('.tpl-btn').forEach(b => b.classList.toggle('active', b.dataset.tpl === tpl));
+  const u = _dmCurrentUser; if (!u) return;
+  const name = u.shop || (u.email ? u.email.split('@')[0] : 'พี่');
+  const templates = {
+    active: `สวัสดีครับ ${name} · ขอบคุณที่ลอง Pixory ครับ 🙏\n\nเห็น${u.shop ? 'สตูดิโอ' : 'พี่'}กำลังใช้แอพอยู่ · มีอะไรที่งง\nหรืออยากให้ผมช่วยอธิบายเพิ่มมั้ยครับ\n\nขอ feedback หน่อย · จะเอามาพัฒนาแอพให้ตรงใจครับ\n\n— Joe (ผู้พัฒนา Pixory)`,
+    reactivate: `สวัสดีครับ ${name}\n\nห่างหายจาก Pixory ไปสักพักเลยครับ · มีอะไรติดขัด\nหรือฟีเจอร์ที่อยากให้เพิ่มมั้ย\n\nตอนนี้ผมพัฒนา v2.4 · มีปรับ UI ใหม่\nลองดูได้เลย · ถ้ามีคำถามอะไร ทักผมได้ครับ\n\n— Joe (ผู้พัฒนา Pixory)`,
+    champion: `สวัสดีครับ ${name}\n\nขอบคุณที่ใช้ Pixory เป็นประจำครับ · เห็นใช้สร้างไป\n${u.quoteCount} ใบเสนอ · ${u.jobCount} งานแล้ว · เก่งมาก!\n\nถ้าสะดวก · ผมอยากขอ feedback สั้นๆ 2-3 ประโยค\nเพื่อแชร์ในกลุ่มให้ช่างภาพคนอื่นเห็น\nจะใช้ชื่อสตูดิโอ + รูป หรือ anonymous ก็ได้\n\nถ้า OK ส่งกลับมาผมเลยนะครับ 🙏\n\n— Joe`
+  };
+  document.getElementById('dm-text').value = templates[tpl] || templates.active;
+}
+function sendDm(channel) {
+  const u = _dmCurrentUser; if (!u) return;
+  const text = document.getElementById('dm-text').value;
+  if (channel === 'line' && u.line) {
+    const id = u.line.replace(/^@/, '');
+    window.open('https://line.me/R/ti/p/@' + encodeURIComponent(id), '_blank');
+    navigator.clipboard.writeText(text);
+    alert('💬 เปิด LINE · ข้อความ copy เข้า clipboard แล้ว');
+  } else if (channel === 'email' && u.email) {
+    window.location.href = `mailto:${u.email}?subject=${encodeURIComponent('Pixory · มีอะไรงงมั้ยครับ')}&body=${encodeURIComponent(text)}`;
+  } else if (channel === 'sms' && u.phone) {
+    const ph = u.phone.replace(/[^0-9+]/g, '');
+    window.location.href = `sms:${ph}?body=${encodeURIComponent(text)}`;
+  } else if (channel === 'copy') {
+    navigator.clipboard.writeText(text).then(() => alert('📋 Copy เข้า clipboard แล้ว'));
+  }
+}
+
+// ============ HELPERS ============
 function formatActionLabel(la) {
-  if (!la || !la.type) return '<span style="color:var(--muted);">ไม่มี action</span>';
+  if (!la || !la.type) return '<span style="color:var(--muted);">ยังไม่มี action</span>';
   const labels = {
-    created_quote: '📋 สร้างใบเสนอ',
-    created_job: '💼 สร้างงาน',
-    converted_quote: '✅ แปลง quote → job',
-    generated_pdf: '📄 สร้าง PDF',
-    logged_payment: '💰 บันทึกชำระ',
-    added_customer: '👤 เพิ่มลูกค้า'
+    created_quote: '📋 สร้างใบเสนอ', created_job: '💼 สร้างงาน', converted_quote: '✅ Convert',
+    generated_pdf: '📄 สร้าง PDF', logged_payment: '💰 บันทึกชำระ', added_customer: '👤 เพิ่มลูกค้า'
   };
   const label = labels[la.type] || la.type;
   const ago = la.at ? formatLastSeen(Math.floor((Date.now() - new Date(la.at).getTime())/1000)) : '';
-  return `<b>${label}</b>${la.code ? ' · ' + escapeHtml(la.code) : ''}<br>${ago}`;
+  return `<b>${label}</b>${la.code ? ' · ' + escapeHtml(la.code) : ''} · ${ago}`;
 }
-
-function formatLastSeen(secondsAgo) {
-  if (secondsAgo < 60) return `${secondsAgo} วินาที`;
-  const m = Math.floor(secondsAgo/60);
-  if (m < 60) return `${m} นาทีที่แล้ว`;
-  const h = Math.floor(m/60);
-  if (h < 24) return `${h} ชม.ที่แล้ว`;
-  const d = Math.floor(h/24);
-  if (d < 30) return `${d} วันที่แล้ว`;
-  return Math.floor(d/30) + ' เดือนที่แล้ว';
+function formatLastSeen(s) {
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s/60); if (m < 60) return `${m} นาที`;
+  const h = Math.floor(m/60); if (h < 24) return `${h} ชม.`;
+  const d = Math.floor(h/24); if (d < 30) return `${d} วัน`;
+  return Math.floor(d/30) + ' เดือน';
 }
-
-function formatDays(secondsAgo) {
-  const days = Math.floor(secondsAgo/86400);
-  if (days < 1) return 'วันนี้';
-  return days + ' วัน';
-}
-
-function formatTimeAgo(timestamp) {
-  if (!timestamp) return '—';
-  return formatLastSeen(Math.floor((Date.now() - timestamp)/1000));
-}
-
+function formatDays(s) { const d = Math.floor(s/86400); return d < 1 ? 'วันนี้' : d + ' วัน'; }
 function getInitials(s) {
   if (!s) return '?';
   const parts = String(s).trim().split(/\s+/);
   return (parts[0]?.[0] || '?').toUpperCase() + (parts[1]?.[0] || '').toUpperCase();
 }
-
 function escapeHtml(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
