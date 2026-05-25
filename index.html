@@ -6745,12 +6745,15 @@ function jobShootDatePassed(j) {
   shoot.setHours(5, 0, 0, 0);
   return Date.now() >= shoot.getTime();
 }
-// v2.5.0 · Returns one of 3 money status levels for a job
+// v2.5.0 · Returns one of 4 money status levels for a job
+// v2.5.12 M2 · Free jobs (sell=0) get their own 'free' state · not flagged as unpaid
 function getMoneyStatus(j) {
-  const paid = (j.sell || 0) - (j.remain || 0);
-  if (paid >= (j.sell || 0) && (j.sell || 0) > 0) return 'paid';      // 🟢 ชำระครบ
-  if (paid > 0) return 'partial';                                       // 🟡 มีมัดจำ · ค้าง ฿X
-  return 'none';                                                        // 🔴 ยังไม่ได้รับเงิน
+  const sell = j.sell || 0;
+  const paid = sell - (j.remain || 0);
+  if (sell === 0 && (j.deposit || 0) === 0) return 'free'; // 🟢 ฟรี · งาน PR/comp
+  if (paid >= sell && sell > 0) return 'paid';              // 🟢 ชำระครบ
+  if (paid > 0) return 'partial';                           // 🟡 มีมัดจำ · ค้าง ฿X
+  return 'none';                                            // 🔴 ยังไม่ได้รับเงิน
 }
 const SOURCES = ['Facebook','Instagram DM','Website','Referral','ลูกค้าเก่ากลับมา','Walk-in','Other'];
 const EXPENSE_CATS = ['เดินทาง','ที่พัก','อุปกรณ์ถ่าย','เช่าอุปกรณ์','ค่ากินทีม','Software/Subscription','Marketing/โฆษณา','ค่าตัดต่อจ้างนอก','อื่นๆ'];
@@ -6874,11 +6877,14 @@ function goTo(name) {
   if (name.startsWith('settings')) updateSettingsSubcounts();
 }
 
+// v2.5.12 · clear previous hide-timer so chained toast() calls each get the full duration
+let _toastHideTimer = null;
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 1800);
+  if (_toastHideTimer) clearTimeout(_toastHideTimer);
+  _toastHideTimer = setTimeout(() => { t.classList.remove('show'); _toastHideTimer = null; }, 1800);
 }
 
 function selectOne(el, group) {
@@ -6887,7 +6893,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.11';
+const PIXORY_VERSION = '2.5.12';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6898,6 +6904,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.12': {
+    date: '2026-05-26',
+    title: 'แก้บักย่อย 4 จุด · UX ดีขึ้น',
+    subtitle: 'งานข้ามปี · งานฟรี · เตือนเติมต้นทุน · ระบบอัพเดทเก่า',
+    items: [
+      {
+        icon: '📅',
+        title: 'งานข้ามปีบอกปีให้ด้วย',
+        desc: 'งานแต่ง 30 ธ.ค. → 1 ม.ค. จะแสดง "30 ธ.ค. 26–1 ม.ค. 27" · ไม่สับสนปีไหน'
+      },
+      {
+        icon: '🎁',
+        title: 'งานฟรี (ราคา 0 บาท) ไม่ติดป้ายแดงผิดอีก',
+        desc: 'งาน comp/PR ราคา 0 บาท · ป้ายจะเป็น "🎁 ฟรี" สีเขียว · ไม่ใช่ "ยังไม่ได้รับเงิน" แดงเหมือนเดิม'
+      },
+      {
+        icon: '💡',
+        title: 'เตือนเติมต้นทุนหลังแปลงใบเสนอ',
+        desc: 'หลังกดสร้างงานจากใบเสนอ · จะมี toast เตือน "อย่าลืมเติมต้นทุนงาน (ค่าทีม/เดินทาง)" เพื่อให้กำไรสุทธิแม่นยำ'
+      }
+    ]
+  },
   '2.5.11': {
     date: '2026-05-25',
     title: 'แก้ 4 บักสำคัญ · ใบเสนอ B2B · ความปลอดภัยของข้อมูล',
@@ -10063,10 +10091,31 @@ function migrateV254ServiceCategory() {
 }
 
 // v2.5.0 · One-time migration · run on every load but only does work if needed
+// v2.5.12 M3 · idempotent guard: never overwrite an existing non-empty array
 function migrateV25JobStatuses() {
-  // 1) Ensure PROFILE.jobStatuses exists (defaults to 3 stage defaults)
-  if (!Array.isArray(PROFILE.jobStatuses) || PROFILE.jobStatuses.length === 0) {
+  // 1) Ensure PROFILE.jobStatuses exists with the 3 default stages (rename-safe)
+  if (!Array.isArray(PROFILE.jobStatuses)) {
     PROFILE.jobStatuses = DEFAULT_JOB_STATUSES.map(s => ({ ...s }));
+  } else if (PROFILE.jobStatuses.length === 0 && PROFILE._v25JobStatusMigrated) {
+    // Already migrated once but the array got blown away (e.g. partial cloud sync).
+    // Restore the 3 defaults but PRESERVE existing customs in jobs by re-detecting unique labels.
+    const customLabels = new Set();
+    (JOBS || []).forEach(j => {
+      if (j.jobStatus && !DEFAULT_JOB_STATUSES.some(d => d.label === j.jobStatus)) customLabels.add(j.jobStatus);
+    });
+    PROFILE.jobStatuses = DEFAULT_JOB_STATUSES.map(s => ({ ...s }));
+    customLabels.forEach(label => {
+      PROFILE.jobStatuses.push({ label, stage: 'wait_deliver', isDefault: false });
+    });
+    console.info('[v2.5.12 M3] restored ' + customLabels.size + ' custom statuses after empty jobStatuses detected');
+  } else if (PROFILE.jobStatuses.length === 0) {
+    PROFILE.jobStatuses = DEFAULT_JOB_STATUSES.map(s => ({ ...s }));
+  } else {
+    // Existing non-empty array · ensure ALL 3 default stages exist (in case one was removed by a bug)
+    DEFAULT_JOB_STATUSES.forEach(def => {
+      const found = PROFILE.jobStatuses.some(s => s.isDefault && s.stage === def.stage);
+      if (!found) PROFILE.jobStatuses.unshift({ ...def });
+    });
   }
   // 2) Migrate legacy jobStatus values on each JOB (once per job)
   if (PROFILE._v25JobStatusMigrated) return;
@@ -10692,6 +10741,7 @@ const I18N = {
   'money.paid':         { th: 'ชำระครบ', en: 'Paid' },
   'money.partial':      { th: 'ค้างชำระ', en: 'Partial' },
   'money.none':         { th: 'ยังไม่ได้รับเงิน', en: 'Unpaid' },
+  'money.free':         { th: 'ฟรี', en: 'Free' },
   'filter.pending':     { th: 'รออนุมัติ', en: 'Pending' },
   'filter.approved':    { th: 'อนุมัติแล้ว', en: 'Approved' },
   'filter.rejected':    { th: 'ปฏิเสธ', en: 'Rejected' },
@@ -12147,10 +12197,12 @@ function renderJobs(list, container) {
     // Date-block color cue (only for non-closed upcoming jobs)
     if (stage !== 'closed' && daysAway >= 0 && daysAway <= 30) cls += ' upcoming';
     if (j.remain > 0 && daysAway < 7 && daysAway >= 0) cls += ' warn';
-    // v2.5.0 · Money pill — 3 levels · NO มัดจำแล้ว
-    const moneyLvl = getMoneyStatus(j); // 'paid' | 'partial' | 'none'
+    // v2.5.12 · Money pill — 4 levels · free/paid/partial/none
+    const moneyLvl = getMoneyStatus(j); // 'free' | 'paid' | 'partial' | 'none'
     let pill = '';
-    if (moneyLvl === 'paid') {
+    if (moneyLvl === 'free') {
+      pill = '<span class="pill paid">🎁 ' + t('money.free', 'ฟรี') + '</span>';
+    } else if (moneyLvl === 'paid') {
       pill = '<span class="pill paid">✓ ' + t('money.paid', 'ชำระครบ') + '</span>';
     } else if (moneyLvl === 'partial') {
       pill = '<span class="pill unpaid">' + t('money.partial', 'ค้างชำระ') + '</span>';
@@ -12166,12 +12218,16 @@ function renderJobs(list, container) {
       else if (daysAway > 7) countdown = '<div class="job-countdown future">อีก ' + daysAway + ' วัน</div>';
       else if (daysAway < 0) countdown = '<div class="job-countdown past">ผ่านมา ' + Math.abs(daysAway) + ' วัน</div>';
     }
-    // Remaining balance — only shown if partial (paid > 0 but not full)
+    // Remaining balance — only shown if partial / none (NOT free)
     let remainHtml = '';
     if (moneyLvl === 'partial') {
       remainHtml = `<span style="color:#dc2626; font-size:11px;">· ค้าง ${fmt(j.remain)}</span>`;
     } else if (moneyLvl === 'none' && (j.sell || 0) > 0) {
       remainHtml = `<span style="color:#dc2626; font-size:11px;">· ยังไม่รับเงิน</span>`;
+    }
+    // v2.5.12 M2 · for free jobs · show "งานฟรี" hint instead of price
+    if (moneyLvl === 'free') {
+      remainHtml = `<span style="color:#10b981; font-size:11px;">· งาน comp/PR</span>`;
     }
     const row = document.createElement('div');
     row.className = 'job-row';
@@ -12188,13 +12244,21 @@ function renderJobs(list, container) {
       const firstDay = firstD.getDate();
       const lastDay  = lastD.getDate();
       const sameMonth = firstD.getMonth() === lastD.getMonth() && firstD.getFullYear() === lastD.getFullYear();
+      const sameYear  = firstD.getFullYear() === lastD.getFullYear();
+      // v2.5.12 M1 · cross-year multi-day: append year (BE) so 30 ธ.ค.→1 ม.ค. doesn't lose year context
+      const yearSuffixFirst = sameYear ? '' : (' ' + (typeof displayYear === 'function' ? displayYear(firstD.getFullYear()).toString().slice(-2) : String(firstD.getFullYear()).slice(-2)));
+      const yearSuffixLast  = sameYear ? '' : (' ' + (typeof displayYear === 'function' ? displayYear(lastD.getFullYear()).toString().slice(-2)  : String(lastD.getFullYear()).slice(-2)));
       if (sameMonth) {
         dayHtml = firstDay + '–' + lastDay;
         monthHtml = MONTHS_TH_SHORT[firstD.getMonth()];
-      } else {
-        // Cross-month: show "14 พย.–1 ธค."
+      } else if (sameYear) {
+        // Cross-month, same year: "14 พย.–1" / "ธค."
         dayHtml = firstDay + ' ' + MONTHS_TH_SHORT[firstD.getMonth()] + '–' + lastDay;
         monthHtml = MONTHS_TH_SHORT[lastD.getMonth()];
+      } else {
+        // Cross-year: show year on both sides "30 ธ.ค. 26–1 ม.ค." / "27"
+        dayHtml = firstDay + ' ' + MONTHS_TH_SHORT[firstD.getMonth()] + yearSuffixFirst + '–' + lastDay + ' ' + MONTHS_TH_SHORT[lastD.getMonth()];
+        monthHtml = (yearSuffixLast || '').trim();
       }
       rangeCls = ' range';
     } else {
@@ -15807,6 +15871,10 @@ function convertQuoteToJob(code) {
   renderJobsWithCurrentFilter();
   updateCounts();
   setTimeout(() => openJob(newCode), 600);
+  // v2.5.12 M4 · remind to fill internal costs · job's profit shows inflated until they do
+  setTimeout(() => {
+    toast('💡 อย่าลืมเติม "ต้นทุนงาน" (ค่าทีม/เดินทาง) เพื่อให้กำไรสุทธิแม่นยำ');
+  }, 1600);
 }
 
 // ========== NEW QUOTE FORM ==========
@@ -17635,10 +17703,11 @@ function openCustomerDetail(name) {
   } else {
     jobs.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(j => {
       const dp = dateParts(j.date);
-      // v2.5.0 · 3-level money status (no มัดจำแล้ว)
+      // v2.5.12 · 4-level money status (free/paid/partial/none)
       const moneyLvl = getMoneyStatus(j);
-      const pillCls = moneyLvl === 'paid' ? 'paid' : 'unpaid';
-      const pillTxt = moneyLvl === 'paid' ? '✓ ' + t('money.paid', 'ชำระครบ')
+      const pillCls = (moneyLvl === 'paid' || moneyLvl === 'free') ? 'paid' : 'unpaid';
+      const pillTxt = moneyLvl === 'free' ? '🎁 ' + t('money.free', 'ฟรี')
+                    : moneyLvl === 'paid' ? '✓ ' + t('money.paid', 'ชำระครบ')
                     : moneyLvl === 'partial' ? t('money.partial', 'ค้างชำระ')
                     : t('money.none', 'ยังไม่ได้รับเงิน');
       const row = document.createElement('div');
@@ -20205,10 +20274,11 @@ function renderHomeActive() {
     const dp = dateParts(j.date);
     const jd = new Date(j.date);
     const daysAway = Math.round((jd - today) / 86400000);
-    // v2.5.0 · 3-level money status (no มัดจำแล้ว)
+    // v2.5.12 · 4-level money status (free/paid/partial/none)
     const moneyLvl = getMoneyStatus(j);
     let pill = '';
-    if (moneyLvl === 'paid') pill = '<span class="pill paid">✓ ' + t('money.paid', 'ชำระครบ') + '</span>';
+    if (moneyLvl === 'free') pill = '<span class="pill paid">🎁 ' + t('money.free', 'ฟรี') + '</span>';
+    else if (moneyLvl === 'paid') pill = '<span class="pill paid">✓ ' + t('money.paid', 'ชำระครบ') + '</span>';
     else if (moneyLvl === 'partial') pill = '<span class="pill unpaid">' + t('money.partial', 'ค้างชำระ') + '</span>';
     else pill = '<span class="pill unpaid">' + t('money.none', 'ยังไม่ได้รับเงิน') + '</span>';
     let countdown = '';
