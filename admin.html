@@ -971,11 +971,16 @@ async function loadDashboard(showLoading) {
 }
 
 function classifyStage(user) {
+  // v2.1 · Tightened: Active means USED THE APP RECENTLY (< 2 days)
+  // Champion = high engagement + very recent
+  // Tire = had activity but went quiet (2-7 days)
+  // Ghost = idle ≥7 days OR no items + idle ≥3 days
   const daysSinceActive = (Date.now() - user.updatedAt) / 86400000;
   const totalItems = user.jobCount + user.quoteCount;
-  if (totalItems >= 10 && daysSinceActive < 3) return 'champion';
+  if (totalItems >= 10 && daysSinceActive < 2) return 'champion';
   if (daysSinceActive >= 7) return 'ghost';
-  if (totalItems >= 3 && daysSinceActive < 5) return 'active';
+  if (totalItems === 0 && daysSinceActive >= 3) return 'ghost';
+  if (totalItems >= 2 && daysSinceActive < 2) return 'active';
   return 'tire';
 }
 function computeScore(user) {
@@ -1055,12 +1060,12 @@ function renderHome(users) {
   const now = Date.now();
   const SEVEN_DAYS = 7 * 86400000;
 
-  // North Star
+  // North Star · v2.1 · Pixory uses q.dateSent (when quote was created) · not _createdAt
   let nsCount = 0, nsPrevWeek = 0;
   users.forEach(u => {
     (u.quotes || []).forEach(q => {
-      const t = new Date(q._createdAt || q.date || 0).getTime();
-      if (!isNaN(t)) {
+      const t = new Date(q._createdAt || q.dateSent || q.dateEvent || q.date || 0).getTime();
+      if (!isNaN(t) && t > 0) {
         if (t > now - SEVEN_DAYS) nsCount++;
         else if (t > now - SEVEN_DAYS * 2) nsPrevWeek++;
       }
@@ -1273,7 +1278,7 @@ function renderUserRow(u) {
     <div class="user-row-avatar ${avatarClass}">${liveDot}${initials}</div>
     <div class="user-row-mid">
       <div class="user-row-name">${stageEmoji} ${escapeHtml(u.shop || u.email.split('@')[0])} ${actionTag}</div>
-      <div class="user-row-sub">${onlineHtml}${timeHtml}<span>📋 ${u.quoteCount}q · 💼 ${u.jobCount}j</span></div>
+      <div class="user-row-sub">${onlineHtml}${timeHtml}<span>📋 ${u.quoteCount} Quo · 💼 ${u.jobCount} Job</span></div>
     </div>
     <div class="user-row-right">
       <span class="score ${scoreClass}">${u.score}</span>
@@ -1349,7 +1354,7 @@ function openUserSheet(email) {
       </div>
     </div>
     <div class="udc-meta">
-      ${onlineText}<span>📋 ${u.quoteCount} quotes</span><span>💼 ${u.jobCount} jobs</span><span>👥 ${u.custCount} customers</span>
+      ${onlineText}<span>📋 ${u.quoteCount} Quo</span><span>💼 ${u.jobCount} Job</span><span>👥 ${u.custCount} ลูกค้า</span>
     </div>
     ${u.phone || u.line ? `<div class="udc-contacts">${u.phone ? '📱 ' + escapeHtml(u.phone) : ''}${u.phone && u.line ? ' · ' : ''}${u.line ? '💬 ' + escapeHtml(u.line) : ''}</div>` : ''}
     ${u.studioGenres && u.studioGenres.length ? `<div class="udc-genres">${formatGenres(u.studioGenres, u.studioGenresOther)}</div>` : ''}
@@ -1393,7 +1398,7 @@ function renderInsights(users) {
 
   // Smart insights
   let nsCount = 0;
-  users.forEach(u => { (u.quotes||[]).forEach(q => { const t = new Date(q._createdAt||q.date||0).getTime(); if (!isNaN(t) && t > now-SEVEN_DAYS) nsCount++; }); });
+  users.forEach(u => { (u.quotes||[]).forEach(q => { const t = new Date(q._createdAt||q.dateSent||q.dateEvent||q.date||0).getTime(); if (!isNaN(t) && t > 0 && t > now-SEVEN_DAYS) nsCount++; }); });
   const champions = users.filter(u => u.stage === 'champion');
   const atRisk = users.filter(u => { const days = u.secondsAgo / 86400; return days > 3 && days < 14 && (u.jobCount + u.quoteCount) >= 1; });
   const activated = users.filter(u => u.quoteCount >= 1).length;
