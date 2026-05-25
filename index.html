@@ -6887,7 +6887,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.10';
+const PIXORY_VERSION = '2.5.11';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6898,6 +6898,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.11': {
+    date: '2026-05-25',
+    title: 'แก้ 4 บักสำคัญ · ใบเสนอ B2B · ความปลอดภัยของข้อมูล',
+    subtitle: 'แก้บักที่อาจกระทบลูกค้าบริษัท · ข้อมูลภาษี · และการแสดงผล',
+    items: [
+      {
+        icon: '🧾',
+        title: 'ใบเสนอ → งาน · ข้อมูลภาษีถูกบันทึกครบ',
+        desc: 'เก่า: ใบเสนอ B2B ที่มีเลขใบกำกับภาษี · พอสร้างเป็นงาน ข้อมูลภาษี VAT/WHT หายไป · ใบเรียกเก็บกลายเป็นไม่มีภาษี · ใหม่: เก็บครบทุก field (taxEnabled, taxBreakdown, taxInvoiceNo, ข้อมูลบริษัท)'
+      },
+      {
+        icon: '🛡',
+        title: 'Donut chart ทนทานขึ้น',
+        desc: 'เพิ่มการตรวจสอบค่าเสริม (QR · Profile) · ป้องกัน chart พังถ้าข้อมูลคลาด'
+      },
+      {
+        icon: '🔄',
+        title: 'แก้ชื่อบริการ → งานเก่าตามไปด้วย',
+        desc: 'เก่า: ถ้าเปลี่ยนชื่อบริการใน "ตั้งค่า → แพ็คเกจ" · งานเก่าจำชื่อเดิมไว้ · ทำให้ donut chart แสดงผิดที่ · ใหม่: ระบบจะอัพเดทงานทั้งหมดให้ใช้ชื่อใหม่อัตโนมัติ'
+      }
+    ]
+  },
   '2.5.10': {
     date: '2026-05-25',
     title: 'การ์ดงานหลายวัน · แสดงช่วงวันที่',
@@ -12048,10 +12070,14 @@ function reRenderJobsOrQuotes() {
 }
 
 // Sync the chip UI to match current filter state (used when entering Jobs page)
+// v2.5.11 C6 · match 5-tab order: ทั้งหมด · กำลังจะถึง · รอส่งงาน · ค้างชำระ · ปิดงาน
 function syncJobFilterChips() {
-  const chips = document.querySelectorAll('#screen-jobs .chip');
-  const filterOrder = ['all', 'booked', 'closed', 'debt'];
-  const idx = filterOrder.indexOf(_currentJobFilter);
+  const chips = document.querySelectorAll('#screen-jobs #jobs-filter-row .chip');
+  const filterOrder = ['all', 'upcoming', 'wait_deliver', 'debt', 'closed'];
+  // Legacy 'booked' maps to 'upcoming'
+  let f = _currentJobFilter;
+  if (f === 'booked') f = 'upcoming';
+  const idx = filterOrder.indexOf(f);
   chips.forEach((c, i) => c.classList.toggle('active', i === Math.max(0, idx)));
 }
 function renderJobs(list, container) {
@@ -13258,10 +13284,29 @@ function saveServiceEdit() {
   if (_editServiceId) {
     const svc = SERVICES.find(s => s.id === _editServiceId);
     if (svc) {
-      svc.name = name;
+      // v2.5.11 C3 · cascade rename: if name changed · update ALL jobs/quotes that reference old name
+      const oldName = svc.name;
+      const newName = name;
+      svc.name = newName;
       svc.icon = _editServiceTempIcon;
       svc.color = _editServiceTempColor;
       svc.defaultJobType = defaultJobType;
+      if (oldName !== newName) {
+        let cascaded = 0;
+        (Array.isArray(JOBS) ? JOBS : []).forEach(j => {
+          if (!j.selectedServices) return;
+          Object.values(j.selectedServices).forEach(s => {
+            if (s && s.serviceName === oldName) { s.serviceName = newName; cascaded++; }
+          });
+        });
+        (Array.isArray(QUOTES) ? QUOTES : []).forEach(q => {
+          if (!q.selectedServices) return;
+          Object.values(q.selectedServices).forEach(s => {
+            if (s && s.serviceName === oldName) { s.serviceName = newName; cascaded++; }
+          });
+        });
+        if (cascaded > 0) console.info('[v2.5.11 C3] cascaded service rename to ' + cascaded + ' references');
+      }
     }
     saveData();
     toast(t('toast.saved'));
@@ -15721,7 +15766,27 @@ function convertQuoteToJob(code) {
     source: 'Quote ' + q.code,
     teamCost: 0, otherCost: 0, travelCost: 0, profit: q.sell,
     note: 'มาจากใบเสนอ ' + q.code,
-    payments: []
+    payments: [],
+    // v2.5.11 C1 · carry customer contact + tax snapshot fields so VAT/B2B jobs keep all info
+    custNick: q.custNick || '',
+    custPhone: q.contact || '',
+    custLine: q.line || '',
+    bankIdx: q.bankIdx != null ? q.bankIdx : null,
+    dateExpire: q.dateExpire || '',
+    // Tax T1+T2 fields (B2B/Gov customer + VAT/WHT snapshot)
+    customerType: q.customerType || 'B2C',
+    customerTaxId: q.customerTaxId || '',
+    customerCompanyName: q.customerCompanyName || '',
+    customerBranch: q.customerBranch || '',
+    customerTaxAddress: q.customerTaxAddress || '',
+    customerContactPerson: q.customerContactPerson || '',
+    customerContactPosition: q.customerContactPosition || '',
+    customerEmail: q.customerEmail || '',
+    poNumber: q.poNumber || '',
+    taxEnabled: !!q.taxEnabled,
+    tax: q.tax ? JSON.parse(JSON.stringify(q.tax)) : null,
+    taxBreakdown: q.taxBreakdown ? JSON.parse(JSON.stringify(q.taxBreakdown)) : null,
+    taxInvoiceNo: q.taxInvoiceNo || ''
   };
   // Auto-log the deposit payment (convert = customer has paid deposit)
   if (qDeposit > 0) {
@@ -19842,9 +19907,11 @@ function renderDashboard() {
         components.push({ price: p, category: cat });
       });
     }
-    // Add-ons · use job's main category
-    if (j.qr)    { gross += j.qr;    components.push({ price: j.qr,    category: fallback }); }
-    if (j.other) { gross += j.other; components.push({ price: j.other, category: fallback }); }
+    // Add-ons · use job's main category · v2.5.11 C2 · parseFloat guard against string corruption
+    const qrPrice    = parseFloat(j.qr) || 0;
+    const otherPrice = parseFloat(j.other) || 0;
+    if (qrPrice    > 0) { gross += qrPrice;    components.push({ price: qrPrice,    category: fallback }); }
+    if (otherPrice > 0) { gross += otherPrice; components.push({ price: otherPrice, category: fallback }); }
     // Custom items · respect ci.category override
     if (Array.isArray(j.customItems)) {
       j.customItems.forEach(ci => {
