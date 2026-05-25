@@ -6721,7 +6721,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.2.1';
+const PIXORY_VERSION = '2.3.0';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6732,6 +6732,18 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.3.0': {
+    date: '2026-05-25',
+    title: 'ปรับปรุงประสิทธิภาพ',
+    subtitle: 'ปรับปรุงระบบหลังบ้าน · ไม่กระทบการใช้งาน',
+    items: [
+      {
+        icon: '⚡',
+        title: 'ปรับปรุงประสิทธิภาพ',
+        desc: 'อัพเดตระบบภายในให้ทำงานได้ดียิ่งขึ้น'
+      }
+    ]
+  },
   '2.2.1': {
     date: '2026-05-25',
     title: 'ปลอดภัยขึ้น · ระบบสมัครรัดกุมขึ้น',
@@ -9373,6 +9385,14 @@ const PROFILE = {
   taxYearStart:1,        // เดือนที่เริ่มปีงบ (1=ม.ค., 10=ต.ค. เป็นต้น)
   // v1.9.39 · Sequential tax invoice numbering (legal compliance for VAT-registered users)
   taxInvoiceCounters: {},  // { '2026': 7 } → next invoice will be TI-2026-008
+  // v2.3.0 · Analytics · last user action (admin engagement tracking)
+  // Stored only on this device + synced to cloud · admin sees aggregate stats only
+  // No content stored · just action type + timestamp for engagement classification
+  LAST_ACTION: {
+    type: '',      // e.g. 'created_quote', 'created_job', 'added_customer', 'generated_pdf', 'logged_payment', 'opened_tax'
+    at: '',        // ISO timestamp
+    code: ''       // optional reference (job/quote code · not customer name to respect privacy)
+  },
   // v1.9.42 · Active consent record (PDPA + legal protection)
   consent: {
     consentedAt: '',       // ISO timestamp when user ticked the consent box at signup
@@ -13853,6 +13873,23 @@ function renderPushUI() {
 // v2.1.2 · Notify admin (Joe) of significant user events
 // Fire-and-forget · failures don't affect user flow
 // Skips notification if the current user IS the admin (no self-notify)
+// v2.3.0 · Record last user action · for admin engagement classification
+// Privacy-safe: only stores action TYPE + timestamp + optional code (no customer names / content)
+function recordAction(type, code) {
+  try {
+    if (!PROFILE) return;
+    PROFILE.LAST_ACTION = {
+      type: String(type || '').slice(0, 40),
+      at: new Date().toISOString(),
+      code: String(code || '').slice(0, 30)
+    };
+    // Use saveData if available · falls back to silent no-op
+    if (typeof saveData === 'function') {
+      try { saveData(); } catch (e) {}
+    }
+  } catch (e) { console.warn('[recordAction]', e); }
+}
+
 async function notifyAdmin(event, extra) {
   try {
     if (!SUPABASE || !CURRENT_USER || !CURRENT_USER.email) return;
@@ -14293,6 +14330,8 @@ function saveAddJob() {
     }
     const _wasFirstJob = JOBS.length === 0;
     JOBS.push(newJob);
+    // v2.3.0 · Track last action
+    if (typeof recordAction === 'function') recordAction('created_job', newCode);
     saveData();
     // v2.1.2 · Notify admin of user's first job ever
     if (_wasFirstJob && typeof notifyAdmin === 'function') {
@@ -14988,6 +15027,8 @@ function logDepositPayment(job, amount, dateStr, noteStr) {
     type: 'deposit',
     note: noteStr || 'มัดจำจองคิว'
   });
+  // v2.3.0 · Track payment as engagement signal
+  if (typeof recordAction === 'function') recordAction('logged_payment', job.code || '');
 }
 
 function convertQuoteToJob(code) {
@@ -15046,6 +15087,8 @@ function convertQuoteToJob(code) {
   JOBS.push(newJob);
   q.status = 'converted';
   q.convertedJobCode = newCode;
+  // v2.3.0 · Track last action
+  if (typeof recordAction === 'function') recordAction('converted_quote', newCode);
   saveData();
   // v2.1.2 · Notify admin of user's first job ever (via quote conversion)
   if (_wasFirstJobConvert && typeof notifyAdmin === 'function') {
@@ -16060,6 +16103,8 @@ function saveNewQuote(status) {
   };
   const _wasFirstQuote = QUOTES.length === 0;
   QUOTES.push(quote);
+  // v2.3.0 · Track last action for engagement analytics
+  if (typeof recordAction === 'function') recordAction('created_quote', quote.code);
   saveData();
   updateCounts();
   // v2.1.2 · Notify admin of user's first quote ever
@@ -16129,6 +16174,8 @@ function downloadPDF() {
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       pdf.addImage(imgData, 'JPEG', xPos, yPos, imgW, imgH);
       pdf.save(fname);
+      // v2.3.0 · Track PDF generation as engagement signal
+      if (typeof recordAction === 'function') recordAction('generated_pdf', fname || '');
       toast(t('toast.pdfDone'));
     } catch (err) {
       console.error(err);
