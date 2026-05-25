@@ -1088,25 +1088,11 @@ async function loadDashboard(showLoading) {
     document.getElementById('activity-feed').innerHTML = '<div class="empty"><div class="icon">⏳</div><div class="title">กำลังโหลด...</div></div>';
   }
   try {
-    // v2.4.1 · try select with created_at · fall back if column missing
-    let rows = null, error = null;
-    let _hasCreatedAtCol = true;
-    try {
-      const r = await SUPABASE.from('user_data')
-        .select('user_id, data, device_id, updated_at, created_at')
-        .order('updated_at', { ascending: false });
-      rows = r.data; error = r.error;
-      if (error && /created_at/i.test(error.message || '')) {
-        _hasCreatedAtCol = false;
-        const r2 = await SUPABASE.from('user_data')
-          .select('user_id, data, device_id, updated_at')
-          .order('updated_at', { ascending: false });
-        rows = r2.data; error = r2.error;
-      }
-    } catch (e) {
-      error = e;
-    }
-    window._hasCreatedAtCol = _hasCreatedAtCol; // expose for processRows
+    // v2.4.2 · Simple select · created_at column doesn't exist in user_data
+    // Cohort/TTFQ metrics gracefully degrade via hasSignup=false (uses updatedAt fallback)
+    const { data: rows, error } = await SUPABASE.from('user_data')
+      .select('user_id, data, device_id, updated_at')
+      .order('updated_at', { ascending: false });
     if (error) {
       document.getElementById('activity-feed').innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">โหลดไม่สำเร็จ</div><div style="font-size:11px;margin-top:6px;color:var(--muted);">${escapeHtml(error.message)}</div></div>`;
       return;
