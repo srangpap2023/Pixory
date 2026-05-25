@@ -6883,7 +6883,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.4';
+const PIXORY_VERSION = '2.5.5';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6894,6 +6894,18 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.5': {
+    date: '2026-05-25',
+    title: 'แก้บั๊ก donut chart นับเกิน',
+    subtitle: 'ตัวเลขรายได้ในชาร์ทตรงกับ KPI "รายได้รวม" แล้ว',
+    items: [
+      {
+        icon: '🐛',
+        title: 'Chart นับเกิน · ไม่หักส่วนลด · นับ billable ซ้ำ',
+        desc: 'เก่า: รวมราคาแพคเกจ + add-on + custom + billable ทั้งหมด (ก่อนหักส่วนลด) → ตัวเลขใหญ่เกินจริง · ใหม่: ใช้ "ราคาขายจริง" (j.sell หลังหักส่วนลด) เป็นตัวคำนวณ · ผลรวม = รายได้จริงเป๊ะ'
+      }
+    ]
+  },
   '2.5.4': {
     date: '2026-05-25',
     title: 'ตัดช่อง "ประเภทงาน" ออก · แอพคำนวณให้เอง',
@@ -19692,37 +19704,17 @@ function renderDashboard() {
   document.getElementById('db-quote-won').textContent = wonCount;
   document.getElementById('db-conv-rate').textContent = convRate + '%';
 
-  // -- Revenue mix by JOB_TYPE (v2.5.3 · was: by serviceName which mixed PACKAGE names with TYPE names)
+  // -- Revenue mix by JOB_TYPE (v2.5.5 · use j.sell to match KPI · no double-counting)
   // Mental model: JOB_TYPE = หมวด (category) · serviceName = แพคเกจในหมวดนั้น
-  // The donut chart shows the หมวด-level breakdown · package-level breakdown is shown in job detail
+  // Bucket by j.type (or deriveJobType fallback) · value = j.sell (already net of discount)
+  // Total of all buckets = sum(j.sell) = "รายได้รวม" KPI · always consistent
   const svc = {};
   yearJobs.forEach(j => {
-    const jobBucket = j.type || 'อื่นๆ';
-    // selectedServices · always bucket by JOB_TYPE (was bucketing by serviceName · wrong)
-    if (j.selectedServices) {
-      Object.values(j.selectedServices).forEach(s => {
-        svc[jobBucket] = (svc[jobBucket] || 0) + (s.price || 0);
-      });
-    }
-    // QR / Other addons · bucket by JOB_TYPE
-    if (j.qr)    svc[jobBucket] = (svc[jobBucket] || 0) + j.qr;
-    if (j.other) svc[jobBucket] = (svc[jobBucket] || 0) + j.other;
-    // Custom items · respect explicit category override · else fall back to job's type
-    if (Array.isArray(j.customItems)) {
-      j.customItems.forEach(ci => {
-        const price = parseFloat(ci && ci.price) || 0;
-        if (!(price > 0)) return;
-        const bucket = (ci && ci.category && String(ci.category).trim()) || jobBucket;
-        svc[bucket] = (svc[bucket] || 0) + price;
-      });
-    }
-    // Billable cost items (from quotes) · bucket by JOB_TYPE
-    if (Array.isArray(j.billableCosts)) {
-      j.billableCosts.forEach(ci => {
-        const price = parseFloat(ci && ci.price) || 0;
-        if (price > 0) svc[jobBucket] = (svc[jobBucket] || 0) + price;
-      });
-    }
+    const jobBucket = (j.type && j.type.trim())
+      || (typeof deriveJobType === 'function' ? deriveJobType(j) : null)
+      || 'อื่นๆ';
+    const revenue = parseFloat(j.sell) || 0;
+    if (revenue > 0) svc[jobBucket] = (svc[jobBucket] || 0) + revenue;
   });
 
   // -- Source mix
