@@ -6905,7 +6905,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.14';
+const PIXORY_VERSION = '2.5.15';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6916,6 +6916,18 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.15': {
+    date: '2026-05-26',
+    title: 'แจ้งเตือน "ต้องทำวันนี้" ใช้สถานะใหม่ที่คุณตั้ง',
+    subtitle: 'แก้บัก notification ที่ยังโชว์สถานะเก่า "รอตัดต่อ"',
+    items: [
+      {
+        icon: '🔔',
+        title: 'แจ้งเตือน "ส่งงาน" โชว์สถานะปัจจุบันแล้ว',
+        desc: 'เก่า: notification "ส่งงาน — [ลูกค้า]" ในหน้าหลัก ยังโชว์สถานะเก่า "รอตัดต่อ" (legacy delivery field) · ใหม่: ใช้ jobStatus ที่คุณตั้งเองใน Settings · ตรงกับ pill บน job card 100% เช่น "รอแก้งาน", "พร้อมส่งให้ลูกค้า"'
+      }
+    ]
+  },
   '2.5.14': {
     date: '2026-05-26',
     title: 'กำไรสุทธิแม่นยำขึ้น · ป้ายเตือนเมื่อยังไม่ตั้งต้นทุน',
@@ -14082,14 +14094,15 @@ function computeNotifications() {
     }
 
     // Delivery pending — fire X days AFTER job date as configured
-    if (NS.deliveryAfterOn && daysAway < 0 && getStageFromJobStatus(j.jobStatus) !== 'closed' && j.delivery !== 'ส่งอัลบั้มแล้ว') {
+    // v2.5.15 · use j.jobStatus (current custom-status system) instead of j.delivery (legacy field hidden since v2.5.0)
+    if (NS.deliveryAfterOn && daysAway < 0 && getStageFromJobStatus(j.jobStatus) !== 'closed') {
       const daysPassed = -daysAway;
       if (daysPassed >= NS.deliveryAfter) {
         items.push({
           level: daysPassed > NS.deliveryAfter + 14 ? 'urgent' : 'warn',
           ico: '📤',
           title: 'ส่งงาน — ' + j.customer,
-          desc: 'ถ่ายมา ' + daysPassed + ' วัน · สถานะ "' + (j.delivery || 'ไม่ระบุ') + '"',
+          desc: 'ถ่ายมา ' + daysPassed + ' วัน · สถานะ "' + (j.jobStatus || 'ไม่ระบุ') + '"',
           time: daysPassed + ' วันที่แล้ว', sort: -50 + daysPassed, jobCode: j.code
         });
       }
