@@ -6905,7 +6905,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.13';
+const PIXORY_VERSION = '2.5.14';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6916,6 +6916,23 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.14': {
+    date: '2026-05-26',
+    title: 'กำไรสุทธิแม่นยำขึ้น · ป้ายเตือนเมื่อยังไม่ตั้งต้นทุน',
+    subtitle: 'หลังแปลงใบเสนอ → งาน · เห็นชัดว่า "ตัวเลขนี้ก่อนหักต้นทุน"',
+    items: [
+      {
+        icon: '📊',
+        title: 'กำไรสุทธิคำนวณสดทุกครั้งที่เปิดดูงาน',
+        desc: 'เก่า: หลังแปลงใบเสนอ → งาน · ตัวเลขกำไรสุทธิเท่ากับยอดขาย (เพราะยังไม่ได้กรอกต้นทุน) ดูเหมือนกำไรเยอะปลอม · ใหม่: ระบบคำนวณจาก ยอดขาย − ทีม − เดินทาง − อื่นๆ − รายการต้นทุน · เห็นเลขจริงทันที'
+      },
+      {
+        icon: '⚠️',
+        title: 'ป้าย "ก่อนหักต้นทุน" สีส้มอ่อน',
+        desc: 'งานที่ยังไม่ได้ระบุต้นทุนภายในเลย จะมีป้ายเล็ก ๆ ข้างกำไรสุทธิ บอกว่า "ก่อนหักต้นทุน" · หายไปอัตโนมัติเมื่อกรอกต้นทุน · ไม่เผลอเข้าใจผิดว่ากำไรเยอะแล้ว'
+      }
+    ]
+  },
   '2.5.12': {
     date: '2026-05-26',
     title: 'แก้บักย่อย 4 จุด · UX ดีขึ้น',
@@ -12444,7 +12461,18 @@ function openJob(code) {
     document.getElementById('job-travel-cost').textContent = '-' + fmt(j.travelCost || 0);
     document.getElementById('job-other-cost').textContent = '-' + fmt(j.otherCost || 0);
   }
-  document.getElementById('job-profit').textContent = '+' + fmt(j.profit || 0);
+  // v2.5.14 M5 · compute profit dynamically (don't trust stale j.profit set to q.sell at convert time)
+  const _costItemsTotal = Array.isArray(j.costItems)
+    ? j.costItems.reduce(function (s, c) { return s + (parseFloat(c && c.price) || 0); }, 0)
+    : 0;
+  const _liveProfit = (j.sell || 0) - (j.teamCost || 0) - (j.travelCost || 0) - (j.otherCost || 0) - _costItemsTotal;
+  const _hasInternalCosts = ((j.teamCost || 0) + (j.travelCost || 0) + (j.otherCost || 0) + _costItemsTotal) > 0;
+  const _profitEl = document.getElementById('job-profit');
+  _profitEl.innerHTML = '+' + fmt(_liveProfit) +
+    (_hasInternalCosts ? '' : ' <span style="font-size:10px; font-weight:600; color:#a85a3d; background:rgba(217,119,87,0.15); padding:2px 7px; border-radius:5px; margin-left:5px; vertical-align:middle;">ก่อนหักต้นทุน</span>');
+  _profitEl.title = _hasInternalCosts
+    ? ''
+    : 'ยังไม่ระบุต้นทุน (ทีม/เดินทาง/อื่นๆ) · ตัวเลขนี้คือยอดขายก่อนหักต้นทุนภายใน';
   let pp = document.getElementById('job-pay-pill');
   pp.className = 'pill ' + (j.payStatus === 'ชำระครบ' ? 'paid' : j.payStatus === 'มัดจำแล้ว' ? 'deposit' : 'unpaid');
   pp.textContent = statusLabel(j.payStatus);
