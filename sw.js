@@ -1,11 +1,11 @@
-// Pixory Service Worker — v2.5.14
+// Pixory Service Worker — v2.5.15
 // Strategy:
 //   - HTML (navigation): network-first, fall back to cache when offline
 //   - Other assets: cache-first, update in background ("stale-while-revalidate")
 //   - Supabase API calls: never cache (live data only)
 // NOTE: bump CACHE_NAME on every release so old caches are evicted on activate
 
-const CACHE_NAME = 'pixory-v2.5.14';
+const CACHE_NAME = 'pixory-v2.5.15';
 const PRECACHE_URLS = [
   './',
   './index.html',
