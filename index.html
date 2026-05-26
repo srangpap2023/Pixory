@@ -6905,7 +6905,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.15';
+const PIXORY_VERSION = '2.5.16';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6916,6 +6916,23 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.16': {
+    date: '2026-05-26',
+    title: 'แอพอัพเดทอัตโนมัติทันทีหลัง deploy',
+    subtitle: 'แก้ปัญหา "deploy แล้วแต่ PWA ยังโชว์เวอร์ชั่นเก่า"',
+    items: [
+      {
+        icon: '🔄',
+        title: 'PWA ตรวจเวอร์ชั่นใหม่ทันทีตอนเปิดแอพ',
+        desc: 'เก่า: หลัง deploy เวอร์ชั่นใหม่ · browser อาจ cache sw.js ตัวเก่าไว้ ~24 ชม. → แอพไม่อัพเดท · ใหม่: บอก browser ห้ามแคช sw.js เด็ดขาด (updateViaCache: none) · พอเปิดแอพ จะเช็คเวอร์ชั่นใหม่ทันที · ถ้ามี · แถบ "🔄 มีเวอร์ชั่นใหม่ · กดเพื่อรีโหลด" จะขึ้นภายในไม่กี่วินาที'
+      },
+      {
+        icon: '🔍',
+        title: 'เช็คเวอร์ชั่นที่ใช้อยู่ได้ใน Console',
+        desc: 'เปิด DevTools (F12) → Console จะเห็น "[Pixory] SW registered · v2.5.16" บอกชัดว่าโหลดเวอร์ชั่นไหน · ช่วย debug ตอน deploy'
+      }
+    ]
+  },
   '2.5.15': {
     date: '2026-05-26',
     title: 'แจ้งเตือน "ต้องทำวันนี้" ใช้สถานะใหม่ที่คุณตั้ง',
@@ -8971,8 +8988,14 @@ function registerSW() {
   // Only register on https (or localhost)
   if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') return;
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').then((reg) => {
+    // v2.5.16 · CRITICAL · updateViaCache: 'none' forces browser to ALWAYS fetch fresh sw.js
+    //   from network · without this, browser caches sw.js for ~24h and never detects new versions
+    //   even when GitHub Pages has the new file. This was the root cause of "deployed but PWA
+    //   not updating" symptom.
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then((reg) => {
       _pendingSWReg = reg;
+      // v2.5.16 · Force immediate update check on first load (bootstrap any stale SW)
+      try { reg.update(); } catch (e) {}
       // If there's already a waiting worker on first load, show banner immediately
       if (reg.waiting && navigator.serviceWorker.controller) {
         _showUpdateBanner();
@@ -9000,6 +9023,8 @@ function registerSW() {
           try { reg.update(); } catch (e) {}
         }
       });
+      // v2.5.16 · Log version to console so user can verify which is loaded
+      console.log('[Pixory] SW registered · v' + (typeof PIXORY_VERSION !== 'undefined' ? PIXORY_VERSION : '?'));
     }).catch((err) => {
       console.warn('SW registration failed:', err);
     });
