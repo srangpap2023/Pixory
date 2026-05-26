@@ -787,7 +787,7 @@
     <div class="panel">
       <div class="panel-title">ℹ เกี่ยวกับ</div>
       <div style="font-size:12px; color: var(--muted); line-height:1.6;">
-        Pixory Admin Monitor · v2.4<br>
+        Pixory Admin Monitor · v2.5<br>
         Mobile-first · Apple Health Style<br><br>
         • Realtime sync + polling 10s<br>
         • Live notification toast + sound<br>
@@ -1105,29 +1105,37 @@ async function loadDashboard(showLoading) {
 }
 
 function classifyStage(user) {
+  // v2.5 · lowered Champion threshold for small user base (was ≥10 → ≥5)
+  //        and require hasPayment so "5 unpaid quotes" doesn't count
   // v2.3 M5 · Active threshold loosened to include brand-new users (items=1+day=0)
-  // Champion = high engagement + very recent
+  // Champion = real customer (5+ items · paid · recent)
   // Active = used app recently + has some activity (≥1 item · day<2)
   // Tire = had activity but went quiet (2-7 days)
   // Ghost = idle ≥7 days OR no items + idle ≥3 days
   const daysSinceActive = (Date.now() - user.updatedAt) / 86400000;
   const totalItems = user.jobCount + user.quoteCount;
-  if (totalItems >= 10 && daysSinceActive < 2) return 'champion';
+  if (totalItems >= 5 && user.hasPayment && daysSinceActive < 3) return 'champion';
   if (daysSinceActive >= 7) return 'ghost';
   if (totalItems === 0 && daysSinceActive >= 3) return 'ghost';
   if (totalItems >= 1 && daysSinceActive < 2) return 'active'; // was ≥2
   return 'tire';
 }
 function computeScore(user) {
-  // v2.3 M9 · Bonuses for "noise" features (push) only count if user has real activity
+  // v2.5 · Re-weighted to value REAL REVENUE over vanity counts
+  //   Old: 5 unpaid quotes = 5 paid jobs (both 30 pts) · misleading
+  //   New: hasPayment becomes the highest single weight (25) · paid job > unpaid quote
+  // v2.3 M9 · Push/PDF bonuses only count when user has real activity (prevent gaming)
   let score = 0;
   const hasActivity = user.quoteCount >= 1 || user.jobCount >= 1;
-  if (user.quoteCount >= 1) score += 30;
-  if (user.jobCount >= 1)   score += 30;
-  if (user.pushEnabled && hasActivity) score += 15; // gated · push w/o activity ≠ engagement
-  if (user.hasPayment)      score += 15;
+  if (user.quoteCount >= 1) score += 20;             // was 30 — lowered because unpaid
+  if (user.jobCount >= 1)   score += 25;             // was 30 — booked but maybe unpaid
+  if (user.hasPayment)      score += 25;             // was 15 — REAL money in = best signal
   if (user.custCount >= 3)  score += 10;
-  if (user.pdfGenerated && hasActivity) score += 10; // gated · PDF gen of empty data is gaming
+  if (user.pushEnabled && hasActivity) score += 10;  // was 15 — push is a hint, not engagement
+  if (user.pdfGenerated && hasActivity) score += 10;
+  // Extra bump for healthy power users
+  const totalItems = user.quoteCount + user.jobCount;
+  if (totalItems >= 5 && user.hasPayment) score += 10;
   const daysIdle = (Date.now() - user.updatedAt) / 86400000;
   if (daysIdle >= 7)  score -= 20;
   if (daysIdle >= 14) score -= 20;
@@ -1239,10 +1247,12 @@ function renderHome(users) {
   document.getElementById('kpi-users').textContent = totalUsers;
   document.getElementById('kpi-users-sub').textContent = totalUsers > 0 ? 'ทั้งหมดในระบบ' : '—';
   document.getElementById('kpi-active').textContent = activeToday;
-  const damau = totalUsers ? Math.round((activeToday/totalUsers)*100) : 0;
+  // v2.5 · was mislabeled "DAU/MAU" — it's actually % of all signed-up users active today (not true MAU)
+  // Switched to honest "Today / All users" so number isn't misread as industry-standard DAU/MAU
+  const todayPct = totalUsers ? Math.round((activeToday/totalUsers)*100) : 0;
   const activeSub = document.getElementById('kpi-active-sub');
-  activeSub.textContent = `DAU/MAU ${damau}%`;
-  activeSub.className = 'stat-sub ' + (damau >= 20 ? '' : 'warn');
+  activeSub.textContent = `${todayPct}% ของผู้สมัครทั้งหมด`;
+  activeSub.className = 'stat-sub ' + (todayPct >= 20 ? '' : 'warn');
   const actPct = totalUsers ? Math.round((activated/totalUsers)*100) : 0;
   document.getElementById('kpi-activation').textContent = actPct + '%';
   const actSub = document.getElementById('kpi-activation-sub');
@@ -1282,7 +1292,7 @@ function renderHome(users) {
   document.getElementById('champion-count').textContent = champions.length;
   document.getElementById('champions-list').innerHTML = champions.length
     ? champions.slice(0, 3).map(u => renderUserRow(u, 'purple', `${u.quoteCount}q · ${u.jobCount}j · score ${u.score}`)).join('')
-    : '<div class="empty" style="padding:18px;"><div style="font-size:11.5px;color:var(--muted);">ยังไม่มี Champion (ต้องมี ≥10 quotes/jobs)</div></div>';
+    : '<div class="empty" style="padding:18px;"><div style="font-size:11.5px;color:var(--muted);">ยังไม่มี Champion (ต้องมี ≥5 quotes/jobs + รับเงินแล้ว + active <3 วัน)</div></div>';
 
   // At Risk
   document.getElementById('risk-count').textContent = atRisk.length;
