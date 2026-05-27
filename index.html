@@ -6905,7 +6905,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.16';
+const PIXORY_VERSION = '2.5.17';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6916,6 +6916,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.17': {
+    date: '2026-05-27',
+    title: 'สถานที่งานหลายช่วงในใบเสนอ/ใบเรียกเก็บ',
+    subtitle: 'งานที่มีหลายช่วงเวลาคนละสถานที่ · ใบเสนอแสดงสถานที่ครบทุกช่วง',
+    items: [
+      {
+        icon: '📍',
+        title: 'งาน multi-session คนละสถานที่ · ตอนนี้แสดงครบ',
+        desc: 'เก่า: ใบเสนอ/ใบเรียกเก็บที่งานมีหลายช่วงเวลา (เช่นเช้า-เย็น) คนละสถานที่ · ระบบโชว์สถานที่แค่ที่เดียว (ที่ของช่วงแรก) · ลูกค้าอ่านไม่รู้ตอนเย็นไปไหน · ใหม่: แต่ละช่วงโชว์สถานที่ของตัวเองพร้อม 📍 หน้าชื่อสถานที่'
+      },
+      {
+        icon: '🧠',
+        title: 'Smart Layout · ฉลาดเลือกการแสดงผล',
+        desc: 'งาน 1 session ปกติ → เหมือนเดิมเป๊ะ · 2+ session ที่ "เดียวกัน" → รวมสถานที่ครั้งเดียว ไม่ซ้ำ · ต่างที่กัน → แสดงทุกช่วงครบ · งานข้ามวัน → label เปลี่ยนเป็น "วันที่ 1 · วันที่ 2" อัตโนมัติ (จากเดิม "ช่วงที่ 1 · ช่วงที่ 2" ที่ใช้กับวันเดียวกัน)'
+      },
+      {
+        icon: '🧾',
+        title: 'ครอบคลุมทุกประเภทเอกสาร',
+        desc: 'แก้พร้อมกัน 2 จุด: ใบเสนอราคา + ใบเรียกเก็บยอดชำระเพิ่ม · ทุก customer type (B2C, B2B, รัฐบาล, VIP) · ทุกการแสดงผล (PDF, JPEG, Print)'
+      }
+    ]
+  },
   '2.5.16': {
     date: '2026-05-26',
     title: 'แอพอัพเดทอัตโนมัติทันทีหลัง deploy',
@@ -15497,34 +15519,9 @@ function showQuoteScreen(data, source) {
     if (expEl) expEl.hidden = true;
     if (expLabel) expLabel.hidden = true;
   }
-  const eventDate = data.dateEvent || data.date;
-  const dp = dateParts(eventDate);
   document.getElementById('q-customer').textContent = (LANG === 'en' ? '' : 'คุณ ') + data.customer;
-  // Show multiple session dates if applicable
-  const sessions = (data.sessions && data.sessions.length > 0) ? data.sessions : null;
-  const _msf = monthsFullArray();
-  const _mss = monthsShortArray();
-  let dateLine = '';
-  if (sessions && sessions.length > 1) {
-    const dateLines = sessions.map((s, i) => {
-      const sd = dateParts(s.date);
-      const tm = (s.start && s.end) ? ` ${s.start}-${s.end}` : '';
-      const lbl = s.label || (LANG === 'en' ? 'Session '+(i+1) : 'ช่วงที่ '+(i+1));
-      return `${getSessionIcon(i)} ${lbl} · ${sd.d} ${_mss[sd.m]}${tm}`;
-    });
-    dateLine = dateLines.join(' / ');
-  } else if (sessions && sessions.length === 1) {
-    // Single session — show date + work time
-    const s = sessions[0];
-    const sd = dateParts(s.date || eventDate);
-    const tm = (s.start && s.end) ? ` · ${s.start}-${s.end}` : '';
-    dateLine = `${sd.d} ${_msf[sd.m]} ${sd.y}${tm}`;
-  } else {
-    // Fallback (no sessions array) — date only
-    dateLine = `${dp.d} ${_msf[dp.m]} ${dp.y}`;
-  }
-  const _pfx = LANG === 'en' ? '' : 'งาน ';
-  document.getElementById('q-event').textContent = `${_pfx}${data.type} · ${dateLine} · ${data.loc}`;
+  // v2.5.17 · Smart multi-session/multi-location event line (helper)
+  document.getElementById('q-event').innerHTML = buildEventLineHTML(data);
 
   const items = document.getElementById('q-items');
   items.innerHTML = '';
@@ -17219,29 +17216,8 @@ function renderInvoicePDF(job) {
   document.getElementById('inv-due').textContent = dd.getDate() + ' ' + _msm[dd.getMonth()] + ' ' + displayYear(dd.getFullYear());
   // Customer
   document.getElementById('inv-customer').textContent = (LANG === 'en' ? '' : 'คุณ ') + job.customer;
-  // Event line — reuse session logic
-  const sessions = (job.sessions && job.sessions.length > 0) ? job.sessions : null;
-  const monthsFull = monthsFullArray();
-  const monthsShort = monthsShortArray();
-  let dateLine = '';
-  if (sessions && sessions.length > 1) {
-    dateLine = sessions.map((s, i) => {
-      const sd = dateParts(s.date);
-      const tm = (s.start && s.end) ? ` ${s.start}-${s.end}` : '';
-      const lbl = s.label || (LANG === 'en' ? 'Session '+(i+1) : 'ช่วงที่ '+(i+1));
-      return `${getSessionIcon(i)} ${lbl} · ${sd.d} ${monthsShort[sd.m]}${tm}`;
-    }).join(' / ');
-  } else if (sessions && sessions.length === 1) {
-    const s = sessions[0];
-    const sd = dateParts(s.date || job.dateEvent || job.date);
-    const tm = (s.start && s.end) ? ` · ${s.start}-${s.end}` : '';
-    dateLine = `${sd.d} ${monthsFull[sd.m]} ${sd.y}${tm}`;
-  } else {
-    const dp = dateParts(job.dateEvent || job.date);
-    dateLine = `${dp.d} ${monthsFull[dp.m]} ${dp.y}`;
-  }
-  const eventPrefix = LANG === 'en' ? '' : 'งาน ';
-  document.getElementById('inv-event').textContent = `${eventPrefix}${job.type} · ${dateLine} · ${job.loc || '-'}`;
+  // v2.5.17 · Smart multi-session/multi-location event line (helper)
+  document.getElementById('inv-event').innerHTML = buildEventLineHTML(job);
   // Items
   const itemsEl = document.getElementById('inv-items');
   itemsEl.innerHTML = '';
@@ -19761,6 +19737,82 @@ function getJobLocations(j) {
   // Fallback to top-level j.loc if no session has loc
   if (set.size === 0 && j.loc && j.loc.trim()) set.add(j.loc.trim());
   return Array.from(set);
+}
+
+// v2.5.17 · Build event line HTML for Quote/Invoice PDFs with smart multi-session/multi-location support
+//   - 0/1 session → single line (legacy behavior + 📍 appended if loc)
+//   - Multi-session same date + same loc → header has date+loc, sessions show time
+//   - Multi-session same date + diff loc → header has date, each session shows 📍
+//   - Multi-session diff dates + same loc → header has count+loc, each session shows date+time
+//   - Multi-session diff dates + diff loc → header has count, each session shows date+time+📍
+// Returns HTML string (uses <br> between lines + escapeHtml on all dynamic content)
+function buildEventLineHTML(data) {
+  const _msf = monthsFullArray();
+  const _mss = monthsShortArray();
+  const _pfx = (LANG === 'en') ? '' : 'งาน ';
+  const typeStr = escapeHtml(data.type || '');
+  const sessions = (data.sessions && data.sessions.length > 0) ? data.sessions : null;
+
+  // Case A · No sessions or 1 session — single line + optional 📍
+  if (!sessions || sessions.length === 1) {
+    const s = sessions ? sessions[0] : null;
+    const eventDate = (s && s.date) || data.dateEvent || data.date;
+    const dp = dateParts(eventDate);
+    const tm = (s && s.start && s.end) ? ` · ${escapeHtml(s.start)}-${escapeHtml(s.end)}` : '';
+    const sessLoc = (s && s.loc && s.loc.trim()) ? s.loc.trim() : '';
+    const topLoc = (data.loc && data.loc.trim()) ? data.loc.trim() : '';
+    const loc = sessLoc || topLoc;
+    const locPart = loc ? ` · 📍 ${escapeHtml(loc)}` : '';
+    return `${_pfx}${typeStr} · ${dp.d} ${_msf[dp.m]} ${dp.y}${tm}${locPart}`;
+  }
+
+  // Case B · Multi-session — analyze date + loc patterns
+  const dates = sessions.map(s => s.date || '');
+  const firstDate = dates[0];
+  const allSameDate = dates.every(d => d === firstDate);
+  const dayCount = new Set(dates.filter(Boolean)).size;
+
+  const locTrim = sessions.map(s => (s.loc || '').trim());
+  const nonEmptyLocs = locTrim.filter(Boolean);
+  const uniqueLocs = Array.from(new Set(nonEmptyLocs));
+  const allSameLocation = nonEmptyLocs.length === sessions.length && uniqueLocs.length === 1;
+
+  // Fallback: if NO session has loc but data.loc exists → use as header loc
+  const fallbackLoc = (nonEmptyLocs.length === 0 && data.loc && data.loc.trim()) ? data.loc.trim() : '';
+
+  // Smart default label: "ช่วงที่ N" if same date · "วันที่ N" if multi-day
+  const defaultLabel = (i) => {
+    if (allSameDate) return LANG === 'en' ? ('Session ' + (i+1)) : ('ช่วงที่ ' + (i+1));
+    return LANG === 'en' ? ('Day ' + (i+1)) : ('วันที่ ' + (i+1));
+  };
+
+  // Build header line
+  let header = `${_pfx}${typeStr}`;
+  if (allSameDate && firstDate) {
+    const dp = dateParts(firstDate);
+    header += ` · ${dp.d} ${_msf[dp.m]} ${dp.y}`;
+  } else {
+    header += ` · ${dayCount} ${LANG === 'en' ? 'days' : 'วัน'}`;
+  }
+  if (allSameLocation) {
+    header += ` · 📍 ${escapeHtml(uniqueLocs[0])}`;
+  } else if (fallbackLoc) {
+    header += ` · 📍 ${escapeHtml(fallbackLoc)}`;
+  }
+
+  // Build per-session lines
+  const sessionLines = sessions.map((s, i) => {
+    const lbl = escapeHtml(s.label || defaultLabel(i));
+    const icon = getSessionIcon(i);
+    const sd = dateParts(s.date);
+    const dateStr = allSameDate ? '' : ` · ${sd.d} ${_mss[sd.m]}`;
+    const tm = (s.start && s.end) ? ` · ${escapeHtml(s.start)}-${escapeHtml(s.end)}` : '';
+    const sessLoc = (s.loc || '').trim();
+    const locStr = (allSameLocation || !sessLoc) ? '' : ` · 📍 ${escapeHtml(sessLoc)}`;
+    return `${icon} ${lbl}${dateStr}${tm}${locStr}`;
+  });
+
+  return header + '<br>' + sessionLines.join('<br>');
 }
 
 // v2.5.2 · Get primary location label for compact display (card / calendar / lists)
