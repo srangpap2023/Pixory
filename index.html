@@ -6936,7 +6936,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.19';
+const PIXORY_VERSION = '2.5.20';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6947,6 +6947,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.20': {
+    date: '2026-05-27',
+    title: 'แก้บัก critical · หักเหมา 60% ไม่จำกัด ฿600,000 อีกแล้ว',
+    subtitle: 'ช่างภาพรายได้สูงคำนวณภาษีแม่นยำขึ้น · ตรงตามกฎหมายปัจจุบัน',
+    items: [
+      {
+        icon: '🚨',
+        title: 'ยกเลิก cap หักเหมา ฿600,000',
+        desc: 'เก่า: ระบบจำกัดค่าใช้จ่ายแบบเหมา 60% ไว้ที่ ฿600,000 ตามกฎเก่า · ช่างภาพรายได้สูงโดนคำนวณภาษีสูงเกินจริง · ใหม่: หักเหมา 60% ของรายได้เต็มจำนวนตามกฎหมายปัจจุบัน (พ.ร.ฎ. 629 · 2017 ยกเลิก cap สำหรับ ม.40(8) อาชีพอิสระ ซึ่งรวมถ่ายภาพ)'
+      },
+      {
+        icon: '💰',
+        title: 'ตัวอย่างผลกระทบ',
+        desc: 'ช่างภาพรายได้ ฿1,500,000/ปี · เก่า: หักเหมาได้แค่ ฿600,000 (cap) · ใหม่: หักเหมาได้ ฿900,000 (60% เต็ม) → ภาษีลดลงประมาณ ฿30,000-฿75,000 ขึ้นอยู่กับ bracket · ถ้าคุณยื่นปีก่อนแล้วใช้หักเหมา · ลองตรวจสอบกับบัญชีว่ายื่นใหม่ขอเงินคืนได้มั้ย'
+      },
+      {
+        icon: '📌',
+        title: 'ผู้ใช้รายได้น้อย · ไม่กระทบ',
+        desc: 'ถ้ารายได้ ≤ ฿1,000,000/ปี · 60% ก็ไม่เกิน ฿600,000 อยู่แล้ว · ตัวเลขคำนวณเท่าเดิม · ไม่มี action ใดต้องทำ'
+      }
+    ]
+  },
   '2.5.19': {
     date: '2026-05-27',
     title: 'แก้บั๊ก · ปุ่มแก้ไขเล็กเกิน + ชาร์ท Source เพี้ยน',
@@ -8475,7 +8497,7 @@ const RELEASE_NOTES = {
       {
         icon: '🧮',
         title: 'คำนวณภาษีตรงตามกฎหมายขึ้น',
-        desc: 'ค่าลดหย่อนบุตรแยกก่อน/หลังปี 2561 (บุตร 2018+ ได้ ฿60,000) · บริจาคจำกัด 10% ของรายได้สุทธิ · หักเหมา 60% มี cap ฿600,000 · ใช้วันรับเงิน (cash basis) ตามจริง'
+        desc: 'ค่าลดหย่อนบุตรแยกก่อน/หลังปี 2561 (บุตร 2018+ ได้ ฿60,000) · บริจาคจำกัด 10% ของรายได้สุทธิ · ใช้วันรับเงิน (cash basis) ตามจริง'
       },
       {
         icon: '🔎',
@@ -18595,9 +18617,12 @@ function computePIT(year, opts) {
     actualExpenses += (Number(ex.amount) || 0);
   });
 
-  // 2. Expense — flat 60% (capped at ฿600,000 per ม.40(8)) or actual
+  // 2. Expense — flat 60% (NO cap for ม.40(8) since พ.ร.ฎ. 629 · 2017) or actual
+  // v2.5.20 · FIXED · was capped at ฿600,000 which is wrong for photography (ม.40(8) อาชีพอิสระ)
+  // Old ฿600k cap only applies to ม.40(6) วิชาชีพอิสระ เฉพาะ (doctors, lawyers, accountants, etc.)
+  // Photography = ม.40(8) (ธุรกิจ/พาณิชย์/อาชีพ) · 60% NO ceiling per พ.ร.ฎ. 629 (2017 reform)
   const expenseMode = opts.expenseMode || 'flat60';
-  const flat60Expense = Math.min(revenue * 0.60, 600000);  // M10 · cap at ฿600k
+  const flat60Expense = revenue * 0.60;
   const usedExpense = (expenseMode === 'actual') ? actualExpenses : flat60Expense;
   const incomeAfterExpense = Math.max(0, revenue - usedExpense);
 
