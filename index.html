@@ -4593,9 +4593,9 @@
         <button class="back" onclick="backFromQuote()">‹</button>
         <h1 data-i18n="header.quote">ใบเสนอราคา</h1>
         <div style="display:flex; gap:14px; align-items:center;">
-          <button class="icon-btn" onclick="editCurrentQuote()" title="แก้ไข" id="quote-edit-btn">✎</button>
-          <button class="icon-btn" onclick="downloadPDF()" title="บันทึก PDF">⬇</button>
-          <button class="icon-btn" onclick="deleteCurrentQuote()" style="color:#dc2626;" title="ลบ" id="quote-delete-btn">🗑</button>
+          <button class="icon-btn" onclick="editCurrentQuote()" title="แก้ไข" id="quote-edit-btn">✏️</button>
+          <button class="icon-btn" onclick="downloadPDF()" title="บันทึก PDF">⬇️</button>
+          <button class="icon-btn" onclick="deleteCurrentQuote()" style="color:#dc2626;" title="ลบ" id="quote-delete-btn">🗑️</button>
         </div>
       </div>
 
@@ -6936,7 +6936,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.18';
+const PIXORY_VERSION = '2.5.19';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6947,6 +6947,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.19': {
+    date: '2026-05-27',
+    title: 'แก้บั๊ก · ปุ่มแก้ไขเล็กเกิน + ชาร์ท Source เพี้ยน',
+    subtitle: 'ไอคอนปุ่มในใบเสนอราคาขนาดเท่ากันแล้ว · โดนัทชาร์ทแหล่งที่มางานเป็นระเบียบ',
+    items: [
+      {
+        icon: '✏️',
+        title: 'ปุ่ม "แก้ไข" ใหญ่ขึ้นพอดี',
+        desc: 'เก่า: ในหน้าใบเสนอราคา ปุ่มดินสอ (แก้ไข) เล็กกว่าปุ่มดาวน์โหลด/ลบ จนมองเกือบไม่เห็น · ใหม่: ใช้ไอคอน emoji ขนาดเท่ากับปุ่มอื่น · ดูเป็นชุดเดียวกัน · กดง่ายขึ้น'
+      },
+      {
+        icon: '🍩',
+        title: 'โดนัทชาร์ท "แหล่งที่มา" ไม่เพี้ยนแล้ว',
+        desc: 'เก่า: งานที่สร้างจากใบเสนอราคา ขึ้นในชาร์ทเป็น "Quote QT-2026-012" ทุกใบ ทำให้ชาร์ทเต็มหมวดที่ไม่ใช่แหล่งที่มาจริง · ใหม่: ตั้ง default เป็น "Other" (หรือหมวดสุดท้ายที่คุณตั้งไว้) · กดเข้าไปแก้เป็น Facebook/IG/Referral ได้เลยในหน้ารายละเอียดงาน'
+      },
+      {
+        icon: '🪄',
+        title: 'อัพเดทอัตโนมัติ · ข้อมูลเก่าซ่อมให้ในคลิกเดียว',
+        desc: 'พอเปิดแอพครั้งแรก ระบบจะตรวจหาทุกงานที่มี "แหล่งที่มา = Quote XXX" แล้วเปลี่ยนเป็น "Other" ให้อัตโนมัติ · เก็บเลขใบเสนอเดิมไว้ในข้อมูลซ่อน (ไม่หาย) · ทำครั้งเดียวพอ · กลับเข้ามาเปิดแอพถัดไปไม่ทำซ้ำ'
+      }
+    ]
+  },
   '2.5.18': {
     date: '2026-05-27',
     title: 'เลือกได้แล้ว · เก็บเงินก่อน · ใน · หลังวันงาน',
@@ -10162,7 +10184,33 @@ function loadData() {
     migrateV25JobStatuses();
     // === Migration v2.5.4: infer category for each SERVICE from job usage ===
     migrateV254ServiceCategory();
+    // === Migration v2.5.19: fix jobs that have source = "Quote XXX" (donut chart pollution) ===
+    migrateV2519QuoteSource();
   } catch(e) { console.warn('load failed', e); }
+}
+
+// v2.5.19 · Fix legacy jobs converted from quotes that have source = "Quote QT-2026-012"
+// Original bug: convertQuoteToJob set source to a per-quote string · polluting donut chart
+// Fix: re-classify into last SOURCES entry (Other) · preserve original via fromQuote field
+function migrateV2519QuoteSource() {
+  if (!Array.isArray(JOBS) || JOBS.length === 0) return;
+  if (PROFILE && PROFILE._v2519QuoteSourceMigrated) return; // idempotency guard
+  const defaultSource = (Array.isArray(SOURCES) && SOURCES.length > 0) ? SOURCES[SOURCES.length - 1] : 'อื่นๆ';
+  let fixed = 0;
+  JOBS.forEach(j => {
+    if (typeof j.source === 'string' && j.source.startsWith('Quote ')) {
+      // Extract original quote code · preserve in fromQuote for traceability
+      const origCode = j.source.substring(6).trim(); // strip "Quote "
+      if (!j.fromQuote && origCode) j.fromQuote = origCode;
+      j.source = defaultSource;
+      fixed++;
+    }
+  });
+  if (fixed > 0) {
+    PROFILE._v2519QuoteSourceMigrated = true;
+    saveData();
+    console.log('[Pixory v2.5.19] Migrated ' + fixed + ' job(s) with polluted source field');
+  }
 }
 
 // v2.5.4 · Derive job type from selected services / custom items
@@ -16026,7 +16074,11 @@ function convertQuoteToJob(code) {
     deposit: qDeposit, remain: qRemain, payStatus: qPayStatus,
     depositPaidDate: qDeposit > 0 ? today : null,
     jobStatus: 'รอถ่าย', delivery: 'ยังไม่ถ่าย', // v2.5.0 · was 'จอง' · delivery legacy
-    source: 'Quote ' + q.code,
+    // v2.5.19 · Fix bug: was `source: 'Quote ' + q.code` which created a new chart category per quote
+    // Now uses last SOURCES entry (Other/อื่นๆ) by default · user can edit in Job detail
+    // Traceability preserved via fromQuote + note
+    source: (Array.isArray(SOURCES) && SOURCES.length > 0) ? SOURCES[SOURCES.length - 1] : 'อื่นๆ',
+    fromQuote: q.code,
     teamCost: 0, otherCost: 0, travelCost: 0, profit: q.sell,
     note: 'มาจากใบเสนอ ' + q.code,
     payments: [],
@@ -20267,8 +20319,14 @@ function renderDashboard() {
   });
 
   // -- Source mix
+  // v2.5.19 · Defensive: normalize missing/polluted source (e.g. "Quote QT-XXX" legacy data)
+  const srcFallback = (Array.isArray(SOURCES) && SOURCES.length > 0) ? SOURCES[SOURCES.length - 1] : 'อื่นๆ';
   const src = {};
-  yearJobs.forEach(j => src[j.source] = (src[j.source] || 0) + 1);
+  yearJobs.forEach(j => {
+    let s = j.source;
+    if (!s || (typeof s === 'string' && s.startsWith('Quote '))) s = srcFallback;
+    src[s] = (src[s] || 0) + 1;
+  });
 
   // -- Monthly
   const monthlyIn = new Array(12).fill(0);
