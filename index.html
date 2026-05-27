@@ -841,6 +841,24 @@
   }
   .notif-toggle-mini.on::after { transform: translateX(16px); }
   body.dark-theme .notif-toggle-mini { background: #3a3a3a; }
+  /* v2.5.18 · Balance due mode chips */
+  .balance-chip {
+    padding: 6px 11px; background: white; border: 1px solid #e8e1d2;
+    border-radius: 999px; font-size: 11.5px; font-weight: 600;
+    color: #7c7066; cursor: pointer; transition: all .15s;
+    display: inline-flex; align-items: center; gap: 3px; user-select: none;
+  }
+  .balance-chip:hover { border-color: #d8704a; color: #d8704a; }
+  .balance-chip.active {
+    background: linear-gradient(135deg, #D97757, #B85A3D); color: white;
+    border-color: transparent; box-shadow: 0 2px 8px rgba(216,119,87,.3);
+  }
+  .balance-chip.disabled-soon {
+    opacity: .55; cursor: not-allowed; font-style: italic;
+  }
+  .balance-chip.disabled-soon:hover { border-color: #e8e1d2; color: #7c7066; }
+  body.dark-theme .balance-chip { background: #2a2a2a; border-color: #3a3a3a; color: #c9bfb1; }
+  body.dark-theme .balance-chip:hover { color: #e87f5a; border-color: #e87f5a; }
   .notif-test-btn {
     margin: 18px 16px 0; width: calc(100% - 32px); padding: 16px;
     background: linear-gradient(180deg, #e87f5a, #d8704a); color: white;
@@ -6429,7 +6447,7 @@
           </div>
         </div>
 
-        <!-- 3. Balance due -->
+        <!-- 3. Balance due · v2.5.18 · chip + conditional stepper -->
         <div class="preview-card" id="preview-card-balance">
           <div class="preview-mock">
             <div class="preview-app-icon">📷</div>
@@ -6438,18 +6456,31 @@
                 <span class="preview-app-name">PIXORY</span>
                 <span class="preview-time">เมื่อกี้</span>
               </div>
-              <div class="preview-title">💰 ยอดค้างเก็บใกล้ครบ</div>
-              <div class="preview-body">งาน คุณวรัญญา ครบกำหนดในอีก <span id="preview-balance-days-text">1</span> วัน · ยอดคงเหลือ ฿5,000</div>
+              <div class="preview-title" id="preview-balance-title">💰 ยอดค้างเก็บใกล้ครบ</div>
+              <div class="preview-body" id="preview-balance-body">งาน คุณวรัญญา ครบกำหนดในอีก <span id="preview-balance-days-text">1</span> วัน · ยอดคงเหลือ ฿5,000</div>
             </div>
           </div>
-          <div class="pref-row">
-            <span class="pref-label">ก่อนวันงาน</span>
+          <!-- v2.5.18 · Mode chips -->
+          <div class="balance-mode-chips" style="display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 8px;">
+            <span class="balance-chip" data-mode="before" onclick="setBalanceDueMode('before')">🗓️ ก่อนวันงาน</span>
+            <span class="balance-chip" data-mode="on" onclick="setBalanceDueMode('on')">📍 ในวันงาน</span>
+            <span class="balance-chip" data-mode="after" onclick="setBalanceDueMode('after')">⏰ หลังวันงาน</span>
+            <span class="balance-chip disabled-soon" data-mode="afterDelivery" onclick="setBalanceDueMode('afterDelivery')" title="Coming soon">📦 หลังส่งงาน</span>
+          </div>
+          <div class="pref-row" id="balance-stepper-row">
+            <span class="pref-label" id="balance-stepper-label">ก่อนวันงาน</span>
             <div class="pref-stepper">
               <button class="pref-btn" onclick="adjustPushDays('pushBalanceDueDays', -1)">−</button>
               <span class="pref-num" id="push-balance-days-display">1</span>
               <button class="pref-btn" onclick="adjustPushDays('pushBalanceDueDays', 1)">+</button>
             </div>
+            <span class="pref-label">วัน</span>
             <div class="notif-toggle-mini" id="push-balance-sw" onclick="togglePushOption('pushBalanceDue')"></div>
+          </div>
+          <!-- Stepper hidden row (when mode = 'on') · just toggle stays -->
+          <div class="pref-row" id="balance-toggle-only-row" style="display:none;">
+            <span class="pref-label">เตือนในวันงาน</span>
+            <div class="notif-toggle-mini" id="push-balance-sw-2" onclick="togglePushOption('pushBalanceDue')"></div>
           </div>
         </div>
 
@@ -6905,7 +6936,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.17';
+const PIXORY_VERSION = '2.5.18';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6916,6 +6947,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.18': {
+    date: '2026-05-27',
+    title: 'เลือกได้แล้ว · เก็บเงินก่อน · ใน · หลังวันงาน',
+    subtitle: 'ตั้งค่าเตือนยอดค้างเก็บให้ตรง workflow ของคุณ · ไม่ต้องเตือนล่วงหน้าเสมอ',
+    items: [
+      {
+        icon: '🎯',
+        title: '3 mode · เก็บเงินตามสะดวก',
+        desc: 'เก่า: เตือนล่วงหน้าก่อนวันงานเท่านั้น · ใหม่: เลือกได้ 3 แบบ — 🗓️ ก่อนวันงาน X วัน · 📍 ในวันงาน (เตือนเช้าวันงาน) · ⏰ หลังวันงาน X วัน · ช่างภาพที่เก็บเงินวันงานหรือหลังงานก็ใช้ได้แล้ว'
+      },
+      {
+        icon: '🪄',
+        title: 'UI ฉลาด · เลือก "ในวันงาน" ซ่อน stepper อัตโนมัติ',
+        desc: 'กดเลือก chip ปุ่มเดียว · ถ้าเลือก "ในวันงาน" ระบบจะซ่อนช่องใส่จำนวนวัน (เพราะไม่จำเป็น) · เลือก "ก่อน/หลังวันงาน" จะโชว์ stepper พร้อม label ตามที่เลือก · ตัวอย่าง notif ก็เปลี่ยนตามแบบสด ๆ'
+      },
+      {
+        icon: '🛡️',
+        title: 'อัพเดทอัตโนมัติ · ไม่ต้องตั้งใหม่',
+        desc: 'User เก่าทุกคน → ระบบ default เป็น "ก่อนวันงาน" + จำนวนวันเดิม · ทำงานเหมือนเวอร์ชั่นก่อนเป๊ะ · เปิดแอพแล้วเห็น chip ใหม่ก็กดเปลี่ยนได้ทันที · ไม่มี data loss'
+      }
+    ]
+  },
   '2.5.17': {
     date: '2026-05-27',
     title: 'สถานที่งานหลายช่วงในใบเสนอ/ใบเรียกเก็บ',
@@ -9983,7 +10036,8 @@ const NOTIF_SETTINGS = {
   pushQuoteExpiry: true,         // เด้งใบเสนอใกล้หมดอายุ
   pushQuoteExpiryDays: 3,        // ล่วงหน้ากี่วัน
   pushBalanceDue: true,          // เด้งยอดค้างเก็บใกล้ครบกำหนด
-  pushBalanceDueDays: 1          // ล่วงหน้ากี่วันก่อนวันงาน
+  pushBalanceDueDays: 1,         // จำนวนวัน (ใช้กับ mode 'before' และ 'after' · ignore เมื่อ 'on')
+  pushBalanceDueMode: 'before'   // v2.5.18 · 'before' | 'on' | 'after' (phase 2: 'afterDelivery')
 };
 
 // v2.1 · VAPID public key · for Web Push subscription
@@ -10090,6 +10144,10 @@ function loadData() {
     if (Array.isArray(d.BANKS)) replace(BANKS, d.BANKS);
     if (d.QUOTE_TEMPLATE) Object.assign(QUOTE_TEMPLATE, d.QUOTE_TEMPLATE);
     if (d.NOTIF_SETTINGS) Object.assign(NOTIF_SETTINGS, d.NOTIF_SETTINGS);
+    // v2.5.18 · Normalize pushBalanceDueMode for users coming from ≤v2.5.17
+    if (!NOTIF_SETTINGS.pushBalanceDueMode || !['before','on','after','afterDelivery'].includes(NOTIF_SETTINGS.pushBalanceDueMode)) {
+      NOTIF_SETTINGS.pushBalanceDueMode = 'before';
+    }
     if (Array.isArray(d.SERVICES)) replace(SERVICES, d.SERVICES);
     if (d.CUSTOMER_INFO) { Object.keys(CUSTOMER_INFO).forEach(k => delete CUSTOMER_INFO[k]); Object.assign(CUSTOMER_INFO, d.CUSTOMER_INFO); }
     if (Array.isArray(d.EQUIPMENT)) replace(EQUIPMENT, d.EQUIPMENT);
@@ -14408,8 +14466,10 @@ const NOTIF_NUM_BOUNDS = {
 };
 const PUSH_DAYS_BOUNDS = {
   pushQuoteExpiryDays:  { min: 1, max: 30 },
-  pushBalanceDueDays:   { min: 0, max: 30 }
+  pushBalanceDueDays:   { min: 1, max: 30 }  // v2.5.18 · min:1 (mode 'on' uses days=0 implicitly · stepper hidden)
 };
+// v2.5.18 · Valid balance-due modes
+const BALANCE_DUE_MODES = ['before', 'on', 'after', 'afterDelivery'];
 
 function populateNotifSettings() {
   // Numeric displays + toggle states for in-app rules
@@ -14498,6 +14558,70 @@ function syncPushPreviewLabels() {
   setDisabled('preview-card-briefing', !NOTIF_SETTINGS.pushDailyBriefing);
   setDisabled('preview-card-quote',    !NOTIF_SETTINGS.pushQuoteExpiry);
   setDisabled('preview-card-balance',  !NOTIF_SETTINGS.pushBalanceDue);
+  // v2.5.18 · Sync mode chips + label + preview text + show/hide stepper
+  syncBalanceDueModeUI();
+}
+
+// v2.5.18 · Render UI based on current NOTIF_SETTINGS.pushBalanceDueMode
+function syncBalanceDueModeUI() {
+  const mode = NOTIF_SETTINGS.pushBalanceDueMode || 'before';
+  const days = NOTIF_SETTINGS.pushBalanceDueDays || 1;
+  // Highlight active chip
+  document.querySelectorAll('.balance-chip').forEach(chip => {
+    chip.classList.toggle('active', chip.dataset.mode === mode);
+  });
+  // Show/hide stepper based on mode
+  const stepperRow = document.getElementById('balance-stepper-row');
+  const toggleOnlyRow = document.getElementById('balance-toggle-only-row');
+  const stepperLabel = document.getElementById('balance-stepper-label');
+  const previewTitle = document.getElementById('preview-balance-title');
+  const previewBody = document.getElementById('preview-balance-body');
+  if (!stepperRow || !toggleOnlyRow) return;
+  // 'on' mode → hide stepper · show toggle-only row
+  if (mode === 'on') {
+    stepperRow.style.display = 'none';
+    toggleOnlyRow.style.display = '';
+  } else {
+    stepperRow.style.display = '';
+    toggleOnlyRow.style.display = 'none';
+  }
+  // Update label + preview per mode
+  if (mode === 'before') {
+    if (stepperLabel) stepperLabel.textContent = 'ก่อนวันงาน';
+    if (previewTitle) previewTitle.textContent = '💰 ยอดค้างเก็บใกล้ครบ';
+    if (previewBody) previewBody.innerHTML = 'งาน คุณวรัญญา ครบกำหนดในอีก <span id="preview-balance-days-text">' + days + '</span> วัน · ยอดคงเหลือ ฿5,000';
+  } else if (mode === 'on') {
+    if (previewTitle) previewTitle.textContent = '💰 วันนี้เก็บเงินงาน';
+    if (previewBody) previewBody.innerHTML = 'งาน คุณวรัญญา ครบกำหนดวันนี้ · ยอดคงเหลือ ฿5,000 · กรุณาเก็บเงินจากลูกค้า';
+  } else if (mode === 'after') {
+    if (stepperLabel) stepperLabel.textContent = 'หลังวันงาน';
+    if (previewTitle) previewTitle.textContent = '💰 ยอดค้างเก็บงาน';
+    if (previewBody) previewBody.innerHTML = 'งาน คุณวรัญญา เสร็จเมื่อ <span id="preview-balance-days-text">' + days + '</span> วันก่อน · ยอดคงเหลือ ฿5,000 · ถึงเวลาเก็บแล้ว';
+  } else if (mode === 'afterDelivery') {
+    // Phase 2 placeholder — should not be reachable (chip disabled-soon)
+    if (previewTitle) previewTitle.textContent = '📦 หลังส่งงาน (เร็วๆ นี้)';
+    if (previewBody) previewBody.innerHTML = 'รอ phase 2 · ต้องเพิ่ม field "วันที่ส่งงานจริง" ก่อน';
+  }
+}
+
+// v2.5.18 · Set balance due mode + persist
+function setBalanceDueMode(mode) {
+  if (!BALANCE_DUE_MODES.includes(mode)) return;
+  // afterDelivery = coming soon · show toast and bail
+  if (mode === 'afterDelivery') {
+    if (typeof toast === 'function') toast('📦 "หลังส่งงาน" · เร็วๆ นี้ (phase 2)');
+    return;
+  }
+  NOTIF_SETTINGS.pushBalanceDueMode = mode;
+  // mode 'on' → set days = 0 conceptually (UI hides stepper · server will treat 0)
+  if (mode === 'on') {
+    NOTIF_SETTINGS.pushBalanceDueDays = 0;
+  } else {
+    // Restore to ≥1 if coming from 'on'
+    if (NOTIF_SETTINGS.pushBalanceDueDays < 1) NOTIF_SETTINGS.pushBalanceDueDays = 1;
+  }
+  saveData();
+  syncPushPreviewLabels();
 }
 
 // Backward-compat: legacy save button still wired; just no-op since auto-save is in place
