@@ -4755,7 +4755,8 @@
       <div style="display:flex; gap:8px; padding: 16px; flex-wrap:wrap;">
         <button class="btn secondary" style="margin:0; flex:1 1 100%;" onclick="copyQuoteToClipboard()" data-i18n="btn.copyLine">📤 Copy ส่ง LINE</button>
         <button class="btn secondary" style="margin:0; flex:1;" onclick="downloadJPEG()" data-i18n="btn.saveJPEG">🖼 บันทึก JPEG</button>
-        <button class="btn" style="margin:0; flex:1;" onclick="downloadPDF()" data-i18n="btn.savePDF">⬇ บันทึก PDF</button>
+        <button class="btn secondary" style="margin:0; flex:1;" onclick="downloadPDF()" data-i18n="btn.savePDF">⬇ บันทึก PDF</button>
+        <button class="btn" style="margin:0; flex:1 1 100%; background:linear-gradient(135deg, #D97757, #B85A3D);" onclick="openQuoteNewPdf()">🆕 PDF แบบใหม่ (ตรงเดสท๊อป)</button>
       </div>
     </div>
 
@@ -4897,7 +4898,8 @@
 
       <div style="display:flex; gap:8px; padding: 0 16px 16px; flex-wrap:wrap;">
         <button class="btn secondary" style="margin:0; flex:1;" onclick="downloadInvoiceJPEG()" data-i18n="btn.saveJPEG">🖼 บันทึก JPEG</button>
-        <button class="btn" style="margin:0; flex:1;" onclick="downloadInvoicePDF()" data-i18n="btn.savePDF">⬇ บันทึก PDF</button>
+        <button class="btn secondary" style="margin:0; flex:1;" onclick="downloadInvoicePDF()" data-i18n="btn.savePDF">⬇ บันทึก PDF</button>
+        <button class="btn" style="margin:0; flex:1 1 100%; background:linear-gradient(135deg, #D97757, #B85A3D);" onclick="openInvoiceNewPdf()">🆕 PDF แบบใหม่ (ตรงเดสท๊อป)</button>
       </div>
     </div>
 
@@ -6936,7 +6938,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.20';
+const PIXORY_VERSION = '2.5.21';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6947,6 +6949,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.21': {
+    date: '2026-05-28',
+    title: 'PDF แบบใหม่ · เลือกสไตล์ตามประเภทลูกค้า',
+    subtitle: 'ใบเสนอ + ใบเรียกเก็บฯ · ออกแบบใหม่ให้ตรงกับเดสท๊อป · มีลายเซ็น/ใบกำกับครบสำหรับ B2B + ราชการ',
+    items: [
+      {
+        icon: '🆕',
+        title: 'ปุ่มใหม่ "🆕 PDF แบบใหม่ (ตรงเดสท๊อป)"',
+        desc: 'อยู่ใต้ปุ่มดาวน์โหลด PDF เดิม · กดแล้วเปิด tab ใหม่ขนาด A4 จริง · แตะ "พิมพ์ / บันทึก PDF" → เลือก "Save as PDF" ได้เลย · ใช้ในมือถือก็ได้ (iOS Share, Android Print)'
+      },
+      {
+        icon: '🎨',
+        title: '3 ฟอร์มตามประเภทลูกค้า',
+        desc: 'ลูกค้าทั่วไป → ฟอร์ม Modern (dark header + pill ส้ม · ไม่มีลายเซ็น) · บริษัท B2B → ฟอร์ม Corporate (เป็นทางการ · 2 ลายเซ็น · ภาษีครบ) · หน่วยงานราชการ → ฟอร์ม Government (PO banner · 3 ลายเซ็น · ภ.ง.ด. 3/53 reminder)'
+      },
+      {
+        icon: '💰',
+        title: 'ใบเรียกเก็บยอดชำระเพิ่มเติม · มีลายเซ็น/ภาษีครบ',
+        desc: 'B2B/Gov กดออก PDF จะได้ใบที่มีเลขผู้เสียภาษี · ลายเซ็น · ภ.ง.ด.3/53 reminder · เก็บไว้ยื่นบัญชี/สรรพากรได้เลย · ของเดิมยังใช้ได้ปกติ ไม่กระทบ'
+      }
+    ]
+  },
   '2.5.20': {
     date: '2026-05-27',
     title: 'แก้บัก critical · หักเหมา 60% ไม่จำกัด ฿600,000 อีกแล้ว',
@@ -17312,6 +17336,871 @@ function downloadJPEG() {
     console.error(err);
     toast('สร้างรูปไม่สำเร็จ: ' + (err && err.message ? err.message : 'unknown'));
   });
+}
+
+// ===================================================================
+// v2.5.21 · NEW PDF TEMPLATES (ตรงกับ Desktop)
+// B2C/VIP → Modern (Mockup B) · B2B → Corporate (D) · Gov → Government (E)
+// Opens in new tab · user prints via browser (Save as PDF)
+// All v2pdf_ functions are isolated · don't touch existing mobile flow
+// ===================================================================
+
+function v2pdf_escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function v2pdf_fmtTHB(n) {
+  const v = Number(n) || 0;
+  return '฿' + v.toLocaleString('th-TH', { maximumFractionDigits: 0 });
+}
+
+function v2pdf_fmtDateTH(iso) {
+  if (!iso) return '-';
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '-';
+    const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    return d.getDate() + ' ' + months[d.getMonth()] + ' ' + (d.getFullYear() + 543);
+  } catch(e) { return iso; }
+}
+
+function v2pdf_todayISO() { return new Date().toISOString().slice(0, 10); }
+
+function v2pdf_getPackageDesc(serviceId, packageId) {
+  if (!serviceId || !packageId) return '';
+  const svc = SERVICES.find(s => s.id === serviceId);
+  if (!svc) return '';
+  const pkg = (svc.packages || []).find(p => p.id === packageId);
+  return (pkg && pkg.desc) ? pkg.desc : '';
+}
+
+function v2pdf_pickDocCase(customerType, studioVatRegistered) {
+  const isBiz = (customerType === 'B2B' || customerType === 'Gov');
+  if (studioVatRegistered && isBiz) return 'fullPro';
+  if (studioVatRegistered && !isBiz) return 'vatB2c';
+  if (!studioVatRegistered && isBiz) return 'b2bNoVat';
+  return 'casual';
+}
+
+function v2pdf_calcTax(base, opts) {
+  base = Math.max(0, Number(base) || 0);
+  const includeVat = !!opts.includeVat;
+  const includeWht = !!opts.includeWht;
+  const vatRate = Math.max(0, Number(opts.vatRate ?? 7));
+  const whtRate = Math.max(0, Number(opts.whtRate ?? 3));
+  const whtBasis = (opts.whtBasis === 'total') ? 'total' : 'base';
+  const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+  const vatAmount = includeVat ? round2(base * (vatRate / 100)) : 0;
+  const grandTotal = round2(base + vatAmount);
+  let whtAmount = 0;
+  if (includeWht) {
+    const whtBase = (whtBasis === 'total') ? grandTotal : base;
+    whtAmount = round2(whtBase * (whtRate / 100));
+  }
+  const netReceived = round2(grandTotal - whtAmount);
+  return { base, vatAmount, vatRate, whtAmount, whtRate, whtBasis, grandTotal, netReceived, includeVat, includeWht };
+}
+
+function v2pdf_numToThaiBaht(amount) {
+  const num = Math.max(0, Number(amount) || 0);
+  const baht = Math.floor(num);
+  const satang = Math.round((num - baht) * 100);
+  const digits = ['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า'];
+  const places = ['','สิบ','ร้อย','พัน','หมื่น','แสน','ล้าน'];
+  function readGroup(n) {
+    if (n === 0) return '';
+    let s = String(n).split('').reverse();
+    let out = '';
+    for (let i = 0; i < s.length; i++) {
+      const d = parseInt(s[i], 10);
+      if (d === 0) continue;
+      let word = digits[d];
+      if (i === 1) { if (d === 1) word = ''; else if (d === 2) word = 'ยี่'; }
+      if (i === 0 && d === 1 && s.length > 1) word = 'เอ็ด';
+      out = word + places[i] + out;
+    }
+    return out;
+  }
+  function readNum(n) {
+    if (n === 0) return 'ศูนย์';
+    let s = '';
+    if (n >= 1000000) {
+      const millions = Math.floor(n / 1000000);
+      s += readNum(millions) + 'ล้าน';
+      n = n % 1000000;
+    }
+    s += readGroup(n);
+    return s;
+  }
+  let text = readNum(baht) + 'บาท';
+  if (satang > 0) text += readGroup(satang) + 'สตางค์';
+  else text += 'ถ้วน';
+  return text;
+}
+
+// ===== Get print context (extract all doc data once) =====
+function v2pdf_getPrintCtx(args) {
+  const { type, doc } = args;
+  const isQuote = (type === 'quote');
+  const phone = isQuote ? (doc.contact || '') : (doc.custPhone || '');
+  const lineId = isQuote ? (doc.line || '') : (doc.custLine || '');
+  const eventDate = isQuote ? doc.dateEvent : doc.date;
+  const issueDate = isQuote
+    ? (doc.dateSent || v2pdf_todayISO())
+    : ((doc.invoice && doc.invoice.dateIssued) || (doc._createdAt ? doc._createdAt.slice(0,10) : v2pdf_todayISO()));
+  const expireDate = isQuote
+    ? (doc.dateExpire || '')
+    : ((doc.invoice && doc.invoice.dateDue) || '');
+
+  const docCase = v2pdf_pickDocCase(doc.customerType || 'B2C', !!PROFILE.vatRegistered);
+
+  const docCode = (!isQuote && doc.invoice && doc.invoice.code) ? doc.invoice.code : (doc.code || '');
+  const taxInvNo = doc.taxInvoiceNo || '';
+
+  // Build items
+  const items = [];
+  Object.entries(doc.selectedServices || {}).forEach(([sid, s]) => {
+    if ((Number(s.price) || 0) > 0) {
+      const pkgDesc = v2pdf_getPackageDesc(sid, s.packageId);
+      const nameStr = s.serviceName + (s.packageName ? ' · ' + s.packageName : '');
+      items.push({ name: nameStr, desc: pkgDesc || '', price: Number(s.price) || 0 });
+    }
+  });
+  if (doc.addons && typeof doc.addons === 'object') {
+    Object.entries(doc.addons).forEach(([key, price]) => {
+      if ((Number(price) || 0) > 0) {
+        const master = (typeof ADDONS !== 'undefined') ? ADDONS.find(a => (a.key || a.name) === key) : null;
+        const name = master ? master.name : key;
+        items.push({ name, desc: '', price: Number(price) || 0 });
+      }
+    });
+  } else {
+    if (doc.qr > 0) items.push({ name: 'QR หน้า Backdrop', desc: '', price: Number(doc.qr) || 0 });
+    if (doc.other > 0) items.push({ name: 'Profile', desc: '', price: Number(doc.other) || 0 });
+  }
+  (doc.customItems || []).forEach(c => {
+    if ((Number(c.price) || 0) > 0 || (c.name || '').trim()) {
+      items.push({ name: c.name || '(ไม่ระบุชื่อ)', desc: c.desc || '', price: Number(c.price) || 0 });
+    }
+  });
+  const billable = isQuote ? (doc.costItems || []) : (doc.billableCosts || []);
+  billable.forEach(c => {
+    if ((Number(c.price) || 0) > 0 || (c.name || '').trim()) {
+      items.push({ name: c.name || '(ไม่ระบุชื่อ)', desc: c.desc || '', price: Number(c.price) || 0 });
+    }
+  });
+  if ((Number(doc.extraTime) || 0) > 0) {
+    items.push({ name: '⏱ Extra time', desc: 'ค่าเวลา (จากใบเสนอ)', price: Number(doc.extraTime) || 0 });
+  }
+  const inv = (!isQuote && doc.invoice) ? doc.invoice : null;
+  if (inv) {
+    if ((Number(inv.extraTime) || 0) > 0) {
+      items.push({ name: '⏱ OT / เวลาเกิน', desc: 'หลังถ่าย (จากใบเรียกเก็บ)', price: Number(inv.extraTime) || 0 });
+    }
+    (inv.addOns || []).forEach(a => {
+      const p = Number(a.price) || 0;
+      if (p > 0 || (a.name || '').trim()) items.push({ name: a.name || 'เพิ่มเติม', desc: 'หลังถ่าย', price: p });
+    });
+  }
+
+  const totalItems = items.reduce((s, i) => s + i.price, 0);
+  const discount = Number(doc.discount) || 0;
+  const sell = inv ? Math.max(0, totalItems - discount) : (Number(doc.sell) || Math.max(0, totalItems - discount));
+  const origDeposit = Number(doc.deposit) || 0;
+  const amountPaidSoFar = inv ? Math.max(0, (Number(doc.sell) || 0) - (Number(doc.remain) || (Number(doc.sell) || 0))) : origDeposit;
+  const deposit = inv ? amountPaidSoFar : origDeposit;
+  const remain = Math.max(0, sell - deposit);
+
+  const taxOn = !!doc.taxEnabled;
+  const tb = doc.taxBreakdown || {};
+  const includeVat = taxOn && !!tb.includeVat;
+  const includeWht = taxOn && !!tb.includeWht;
+  const vatAmount = includeVat ? Number(tb.vatAmount) || 0 : 0;
+  const whtAmount = includeWht ? Number(tb.whtAmount) || 0 : 0;
+  const grandTotal = includeVat ? Number(tb.grandTotal) || (sell + vatAmount) : sell;
+  const netReceived = includeWht ? Number(tb.netReceived) || (grandTotal - whtAmount) : grandTotal;
+
+  const sessions = doc.sessions || [];
+  const sessionsHtml = sessions.length > 0
+    ? sessions.map((s, i) => {
+        const dStr = v2pdf_fmtDateTH(s.date);
+        const tStr = (s.start || '') + ' - ' + (s.end || '');
+        const locStr = s.loc ? ' · ' + s.loc : '';
+        return `<div>${i + 1}. ${v2pdf_escapeHtml(dStr)} · ${v2pdf_escapeHtml(tStr)}${v2pdf_escapeHtml(locStr)}${s.label ? ' · ' + v2pdf_escapeHtml(s.label) : ''}</div>`;
+      }).join('')
+    : (eventDate ? `<div>${v2pdf_fmtDateTH(eventDate)}</div>` : '<div>-</div>');
+
+  const bank = (doc.bankIdx != null && BANKS[doc.bankIdx]) ? BANKS[doc.bankIdx] : null;
+  const studioName = PROFILE.shop || 'Pixory Studio';
+  const studioTagline = PROFILE.tagline || '';
+  const studioPhone = PROFILE.phone || '';
+  const studioEmail = PROFILE.email || '';
+  const studioAddress = PROFILE.address || '';
+  const studioTaxId = PROFILE.taxId || '';
+  const studioTaxAddress = PROFILE.taxAddress || studioAddress;
+  const studioBranch = PROFILE.branch || 'สำนักงานใหญ่';
+  const balancePaid = inv ? !!inv.balancePaid : false;
+  const balancePaidDate = inv ? inv.balancePaidDate : null;
+  const invMessage = inv ? (inv.message || '') : '';
+
+  return {
+    isQuote, doc, phone, lineId, eventDate, issueDate, expireDate,
+    docCase, docCode, taxInvNo,
+    items, totalItems, discount, sell, deposit, remain,
+    taxOn, includeVat, includeWht, vatAmount, whtAmount, grandTotal, netReceived, tb,
+    sessions, sessionsHtml, bank,
+    studioName, studioTagline, studioPhone, studioEmail, studioAddress, studioTaxId, studioTaxAddress, studioBranch,
+    inv, balancePaid, balancePaidDate, invMessage, amountPaidSoFar
+  };
+}
+
+function v2pdf_renderInvoiceBlocks(ctx) {
+  if (!ctx.inv) return '';
+  const { amountPaidSoFar, sell, includeVat, includeWht, grandTotal, netReceived, balancePaid, balancePaidDate } = ctx;
+  const finalAmount = includeWht ? netReceived : (includeVat ? grandTotal : sell);
+  const balanceDue = Math.max(0, finalAmount - amountPaidSoFar);
+  return `
+    ${amountPaidSoFar > 0 ? `
+      <div style="margin-top:14px;padding:12px 16px;background:#dcfce7;border-left:4px solid #15803d;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:11px;color:#0d7b5a;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">✓ มัดจำที่ชำระแล้ว</div>
+          <div style="font-size:10.5px;color:#0d7b5a;opacity:0.8;margin-top:2px;">เมื่อ ${v2pdf_escapeHtml(v2pdf_fmtDateTH(ctx.doc.depositPaidDate || ctx.doc._createdAt || ''))}</div>
+        </div>
+        <div style="font-size:18px;font-weight:700;color:#0d7b5a;font-family:'Inter', monospace;">−฿${amountPaidSoFar.toLocaleString('en-US')}</div>
+      </div>
+    ` : ''}
+    <div style="margin-top:12px;padding:18px 22px;background:${balancePaid ? 'linear-gradient(135deg,#1D9E75,#0d7b5a)' : 'linear-gradient(135deg,#dc2626,#991b1b)'};color:white;border-radius:10px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,0.12);">
+      <div style="font-size:11px;opacity:0.9;margin-bottom:4px;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;">${balancePaid ? '✓ ชำระยอดคงเหลือแล้ว' : '💰 ยอดคงเหลือต้องชำระ'}</div>
+      <div style="font-size:28px;font-weight:800;font-family:'Inter', monospace;">฿${balanceDue.toLocaleString('en-US')}</div>
+      ${balancePaid && balancePaidDate ? `<div style="font-size:11px;opacity:0.9;margin-top:4px;">เมื่อ ${v2pdf_escapeHtml(v2pdf_fmtDateTH(balancePaidDate))}</div>` : (ctx.expireDate ? `<div style="font-size:11px;opacity:0.85;margin-top:4px;">โปรดชำระภายใน ${v2pdf_escapeHtml(v2pdf_fmtDateTH(ctx.expireDate))}</div>` : '')}
+    </div>
+  `;
+}
+
+// Router
+function v2pdf_buildPrintDocHtml(args) {
+  const ctx = v2pdf_getPrintCtx(args);
+  const ctype = ctx.doc.customerType || 'B2C';
+  if (ctype === 'B2B') return v2pdf_buildPdfCorporate(ctx);
+  if (ctype === 'Gov') return v2pdf_buildPdfGov(ctx);
+  return v2pdf_buildPdfModern(ctx);
+}
+
+// Shared print head + common CSS + toolbar
+function v2pdf_printToolbar(labelText) {
+  return `<div class="v2pdf-toolbar">
+    <span class="v2pdf-label">${v2pdf_escapeHtml(labelText)}</span>
+    <button class="v2pdf-ghost" onclick="window.close()">ปิด</button>
+    <button onclick="window.print()">🖨 พิมพ์ / บันทึก PDF</button>
+    <span class="v2pdf-hint">💡 เลือก "Save as PDF" ในหน้าต่างพิมพ์</span>
+  </div>`;
+}
+function v2pdf_printSharedHead(title) {
+  return `<!DOCTYPE html>
+<html lang="th"><head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>${v2pdf_escapeHtml(title)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">`;
+}
+const V2PDF_COMMON_CSS = `
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { background:#e9e3d8; color:#1a1a1a; font-size:12px; line-height:1.55; }
+  .v2pdf-toolbar { position:sticky; top:0; padding:10px 16px; background:white; border-bottom:1px solid #ddd; display:flex; gap:8px; align-items:center; z-index:10; box-shadow:0 2px 6px rgba(0,0,0,0.05); font-family:'Sarabun', sans-serif; flex-wrap:wrap; }
+  .v2pdf-toolbar button { padding:8px 14px; border-radius:8px; background:#D97757; color:white; border:none; cursor:pointer; font-weight:600; font-size:13px; }
+  .v2pdf-toolbar button.v2pdf-ghost { background:#f0f0f0; color:#333; }
+  .v2pdf-toolbar .v2pdf-label { font-weight:700; flex:1 1 100%; }
+  .v2pdf-toolbar .v2pdf-hint { font-size:11px; color:#666; flex:1 1 100%; }
+  @media (min-width: 700px) {
+    .v2pdf-toolbar .v2pdf-label { flex:0 1 auto; margin-right:auto; }
+    .v2pdf-toolbar .v2pdf-hint { flex:0 1 auto; }
+  }
+  @media print {
+    body { background:white; }
+    .v2pdf-toolbar { display:none !important; }
+    .page { margin:0 !important; box-shadow:none !important; }
+    @page { size:A4; margin:0; }
+  }
+`;
+
+// =============================================================
+// TEMPLATE B · MODERN (B2C / VIP)
+// =============================================================
+function v2pdf_buildPdfModern(ctx) {
+  const { doc, isQuote, phone, lineId, eventDate, issueDate, expireDate, docCode,
+          items, totalItems, discount, sell, deposit, remain,
+          taxOn, includeVat, includeWht, vatAmount, whtAmount, grandTotal, netReceived, tb,
+          bank, studioName, studioTagline, studioPhone, studioEmail, studioAddress, studioTaxId } = ctx;
+  const title = isQuote ? 'ใบเสนอราคา' : 'ใบเรียกเก็บยอดชำระเพิ่มเติม';
+
+  return v2pdf_printSharedHead(title + ' · ' + docCode) + `
+<style>${V2PDF_COMMON_CSS}
+  html, body { font-family:'Inter', 'Sarabun', sans-serif; }
+  .page { width:210mm; min-height:297mm; margin:24px auto; background:white; box-shadow:0 6px 30px rgba(0,0,0,0.12); overflow:hidden; }
+  .h-bar { background:linear-gradient(135deg, #2A1F18 0%, #4a3727 100%); color:white; padding:24px 28px; display:flex; align-items:center; justify-content:space-between; }
+  .h-bar .brand { display:flex; align-items:center; gap:14px; }
+  .h-bar .brand .name { font-size:22px; font-weight:700; letter-spacing:-0.02em; }
+  .h-bar .brand .sub { font-size:11px; opacity:0.7; margin-top:2px; font-weight:400; }
+  .h-bar .doc-pill { background:#D97757; color:white; padding:8px 16px; border-radius:999px; font-weight:600; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; }
+  .meta-bar { background:#FBF7EE; padding:14px 28px; display:flex; gap:32px; border-bottom:1px solid #ebe2d2; flex-wrap:wrap; }
+  .meta-bar .item .k { font-size:9.5px; font-weight:700; color:#9a8a78; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:2px; }
+  .meta-bar .item .v { font-size:13px; font-weight:600; color:#1a1a1a; font-family:'Inter', monospace; }
+  .meta-bar .item .v.warn { color:#D97757; }
+  .body { padding:24px 28px; }
+  .pp-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; }
+  .pp-card { padding:14px 16px; border-radius:10px; background:#fafaf9; border:1px solid #ebe6dd; }
+  .pp-card .head { font-size:10px; font-weight:700; color:#D97757; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px; }
+  .pp-card .name { font-size:15px; font-weight:700; color:#1a1a1a; margin-bottom:2px; }
+  .pp-card .row { font-size:11.5px; color:#56473a; line-height:1.6; }
+  .pp-card .row .mute { color:#9a8a78; }
+  .items { border:1px solid #ebe6dd; border-radius:10px; overflow:hidden; margin-bottom:18px; }
+  .items table { width:100%; border-collapse:collapse; }
+  .items thead th { background:#1a1a1a; color:white; padding:11px 14px; text-align:left; font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; }
+  .items thead th.right { text-align:right; }
+  .items tbody td { padding:14px; border-top:1px solid #ebe6dd; vertical-align:top; }
+  .items tbody tr:first-child td { border-top:none; }
+  .items .name { font-weight:600; font-size:13px; color:#1a1a1a; }
+  .items .desc { font-size:11px; color:#7c6856; margin-top:3px; line-height:1.5; white-space:pre-line; }
+  .items .price { text-align:right; font-weight:600; font-size:13px; font-family:'Inter', monospace; white-space:nowrap; }
+  .totals-wrap { display:flex; justify-content:flex-end; margin-bottom:22px; }
+  .totals { width:46%; padding:18px 20px; border-radius:10px; background:linear-gradient(135deg, #FBF7EE 0%, #FFF8EE 100%); border:1px solid #ebe6dd; }
+  .totals .row { display:flex; justify-content:space-between; padding:5px 0; font-size:12.5px; }
+  .totals .row .k { color:#56473a; }
+  .totals .row .v { font-family:'Inter', monospace; font-weight:600; }
+  .totals .row.discount .v { color:#dc2626; }
+  .totals .row.vat .v { color:#15803d; }
+  .totals .row.grand { margin-top:6px; padding:8px 10px; background:#1a1a1a; color:white; border-radius:6px; font-size:14px; font-weight:800; }
+  .totals .row.grand .v { color:white; }
+  .totals .row.wht .v { color:#dc2626; }
+  .totals .row.net { margin-top:4px; padding:8px 10px; background:linear-gradient(135deg, #D97757, #B85A3D); color:white; border-radius:6px; font-size:14px; font-weight:800; }
+  .totals .row.net .v { color:white; }
+  .pay-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:22px; }
+  .pay-card { padding:14px 16px; border-radius:10px; }
+  .pay-card.dep { background:#fdf1e0; border-left:4px solid #D97757; }
+  .pay-card.bank { background:#eff6ff; border-left:4px solid #3b82f6; }
+  .pay-card .label { font-size:10px; font-weight:700; color:#7c6856; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:4px; }
+  .pay-card .val { font-size:18px; font-weight:800; color:#1a1a1a; font-family:'Inter', monospace; }
+  .pay-card.bank .val { font-size:14px; font-weight:700; color:#1e3a8a; }
+  .pay-card .sub { font-size:11px; color:#56473a; margin-top:2px; }
+  .note-box { padding:12px 14px; border-radius:10px; background:#fff9ec; border-left:3px solid #ca8a04; font-size:11px; color:#7c2d12; line-height:1.55; margin-bottom:18px; white-space:pre-wrap; }
+  .note-box strong { color:#92400e; display:block; margin-bottom:3px; }
+  .thanks { text-align:center; padding:20px 28px 6px; font-size:13px; color:#56473a; }
+  .thanks strong { color:#D97757; font-weight:700; }
+  .foot { margin-top:30px; padding:18px 28px; background:#fafaf9; border-top:1px solid #ebe6dd; display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#56473a; }
+</style></head><body>
+
+${v2pdf_printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
+
+<div class="page">
+  <div class="h-bar">
+    <div class="brand">
+      <div>
+        <div class="name">${v2pdf_escapeHtml(studioName)}</div>
+        ${studioTagline ? `<div class="sub">${v2pdf_escapeHtml(studioTagline)}</div>` : ''}
+      </div>
+    </div>
+    <div class="doc-pill">${v2pdf_escapeHtml(title)}</div>
+  </div>
+
+  <div class="meta-bar">
+    <div class="item"><div class="k">เลขที่</div><div class="v">${v2pdf_escapeHtml(docCode)}</div></div>
+    <div class="item"><div class="k">วันที่ออก</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(issueDate))}</div></div>
+    ${expireDate ? `<div class="item"><div class="k">${isQuote ? 'หมดอายุ' : 'กำหนดชำระ'}</div><div class="v warn">${v2pdf_escapeHtml(v2pdf_fmtDateTH(expireDate))}</div></div>` : ''}
+    ${eventDate ? `<div class="item" style="margin-left:auto;"><div class="k">วันงาน</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(eventDate))}</div></div>` : ''}
+  </div>
+
+  <div class="body">
+    <div class="pp-grid">
+      <div class="pp-card">
+        <div class="head">ผู้เสนอราคา · From</div>
+        <div class="name">${v2pdf_escapeHtml(studioName)}</div>
+        <div class="row">
+          ${studioAddress ? v2pdf_escapeHtml(studioAddress).replace(/\n/g, '<br>') + '<br>' : ''}
+          <span class="mute">${studioPhone ? '📱 ' + v2pdf_escapeHtml(studioPhone) + ' · ' : ''}${studioEmail ? '✉️ ' + v2pdf_escapeHtml(studioEmail) : ''}</span>
+        </div>
+      </div>
+      <div class="pp-card">
+        <div class="head">ลูกค้า · To</div>
+        <div class="name">${v2pdf_escapeHtml(doc.customer || '-')}${doc.custNick ? ` <span class="mute">(${v2pdf_escapeHtml(doc.custNick)})</span>` : ''}</div>
+        <div class="row">
+          ${ctx.sessionsHtml.replace(/<div>/g, '').replace(/<\/div>/g, '<br>').replace(/<br>$/, '') || (eventDate ? v2pdf_fmtDateTH(eventDate) : '')}<br>
+          <span class="mute">${phone ? '📱 ' + v2pdf_escapeHtml(phone) + ' · ' : ''}${lineId ? '💬 ' + v2pdf_escapeHtml(lineId) : ''}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="items">
+      <table>
+        <thead><tr><th style="width:70%;">รายการบริการ</th><th class="right">ราคา (บาท)</th></tr></thead>
+        <tbody>
+          ${items.length === 0 ? '<tr><td colspan="2" style="text-align:center;color:#999;padding:20px;">ไม่มีรายการ</td></tr>' :
+            items.map(i => `<tr>
+              <td><div class="name">${v2pdf_escapeHtml(i.name)}</div>${i.desc ? `<div class="desc">${v2pdf_escapeHtml(i.desc)}</div>` : ''}</td>
+              <td class="price">${v2pdf_fmtTHB(i.price)}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="totals-wrap">
+      <div class="totals">
+        <div class="row"><span class="k">ราคารวม</span><span class="v">${v2pdf_fmtTHB(totalItems)}</span></div>
+        ${discount > 0 ? `<div class="row discount"><span class="k">ส่วนลด</span><span class="v">−${v2pdf_fmtTHB(discount)}</span></div>` : ''}
+        ${(includeVat || includeWht) ? `<div class="row" style="border-top:1px solid #1a1a1a; padding-top:7px; font-weight:700;"><span class="k">ราคาสุทธิ (ก่อน VAT)</span><span class="v">${v2pdf_fmtTHB(sell)}</span></div>` : ''}
+        ${includeVat ? `<div class="row vat"><span class="k">+ VAT ${tb.vatRate || 7}%</span><span class="v">${v2pdf_fmtTHB(vatAmount)}</span></div>` : ''}
+        ${includeVat ? `<div class="row grand"><span class="k">รวมทั้งสิ้น</span><span class="v">${v2pdf_fmtTHB(grandTotal)}</span></div>` : `<div class="row grand"><span class="k">ราคาสุทธิ</span><span class="v">${v2pdf_fmtTHB(sell)}</span></div>`}
+        ${includeWht ? `<div class="row wht"><span class="k">− WHT ${tb.whtRate || 3}%</span><span class="v">−${v2pdf_fmtTHB(whtAmount)}</span></div>` : ''}
+        ${includeWht ? `<div class="row net"><span class="k">ยอดรับสุทธิ</span><span class="v">${v2pdf_fmtTHB(netReceived)}</span></div>` : ''}
+      </div>
+    </div>
+
+    ${v2pdf_renderInvoiceBlocks(ctx)}
+
+    ${(!ctx.inv && (deposit > 0 || bank)) ? `<div class="pay-grid">
+      ${deposit > 0 ? `<div class="pay-card dep"><div class="label">มัดจำ</div><div class="val">${v2pdf_fmtTHB(deposit)}</div>${remain > 0 ? `<div class="sub">+ คงเหลือ ${v2pdf_fmtTHB(remain)}</div>` : ''}</div>` : '<div></div>'}
+      ${bank ? `<div class="pay-card bank"><div class="label">🏦 โอนเข้าบัญชี</div><div class="val">${v2pdf_escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + v2pdf_escapeHtml(bank.acc) : ''}</div><div class="sub">${v2pdf_escapeHtml(bank.holder || '')}</div></div>` : '<div></div>'}
+    </div>` : ''}
+
+    ${(ctx.inv && bank) ? `<div style="margin-top:12px;padding:14px 16px;background:#eff6ff;border-left:4px solid #3b82f6;border-radius:10px;"><div style="font-size:11px;color:#1e3a8a;font-weight:700;text-transform:uppercase;margin-bottom:4px;">🏦 โอนยอดคงเหลือเข้าบัญชี</div><div style="font-size:14px;font-weight:700;color:#1e3a8a;">${v2pdf_escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + v2pdf_escapeHtml(bank.acc) : ''}</div><div style="font-size:11px;color:#1e3a8a;margin-top:2px;">${v2pdf_escapeHtml(bank.holder || '')}</div></div>` : ''}
+
+    ${(ctx.inv && ctx.invMessage) ? `<div class="note-box"><strong>📝 ข้อความจากร้าน</strong>${v2pdf_escapeHtml(ctx.invMessage)}</div>` : (doc.note ? `<div class="note-box"><strong>📝 หมายเหตุ</strong>${v2pdf_escapeHtml(doc.note)}</div>` : '')}
+  </div>
+
+  <div class="thanks"><strong>✨ ขอบคุณที่ไว้วางใจให้บันทึกช่วงเวลาสำคัญของคุณ ✨</strong></div>
+
+  <div class="foot">
+    <span><strong>${v2pdf_escapeHtml(studioName)}</strong>${studioTaxId ? ' · เลขผู้เสียภาษี ' + v2pdf_escapeHtml(studioTaxId) : ''}</span>
+    <span style="font-family:'Inter', monospace;color:#9a8a78;font-size:10px;">${v2pdf_escapeHtml(docCode)} · PAGE 1/1</span>
+  </div>
+</div>
+
+</body></html>`;
+}
+
+// =============================================================
+// TEMPLATE D · CORPORATE (B2B)
+// =============================================================
+function v2pdf_buildPdfCorporate(ctx) {
+  const { doc, isQuote, phone, lineId, eventDate, issueDate, expireDate, docCode, taxInvNo,
+          items, totalItems, discount, sell, deposit, remain,
+          taxOn, includeVat, includeWht, vatAmount, whtAmount, grandTotal, netReceived, tb,
+          bank, studioName, studioPhone, studioEmail, studioAddress, studioTaxId, studioTaxAddress, studioBranch } = ctx;
+  const isFullPro = (ctx.docCase === 'fullPro');
+  const title = isQuote
+    ? (isFullPro ? 'ใบเสนอราคา / ใบกำกับภาษี' : 'ใบเสนอราคา')
+    : (isFullPro ? 'ใบเรียกเก็บฯ / ใบกำกับภาษี' : 'ใบเรียกเก็บยอดชำระเพิ่มเติม');
+  const enTitle = isQuote ? 'Quotation' : 'Invoice · Balance Due';
+  const aiwAmount = includeWht ? netReceived : (includeVat ? grandTotal : sell);
+
+  return v2pdf_printSharedHead(title + ' · ' + docCode) + `
+<style>${V2PDF_COMMON_CSS}
+  html, body { font-family:'Sarabun', sans-serif; }
+  .page { width:210mm; min-height:297mm; margin:24px auto; padding:18mm 16mm; background:white; box-shadow:0 6px 30px rgba(0,0,0,0.12); }
+  .h-top { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:14px; border-bottom:2px solid #1a1a1a; margin-bottom:14px; }
+  .h-top .brand .name { font-size:22px; font-weight:800; color:#1a1a1a; }
+  .h-top .brand .info { font-size:11px; color:#555; line-height:1.55; margin-top:3px; }
+  .h-top .doc { text-align:right; }
+  .h-top .doc .title { font-size:20px; font-weight:800; color:#1a1a1a; border:2px solid #1a1a1a; padding:6px 14px; display:inline-block; }
+  .h-top .doc .sub { font-size:11px; color:#7c6856; margin-top:6px; text-transform:uppercase; letter-spacing:0.1em; }
+  .h-top .doc .code { font-family:'Inter', monospace; font-size:13px; color:#D97757; font-weight:700; margin-top:4px; }
+  .h-top .doc .tax-no { font-family:'Inter', monospace; font-size:10.5px; color:#15803d; font-weight:700; margin-top:2px; }
+  .pp { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+  .pp .box { padding:10px 14px; border:1px solid #d4d4d4; border-radius:4px; background:#fafafa; }
+  .pp .label { font-size:10px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:5px; border-bottom:1px solid #d4d4d4; padding-bottom:3px; }
+  .pp .name { font-size:13px; font-weight:700; color:#1a1a1a; margin-bottom:2px; }
+  .pp .row { font-size:11px; color:#444; line-height:1.6; }
+  .pp .row .k { color:#7c6856; font-weight:500; }
+  .pp .row .v { color:#1a1a1a; font-weight:600; }
+  .meta { display:flex; gap:0; background:#f3f4f6; padding:9px 0; border-radius:4px; margin-bottom:14px; }
+  .meta .cell { flex:1; padding:0 14px; border-right:1px solid #d4d4d4; }
+  .meta .cell:last-child { border-right:none; }
+  .meta .cell .k { font-size:9.5px; color:#7c6856; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; }
+  .meta .cell .v { font-size:12px; color:#1a1a1a; font-weight:600; }
+  .items { width:100%; border-collapse:collapse; margin-bottom:14px; font-size:11.5px; }
+  .items thead th { background:#1a1a1a; color:white; padding:8px 10px; text-align:left; font-weight:700; font-size:10.5px; text-transform:uppercase; }
+  .items thead th.right { text-align:right; }
+  .items thead th.center { text-align:center; }
+  .items tbody td { padding:9px 10px; border-bottom:1px solid #e5e5e5; vertical-align:top; }
+  .items tbody td.idx { text-align:center; font-family:'Inter', monospace; color:#7c6856; width:30px; }
+  .items tbody td.qty { text-align:center; color:#555; }
+  .items tbody td.price { text-align:right; font-family:'Inter', monospace; font-weight:600; }
+  .items .name { font-weight:700; }
+  .items .desc { font-size:10.5px; color:#666; margin-top:2px; line-height:1.5; white-space:pre-line; }
+  .totals-wrap { display:flex; justify-content:space-between; gap:14px; margin-bottom:14px; }
+  .totals-wrap .left { flex:1; padding:11px 14px; background:#fef9e7; border:1px solid #fbbf24; border-radius:4px; font-size:11px; color:#7c2d12; line-height:1.6; }
+  .totals-wrap .left strong { color:#92400e; display:block; margin-bottom:3px; }
+  .totals { width:46%; font-size:12px; }
+  .totals .row { display:flex; justify-content:space-between; padding:4px 0; }
+  .totals .row .v { font-family:'Inter', monospace; font-weight:600; }
+  .totals .row.discount .v { color:#dc2626; }
+  .totals .row.subtotal { border-top:1px solid #1a1a1a; margin-top:5px; padding-top:7px; font-weight:700; }
+  .totals .row.vat .v { color:#15803d; font-weight:700; }
+  .totals .row.grand { margin-top:5px; padding:8px 10px; background:#1a1a1a; color:white; border-radius:3px; font-weight:700; font-size:13.5px; }
+  .totals .row.grand .v { color:white; }
+  .totals .row.wht .v { color:#dc2626; }
+  .totals .row.net { margin-top:4px; padding:8px 10px; background:#15803d; color:white; border-radius:3px; font-weight:700; font-size:13.5px; }
+  .totals .row.net .v { color:white; }
+  .aiw { margin-bottom:14px; padding:8px 12px; border:1px dashed #999; border-radius:4px; font-size:11px; color:#555; font-style:italic; }
+  .aiw strong { color:#1a1a1a; font-style:normal; }
+  .notes { margin-bottom:18px; padding:9px 12px; background:#eff6ff; border-left:3px solid #3b82f6; border-radius:3px; font-size:10.5px; color:#1e3a8a; line-height:1.6; }
+  .pay { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+  .pay .card { padding:11px 14px; border:1px solid #d4d4d4; border-radius:4px; }
+  .pay .card.dep { background:#fef9e7; border-color:#fbbf24; }
+  .pay .card.bank { background:#eff6ff; border-color:#93c5fd; }
+  .pay .card .label { font-size:10px; font-weight:700; color:#555; text-transform:uppercase; margin-bottom:3px; }
+  .pay .card .val { font-family:'Inter', monospace; font-size:18px; font-weight:800; color:#1a1a1a; }
+  .pay .card.bank .val { font-size:13px; color:#1e3a8a; }
+  .pay .card .sub { font-size:10.5px; color:#666; margin-top:2px; }
+  .sigs { margin-top:18px; padding-top:14px; border-top:1px dashed #999; display:grid; grid-template-columns:1fr 1fr; gap:30px; }
+  .sig { text-align:center; padding-top:34px; }
+  .sig .line { border-bottom:1px solid #1a1a1a; margin:0 16px 6px; }
+  .sig .name { font-size:11.5px; font-weight:700; color:#1a1a1a; }
+  .sig .role { font-size:10.5px; color:#555; margin-top:1px; }
+  .sig .date { margin-top:6px; font-size:10px; color:#7c6856; }
+  .sig .stamp { margin-top:8px; font-size:9.5px; color:#9a8a78; font-style:italic; }
+  .foot-meta { margin-top:16px; padding-top:8px; border-top:1px solid #d4d4d4; text-align:center; font-size:10px; color:#7c6856; font-family:'Inter', monospace; letter-spacing:0.05em; }
+</style></head><body>
+
+${v2pdf_printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
+
+<div class="page">
+  <div class="h-top">
+    <div class="brand">
+      <div class="name">${v2pdf_escapeHtml(studioName)}</div>
+      <div class="info">
+        ${studioAddress ? v2pdf_escapeHtml(studioAddress) + '<br>' : ''}
+        ${studioPhone ? '📱 ' + v2pdf_escapeHtml(studioPhone) + ' · ' : ''}${studioEmail ? '✉️ ' + v2pdf_escapeHtml(studioEmail) : ''}<br>
+        ${studioTaxId ? `<strong>เลขผู้เสียภาษี: ${v2pdf_escapeHtml(studioTaxId)} · สาขา: ${v2pdf_escapeHtml(studioBranch)}</strong>` : ''}
+      </div>
+    </div>
+    <div class="doc">
+      <div class="title">${v2pdf_escapeHtml(title)}</div>
+      <div class="sub">${v2pdf_escapeHtml(enTitle)}</div>
+      <div class="code">${v2pdf_escapeHtml(docCode)}</div>
+      ${taxInvNo ? `<div class="tax-no">เลขใบกำกับ ${v2pdf_escapeHtml(taxInvNo)}</div>` : ''}
+    </div>
+  </div>
+
+  <div class="pp">
+    <div class="box">
+      <div class="label">ผู้ขาย · Seller</div>
+      <div class="name">${v2pdf_escapeHtml(studioName)}</div>
+      ${studioTaxId ? `<div class="row"><span class="k">เลขผู้เสียภาษี:</span> <span class="v">${v2pdf_escapeHtml(studioTaxId)}</span></div>` : ''}
+      <div class="row"><span class="k">สาขา:</span> <span class="v">${v2pdf_escapeHtml(studioBranch)}</span></div>
+      ${studioTaxAddress ? `<div class="row"><span class="k">ที่อยู่:</span> ${v2pdf_escapeHtml(studioTaxAddress)}</div>` : ''}
+    </div>
+    <div class="box">
+      <div class="label">ผู้ซื้อ · Buyer</div>
+      <div class="name">${v2pdf_escapeHtml(doc.customerCompanyName || doc.customer || '-')}</div>
+      ${doc.customerTaxId ? `<div class="row"><span class="k">เลขผู้เสียภาษี:</span> <span class="v">${v2pdf_escapeHtml(doc.customerTaxId)}</span></div>` : ''}
+      ${doc.customerBranch ? `<div class="row"><span class="k">สาขา:</span> <span class="v">${v2pdf_escapeHtml(doc.customerBranch)}</span></div>` : ''}
+      ${doc.customerTaxAddress ? `<div class="row"><span class="k">ที่อยู่:</span> ${v2pdf_escapeHtml(doc.customerTaxAddress)}</div>` : ''}
+      ${doc.customerContactPerson ? `<div class="row"><span class="k">ผู้ติดต่อ:</span> <span class="v">${v2pdf_escapeHtml(doc.customerContactPerson)}${doc.customerContactPosition ? ' · ' + v2pdf_escapeHtml(doc.customerContactPosition) : ''}</span></div>` : ''}
+      ${phone ? `<div class="row"><span class="k">📱</span> ${v2pdf_escapeHtml(phone)}</div>` : ''}
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="cell"><div class="k">วันที่ออก</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(issueDate))}</div></div>
+    ${expireDate ? `<div class="cell"><div class="k">${isQuote ? 'หมดอายุ' : 'กำหนดชำระ'}</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(expireDate))}</div></div>` : ''}
+    ${eventDate ? `<div class="cell"><div class="k">วันงาน</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(eventDate))}</div></div>` : ''}
+    ${ctx.sessions && ctx.sessions[0] && ctx.sessions[0].loc ? `<div class="cell"><div class="k">สถานที่</div><div class="v">${v2pdf_escapeHtml(ctx.sessions[0].loc)}</div></div>` : ''}
+  </div>
+
+  <table class="items">
+    <thead><tr><th class="center" style="width:30px;">#</th><th>รายการบริการ</th><th class="right" style="width:80px;">จำนวน</th><th class="right" style="width:110px;">ราคาต่อหน่วย</th><th class="right" style="width:120px;">จำนวนเงิน</th></tr></thead>
+    <tbody>
+      ${items.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">ไม่มีรายการ</td></tr>' :
+        items.map((it, i) => `<tr>
+          <td class="idx">${i + 1}</td>
+          <td><div class="name">${v2pdf_escapeHtml(it.name)}</div>${it.desc ? `<div class="desc">${v2pdf_escapeHtml(it.desc)}</div>` : ''}</td>
+          <td class="qty">1 งาน</td>
+          <td class="price">${Number(it.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+          <td class="price">${Number(it.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+        </tr>`).join('')}
+    </tbody>
+  </table>
+
+  <div class="totals-wrap">
+    <div class="left">
+      <strong>หมายเหตุการชำระ:</strong>
+      ${doc.note ? v2pdf_escapeHtml(doc.note).replace(/\n/g, '<br>') : 'มัดจำเพื่อยืนยันคิว · ส่วนที่เหลือชำระภายใน 7 วัน · ออกใบกำกับภาษีเต็มรูปแบบ'}
+    </div>
+    <div class="totals">
+      <div class="row subtotal"><span class="k">ราคารวม${includeVat ? ' (ก่อน VAT)' : ''}</span><span class="v">${v2pdf_fmtTHB(sell)}</span></div>
+      ${includeVat ? `<div class="row vat"><span class="k">+ ภาษีมูลค่าเพิ่ม ${tb.vatRate || 7}%</span><span class="v">${v2pdf_fmtTHB(vatAmount)}</span></div>` : ''}
+      ${includeVat ? `<div class="row grand"><span class="k">ราคารวมทั้งสิ้น</span><span class="v">${v2pdf_fmtTHB(grandTotal)}</span></div>` : `<div class="row grand"><span class="k">ราคารวม</span><span class="v">${v2pdf_fmtTHB(sell)}</span></div>`}
+      ${includeWht ? `<div class="row wht"><span class="k">− หัก ณ ที่จ่าย ${tb.whtRate || 3}%</span><span class="v">−${v2pdf_fmtTHB(whtAmount)}</span></div>` : ''}
+      ${includeWht ? `<div class="row net"><span class="k">ยอดสุทธิที่ได้รับ</span><span class="v">${v2pdf_fmtTHB(netReceived)}</span></div>` : ''}
+    </div>
+  </div>
+
+  <div class="aiw"><strong>จำนวนเงินตัวอักษร:</strong> ${v2pdf_escapeHtml(v2pdf_numToThaiBaht(aiwAmount))}</div>
+
+  ${v2pdf_renderInvoiceBlocks(ctx)}
+
+  ${(!ctx.inv && (deposit > 0 || bank)) ? `<div class="pay">
+    ${deposit > 0 ? `<div class="card dep"><div class="label">มัดจำเพื่อยืนยันคิว</div><div class="val">${v2pdf_fmtTHB(deposit)}</div>${remain > 0 ? `<div class="sub">คงเหลือ ${v2pdf_fmtTHB(remain)}</div>` : ''}</div>` : '<div></div>'}
+    ${bank ? `<div class="card bank"><div class="label">🏦 โอนเข้าบัญชี</div><div class="val">${v2pdf_escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + v2pdf_escapeHtml(bank.acc) : ''}</div><div class="sub">${v2pdf_escapeHtml(bank.holder || '')}</div></div>` : '<div></div>'}
+  </div>` : ''}
+
+  ${(ctx.inv && bank) ? `<div class="pay" style="grid-template-columns:1fr;"><div class="card bank"><div class="label">🏦 โอนยอดคงเหลือเข้าบัญชี</div><div class="val">${v2pdf_escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + v2pdf_escapeHtml(bank.acc) : ''}</div><div class="sub">${v2pdf_escapeHtml(bank.holder || '')}</div></div></div>` : ''}
+
+  ${(ctx.inv && ctx.invMessage) ? `<div class="notes" style="background:#fff9ec;border-left-color:#ca8a04;color:#7c2d12;"><strong style="color:#92400e;">📝 ข้อความจากร้าน:</strong> ${v2pdf_escapeHtml(ctx.invMessage)}</div>` : ''}
+
+  ${includeWht ? `<div class="notes"><strong>📌 หมายเหตุภาษี:</strong> ผู้ซื้อหัก ณ ที่จ่าย ${tb.whtRate}% สำหรับค่าบริการ · ออก ภ.ง.ด.3 / 53 ให้ผู้รับเงินภายใน 7 วัน · ส่งสำเนาทาง email: ${v2pdf_escapeHtml(studioEmail || '')}</div>` : ''}
+
+  <div class="sigs">
+    <div class="sig">
+      <div class="line"></div>
+      <div class="name">(................................................)</div>
+      <div class="role">ผู้ซื้อ / Buyer</div>
+      <div class="date">วันที่ ____ / ____ / ________</div>
+      <div class="stamp">(ประทับตราบริษัท)</div>
+    </div>
+    <div class="sig">
+      <div class="line"></div>
+      <div class="name">${v2pdf_escapeHtml(PROFILE.ownerName || studioName)}</div>
+      <div class="role">ผู้ขาย / Seller · ${v2pdf_escapeHtml(studioName)}</div>
+      <div class="date">วันที่ ${v2pdf_escapeHtml(v2pdf_fmtDateTH(issueDate))}</div>
+      <div class="stamp">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="foot-meta">${v2pdf_escapeHtml(studioName)} · ${v2pdf_escapeHtml(docCode)}${taxInvNo ? ' · ' + v2pdf_escapeHtml(taxInvNo) : ''} · PAGE 1 OF 1</div>
+</div>
+
+</body></html>`;
+}
+
+// =============================================================
+// TEMPLATE E · GOVERNMENT (Gov)
+// =============================================================
+function v2pdf_buildPdfGov(ctx) {
+  const { doc, isQuote, phone, eventDate, issueDate, expireDate, docCode, taxInvNo,
+          items, sell, includeVat, includeWht, vatAmount, whtAmount, grandTotal, netReceived, tb,
+          bank, studioName, studioTagline, studioPhone, studioEmail, studioAddress,
+          studioTaxId, studioTaxAddress, studioBranch } = ctx;
+  const isFullPro = (ctx.docCase === 'fullPro');
+  const title = isQuote
+    ? (isFullPro ? 'ใบเสนอราคา / ใบกำกับภาษี' : 'ใบเสนอราคา')
+    : (isFullPro ? 'ใบเรียกเก็บฯ / ใบกำกับภาษี' : 'ใบเรียกเก็บยอดชำระเพิ่มเติม');
+  const enTitle = isQuote ? 'Quotation / Tax Invoice' : 'Invoice · Balance Due';
+  const aiwAmount = includeWht ? netReceived : (includeVat ? grandTotal : sell);
+  const aiwBeforeWht = includeVat ? grandTotal : sell;
+
+  return v2pdf_printSharedHead(title + ' · ' + docCode) + `
+<style>${V2PDF_COMMON_CSS}
+  html, body { font-family:'Sarabun', sans-serif; font-size:11.5px; }
+  .page { width:210mm; min-height:297mm; margin:24px auto; padding:16mm 14mm 14mm; background:white; box-shadow:0 6px 30px rgba(0,0,0,0.12); }
+  .h-row { text-align:center; padding-bottom:12px; border-bottom:3px double #1a1a1a; margin-bottom:14px; }
+  .h-row .brand { margin-bottom:8px; }
+  .h-row .brand .name { font-size:22px; font-weight:800; color:#1a1a1a; }
+  .h-row .brand .name-sub { font-size:11px; color:#7c6856; margin-top:2px; }
+  .h-row .studio-detail { font-size:10.5px; color:#444; line-height:1.55; }
+  .h-row .studio-detail strong { color:#15803d; }
+  .doc-title-box { text-align:center; margin-bottom:14px; padding:10px 16px; border:2px solid #15803d; border-radius:4px; background:linear-gradient(180deg, #ecfdf5, #d1fae5); }
+  .doc-title-box .title { font-size:22px; font-weight:800; color:#14532d; }
+  .doc-title-box .en { font-size:11px; color:#15803d; text-transform:uppercase; letter-spacing:0.15em; font-weight:600; margin-top:2px; }
+  .doc-title-box .ids { display:flex; justify-content:center; gap:32px; margin-top:8px; padding-top:8px; border-top:1px dashed #15803d; font-size:11.5px; }
+  .doc-title-box .ids .k { color:#15803d; font-weight:600; }
+  .doc-title-box .ids .v { font-family:'Inter', monospace; font-weight:700; color:#14532d; }
+  .po-banner { margin-bottom:14px; padding:10px 14px; background:#fff8ed; border:1px solid #fbbf24; border-radius:4px; display:flex; justify-content:space-between; align-items:center; }
+  .po-banner .left { font-size:12px; color:#92400e; font-weight:600; }
+  .po-banner .right { font-family:'Inter', monospace; font-size:14px; font-weight:800; color:#92400e; }
+  .pp { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+  .pp .box { padding:9px 12px; border:1px solid #999; border-radius:3px; }
+  .pp .box.gov { border-color:#15803d; background:#f0fdf4; }
+  .pp .label { font-size:9.5px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px; border-bottom:1px solid #999; padding-bottom:2px; }
+  .pp .box.gov .label { color:#15803d; border-bottom-color:#15803d; }
+  .pp .name { font-size:12.5px; font-weight:700; color:#1a1a1a; margin-bottom:2px; }
+  .pp .row { font-size:10.5px; color:#444; line-height:1.6; }
+  .pp .row .k { color:#7c6856; font-weight:500; min-width:60px; display:inline-block; }
+  .pp .row .v { color:#1a1a1a; font-weight:600; }
+  .meta { display:grid; grid-template-columns:repeat(4, 1fr); gap:0; background:#f3f4f6; padding:8px 0; border-radius:3px; margin-bottom:12px; border:1px solid #d4d4d4; }
+  .meta .cell { padding:0 12px; border-right:1px solid #d4d4d4; }
+  .meta .cell:last-child { border-right:none; }
+  .meta .cell .k { font-size:9px; color:#7c6856; text-transform:uppercase; font-weight:700; }
+  .meta .cell .v { font-size:11.5px; color:#1a1a1a; font-weight:600; }
+  .items-title { font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
+  .items { width:100%; border-collapse:collapse; margin-bottom:12px; font-size:11px; border:1.5px solid #1a1a1a; }
+  .items thead th { background:#1a1a1a; color:white; padding:7px 9px; text-align:left; font-weight:700; font-size:10px; text-transform:uppercase; }
+  .items thead th.right { text-align:right; }
+  .items thead th.center { text-align:center; }
+  .items tbody td { padding:8px 9px; border-bottom:1px solid #d4d4d4; vertical-align:top; }
+  .items tbody td.idx { text-align:center; font-family:'Inter', monospace; color:#555; width:28px; }
+  .items tbody td.qty { text-align:center; }
+  .items tbody td.price { text-align:right; font-family:'Inter', monospace; font-weight:600; }
+  .items .name { font-weight:700; }
+  .items .desc { font-size:10px; color:#666; margin-top:2px; line-height:1.5; white-space:pre-line; }
+  .totals-wrap { display:flex; justify-content:flex-end; margin-bottom:10px; }
+  .totals { width:48%; font-size:11.5px; border:1.5px solid #1a1a1a; }
+  .totals .row { display:flex; justify-content:space-between; padding:5px 10px; border-bottom:1px solid #d4d4d4; }
+  .totals .row:last-child { border-bottom:none; }
+  .totals .row .v { font-family:'Inter', monospace; font-weight:600; }
+  .totals .row.subtotal { background:#f3f4f6; font-weight:700; }
+  .totals .row.vat .v { color:#15803d; font-weight:700; }
+  .totals .row.grand { background:#1a1a1a; color:white; font-weight:700; font-size:13px; }
+  .totals .row.grand .v { color:white; }
+  .totals .row.wht .v { color:#dc2626; }
+  .totals .row.net { background:#15803d; color:white; font-weight:700; font-size:13px; }
+  .totals .row.net .v { color:white; }
+  .aiw { margin-bottom:14px; padding:7px 12px; border:1px solid #555; border-radius:3px; font-size:10.5px; color:#444; }
+  .aiw strong { color:#1a1a1a; }
+  .gov-notes { margin-bottom:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .gov-notes .note { padding:8px 11px; border-radius:3px; font-size:10px; line-height:1.55; }
+  .gov-notes .note.wht { background:#fff8ed; border:1px solid #fbbf24; color:#92400e; }
+  .gov-notes .note.pnd { background:#eff6ff; border:1px solid #93c5fd; color:#1e3a8a; }
+  .gov-notes .note strong { display:block; margin-bottom:2px; }
+  .bank { margin-bottom:14px; padding:10px 14px; background:#eff6ff; border:1px solid #93c5fd; border-radius:3px; display:flex; justify-content:space-between; align-items:center; }
+  .bank .left { font-size:10px; color:#1e3a8a; font-weight:700; text-transform:uppercase; }
+  .bank .right { font-family:'Inter', monospace; font-weight:700; color:#1e3a8a; font-size:12px; text-align:right; }
+  .bank .right .acc { font-size:14px; font-weight:800; }
+  .bank .right .holder { font-size:10.5px; font-weight:500; }
+  .sigs { margin-top:16px; padding-top:12px; border-top:1.5px solid #1a1a1a; }
+  .sigs-title { text-align:center; font-size:11.5px; font-weight:700; margin-bottom:14px; text-transform:uppercase; letter-spacing:0.1em; }
+  .sigs-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
+  .sig { text-align:center; padding-top:34px; }
+  .sig .line { border-bottom:1px solid #1a1a1a; margin:0 8px 5px; }
+  .sig .name { font-size:11px; font-weight:700; color:#1a1a1a; }
+  .sig .role { font-size:10px; color:#555; margin-top:1px; }
+  .sig .date { margin-top:5px; font-size:9.5px; color:#7c6856; }
+  .sig .stamp { margin-top:6px; font-size:9px; color:#9a8a78; font-style:italic; }
+  .foot-meta { margin-top:14px; padding-top:7px; border-top:1px solid #d4d4d4; text-align:center; font-size:9.5px; color:#7c6856; font-family:'Inter', monospace; }
+</style></head><body>
+
+${v2pdf_printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
+
+<div class="page">
+  <div class="h-row">
+    <div class="brand">
+      <div class="name">${v2pdf_escapeHtml(studioName)}</div>
+      ${studioTagline ? `<div class="name-sub">${v2pdf_escapeHtml(studioTagline)}</div>` : ''}
+    </div>
+    <div class="studio-detail">
+      ${studioAddress ? v2pdf_escapeHtml(studioAddress) + '<br>' : ''}
+      ${studioPhone ? 'โทร. ' + v2pdf_escapeHtml(studioPhone) + ' · ' : ''}${studioEmail ? 'อีเมล ' + v2pdf_escapeHtml(studioEmail) : ''}
+      ${studioTaxId ? ` · <strong>เลขประจำตัวผู้เสียภาษี ${v2pdf_escapeHtml(studioTaxId)} · สาขา ${v2pdf_escapeHtml(studioBranch)}</strong>` : ''}
+    </div>
+  </div>
+
+  <div class="doc-title-box">
+    <div class="title">${v2pdf_escapeHtml(title)}</div>
+    <div class="en">${v2pdf_escapeHtml(enTitle)}</div>
+    <div class="ids">
+      <div><span class="k">${isQuote ? 'เลขที่ใบเสนอ:' : 'เลขที่ใบเรียกเก็บ:'}</span> <span class="v">${v2pdf_escapeHtml(docCode)}</span></div>
+      ${taxInvNo ? `<div><span class="k">เลขที่ใบกำกับภาษี:</span> <span class="v">${v2pdf_escapeHtml(taxInvNo)}</span></div>` : ''}
+    </div>
+  </div>
+
+  ${doc.poNumber ? `<div class="po-banner"><div class="left">📋 อ้างอิงใบสั่งซื้อ (PO)</div><div class="right">${v2pdf_escapeHtml(doc.poNumber)}</div></div>` : ''}
+
+  <div class="pp">
+    <div class="box">
+      <div class="label">ผู้ขาย · Seller</div>
+      <div class="name">${v2pdf_escapeHtml(studioName)}</div>
+      ${studioTaxId ? `<div class="row"><span class="k">เลขผู้เสียภาษี:</span> <span class="v">${v2pdf_escapeHtml(studioTaxId)}</span></div>` : ''}
+      <div class="row"><span class="k">สาขา:</span> <span class="v">${v2pdf_escapeHtml(studioBranch)}</span></div>
+      ${studioTaxAddress ? `<div class="row"><span class="k">ที่อยู่:</span> ${v2pdf_escapeHtml(studioTaxAddress)}</div>` : ''}
+    </div>
+    <div class="box gov">
+      <div class="label">ผู้ซื้อ · Government Agency</div>
+      <div class="name">${v2pdf_escapeHtml(doc.customerCompanyName || doc.customer || '-')}</div>
+      ${doc.customerTaxId ? `<div class="row"><span class="k">เลขผู้เสียภาษี:</span> <span class="v">${v2pdf_escapeHtml(doc.customerTaxId)}</span></div>` : ''}
+      ${doc.customerBranch ? `<div class="row"><span class="k">สำนัก:</span> <span class="v">${v2pdf_escapeHtml(doc.customerBranch)}</span></div>` : ''}
+      ${doc.customerTaxAddress ? `<div class="row"><span class="k">ที่อยู่:</span> ${v2pdf_escapeHtml(doc.customerTaxAddress)}</div>` : ''}
+      ${doc.customerContactPerson ? `<div class="row"><span class="k">ผู้ติดต่อ:</span> <span class="v">${v2pdf_escapeHtml(doc.customerContactPerson)}${doc.customerContactPosition ? ' · ' + v2pdf_escapeHtml(doc.customerContactPosition) : ''}</span></div>` : ''}
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="cell"><div class="k">วันที่ออก</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(issueDate))}</div></div>
+    ${expireDate ? `<div class="cell"><div class="k">${isQuote ? 'หมดอายุ' : 'กำหนดชำระ'}</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(expireDate))}</div></div>` : '<div class="cell"></div>'}
+    ${eventDate ? `<div class="cell"><div class="k">วันงาน</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(eventDate))}</div></div>` : '<div class="cell"></div>'}
+    ${ctx.sessions && ctx.sessions[0] && ctx.sessions[0].loc ? `<div class="cell"><div class="k">สถานที่</div><div class="v">${v2pdf_escapeHtml(ctx.sessions[0].loc)}</div></div>` : '<div class="cell"></div>'}
+  </div>
+
+  <div class="items-title">รายการสินค้า / บริการ · Items</div>
+
+  <table class="items">
+    <thead><tr><th class="center" style="width:28px;">ลำดับ</th><th>รายการ</th><th class="center" style="width:60px;">หน่วย</th><th class="right" style="width:110px;">ราคาต่อหน่วย</th><th class="right" style="width:120px;">จำนวนเงิน</th></tr></thead>
+    <tbody>
+      ${items.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">ไม่มีรายการ</td></tr>' :
+        items.map((it, i) => `<tr>
+          <td class="idx">${i + 1}</td>
+          <td><div class="name">${v2pdf_escapeHtml(it.name)}</div>${it.desc ? `<div class="desc">${v2pdf_escapeHtml(it.desc)}</div>` : ''}</td>
+          <td class="qty">1 งาน</td>
+          <td class="price">${Number(it.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+          <td class="price">${Number(it.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+        </tr>`).join('')}
+    </tbody>
+  </table>
+
+  <div class="totals-wrap">
+    <div class="totals">
+      <div class="row subtotal"><span class="k">ราคารวม${includeVat ? ' (ก่อนภาษี)' : ''}</span><span class="v">${v2pdf_fmtTHB(sell)}</span></div>
+      ${includeVat ? `<div class="row vat"><span class="k">+ ภาษีมูลค่าเพิ่ม ${tb.vatRate || 7}%</span><span class="v">${v2pdf_fmtTHB(vatAmount)}</span></div>` : ''}
+      ${includeVat ? `<div class="row grand"><span class="k">ราคารวมทั้งสิ้น</span><span class="v">${v2pdf_fmtTHB(grandTotal)}</span></div>` : `<div class="row grand"><span class="k">ราคารวม</span><span class="v">${v2pdf_fmtTHB(sell)}</span></div>`}
+      ${includeWht ? `<div class="row wht"><span class="k">− หัก ณ ที่จ่าย ${tb.whtRate || 1}% (ม.69 ทวิ)</span><span class="v">−${v2pdf_fmtTHB(whtAmount)}</span></div>` : ''}
+      ${includeWht ? `<div class="row net"><span class="k">ยอดสุทธิที่ได้รับ</span><span class="v">${v2pdf_fmtTHB(netReceived)}</span></div>` : ''}
+    </div>
+  </div>
+
+  <div class="aiw"><strong>(จำนวนเงินตัวอักษร:</strong> ${v2pdf_escapeHtml(v2pdf_numToThaiBaht(aiwAmount))}<strong>)</strong>${includeWht && aiwBeforeWht !== aiwAmount ? ' · ก่อนหัก ณ ที่จ่าย: ' + v2pdf_escapeHtml(v2pdf_numToThaiBaht(aiwBeforeWht)) : ''}</div>
+
+  ${includeWht ? `<div class="gov-notes">
+    <div class="note wht"><strong>ℹ️ การหัก ณ ที่จ่าย</strong>ราชการหัก ${tb.whtRate || 1}% ของยอดก่อน VAT สำหรับค่าบริการ ตามมาตรา 69 ทวิ แห่งประมวลรัษฎากร</div>
+    <div class="note pnd"><strong>📋 ภ.ง.ด. 3 / 53</strong>ขอให้ส่งหนังสือรับรองการหัก ณ ที่จ่ายให้ผู้รับเงินภายใน 7 วันนับจากวันโอนเงิน</div>
+  </div>` : ''}
+
+  ${v2pdf_renderInvoiceBlocks(ctx)}
+
+  ${bank ? `<div class="bank">
+    <div class="left">🏦 ${ctx.inv ? 'โอนยอดคงเหลือเข้าบัญชี' : 'โอนเข้าบัญชี'}</div>
+    <div class="right"><div class="acc">${v2pdf_escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + v2pdf_escapeHtml(bank.acc) : ''}</div><div class="holder">${v2pdf_escapeHtml(bank.holder || '')}</div></div>
+  </div>` : ''}
+
+  ${(ctx.inv && ctx.invMessage) ? `<div style="margin-bottom:14px;padding:8px 12px;background:#fff9ec;border:1px solid #fbbf24;border-radius:4px;font-size:10.5px;color:#7c2d12;"><strong style="color:#92400e;">📝 ข้อความ:</strong> ${v2pdf_escapeHtml(ctx.invMessage)}</div>` : ''}
+
+  <div class="sigs">
+    <div class="sigs-title">ลงนาม / Signatures</div>
+    <div class="sigs-grid">
+      <div class="sig"><div class="line"></div><div class="name">(................................................)</div><div class="role">ผู้รับเงิน · Payee</div><div class="date">วันที่ ____ / ____ / ________</div><div class="stamp">(ประทับตรา หากมี)</div></div>
+      <div class="sig"><div class="line"></div><div class="name">(................................................)</div><div class="role">ผู้จ่ายเงิน · Payer</div><div class="date">วันที่ ____ / ____ / ________</div><div class="stamp">(ตราหน่วยงาน)</div></div>
+      <div class="sig"><div class="line"></div><div class="name">(................................................)</div><div class="role">ผู้อนุมัติ · Approver</div><div class="date">วันที่ ____ / ____ / ________</div><div class="stamp">(ตำแหน่ง)</div></div>
+    </div>
+  </div>
+
+  <div class="foot-meta">${v2pdf_escapeHtml(studioName)} · ${v2pdf_escapeHtml(docCode)}${taxInvNo ? ' · ' + v2pdf_escapeHtml(taxInvNo) : ''}${doc.poNumber ? ' · ' + v2pdf_escapeHtml(doc.poNumber) : ''} · PAGE 1 OF 1</div>
+</div>
+
+</body></html>`;
+}
+
+// ===== Mobile entry points =====
+function openQuoteNewPdf() {
+  const c = (typeof _quoteCtx !== 'undefined' && _quoteCtx) ? _quoteCtx : null;
+  if (!c || !c.data) { toast('ไม่พบใบเสนอ'); return; }
+  try {
+    const html = v2pdf_buildPrintDocHtml({ type: 'quote', doc: c.data });
+    const w = window.open('', '_blank');
+    if (!w) { toast('เบราว์เซอร์บล็อก popup · อนุญาตก่อน'); return; }
+    w.document.write(html);
+    w.document.close();
+  } catch(e) { console.error(e); toast('สร้าง PDF แบบใหม่ไม่สำเร็จ: ' + (e.message || e)); }
+}
+
+function openInvoiceNewPdf() {
+  const j = window._currentInvoiceJob;
+  if (!j) { toast('ไม่พบงาน'); return; }
+  try {
+    const html = v2pdf_buildPrintDocHtml({ type: 'invoice', doc: j });
+    const w = window.open('', '_blank');
+    if (!w) { toast('เบราว์เซอร์บล็อก popup · อนุญาตก่อน'); return; }
+    w.document.write(html);
+    w.document.close();
+  } catch(e) { console.error(e); toast('สร้าง PDF แบบใหม่ไม่สำเร็จ: ' + (e.message || e)); }
 }
 
 // ========== INVOICE (ใบเรียกเก็บยอดชำระเพิ่มเติม) ==========
