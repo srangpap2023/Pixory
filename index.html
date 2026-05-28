@@ -4594,7 +4594,7 @@
         <h1 data-i18n="header.quote">ใบเสนอราคา</h1>
         <div style="display:flex; gap:14px; align-items:center;">
           <button class="icon-btn" onclick="editCurrentQuote()" title="แก้ไข" id="quote-edit-btn">✏️</button>
-          <button class="icon-btn" onclick="downloadPDF()" title="บันทึก PDF">⬇️</button>
+          <button class="icon-btn" onclick="openQuoteNewPdf()" title="บันทึก PDF">⬇️</button>
           <button class="icon-btn" onclick="deleteCurrentQuote()" style="color:#dc2626;" title="ลบ" id="quote-delete-btn">🗑️</button>
         </div>
       </div>
@@ -4755,8 +4755,7 @@
       <div style="display:flex; gap:8px; padding: 16px; flex-wrap:wrap;">
         <button class="btn secondary" style="margin:0; flex:1 1 100%;" onclick="copyQuoteToClipboard()" data-i18n="btn.copyLine">📤 Copy ส่ง LINE</button>
         <button class="btn secondary" style="margin:0; flex:1;" onclick="downloadJPEG()" data-i18n="btn.saveJPEG">🖼 บันทึก JPEG</button>
-        <button class="btn secondary" style="margin:0; flex:1;" onclick="downloadPDF()" data-i18n="btn.savePDF">⬇ บันทึก PDF</button>
-        <button class="btn" style="margin:0; flex:1 1 100%; background:linear-gradient(135deg, #D97757, #B85A3D);" onclick="openQuoteNewPdf()">🆕 PDF แบบใหม่ (ตรงเดสท๊อป)</button>
+        <button class="btn" style="margin:0; flex:1; background:linear-gradient(135deg, #D97757, #B85A3D);" onclick="openQuoteNewPdf()">⬇ บันทึก PDF</button>
       </div>
     </div>
 
@@ -4766,7 +4765,7 @@
         <button class="back" onclick="backFromInvoice()">‹</button>
         <h1 data-i18n="header.invoice">ใบเรียกเก็บยอดชำระเพิ่มเติม</h1>
         <div style="display:flex; gap:14px; align-items:center;">
-          <button class="icon-btn" onclick="downloadInvoicePDF()" title="PDF">⬇</button>
+          <button class="icon-btn" onclick="openInvoiceNewPdf()" title="PDF">⬇</button>
           <button class="icon-btn" onclick="deleteCurrentInvoice()" style="color:#dc2626;" title="Delete">🗑</button>
         </div>
       </div>
@@ -4898,8 +4897,7 @@
 
       <div style="display:flex; gap:8px; padding: 0 16px 16px; flex-wrap:wrap;">
         <button class="btn secondary" style="margin:0; flex:1;" onclick="downloadInvoiceJPEG()" data-i18n="btn.saveJPEG">🖼 บันทึก JPEG</button>
-        <button class="btn secondary" style="margin:0; flex:1;" onclick="downloadInvoicePDF()" data-i18n="btn.savePDF">⬇ บันทึก PDF</button>
-        <button class="btn" style="margin:0; flex:1 1 100%; background:linear-gradient(135deg, #D97757, #B85A3D);" onclick="openInvoiceNewPdf()">🆕 PDF แบบใหม่ (ตรงเดสท๊อป)</button>
+        <button class="btn" style="margin:0; flex:1; background:linear-gradient(135deg, #D97757, #B85A3D);" onclick="openInvoiceNewPdf()">⬇ บันทึก PDF</button>
       </div>
     </div>
 
@@ -6952,22 +6950,22 @@ const RELEASE_NOTES = {
   '2.5.21': {
     date: '2026-05-28',
     title: 'PDF แบบใหม่ · เลือกสไตล์ตามประเภทลูกค้า',
-    subtitle: 'ใบเสนอ + ใบเรียกเก็บฯ · ออกแบบใหม่ให้ตรงกับเดสท๊อป · มีลายเซ็น/ใบกำกับครบสำหรับ B2B + ราชการ',
+    subtitle: 'ใบเสนอ + ใบเรียกเก็บฯ · ออกแบบใหม่ตรงกับเดสท๊อป · มีลายเซ็น/ใบกำกับครบสำหรับ B2B + ราชการ',
     items: [
       {
-        icon: '🆕',
-        title: 'ปุ่มใหม่ "🆕 PDF แบบใหม่ (ตรงเดสท๊อป)"',
-        desc: 'อยู่ใต้ปุ่มดาวน์โหลด PDF เดิม · กดแล้วเปิด tab ใหม่ขนาด A4 จริง · แตะ "พิมพ์ / บันทึก PDF" → เลือก "Save as PDF" ได้เลย · ใช้ในมือถือก็ได้ (iOS Share, Android Print)'
+        icon: '🎨',
+        title: '3 ฟอร์มเปลี่ยนตามประเภทลูกค้าอัตโนมัติ',
+        desc: 'ลูกค้าทั่วไป → ฟอร์ม Modern (dark header + pill ส้ม · ไม่มีลายเซ็น · เรียบหรู) · บริษัท B2B → ฟอร์ม Corporate (เป็นทางการ · 2 ลายเซ็น · ภาษีครบ · มี Tax IDs) · หน่วยงานราชการ → ฟอร์ม Government (PO banner · 3 ลายเซ็น · ภ.ง.ด. 3/53 reminder)'
       },
       {
-        icon: '🎨',
-        title: '3 ฟอร์มตามประเภทลูกค้า',
-        desc: 'ลูกค้าทั่วไป → ฟอร์ม Modern (dark header + pill ส้ม · ไม่มีลายเซ็น) · บริษัท B2B → ฟอร์ม Corporate (เป็นทางการ · 2 ลายเซ็น · ภาษีครบ) · หน่วยงานราชการ → ฟอร์ม Government (PO banner · 3 ลายเซ็น · ภ.ง.ด. 3/53 reminder)'
+        icon: '⬇',
+        title: 'ปุ่ม "บันทึก PDF" = แบบใหม่ทั้งหมดแล้ว',
+        desc: 'กดเหมือนเดิม · แต่จะเปิด tab ใหม่ขนาด A4 จริง · แตะ "พิมพ์ / บันทึก PDF" → เลือก "Save as PDF" ในเบราว์เซอร์ · ทำงานบนมือถือทุกระบบ (iOS Share, Android Print)'
       },
       {
         icon: '💰',
-        title: 'ใบเรียกเก็บยอดชำระเพิ่มเติม · มีลายเซ็น/ภาษีครบ',
-        desc: 'B2B/Gov กดออก PDF จะได้ใบที่มีเลขผู้เสียภาษี · ลายเซ็น · ภ.ง.ด.3/53 reminder · เก็บไว้ยื่นบัญชี/สรรพากรได้เลย · ของเดิมยังใช้ได้ปกติ ไม่กระทบ'
+        title: 'ใบเรียกเก็บฯ B2B/Gov · มี Tax + ลายเซ็นครบ',
+        desc: 'ออก PDF ใบเรียกเก็บฯ ให้ลูกค้าบริษัท/ราชการ · จะได้เลขผู้เสียภาษี · ลายเซ็น (2-3) · ภ.ง.ด.3/53 reminder · เก็บไว้ยื่นบัญชี/สรรพากรได้เลย · JPEG ยังใช้ได้เหมือนเดิม'
       }
     ]
   },
