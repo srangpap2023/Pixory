@@ -6126,6 +6126,18 @@
           </div>
         </div>
       </div>
+      <!-- v2.5.24 · Open desktop version (sync ผ่าน Supabase อัตโนมัติ) -->
+      <div class="settings-section">
+        <div style="border-radius: 12px; overflow: hidden;">
+          <a href="./desktop.html" target="_blank" rel="noopener" class="settings-row" style="text-decoration:none; color:inherit;">
+            <div class="left">
+              <div class="row-title">💻 เปิดเวอชั่นเดสท๊อป</div>
+              <div class="row-sub">จอใหญ่ · เหมาะกับคอม · ข้อมูลซิงค์อัตโนมัติ</div>
+            </div>
+            <div class="right">↗</div>
+          </a>
+        </div>
+      </div>
       <!-- v1.9.41 · Legal section in About -->
       <div class="settings-section">
         <div style="border-radius: 12px; overflow: hidden;">
@@ -6950,7 +6962,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.23';
+const PIXORY_VERSION = '2.5.24';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6961,6 +6973,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.24': {
+    date: '2026-05-29',
+    title: 'เปิดเวอชั่นเดสท๊อปได้แล้ว',
+    subtitle: 'Settings → เกี่ยวกับแอป → เปิดเวอชั่นเดสท๊อป · จอใหญ่กว่า · เห็นข้อมูลเยอะ · sync อัตโนมัติ · ใช้บัญชีเดียวกัน',
+    items: [
+      {
+        icon: '💻',
+        title: 'เปิดบนคอมพิวเตอร์ได้',
+        desc: 'Settings → เกี่ยวกับแอป → กด "เปิดเวอชั่นเดสท๊อป" · เปิด tab ใหม่ขึ้นมา · เห็นทุกอย่างเหมือนมือถือแต่จอใหญ่ · ใช้คียบอร์ดได้ · ใช้ปฏิทินสะดวกขึ้น · ทำงานหลายงานพร้อมกันได้'
+      },
+      {
+        icon: '🔄',
+        title: 'sync อัตโนมัติ · ทั้ง 2 เครื่อง',
+        desc: 'สร้างงาน/ใบเสนอบนเดสท๊อป → มือถือเห็นทันที (และกลับกัน) · ใช้บัญชีเดียวกัน · ไม่ต้องตั้งค่าใหม่ · realtime ผ่าน Supabase'
+      },
+      {
+        icon: '🏷',
+        title: 'Tabs ใบเสนอบนเดสท๊อปใช้คำเหมือนมือถือ',
+        desc: 'รออนุมัติ · อนุมัติแล้ว · สร้างงานแล้ว · ปฏิเสธ · หมดอายุ (เดิมเดสท๊อปใช้คำต่าง · เปลี่ยนให้ตรงกันแล้ว)'
+      }
+    ]
+  },
   '2.5.23': {
     date: '2026-05-29',
     title: 'ธีม Auto · ตามระบบเครื่อง',
