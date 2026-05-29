@@ -3865,6 +3865,11 @@
         </div>
       </div>
 
+      <!-- v2.5.22 · FIX H14 · Next Shoot card · งานถัดไป + countdown -->
+      <div id="home-next-shoot" style="margin: 12px 16px 14px; display:none;">
+        <!-- Populated by renderNextShootCard() -->
+      </div>
+
       <!-- ===== HERO WIDGET ===== -->
       <div class="home-hero" id="home-hero" style="margin: 12px 16px 14px;">
         <div style="display:flex; align-items:flex-start; gap:8px;">
@@ -5327,6 +5332,15 @@
       <div class="settings-section">
         <div class="sec-title">📋 ประวัติงาน</div>
         <div id="cust-history"></div>
+      </div>
+
+      <!-- v2.5.22 · FIX H2 · Danger zone · ลบลูกค้ารายเดียว -->
+      <div class="settings-section" style="background:rgba(220,38,38,0.04); border:1px solid rgba(220,38,38,0.15); border-radius:12px; padding:14px 16px; margin: 0 16px 80px;">
+        <div class="sec-title" style="color:#dc2626; font-size:13px;">⚠️ Danger Zone</div>
+        <div style="font-size:12px; color:#7c7066; margin-bottom:10px; line-height:1.5;">
+          ลบลูกค้านี้ออกจากรายชื่อ · งานและใบเสนอที่มีอยู่ <strong>ยังคงอยู่</strong> · แค่ลบข้อมูลติดต่อ
+        </div>
+        <button class="btn" onclick="deleteCurrentCustomer()" style="background:#fee2e2; color:#b91c1c; border:1px solid #f87171; width:100%;">🗑 ลบลูกค้านี้</button>
       </div>
     </div>
 
@@ -6936,7 +6950,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.21';
+const PIXORY_VERSION = '2.5.23';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6947,6 +6961,35 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.23': {
+    date: '2026-05-29',
+    title: 'ธีม Auto · ตามระบบเครื่อง',
+    subtitle: 'Settings → ธีม · กดวนได้ 3 mode: Light → Dark → Auto · ถ้าเป็น Auto จะตามเครื่อง (Dark กลางคืน · Light ตอนเช้า)',
+    items: [
+      {
+        icon: '🌓',
+        title: 'Theme Auto mode',
+        desc: 'กดที่ "ธีม" ใน Settings · เปลี่ยน 3 mode วน · Auto = ตามตั้งค่าของระบบเครื่อง · ระบบ iOS/Android เปลี่ยนเอง = Pixory เปลี่ยนตามทันที (ไม่ต้องเข้าแอพมาตั้งใหม่)'
+      }
+    ]
+  },
+  '2.5.22': {
+    date: '2026-05-29',
+    title: 'งานถัดไปบนหน้าหลัก + ลบลูกค้าได้',
+    subtitle: 'หน้าเปิดแอพแสดงงานถัดไปพร้อมนับวันถอยหลัง · เปิดประวัติลูกค้าจะมีปุ่มลบ',
+    items: [
+      {
+        icon: '📸',
+        title: 'การ์ดงานถัดไป · มี countdown',
+        desc: 'เปิดแอพมาเจอ card สีดำหรูๆ บนสุด · บอกว่างานถัดไปคือใคร · ที่ไหน · กี่โมง · "วันนี้ / พรุ่งนี้ / อีก N วัน" · กดเข้างานได้เลย · ถ้ามีงานหลายงานในอนาคต บอก "+ อีก N งาน"'
+      },
+      {
+        icon: '🗑',
+        title: 'ลบลูกค้ารายเดียวได้',
+        desc: 'เข้าหน้ารายละเอียดลูกค้า → เลื่อนลงล่างสุด มีปุ่ม "ลบลูกค้านี้" สีแดง · งาน/ใบเสนอเก่ายังอยู่ · แค่ลบข้อมูลติดต่อ · ใช้กับลูกค้าที่ทดสอบ/ไม่ใช้แล้ว'
+      }
+    ]
+  },
   '2.5.21': {
     date: '2026-05-28',
     title: 'PDF แบบใหม่ · เลือกสไตล์ตามประเภทลูกค้า',
@@ -10548,31 +10591,58 @@ function renderFontSizeOptions() {
   });
 }
 
-// ========== THEME ==========
+// ========== THEME (v2.5.23 · M15 · added Auto mode) ==========
 const THEME_KEY = 'srangpap_theme';
+// Mode: 'light' | 'dark' | 'auto'
 function toggleTheme() {
-  const isDark = !document.body.classList.contains('dark-theme');
-  applyTheme(isDark);
-  try { localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); } catch(e) {}
-  // Re-render dashboard charts with new colors if open
-  if (document.getElementById('screen-dashboard').classList.contains('active')) {
+  // 3-mode cycle: light → dark → auto → light
+  const current = (() => { try { return localStorage.getItem(THEME_KEY) || 'light'; } catch(e) { return 'light'; } })();
+  const next = current === 'light' ? 'dark' : (current === 'dark' ? 'auto' : 'light');
+  try { localStorage.setItem(THEME_KEY, next); } catch(e) {}
+  applyThemeMode(next);
+  if (document.getElementById('screen-dashboard') && document.getElementById('screen-dashboard').classList.contains('active')) {
     setTimeout(renderDashboard, 100);
+  }
+}
+function _resolveTheme(mode) {
+  if (mode === 'auto' && typeof window.matchMedia === 'function') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return (mode === 'dark') ? 'dark' : 'light';
+}
+function applyThemeMode(mode) {
+  const effective = _resolveTheme(mode);
+  applyTheme(effective === 'dark');
+  // Override sub label to show mode if auto
+  const sub = document.getElementById('theme-sub');
+  if (sub) {
+    if (mode === 'auto') sub.textContent = 'Auto (' + (effective === 'dark' ? 'Dark' : 'Light') + ')';
+    else sub.textContent = effective === 'dark' ? 'Dark' : 'Light';
   }
 }
 function applyTheme(isDark) {
   document.body.classList.toggle('dark-theme', isDark);
-  const sub = document.getElementById('theme-sub');
   const ico = document.getElementById('theme-ico');
   const sw = document.getElementById('theme-switch');
-  if (sub) sub.textContent = isDark ? 'Dark' : 'Light';
   if (ico) { ico.textContent = isDark ? '🌙' : '🌗'; ico.style.background = isDark ? '#2a2a2a' : '#F1EFE8'; }
   if (sw) sw.classList.toggle('on', isDark);
 }
 function loadTheme() {
   try {
-    const t = localStorage.getItem(THEME_KEY);
-    applyTheme(t === 'dark');
+    const t = localStorage.getItem(THEME_KEY) || 'light';
+    applyThemeMode(t);
   } catch(e) { applyTheme(false); }
+}
+// M15 · Listen for system theme changes (when mode='auto')
+if (typeof window.matchMedia === 'function') {
+  try {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      try {
+        const t = localStorage.getItem(THEME_KEY) || 'light';
+        if (t === 'auto') applyThemeMode('auto');
+      } catch(e) {}
+    });
+  } catch(e) {}
 }
 
 // ========== I18N (Thai / English) ==========
@@ -14425,6 +14495,67 @@ function updateHomeKPIs() {
   set('home-kpi-open-sub', openJobs > 0 ? t('home.kpiOpenSub') : t('home.kpiOpenEmpty'));
   // Also refresh hero
   if (typeof renderHomeHero === 'function') renderHomeHero();
+  // v2.5.22 · FIX H14 · render next shoot card
+  if (typeof renderNextShootCard === 'function') renderNextShootCard();
+}
+
+// v2.5.22 · FIX H14 · Next Shoot Card · งานถัดไป + countdown
+function renderNextShootCard() {
+  const el = document.getElementById('home-next-shoot');
+  if (!el) return;
+  // หางานถัดไป · stage='wait_shoot' · date >= วันนี้ · เรียงใกล้สุดก่อน
+  const today = new Date(); today.setHours(0,0,0,0);
+  const stageOf = (typeof getStageFromJobStatus === 'function')
+    ? getStageFromJobStatus
+    : (s) => (s && (s.includes('ส่ง') || s.includes('แก้')) ? 'wait_deliver' : s && s.includes('ปิด') ? 'closed' : 'wait_shoot');
+  const candidates = (JOBS || []).filter(j => {
+    if (!j.date) return false;
+    if (stageOf(j.jobStatus) !== 'wait_shoot') return false;
+    const d = new Date(j.date); d.setHours(0,0,0,0);
+    return d >= today;
+  }).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  if (candidates.length === 0) { el.style.display = 'none'; return; }
+  const j = candidates[0];
+  const d = new Date(j.date); d.setHours(0,0,0,0);
+  const diffMs = d - today;
+  const days = Math.round(diffMs / 86400000);
+  let countdownText;
+  let countdownColor;
+  if (days === 0) { countdownText = 'วันนี้!';   countdownColor = '#dc2626'; }
+  else if (days === 1) { countdownText = 'พรุ่งนี้';  countdownColor = '#f97316'; }
+  else if (days < 7)  { countdownText = 'อีก ' + days + ' วัน';  countdownColor = '#d97706'; }
+  else if (days < 30) { countdownText = 'อีก ' + days + ' วัน';  countdownColor = '#2563eb'; }
+  else                { countdownText = 'อีก ' + days + ' วัน';  countdownColor = '#7c7066'; }
+  const sess = (j.sessions && j.sessions[0]) ? j.sessions[0] : null;
+  const timeStr = sess ? ((sess.start || '?') + ' - ' + (sess.end || '?')) : '';
+  const locStr = (sess && sess.loc && sess.loc !== '-') ? sess.loc : (j.loc && j.loc !== '-' ? j.loc : '');
+  const dStr = (typeof fmtDateTH === 'function') ? fmtDateTH(j.date) : j.date;
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div onclick="openJob('${(j.code||'').replace(/'/g,"\\'")}')" style="
+      cursor:pointer; position:relative; overflow:hidden;
+      background:linear-gradient(135deg, #2A1F18 0%, #4a3528 100%);
+      color:white; border-radius:20px; padding:18px 22px;
+      box-shadow:0 8px 30px rgba(42,31,24,0.20);
+    ">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:10.5px; color:#fbbf24; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;">📸 งานถัดไป</div>
+          <div style="font-family:'Sarabun',sans-serif; font-weight:700; font-size:22px; line-height:1.2; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${(j.customer || '-').replace(/</g,'&lt;')}</div>
+          <div style="font-size:12.5px; color:rgba(255,255,255,0.75); margin-top:6px;">
+            ${dStr}${timeStr ? ' · ' + timeStr : ''}
+          </div>
+          ${locStr ? `<div style="font-size:11.5px; color:rgba(255,255,255,0.60); margin-top:3px;">📍 ${locStr.replace(/</g,'&lt;')}</div>` : ''}
+        </div>
+        <div style="text-align:right; flex-shrink:0;">
+          <div style="background:${countdownColor}; color:white; padding:8px 14px; border-radius:999px; font-weight:800; font-size:14px; font-family:-apple-system,Inter,sans-serif; box-shadow:0 4px 12px rgba(0,0,0,0.20);">
+            ${countdownText}
+          </div>
+          ${candidates.length > 1 ? `<div style="font-size:10.5px; color:rgba(255,255,255,0.55); margin-top:8px;">+ อีก ${candidates.length - 1} งาน</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function renderHomeHero() {
@@ -18865,6 +18996,26 @@ function openCustomerDetail(name) {
     });
   }
   goTo('customer-detail');
+}
+
+// v2.5.22 · FIX H2 · ลบลูกค้ารายเดียว (เหมือน desktop)
+async function deleteCurrentCustomer() {
+  if (!_currentCustomer) return;
+  const name = _currentCustomer;
+  // เช็คว่ามีงาน/ใบเสนอเหลืออยู่
+  const jobsCount = (JOBS || []).filter(j => j.customer === name).length;
+  const quotesCount = (QUOTES || []).filter(q => q.customer === name).length;
+  let msg = '⚠️ ลบลูกค้า "' + name + '" ออกจากรายชื่อ?\n\n';
+  if (jobsCount > 0 || quotesCount > 0) {
+    msg += '📌 ' + jobsCount + ' งาน · ' + quotesCount + ' ใบเสนอ ของลูกค้านี้ จะยังคงอยู่ในระบบ · แค่ข้อมูลติดต่อจะหาย';
+  } else {
+    msg += 'ลูกค้าคนนี้ยังไม่มีงานหรือใบเสนอ · ลบได้ปลอดภัย';
+  }
+  if (!confirm(msg)) return;
+  delete CUSTOMER_INFO[name];
+  if (typeof saveData === 'function') await saveData();
+  if (typeof toast === 'function') toast('✓ ลบ "' + name + '" แล้ว');
+  goTo('customers');
 }
 
 function saveCustomerInfo() {
