@@ -1509,13 +1509,385 @@
     background: rgba(28,28,34,0.85);
     border-color: rgba(255,255,255,0.10);
   }
-  body.luxe-theme .pxy-search-input { color: #F4F4F5; }
-  body.luxe-theme .pxy-search-input::placeholder { color: #71717A; }
+  body.luxe-theme .pxy-search-wrap {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    backdrop-filter: blur(20px);
+  }
+  body.luxe-theme .pxy-search-wrap:focus-within {
+    border-color: var(--brand, #B8854A) !important;
+    box-shadow: 0 0 0 3px rgba(184,133,74,0.18) !important;
+  }
+  body.luxe-theme .pxy-search-input {
+    color: #F4F4F5 !important;
+    background: transparent !important;
+    border: 0 !important;
+  }
+  body.luxe-theme .pxy-search-input::placeholder { color: #71717A !important; }
+  body.luxe-theme .pxy-search-icon { color: #A1A1AA !important; opacity: 1 !important; }
+  body.luxe-theme .pxy-search-clear { background: rgba(255,255,255,0.10) !important; color: #F4F4F5 !important; }
   /* Luxe · status colors for jobs */
   body.luxe-theme .job-row .job-countdown.today { color: #fca5a5; }
   body.luxe-theme .job-row .job-countdown.soon { color: #fdba74; }
   body.luxe-theme .job-row .job-countdown.future { color: #A1A1AA; }
   body.luxe-theme .job-row .job-countdown.past { color: #93c5fd; }
+  /* Luxe · mobile · catch pastel gradients + dark inline text (both spacings) */
+  body.luxe-theme [style*="linear-gradient(135deg, #FDF1E0"],
+  body.luxe-theme [style*="linear-gradient(135deg, #fdf1e0"],
+  body.luxe-theme [style*="linear-gradient(135deg,#FDF1E0"],
+  body.luxe-theme [style*="linear-gradient(135deg,#fdf1e0"],
+  body.luxe-theme [style*="linear-gradient(135deg, #FBE5C8"],
+  body.luxe-theme [style*="linear-gradient(135deg,#FBE5C8"],
+  body.luxe-theme [style*="linear-gradient(135deg, #fef3c7"],
+  body.luxe-theme [style*="linear-gradient(135deg, #FEF3C7"],
+  body.luxe-theme [style*="linear-gradient(135deg,#fef3c7"],
+  body.luxe-theme [style*="linear-gradient(135deg,#FEF3C7"],
+  body.luxe-theme [style*="linear-gradient(135deg, rgba(254,243,199"],
+  body.luxe-theme [style*="linear-gradient(135deg, #dcfce7"],
+  body.luxe-theme [style*="linear-gradient(135deg,#dcfce7"],
+  body.luxe-theme [style*="linear-gradient(135deg, #dbeafe"],
+  body.luxe-theme [style*="linear-gradient(135deg,#dbeafe"],
+  body.luxe-theme [style*="linear-gradient(135deg, #fee2e2"],
+  body.luxe-theme [style*="linear-gradient(135deg,#fee2e2"],
+  body.luxe-theme [style*="linear-gradient(135deg, #fef9c3"],
+  body.luxe-theme [style*="linear-gradient(135deg,#fef9c3"] {
+    background: linear-gradient(135deg, rgba(28,28,34,0.92), rgba(19,19,24,0.78)) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+  /* Luxe · brand-dark text gradient (Hero KPI ฿ figure) → all-gold gradient */
+  body.luxe-theme [style*="linear-gradient(135deg,#2A1F18,#B85A3D)"],
+  body.luxe-theme [style*="linear-gradient(135deg, #2A1F18, #B85A3D)"] {
+    background: linear-gradient(135deg, var(--brand-light, #D4A056), var(--brand, #B8854A)) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+  }
+  /* Luxe · mobile · brighten dark inline text colors (avatar badges, labels, info banners) */
+  body.luxe-theme [style*="color:#1e40af"],
+  body.luxe-theme [style*="color: #1e40af"],
+  body.luxe-theme [style*="color:#1e3a8a"],
+  body.luxe-theme [style*="color: #1e3a8a"] { color: #93c5fd !important; }
+  body.luxe-theme [style*="color:#15803d"],
+  body.luxe-theme [style*="color: #15803d"],
+  body.luxe-theme [style*="color:#166534"],
+  body.luxe-theme [style*="color:#0d7b5a"] { color: #86efac !important; }
+  body.luxe-theme [style*="color:#991b1b"],
+  body.luxe-theme [style*="color: #991b1b"],
+  body.luxe-theme [style*="color:#7f1d1d"] { color: #fca5a5 !important; }
+  body.luxe-theme [style*="color:#92400e"],
+  body.luxe-theme [style*="color: #92400e"],
+  body.luxe-theme [style*="color:#7c2d12"],
+  body.luxe-theme [style*="color: #7c2d12"] { color: #fdba74 !important; }
+  body.luxe-theme [style*="color:#5a4a3a"],
+  body.luxe-theme [style*="color: #5a4a3a"] { color: #A1A1AA !important; }
+  body.luxe-theme [style*="color:#2a1f18"],
+  body.luxe-theme [style*="color: #2a1f18"],
+  body.luxe-theme [style*="color:#2A1F18"],
+  body.luxe-theme [style*="color:#1a1a1a"],
+  body.luxe-theme [style*="color:#56473a"],
+  body.luxe-theme [style*="color: #56473a"],
+  body.luxe-theme [style*="color:#3a2f25"],
+  body.luxe-theme [style*="color:#374151"],
+  body.luxe-theme [style*="color:#000"] { color: #F4F4F5 !important; }
+  body.luxe-theme [style*="color:#7c7066"],
+  body.luxe-theme [style*="color: #7c7066"],
+  body.luxe-theme [style*="color:#7c6856"],
+  body.luxe-theme [style*="color: #7c6856"] { color: #D4D4D8 !important; }
+  body.luxe-theme [style*="color:#a89a8c"],
+  body.luxe-theme [style*="color: #a89a8c"] { color: #A1A1AA !important; }
+  body.luxe-theme [style*="background:white"],
+  body.luxe-theme [style*="background: white"],
+  body.luxe-theme [style*="background:#fff"],
+  body.luxe-theme [style*="background: #fff"],
+  body.luxe-theme [style*="background:#FFFFFF"],
+  body.luxe-theme [style*="background:rgba(255,255,255,0.7)"],
+  body.luxe-theme [style*="background:rgba(255,255,255,0.5)"] {
+    background: rgba(28,28,34,0.85) !important;
+    color: #F4F4F5;
+  }
+  /* Luxe · mobile · form groups + sections + lists */
+  body.luxe-theme .form-group label { color: #D4D4D8 !important; }
+  body.luxe-theme .form-group input,
+  body.luxe-theme .form-group select,
+  body.luxe-theme .form-group textarea {
+    background: rgba(255,255,255,0.04) !important;
+    color: #F4F4F5 !important;
+    border-color: rgba(255,255,255,0.10) !important;
+  }
+  body.luxe-theme .section-title { background: transparent; }
+  body.luxe-theme .section-title h2 { color: #F4F4F5; }
+  body.luxe-theme .section-title a { color: #D4A056; }
+  body.luxe-theme .settings-section { background: transparent; }
+
+  /* ============================================
+     Luxe · CSS class overrides · cards / sheets / rows / chips / tabs / calendar
+     Covers ~30 elements that use class-based backgrounds (not inline)
+     ============================================ */
+
+  /* Generic cards · standalone (NOT settings rows · those handled below) */
+  body.luxe-theme .card,
+  body.luxe-theme .job-row,
+  body.luxe-theme .cust-row,
+  body.luxe-theme .kpi,
+  body.luxe-theme .notif,
+  body.luxe-theme .notif-master,
+  body.luxe-theme .notif-other-card,
+  body.luxe-theme .wage-list,
+  body.luxe-theme .item-row,
+  body.luxe-theme .pkg-card,
+  body.luxe-theme .chart-card,
+  body.luxe-theme .preview-card,
+  body.luxe-theme .balance-chip,
+  body.luxe-theme .pit-cc {
+    background: rgba(28,28,34,0.85) !important;
+    color: #F4F4F5 !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    border-radius: 16px !important;
+  }
+
+  /* Settings · stacked rows inside ONE rounded section card */
+  body.luxe-theme .settings-section {
+    background: rgba(28,28,34,0.85) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  body.luxe-theme .settings-row {
+    background: transparent !important;
+    color: #F4F4F5 !important;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06) !important;
+  }
+  body.luxe-theme .settings-section .settings-row:last-child {
+    border-bottom: none !important;
+  }
+  body.luxe-theme .settings-row .right { color: #A1A1AA !important; }
+  /* Override any inline border-radius: 12px overflow: hidden on inner div */
+  body.luxe-theme .settings-section > div[style*="border-radius"] {
+    background: transparent !important;
+  }
+
+  /* Action sheets & modals (FAB menu, customer picker, package dropdown, PWA banner) */
+  body.luxe-theme .fab-options,
+  body.luxe-theme .ctype-sheet .cs-panel,
+  body.luxe-theme .pkg-dd-menu,
+  body.luxe-theme .pwa-install-banner,
+  body.luxe-theme .pwa-ios-modal .pwa-modal-card,
+  body.luxe-theme #whatsnew-modal .wn-card,
+  body.luxe-theme #whatsnew-modal .wn-actions {
+    background: rgba(20,20,26,0.96) !important;
+    color: #F4F4F5 !important;
+    border-color: rgba(255,255,255,0.10) !important;
+    backdrop-filter: blur(20px);
+  }
+  body.luxe-theme .fab-options .action-grid .act,
+  body.luxe-theme .action-grid .act {
+    background: rgba(28,28,34,0.85) !important;
+    color: #F4F4F5 !important;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* Calendar · month grid */
+  body.luxe-theme .cal-day {
+    background: rgba(255,255,255,0.05) !important;
+    color: #71717A !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    box-shadow: none !important;
+  }
+  body.luxe-theme .cal-day.empty {
+    background: transparent !important;
+    border: none !important;
+  }
+  /* Day WITH jobs · glowing gold pill · STANDS OUT */
+  body.luxe-theme .cal-day.has-jobs {
+    background: linear-gradient(135deg, #D4A056, #B8854A) !important;
+    color: #0A0A0E !important;
+    font-weight: 800 !important;
+    border: 1px solid rgba(212,160,86,0.7) !important;
+    box-shadow: 0 4px 14px rgba(184,133,74,0.45), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+  }
+  body.luxe-theme .cal-day.has-jobs .num {
+    color: #0A0A0E !important;
+    font-weight: 800 !important;
+  }
+  body.luxe-theme .cal-day.has-jobs .dot {
+    background: rgba(10,10,14,0.6) !important;
+  }
+  /* Today (no jobs) · soft gold outline only */
+  body.luxe-theme .cal-day.today {
+    background: rgba(184,133,74,0.18) !important;
+    color: var(--brand-light, #D4A056) !important;
+    border: 1.5px solid var(--brand, #B8854A) !important;
+    font-weight: 700 !important;
+  }
+  /* Today AND has-jobs · gold pill + bright outline */
+  body.luxe-theme .cal-day.has-jobs.today {
+    background: linear-gradient(135deg, #E8B870, #B8854A) !important;
+    color: #0A0A0E !important;
+    border: 2px solid #F4F4F5 !important;
+    box-shadow: 0 6px 18px rgba(212,160,86,0.6), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    outline: none !important;
+  }
+  body.luxe-theme .cal-header .nav-btn {
+    background: rgba(255,255,255,0.06) !important;
+    color: #F4F4F5 !important;
+  }
+
+  /* Date thumbnails on job rows */
+  body.luxe-theme .job-row .date-block {
+    background: rgba(255,255,255,0.06) !important;
+    color: #F4F4F5 !important;
+  }
+  body.luxe-theme .job-row .date-block.upcoming {
+    background: rgba(74,222,128,0.18) !important;
+    color: #86efac !important;
+  }
+  body.luxe-theme .job-row .date-block.warn {
+    background: rgba(248,113,113,0.18) !important;
+    color: #fca5a5 !important;
+  }
+
+  /* Bottom nav · glassy obsidian */
+  body.luxe-theme .bottom-nav {
+    background: rgba(10,10,14,0.85) !important;
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.08) !important;
+  }
+
+  /* Filter chips · ทั้งหมด/กำลังจะถึง/รอส่ง/ค้างชำระ/ปิดงาน */
+  body.luxe-theme .chip {
+    background: rgba(255,255,255,0.06) !important;
+    color: #D4D4D8 !important;
+    border-color: rgba(255,255,255,0.10) !important;
+  }
+  body.luxe-theme .chip.active,
+  body.luxe-theme .chip.selected,
+  body.luxe-theme .chip[aria-selected="true"] {
+    background: rgba(184,133,74,0.28) !important;
+    color: var(--brand-light, #D4A056) !important;
+    border-color: rgba(184,133,74,0.45) !important;
+  }
+
+  /* Segment tab · งาน / ใบเสนอ */
+  body.luxe-theme .seg-tab {
+    background: transparent !important;
+    color: #A1A1AA !important;
+  }
+  body.luxe-theme .seg-tab.active {
+    background: rgba(255,255,255,0.08) !important;
+    color: #F4F4F5 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  /* Form inputs · session, location, year, auth, genre, wiz */
+  body.luxe-theme .session-block-fields input,
+  body.luxe-theme .session-block-note,
+  body.luxe-theme .session-block-loc,
+  body.luxe-theme .year-select,
+  body.luxe-theme .genre-chip,
+  body.luxe-theme .genre-other-input,
+  body.luxe-theme .wiz-input,
+  body.luxe-theme .pref-btn {
+    background: rgba(255,255,255,0.04) !important;
+    color: #F4F4F5 !important;
+    border-color: rgba(255,255,255,0.10) !important;
+  }
+
+  /* Quote/Job · session block container (was #fafafa near-white) */
+  body.luxe-theme .session-block {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: rgba(255,255,255,0.10) !important;
+    color: #F4F4F5 !important;
+  }
+  body.luxe-theme .session-block-label { color: #D4D4D8 !important; }
+  body.luxe-theme .session-block-loc {
+    background-color: rgba(255,255,255,0.04) !important;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z'/><circle cx='12' cy='9' r='3'/></svg>") !important;
+    background-repeat: no-repeat !important;
+    background-position: 8px center !important;
+  }
+
+  /* Quote/Job · package dropdown rows (— Not selected — silvery look) */
+  body.luxe-theme .pkg-dd-row {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #F4F4F5 !important;
+  }
+  body.luxe-theme .pkg-dd-row.open {
+    background: linear-gradient(135deg, rgba(184,133,74,0.18), rgba(184,133,74,0.06)) !important;
+    border-color: rgba(212,160,86,0.45) !important;
+  }
+  body.luxe-theme .pkg-dd-row .pkg-dd-pkg { color: #F4F4F5 !important; }
+  body.luxe-theme .pkg-dd-row.unselected .pkg-dd-pkg { color: #A1A1AA !important; }
+  body.luxe-theme .pkg-dd-row .pkg-dd-svc { color: #A1A1AA !important; }
+
+  /* Add Time Slot dashed button border */
+  body.luxe-theme [style*="border:1px dashed"],
+  body.luxe-theme [style*="border: 1px dashed"] {
+    border-color: rgba(255,255,255,0.20) !important;
+  }
+
+  /* Secondary buttons */
+  body.luxe-theme .btn.secondary {
+    background: rgba(255,255,255,0.06) !important;
+    color: #F4F4F5 !important;
+    border-color: rgba(255,255,255,0.10) !important;
+  }
+
+  /* Status pills · keep colored tints but darker bg */
+  body.luxe-theme .pill { color: #F4F4F5; }
+
+  /* ============================================
+     Luxe · SOLID color inline backgrounds (Calendar job rows, pills, time chips)
+     Pastel hex used as `background:#XXX` without linear-gradient
+     ============================================ */
+  /* Cream/peach row backgrounds → obsidian */
+  body.luxe-theme [style*="background:#fefcf9"],
+  body.luxe-theme [style*="background: #fefcf9"],
+  body.luxe-theme [style*="background:#fff8ed"],
+  body.luxe-theme [style*="background: #fff8ed"],
+  body.luxe-theme [style*="background:#fefefe"],
+  body.luxe-theme [style*="background:#faf7f2"] {
+    background: rgba(28,28,34,0.85) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+  /* Yellow pill/chip · #fef3c7 → translucent yellow */
+  body.luxe-theme [style*="background:#fef3c7"],
+  body.luxe-theme [style*="background: #fef3c7"] {
+    background: rgba(252,211,77,0.18) !important;
+  }
+  /* Red pill · #fee2e2 → translucent red */
+  body.luxe-theme [style*="background:#fee2e2"],
+  body.luxe-theme [style*="background: #fee2e2"],
+  body.luxe-theme [style*="background:#fef2f2"] {
+    background: rgba(248,113,113,0.18) !important;
+  }
+  /* Green pill · #d1fae5 → translucent mint */
+  body.luxe-theme [style*="background:#d1fae5"],
+  body.luxe-theme [style*="background: #d1fae5"],
+  body.luxe-theme [style*="background:#e1f5ee"] {
+    background: rgba(74,222,128,0.18) !important;
+  }
+  /* Gray pill · #f3f4f6 → translucent white */
+  body.luxe-theme [style*="background:#f3f4f6"],
+  body.luxe-theme [style*="background: #f3f4f6"],
+  body.luxe-theme [style*="background:#f7f4ef"],
+  body.luxe-theme [style*="background:#f5f5f5"],
+  body.luxe-theme [style*="background:#e5e7eb"] {
+    background: rgba(255,255,255,0.08) !important;
+  }
+  /* Brown text on yellow pill · #14532d / #7c2d12 (already brightened above) */
+  body.luxe-theme [style*="color:#14532d"] { color: #86efac !important; }
+  body.luxe-theme [style*="color:#7c7066"] { color: #A1A1AA !important; }
+  /* Calendar day-pill date headers · #a89a8c muted brown */
+  body.luxe-theme [style*="background:#a89a8c"] {
+    background: rgba(255,255,255,0.10) !important;
+  }
+  body.luxe-theme [style*="background:#3a2f25"] {
+    background: rgba(255,255,255,0.06) !important;
+  }
+  /* Brand-orange date header pill #d8704a remains visible — keep as accent */
 
   /* ---- Phone shell — show wallpaper through ---- */
   .phone {
@@ -7351,7 +7723,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.28';
+const PIXORY_VERSION = '2.5.36';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
