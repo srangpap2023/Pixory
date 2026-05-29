@@ -1572,6 +1572,9 @@
         <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
       </div>
       <button id="login-btn" class="auth-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+      <div style="text-align:center;margin-top:12px;">
+        <a onclick="switchAuthPane('forgot')" style="font-size:12.5px;color:var(--brand-dark);cursor:pointer;text-decoration:underline;">ลืมรหัสผ่าน?</a>
+      </div>
       <div class="auth-foot">ใช้บัญชีเดียวกับมือถือ · ข้อมูล sync อัตโนมัติ</div>
     </div>
 
@@ -1588,6 +1591,40 @@
       </div>
       <button id="signup-btn" class="auth-btn" onclick="doSignup()">สมัครใหม่</button>
       <div class="auth-foot">สมัครแล้วเข้าสู่ระบบทันที · ตรง Supabase กับมือถือ</div>
+    </div>
+
+    <!-- v1.0.1 · Forgot password pane -->
+    <div id="auth-pane-forgot" class="auth-pane">
+      <div id="forgot-msg" class="auth-msg"></div>
+      <h3 style="text-align:center;margin:0 0 6px;font-size:18px;font-weight:700;color:var(--ink);">ลืมรหัสผ่าน</h3>
+      <p style="text-align:center;margin:0 0 16px;font-size:13px;color:var(--ink-mute);">กรอกอีเมลของคุณ · เราจะส่งลิงก์ตั้งรหัสใหม่ไปให้</p>
+      <div class="auth-field">
+        <label>อีเมล</label>
+        <input type="email" id="forgot-email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <button id="forgot-btn" class="auth-btn" onclick="doForgot()">ส่งลิงก์ตั้งรหัสใหม่</button>
+      <div style="text-align:center;margin-top:12px;">
+        <a onclick="switchAuthPane('login')" style="font-size:12.5px;color:var(--brand-dark);cursor:pointer;text-decoration:underline;">‹ กลับหน้าเข้าสู่ระบบ</a>
+      </div>
+    </div>
+
+    <!-- v1.0.1 · Reset password pane (shown after clicking PASSWORD_RECOVERY email link) -->
+    <div id="auth-pane-reset" class="auth-pane">
+      <div id="reset-msg" class="auth-msg"></div>
+      <h3 style="text-align:center;margin:0 0 6px;font-size:18px;font-weight:700;color:var(--ink);">🔑 ตั้งรหัสผ่านใหม่</h3>
+      <p style="text-align:center;margin:0 0 16px;font-size:13px;color:var(--ink-mute);">กรอกรหัสผ่านใหม่ที่คุณต้องการใช้ · อย่างน้อย 6 ตัว</p>
+      <div class="auth-field">
+        <label>รหัสผ่านใหม่</label>
+        <input type="password" id="reset-password" placeholder="อย่างน้อย 6 ตัว" autocomplete="new-password" />
+      </div>
+      <div class="auth-field">
+        <label>ยืนยันรหัสผ่านใหม่</label>
+        <input type="password" id="reset-password-confirm" placeholder="พิมพ์อีกครั้ง" autocomplete="new-password" />
+      </div>
+      <button id="reset-btn" class="auth-btn" onclick="doResetPassword()">บันทึกรหัสใหม่</button>
+      <div style="text-align:center;margin-top:12px;">
+        <a onclick="switchAuthPane('login')" style="font-size:12.5px;color:var(--brand-dark);cursor:pointer;text-decoration:underline;">‹ กลับหน้าเข้าสู่ระบบ</a>
+      </div>
     </div>
   </div>
 </div>
@@ -1692,7 +1729,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.0';
+const PIXORY_DESKTOP_VERSION = '1.0.1';
 
 // ===== Supabase config (must match mobile) =====
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
@@ -1923,11 +1960,16 @@ function initSupabase() {
           storageKey: AUTH_STORAGE_KEY
         }
       });
-      // Listen for token expiry / logout from elsewhere
+      // Listen for token expiry / logout / password recovery
       SUPABASE.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT') {
           CURRENT_USER = null;
           showAuthOverlay();
+        } else if (event === 'PASSWORD_RECOVERY') {
+          // v1.0.1 · User clicked reset password link from email · show reset pane
+          console.info('[auth] PASSWORD_RECOVERY · showing reset pane');
+          showAuthOverlay();
+          switchAuthPane('reset');
         }
       });
       return true;
@@ -1939,8 +1981,20 @@ function initSupabase() {
 function switchAuthPane(pane) {
   document.querySelectorAll('.auth-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('auth-pane-' + pane).classList.add('active');
-  document.querySelector('.auth-tab[data-pane="' + pane + '"]').classList.add('active');
+  const paneEl = document.getElementById('auth-pane-' + pane);
+  if (paneEl) paneEl.classList.add('active');
+  // Tab only activates for login/signup · forgot+reset don't have tabs (hide tab row)
+  const tabRow = document.querySelector('.auth-tabs');
+  if (pane === 'login' || pane === 'signup') {
+    if (tabRow) tabRow.style.display = '';
+    const tabEl = document.querySelector('.auth-tab[data-pane="' + pane + '"]');
+    if (tabEl) tabEl.classList.add('active');
+  } else {
+    // Hide tabs for forgot/reset screens (no tab UI)
+    if (tabRow) tabRow.style.display = 'none';
+  }
+  // Clear all auth messages on switch
+  document.querySelectorAll('.auth-msg').forEach(el => { el.textContent = ''; el.className = 'auth-msg'; });
 }
 
 function setAuthMsg(pane, type, text) {
@@ -2009,6 +2063,57 @@ async function doSignup() {
   } catch(e) {
     setAuthMsg('signup', 'error', 'เกิดข้อผิดพลาด: ' + (e.message || e));
     btn.disabled = false; btn.textContent = 'สมัครใหม่';
+  }
+}
+
+// v1.0.1 · Send password reset link to email
+async function doForgot() {
+  setAuthMsg('forgot', '', '');
+  const email = (document.getElementById('forgot-email').value || '').trim();
+  if (!email) { setAuthMsg('forgot', 'error', 'กรุณากรอกอีเมล'); return; }
+  if (!SUPABASE) { setAuthMsg('forgot', 'error', 'ระบบยังไม่พร้อม · ลองอีกครั้ง'); return; }
+  const btn = document.getElementById('forgot-btn');
+  btn.disabled = true; btn.textContent = 'กำลังส่ง...';
+  try {
+    const { error } = await SUPABASE.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname
+    });
+    if (error) {
+      setAuthMsg('forgot', 'error', error.message);
+      btn.disabled = false; btn.textContent = 'ส่งลิงก์ตั้งรหัสใหม่';
+      return;
+    }
+    setAuthMsg('forgot', 'success', '✓ ส่งลิงก์ตั้งรหัสใหม่ไปที่ ' + email + ' แล้ว · ตรวจ inbox ของคุณ · ลิงก์หมดอายุใน 1 ชั่วโมง');
+    btn.disabled = false; btn.textContent = 'ส่งลิงก์ตั้งรหัสใหม่';
+  } catch(e) {
+    setAuthMsg('forgot', 'error', 'เกิดข้อผิดพลาด: ' + (e.message || e));
+    btn.disabled = false; btn.textContent = 'ส่งลิงก์ตั้งรหัสใหม่';
+  }
+}
+
+// v1.0.1 · Set new password after clicking PASSWORD_RECOVERY link
+async function doResetPassword() {
+  setAuthMsg('reset', '', '');
+  const pw = document.getElementById('reset-password').value || '';
+  const pw2 = document.getElementById('reset-password-confirm').value || '';
+  if (!pw || !pw2) { setAuthMsg('reset', 'error', 'กรุณากรอกรหัสผ่านทั้ง 2 ช่อง'); return; }
+  if (pw.length < 6) { setAuthMsg('reset', 'error', 'รหัสผ่านต้องอย่างน้อย 6 ตัว'); return; }
+  if (pw !== pw2) { setAuthMsg('reset', 'error', 'รหัสผ่านทั้ง 2 ช่องไม่ตรงกัน'); return; }
+  if (!SUPABASE) { setAuthMsg('reset', 'error', 'ระบบยังไม่พร้อม · ลองอีกครั้ง'); return; }
+  const btn = document.getElementById('reset-btn');
+  btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
+  try {
+    const { error } = await SUPABASE.auth.updateUser({ password: pw });
+    if (error) {
+      setAuthMsg('reset', 'error', error.message || 'เกิดข้อผิดพลาด · ลองอีกครั้ง');
+      btn.disabled = false; btn.textContent = 'บันทึกรหัสใหม่';
+      return;
+    }
+    setAuthMsg('reset', 'success', '✓ ตั้งรหัสใหม่สำเร็จ · กำลังเข้าสู่ระบบ...');
+    setTimeout(() => { location.reload(); }, 1200);
+  } catch(e) {
+    setAuthMsg('reset', 'error', 'เกิดข้อผิดพลาด: ' + (e.message || e));
+    btn.disabled = false; btn.textContent = 'บันทึกรหัสใหม่';
   }
 }
 
@@ -6329,8 +6434,8 @@ function renderSettingsAbout() {
     <div class="glass-card">
       <div class="form-section-title">🛡 ข้อกำหนด · ความเป็นส่วนตัว · PDPA</div>
       <div style="display:grid; gap:8px;">
-        <button class="btn btn-secondary" onclick="window.open('https://srangpap.github.io/pixory/?legal=terms', '_blank')">📄 ข้อกำหนดการใช้บริการ</button>
-        <button class="btn btn-secondary" onclick="window.open('https://srangpap.github.io/pixory/?legal=privacy', '_blank')">🔒 นโยบายความเป็นส่วนตัว (PDPA)</button>
+        <button class="btn btn-secondary" onclick="window.open('https://srangpap2023.github.io/Pixory/?legal=terms', '_blank')">📄 ข้อกำหนดการใช้บริการ</button>
+        <button class="btn btn-secondary" onclick="window.open('https://srangpap2023.github.io/Pixory/?legal=privacy', '_blank')">🔒 นโยบายความเป็นส่วนตัว (PDPA)</button>
         <button class="btn btn-secondary" onclick="alert('PDPA · สิทธิของคุณ:\\n\\n• เข้าถึง: Settings → สำรองข้อมูล → Export Backup\\n• แก้ไข: แก้ในแอพได้\\n• ลบ: Settings → บัญชีของฉัน → ลบบัญชีถาวร\\n• ขนถ่าย: Export Backup .json\\n• คัดค้าน / เพิกถอน: ติดต่อ srangpap2026@gmail.com\\n\\nหากเราไม่ดำเนินการภายใน 30 วัน · ร้องเรียนได้ที่ pdpc.or.th')">🆔 สิทธิของฉัน (PDPA)</button>
       </div>
     </div>
@@ -6831,7 +6936,7 @@ async function testNotification() {
   try {
     const n = new Notification('Pixory · ทดสอบแจ้งเตือน 🎉', {
       body: 'ถ้าเห็นข้อความนี้ที่มุมจอ = ระบบพร้อมใช้งาน · กดปิดได้เลย',
-      icon: 'https://srangpap.github.io/pixory/icon.png',
+      icon: 'https://srangpap2023.github.io/Pixory/icon.png',
       tag: 'pixory-test',
       requireInteraction: false,
       silent: false
