@@ -4119,7 +4119,6 @@
       <div id="quotes-filter-row" style="display: none; gap: 6px; padding: 0 16px 12px; overflow-x: auto;">
         <div class="chip active" onclick="filterQuotes('all', this)" data-i18n="filter.all">ทั้งหมด</div>
         <div class="chip" onclick="filterQuotes('pending', this)" data-i18n="filter.pending">รออนุมัติ</div>
-        <div class="chip" onclick="filterQuotes('approved', this)" data-i18n="filter.approved">อนุมัติแล้ว</div>
         <div class="chip" onclick="filterQuotes('converted', this)" data-i18n="filter.converted">สร้างงานแล้ว</div>
         <div class="chip" onclick="filterQuotes('rejected', this)" data-i18n="filter.rejected">ปฏิเสธ</div>
         <div class="chip" onclick="filterQuotes('expired', this)" data-i18n="filter.expired">หมดอายุ</div>
@@ -6996,7 +6995,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.25';
+const PIXORY_VERSION = '2.5.26';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -7007,6 +7006,23 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.26': {
+    date: '2026-05-29',
+    title: 'ลดขั้นตอน · กด "สร้างงาน" จากใบเสนอได้เลย',
+    subtitle: 'ไม่ต้องกด "อนุมัติ" ก่อน · พอลูกค้ามัดจำมากดสร้างงานได้ทันที',
+    items: [
+      {
+        icon: '⚡',
+        title: 'ลด tab "อนุมัติแล้ว" ออก',
+        desc: 'workflow ส่วนใหญ่จะข้ามขั้นนี้ไป (พอลูกค้ามัดจำ → สร้างงานเลย) · tab "อนุมัติแล้ว" จึงซ้ำซ้อน · ใบเสนอเหลือ 5 tab: ทั้งหมด · รออนุมัติ · สร้างงานแล้ว · ปฏิเสธ · หมดอายุ'
+      },
+      {
+        icon: '→',
+        title: 'ปุ่ม "สร้างงาน" โผล่จาก pending เลย',
+        desc: 'ไม่ต้องกด "อนุมัติ" → "สร้างงาน" 2 ขั้น · กดสร้างงานได้จากใบเสนอที่รออนุมัติเลย · 1 คลิกจบ · ถ้ายังอยากกดอนุมัติเฉยๆ ก็ใช้ dropdown "เปลี่ยน" ได้'
+      }
+    ]
+  },
   '2.5.25': {
     date: '2026-05-29',
     title: 'ลืมรหัสผ่าน · ใช้งานได้จริง end-to-end',
@@ -15955,9 +15971,8 @@ function showQuoteScreen(data, source) {
     const actions = document.getElementById('quote-status-actions');
     actions.innerHTML = '';
     // Primary action button per status
-    if (data.status === 'pending') {
-      actions.innerHTML = `<button class="btn" style="margin:0; padding:6px 10px; font-size:11px; width:auto;" onclick="markQuoteStatus('${data.code}','approved')">✓ ` + (LANG === 'en' ? 'Approve' : 'ตกลง') + `</button>`;
-    } else if (data.status === 'approved') {
+    if (data.status === 'pending' || data.status === 'approved') {
+      // v2.5.26 · สร้างงานได้เลยจาก pending · ไม่ต้องผ่าน approved (workflow ของ Joe)
       actions.innerHTML = `<button class="btn" style="margin:0; padding:6px 12px; font-size:11px; width:auto; background:#10b981;" onclick="convertQuoteToJob('${data.code}')">→ ` + (LANG === 'en' ? 'Create Job' : 'สร้างงาน') + `</button>`;
     } else if (data.status === 'converted' && data.convertedJobCode) {
       actions.innerHTML = `<button class="btn secondary" style="margin:0; padding:6px 12px; font-size:11px; width:auto;" onclick="openJob('${data.convertedJobCode}')">` + (LANG === 'en' ? 'View Job' : 'ดูงาน') + `</button>`;
