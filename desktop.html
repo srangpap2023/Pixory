@@ -1590,7 +1590,7 @@
         <input type="password" id="signup-password" placeholder="••••••••" autocomplete="new-password" />
       </div>
       <button id="signup-btn" class="auth-btn" onclick="doSignup()">สมัครใหม่</button>
-      <div class="auth-foot">สมัครแล้วเข้าสู่ระบบทันที · ตรง Supabase กับมือถือ</div>
+      <div class="auth-foot">บัญชีเดียวใช้ได้ทั้งมือถือและเดสท๊อป · ข้อมูล sync อัตโนมัติ · ตรวจอีเมลยืนยันก่อนใช้งาน</div>
     </div>
 
     <!-- v1.0.1 · Forgot password pane -->
@@ -1729,7 +1729,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.1';
+const PIXORY_DESKTOP_VERSION = '1.0.2';
 
 // ===== Supabase config (must match mobile) =====
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
@@ -3468,7 +3468,6 @@ function renderQuotes(root) {
       <div class="tab-row" style="margin-bottom:0;">
         <button class="tab-btn ${QUOTES_TAB === 'all' ? 'active' : ''}" onclick="setQuotesTab('all')">ทั้งหมด <span class="count">${counts.all}</span></button>
         <button class="tab-btn ${QUOTES_TAB === 'pending' ? 'active' : ''}" onclick="setQuotesTab('pending')">รออนุมัติ <span class="count">${counts.pending}</span></button>
-        <button class="tab-btn ${QUOTES_TAB === 'approved' ? 'active' : ''}" onclick="setQuotesTab('approved')">อนุมัติแล้ว <span class="count">${counts.approved}</span></button>
         <button class="tab-btn ${QUOTES_TAB === 'converted' ? 'active' : ''}" onclick="setQuotesTab('converted')">สร้างงานแล้ว <span class="count">${counts.converted}</span></button>
         <button class="tab-btn ${QUOTES_TAB === 'rejected' ? 'active' : ''}" onclick="setQuotesTab('rejected')">ปฏิเสธ <span class="count">${counts.rejected}</span></button>
         <button class="tab-btn ${QUOTES_TAB === 'expired' ? 'active' : ''}" onclick="setQuotesTab('expired')" ${counts.expired > 0 ? 'style="color:#b91c1c;"' : ''}>⏰ หมดอายุ <span class="count">${counts.expired}</span></button>
@@ -9862,11 +9861,7 @@ function renderQuoteDetailHtml(q) {
         <button onclick="closeModal();setTimeout(()=>openQuotePrint('${escapeHtml(q.code)}'),50)" style="padding:14px 8px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fbbf24;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:#7c2d12;font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
           <span style="font-size:22px;">📄</span><span>พิมพ์/PDF</span>
         </button>
-        ${(status === 'pending' || status === 'draft') ? `
-          <button onclick="approveQuote('${escapeHtml(q.code)}')" style="padding:14px 8px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);border:1px solid #15803d;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:#15803d;font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-            <span style="font-size:22px;">✓</span><span>อนุมัติ</span>
-          </button>
-        ` : (status === 'approved' && !q.convertedJobCode) ? `
+        ${((status === 'pending' || status === 'draft' || status === 'approved') && !q.convertedJobCode) ? `
           <button onclick="convertQuoteToJob('${escapeHtml(q.code)}')" style="padding:14px 8px;background:linear-gradient(135deg,#FBE5C8,#F5A87E);border:1px solid #B85A3D;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:#7c2d12;font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
             <span style="font-size:22px;">→</span><span>สร้างงาน</span>
           </button>
@@ -10044,7 +10039,11 @@ async function changeQuoteStatus(code, newStatus) {
 async function convertQuoteToJob(code) {
   const q = QUOTES.find(x => x.code === code);
   if (!q) { toast('ไม่พบใบเสนอ', 'error'); return; }
-  if (q.status !== 'approved') { toast('ใบเสนอต้อง "อนุมัติแล้ว" ก่อน', 'warn'); return; }
+  // v1.0.2 · อนุญาตให้สร้างงานจาก pending/draft ได้เลย (ไม่ต้องผ่าน approved · ตาม workflow ของ Joe)
+  if (q.status === 'rejected' || q.status === 'converted') {
+    toast('ใบเสนอนี้สถานะ "' + quoteStatusLabel(q.status) + '" · สร้างงานไม่ได้', 'warn');
+    return;
+  }
   // M2 · บล็อก convert ซ้ำ (เหมือน mobile) · ถ้าทำซ้ำต้องลบงานเก่าก่อน
   if (q.convertedJobCode) {
     const existingJob = JOBS.find(j => j.code === q.convertedJobCode);
