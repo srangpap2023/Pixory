@@ -3611,14 +3611,13 @@ function _getTaxYearPeriod(year) {
 }
 
 function _reportYearJobs() {
-  // FIX C7 · ใช้ getTaxYearPeriod แทน calendar year · skip future-dated
+  // FIX H13(revert) · ตรงกับมือถือ · นับงานทั้งหมดในปี รวมงานอนาคต (booked revenue)
+  // ภาษี/PIT ยังคงกรอง future date ออก ที่ _computePIT
   const period = _getTaxYearPeriod(REPORTS_YEAR);
-  const today = new Date();
   return JOBS.filter(j => {
     if (!j.date) return false;
     const d = new Date(j.date);
     if (isNaN(d.getTime())) return false;
-    if (d > today) return false; // FIX H13 · skip future jobs
     return d >= period.start && d <= period.end;
   });
 }
@@ -3796,6 +3795,17 @@ function renderReportsOverview() {
   const expEntries = Object.entries(expMap).filter(([_, v]) => v > 0).sort((a, b) => b[1] - a[1]).map((e, i) => ({ name: e[0], val: e[1], color: expColors[i % expColors.length] }));
   const expCatTotal = expEntries.reduce((s, e) => s + e.val, 0);
 
+  // Cap legend to top N · group rest as "อื่นๆ" · keeps both donut cards visually balanced
+  const _capTopN = (entries, n = 5, label = '📦 อื่นๆ', color = '#a89a8c') => {
+    if (entries.length <= n) return entries;
+    const top = entries.slice(0, n - 1);
+    const rest = entries.slice(n - 1);
+    const restVal = rest.reduce((s, e) => s + e.val, 0);
+    return [...top, { name: `${label} (${rest.length} หมวด)`, val: restVal, color }];
+  };
+  const svcEntriesView = _capTopN(svcEntries, 5);
+  const expEntriesView = _capTopN(expEntries, 5);
+
   // Source breakdown (count of jobs)
   const srcMap = {};
   const srcFallback = (SOURCES && SOURCES.length) ? SOURCES[SOURCES.length - 1] : 'อื่นๆ';
@@ -3875,17 +3885,17 @@ function renderReportsOverview() {
     </div>
 
     <!-- ROW: Service Pie + Expense Pie (paired) · moved right after Hero -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
-      <div class="glass-card">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;align-items:stretch;">
+      <div class="glass-card" style="display:flex;flex-direction:column;">
         <div class="form-section-title">📷 รายรับตามประเภทบริการ</div>
-        <div class="text-mute text-sm" style="margin-bottom:18px;">โดนัทลอย · proportional · รวม ${fmtTHB(svcTotal)}</div>
-        <div style="display:flex;align-items:center;gap:24px;">
+        <div class="text-mute text-sm" style="margin-bottom:18px;">โดนัทลอย · proportional · รวม ${fmtTHB(svcTotal)} · ${svcEntries.length} ประเภท</div>
+        <div style="display:flex;align-items:flex-start;gap:24px;flex:1;">
           ${_buildDonutSvg(
-            svcEntries.map(e => ({ value: e.val, color: e.color })),
+            svcEntriesView.map(e => ({ value: e.val, color: e.color })),
             svcTotal >= 1000000 ? '฿' + (svcTotal/1000000).toFixed(2) + 'M' : '฿' + Math.round(svcTotal/1000) + 'K',
             'รวม'
           )}
-          ${_donutLegend(svcEntries.map(e => ({
+          ${_donutLegend(svcEntriesView.map(e => ({
             name: e.name,
             value: fmtTHB(e.val),
             pct: svcTotal > 0 ? (e.val / svcTotal * 100).toFixed(1) + '%' : '0%',
@@ -3894,18 +3904,18 @@ function renderReportsOverview() {
         </div>
       </div>
 
-      <div class="glass-card">
+      <div class="glass-card" style="display:flex;flex-direction:column;">
         <div class="form-section-title">💸 รายจ่ายแยกหมวด</div>
-        <div class="text-mute text-sm" style="margin-bottom:18px;">โดนัทลอย · รวม ${fmtTHB(expCatTotal)}</div>
+        <div class="text-mute text-sm" style="margin-bottom:18px;">โดนัทลอย · รวม ${fmtTHB(expCatTotal)} · ${expEntries.length} หมวด</div>
         ${expEntries.length === 0
-          ? '<div class="text-mute text-sm">ยังไม่มีค่าใช้จ่ายในปีนี้</div>'
-          : `<div style="display:flex;align-items:center;gap:24px;">
+          ? '<div class="text-mute text-sm" style="flex:1;display:flex;align-items:center;justify-content:center;">ยังไม่มีค่าใช้จ่ายในปีนี้</div>'
+          : `<div style="display:flex;align-items:flex-start;gap:24px;flex:1;">
               ${_buildDonutSvg(
-                expEntries.map(e => ({ value: e.val, color: e.color })),
+                expEntriesView.map(e => ({ value: e.val, color: e.color })),
                 expCatTotal >= 1000000 ? '฿' + (expCatTotal/1000000).toFixed(2) + 'M' : '฿' + Math.round(expCatTotal/1000) + 'K',
                 'รวม'
               )}
-              ${_donutLegend(expEntries.map(e => ({
+              ${_donutLegend(expEntriesView.map(e => ({
                 name: e.name,
                 value: fmtTHB(e.val),
                 pct: expCatTotal > 0 ? (e.val / expCatTotal * 100).toFixed(1) + '%' : '0%',
