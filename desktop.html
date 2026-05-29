@@ -107,13 +107,14 @@
     --r-xl: 24px;
 
     /* === Spacing === */
-    --gap-1: 4px;
-    --gap-2: 8px;
-    --gap-3: 12px;
-    --gap-4: 16px;
-    --gap-5: 20px;
-    --gap-6: 24px;
-    --gap-8: 32px;
+    /* v1.0.17 · Fluid responsive tokens · scales 1024px → 1920px viewport */
+    --gap-1: 3px;
+    --gap-2: clamp(5px, 0.42vw, 8px);
+    --gap-3: clamp(8px, 0.70vw, 12px);
+    --gap-4: clamp(11px, 0.90vw, 16px);
+    --gap-5: clamp(14px, 1.10vw, 20px);
+    --gap-6: clamp(16px, 1.30vw, 24px);
+    --gap-8: clamp(22px, 1.80vw, 32px);
 
     /* === Typography ===
        Note: Inter อยู่ก่อน Sarabun เพื่อให้เลข 0-9 และ ฿ render ด้วย Inter (เหมือน Hero KPI)
@@ -266,6 +267,291 @@
   html[data-theme="luxe"] .kpi-label { color: var(--ink-mute); }
   /* Luxe · amount cells */
   html[data-theme="luxe"] .amount-cell { color: var(--brand-light); font-weight: 600; }
+  /* Luxe · Settings sidebar + content (mirror dark mode rules) */
+  html[data-theme="luxe"] .settings-sidebar {
+    background: linear-gradient(180deg, rgba(28,28,34,0.85) 0%, rgba(19,19,24,0.7) 100%);
+    border-color: rgba(255,255,255,0.06);
+  }
+  html[data-theme="luxe"] .settings-sidebar::before {
+    background: linear-gradient(to right, transparent, rgba(184,133,74,0.30), transparent);
+  }
+  html[data-theme="luxe"] .ss-search {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.10);
+    color: var(--ink);
+  }
+  html[data-theme="luxe"] .ss-section { color: var(--brand-light); }
+  html[data-theme="luxe"] .ss-item { color: var(--ink-soft); }
+  html[data-theme="luxe"] .ss-item:hover { background: rgba(184,133,74,0.10); color: var(--ink); }
+  html[data-theme="luxe"] .ss-item.active {
+    background: linear-gradient(135deg, rgba(184,133,74,0.20), rgba(184,133,74,0.08)) !important;
+    color: var(--brand-light) !important;
+  }
+  html[data-theme="luxe"] .ss-item .ss-count {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.10);
+    color: var(--ink-mute);
+  }
+  html[data-theme="luxe"] .ss-footer {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.08);
+    color: var(--ink-mute);
+  }
+  html[data-theme="luxe"] .settings-content {
+    background: linear-gradient(180deg, rgba(28,28,34,0.85) 0%, rgba(19,19,24,0.72) 100%);
+    border-color: rgba(255,255,255,0.06);
+    color: var(--ink);
+  }
+  /* Luxe · catch all white/cream backgrounds inside settings + forms */
+  html[data-theme="luxe"] .form-row,
+  html[data-theme="luxe"] .form-field,
+  html[data-theme="luxe"] .hint,
+  html[data-theme="luxe"] .row-title,
+  html[data-theme="luxe"] .row-sub { color: var(--ink); }
+  html[data-theme="luxe"] .hint { color: var(--ink-mute); }
+  html[data-theme="luxe"] .form-field label,
+  html[data-theme="luxe"] label { color: var(--ink-soft); }
+  /* Luxe · toggle switches */
+  html[data-theme="luxe"] .toggle-switch .track {
+    background: rgba(255,255,255,0.10);
+  }
+  html[data-theme="luxe"] .toggle-switch input:checked + .track {
+    background: var(--brand);
+  }
+  html[data-theme="luxe"] .toggle-switch:hover .track { box-shadow: 0 0 0 4px rgba(184,133,74,0.15); }
+  /* Luxe · service rows + list items inside settings panels */
+  html[data-theme="luxe"] .service-row,
+  html[data-theme="luxe"] .list-item-row,
+  html[data-theme="luxe"] .bank-row,
+  html[data-theme="luxe"] .team-row,
+  html[data-theme="luxe"] .pkg-card,
+  html[data-theme="luxe"] [class*="-card"]:not(.glass-card):not(.note-card):not(.dt-note-card):not(.dt-nc-y):not(.dt-nc-p):not(.dt-nc-b):not(.dt-nc-g):not(.dt-nc-o):not(.dt-nc-v) {
+    background: rgba(255,255,255,0.03) !important;
+    border: 0.5px solid rgba(255,255,255,0.08) !important;
+    color: var(--ink) !important;
+  }
+  /* Luxe · service-row hover */
+  html[data-theme="luxe"] .service-row:hover,
+  html[data-theme="luxe"] .list-item-row:hover,
+  html[data-theme="luxe"] .bank-row:hover,
+  html[data-theme="luxe"] .team-row:hover {
+    background: rgba(184,133,74,0.08) !important;
+  }
+  /* Luxe · PIT helper mode buttons */
+  html[data-theme="luxe"] .pit-mode-btn {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.10);
+    color: var(--ink);
+  }
+  html[data-theme="luxe"] .pit-mode-btn.active {
+    background: rgba(184,133,74,0.15);
+    border-color: var(--brand);
+    color: var(--brand-light);
+  }
+  /* Luxe · plate · color-coded category badges (preserve color but tone text) */
+  html[data-theme="luxe"] .pill-pending,
+  html[data-theme="luxe"] .pill-shoot { background: rgba(96,165,250,0.18); color: #93c5fd; }
+  html[data-theme="luxe"] .pill-deliver { background: rgba(184,133,74,0.18); color: var(--brand-light); }
+  html[data-theme="luxe"] .pill-closed { background: rgba(74,222,128,0.15); color: #86efac; }
+  /* Luxe · Hero card · "next shoot" in dashboard · catch hardcoded cream */
+  html[data-theme="luxe"] [style*="background:linear-gradient(135deg, #FBE5C8"],
+  html[data-theme="luxe"] [style*="background: linear-gradient(135deg, #FBE5C8"],
+  html[data-theme="luxe"] [style*="background:#FBE5C8"],
+  html[data-theme="luxe"] [style*="background:#fff"],
+  html[data-theme="luxe"] [style*="background: #fff"],
+  html[data-theme="luxe"] [style*="background:white"],
+  html[data-theme="luxe"] [style*="background: white"] {
+    background: rgba(28,28,34,0.85) !important;
+  }
+  /* Luxe · Catch hardcoded dark text on these light bg elements */
+  html[data-theme="luxe"] [style*="color:#2A1F18"],
+  html[data-theme="luxe"] [style*="color: #2A1F18"],
+  html[data-theme="luxe"] [style*="color:#3a2f25"],
+  html[data-theme="luxe"] [style*="color: #3a2f25"],
+  html[data-theme="luxe"] [style*="color:#1f1f1f"],
+  html[data-theme="luxe"] [style*="color:#0A0A0E"]:not(.btn-primary):not(.btn-gold) {
+    color: var(--ink) !important;
+  }
+  /* Luxe · catch hardcoded muted text */
+  html[data-theme="luxe"] [style*="color:#7c6856"],
+  html[data-theme="luxe"] [style*="color: #7c6856"],
+  html[data-theme="luxe"] [style*="color:#56473a"],
+  html[data-theme="luxe"] [style*="color: #56473a"],
+  html[data-theme="luxe"] [style*="color:#7c7066"] {
+    color: var(--ink-soft) !important;
+  }
+  html[data-theme="luxe"] [style*="color:#a89a8c"],
+  html[data-theme="luxe"] [style*="color: #a89a8c"] { color: var(--ink-mute) !important; }
+  /* Luxe · Backup danger zone keep red but bg dark */
+  html[data-theme="luxe"] [style*="background:#fff5f0"] { background: rgba(220,38,38,0.06) !important; }
+  /* Luxe · Top bar (sticky header in app) */
+  html[data-theme="luxe"] .topbar {
+    background: rgba(10,10,14,0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-bottom-color: rgba(255,255,255,0.06);
+  }
+  html[data-theme="luxe"] .topbar-brand .brand-text { color: var(--ink); }
+  html[data-theme="luxe"] .topbar .search-input,
+  html[data-theme="luxe"] .topbar input { background: rgba(255,255,255,0.04); color: var(--ink); border-color: rgba(255,255,255,0.10); }
+  html[data-theme="luxe"] .user-chip { background: rgba(255,255,255,0.04); color: var(--ink); border-color: rgba(255,255,255,0.10); }
+  html[data-theme="luxe"] .user-chip:hover { background: rgba(184,133,74,0.10); border-color: var(--brand); }
+  /* Luxe · FAB Quick create */
+  html[data-theme="luxe"] .fab-quick {
+    background: linear-gradient(135deg, var(--brand-light), var(--brand-dark)) !important;
+    color: #0A0A0E !important;
+    box-shadow: 0 8px 28px rgba(184,133,74,0.4) !important;
+  }
+  /* Luxe · ใบเสนอ tab + filter chips · already in tab-btn but reinforce */
+  html[data-theme="luxe"] .count.text-mute { color: var(--ink-mute); }
+  /* Luxe · modal overlay backgrounds */
+  html[data-theme="luxe"] .modal-overlay,
+  html[data-theme="luxe"] [id*="modal-overlay"] { background: rgba(0,0,0,0.65) !important; }
+  /* Luxe · in-modal cards */
+  html[data-theme="luxe"] .modal-content,
+  html[data-theme="luxe"] .glass-card[style*="background:white"] {
+    background: rgba(28,28,34,0.95) !important;
+    color: var(--ink) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+  /* Luxe · Calendar · keep dates readable */
+  html[data-theme="luxe"] .cal-day { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); color: var(--ink); }
+  html[data-theme="luxe"] .cal-day.today { background: rgba(184,133,74,0.15); border-color: var(--brand); color: var(--brand-light); }
+  html[data-theme="luxe"] .cal-day .cal-num { color: var(--ink); }
+  html[data-theme="luxe"] .cal-day .cal-job-chip { background: rgba(184,133,74,0.2); color: var(--brand-light); }
+  /* Luxe · Dashboard hero text */
+  html[data-theme="luxe"] .home-hero h1, html[data-theme="luxe"] .home-hero h2 { color: var(--ink) !important; }
+  html[data-theme="luxe"] .home-hero p { color: var(--ink-soft) !important; }
+  /* Luxe · catch ALL pastel gradients (Dashboard mini cards, Next Shoot, etc.) */
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #FDF1E0"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #fdf1e0"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #dcfce7"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #fef3c7"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #dbeafe"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #ede9fe"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #fce7f3"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #fef9c3"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #f0fdf4"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #f5f3ff"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #eff6ff"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #fff7ed"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #ffedd5"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #ecfdf5"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #FBE5C8"] {
+    background: linear-gradient(135deg, rgba(28,28,34,0.92), rgba(19,19,24,0.78)) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+  /* Luxe · catch lowercase hex dark text colors */
+  html[data-theme="luxe"] [style*="color:#2a1f18"],
+  html[data-theme="luxe"] [style*="color: #2a1f18"],
+  html[data-theme="luxe"] [style*="color:#1a1a1a"],
+  html[data-theme="luxe"] [style*="color: #1a1a1a"],
+  html[data-theme="luxe"] [style*="color:#374151"],
+  html[data-theme="luxe"] [style*="color:#1f2937"],
+  html[data-theme="luxe"] [style*="color:#111827"],
+  html[data-theme="luxe"] [style*="color:#000"],
+  html[data-theme="luxe"] [style*="color: #000"] {
+    color: var(--ink) !important;
+  }
+  /* Luxe · misc backgrounds: f9fafb, f3f4f6, e5e7eb (Tailwind grays) */
+  html[data-theme="luxe"] [style*="background:#f9fafb"],
+  html[data-theme="luxe"] [style*="background: #f9fafb"],
+  html[data-theme="luxe"] [style*="background:#f3f4f6"],
+  html[data-theme="luxe"] [style*="background: #f3f4f6"],
+  html[data-theme="luxe"] [style*="background:#fafaf9"],
+  html[data-theme="luxe"] [style*="background: #fafaf9"] {
+    background: rgba(255,255,255,0.04) !important;
+  }
+  /* Luxe · ensure settings-content has min-height so empty panels show their bg */
+  html[data-theme="luxe"] .settings-content { min-height: 500px; }
+  /* Luxe · all glass-card text inherits ink */
+  html[data-theme="luxe"] .glass-card { color: var(--ink); }
+  html[data-theme="luxe"] .glass-card * { color: inherit; }
+  html[data-theme="luxe"] .glass-card .text-mute { color: var(--ink-mute) !important; }
+  html[data-theme="luxe"] .glass-card .text-sm { color: var(--ink-soft); }
+  html[data-theme="luxe"] .glass-card label { color: var(--ink-soft); }
+  /* Luxe · input/select with inline styles */
+  html[data-theme="luxe"] input[style*="background:white"],
+  html[data-theme="luxe"] input[style*="background: white"],
+  html[data-theme="luxe"] select[style*="background:white"],
+  html[data-theme="luxe"] select[style*="background: white"],
+  html[data-theme="luxe"] textarea[style*="background:white"] {
+    background: rgba(255,255,255,0.04) !important;
+    color: var(--ink) !important;
+    border-color: rgba(255,255,255,0.10) !important;
+  }
+  /* Luxe · Reports Hero KPI 4 cards · background:rgba(255,255,255,0.7) frosted white → obsidian */
+  html[data-theme="luxe"] [style*="background:rgba(255,255,255,0.7)"],
+  html[data-theme="luxe"] [style*="background: rgba(255,255,255,0.7)"],
+  html[data-theme="luxe"] [style*="background:rgba(255, 255, 255, 0.7)"] {
+    background: rgba(28,28,34,0.85) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+  html[data-theme="luxe"] [style*="border:1px solid rgba(255,255,255,0.9)"],
+  html[data-theme="luxe"] [style*="border: 1px solid rgba(255,255,255,0.9)"] {
+    border-color: rgba(255,255,255,0.10) !important;
+  }
+  /* Luxe · Reports Hero gradient text · #2A1F18 → brand · was invisible on dark */
+  html[data-theme="luxe"] [style*="linear-gradient(135deg,#2A1F18,#B85A3D)"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #2A1F18, #B85A3D)"] {
+    background: linear-gradient(135deg, var(--brand-light), var(--brand)) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+  }
+  /* Luxe · Reports Funnel cards (no-space gradient variants · ส่งใบเสนอ/อนุมัติ/ปิดดีล) */
+  html[data-theme="luxe"] [style*="linear-gradient(135deg,#dbeafe"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #dbeafe"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg,#fef3c7"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #fef3c7"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg,#dcfce7"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg,#fee2e2"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #FDF1E0"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg,#FDF1E0"],
+  html[data-theme="luxe"] [style*="background:linear-gradient(135deg,#dbeafe"],
+  html[data-theme="luxe"] [style*="background:linear-gradient(135deg,#fef3c7"],
+  html[data-theme="luxe"] [style*="background:linear-gradient(135deg,#dcfce7"] {
+    background: linear-gradient(135deg, rgba(28,28,34,0.92), rgba(19,19,24,0.78)) !important;
+    border-color: rgba(255,255,255,0.10) !important;
+  }
+  /* Luxe · ปุ่มกลม pill `background:white` ที่มี hardcoded text color → ทำเป็น gold chip */
+  html[data-theme="luxe"] [style*="background:white;font-size:11px"][style*="color:#1e40af"],
+  html[data-theme="luxe"] [style*="background:white;font-size:11px"][style*="color:#92400e"],
+  html[data-theme="luxe"] [style*="background:white;font-size:11px"][style*="color:#15803d"] {
+    background: rgba(184,133,74,0.18) !important;
+    color: var(--brand-light) !important;
+  }
+  /* Luxe · Dashboard todo items · catch pastel gradients · #fee2e2/#fef2f2/#fef9c3/etc */
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #fee2e2"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg,#fee2e2"],
+  html[data-theme="luxe"] [style*="#fef2f2"],
+  html[data-theme="luxe"] [style*="#fefce8"],
+  html[data-theme="luxe"] [style*="#fef9c3"] {
+    background: linear-gradient(135deg, rgba(28,28,34,0.92), rgba(19,19,24,0.78)) !important;
+  }
+  /* Luxe · catch hardcoded text colors in todo items · brighten */
+  html[data-theme="luxe"] [style*="color:#991b1b"] { color: #fca5a5 !important; }
+  html[data-theme="luxe"] [style*="color:#7c2d12"] { color: #fdba74 !important; }
+  html[data-theme="luxe"] [style*="color:#0d7b5a"] { color: #86efac !important; }
+  html[data-theme="luxe"] [style*="color:#1e40af"] { color: #93c5fd !important; }
+  html[data-theme="luxe"] [style*="color:#15803d"] { color: #86efac !important; }
+  html[data-theme="luxe"] [style*="color:#B85A3D"],
+  html[data-theme="luxe"] [style*="color: #B85A3D"] { color: var(--brand-light) !important; }
+  /* Luxe · catch icon circles + dismiss buttons that have background:white */
+  html[data-theme="luxe"] [style*="background:white;display:flex"],
+  html[data-theme="luxe"] [style*="background:white;color:var(--green)"] {
+    background: rgba(255,255,255,0.10) !important;
+  }
+  /* Luxe · goal progress bar bg · was #f5e8d5 */
+  html[data-theme="luxe"] [style*="background:#f5e8d5"] {
+    background: rgba(255,255,255,0.08) !important;
+  }
+  /* Luxe · borders to invisible muted */
+  html[data-theme="luxe"] [style*="border:1px solid #e5e7eb"],
+  html[data-theme="luxe"] [style*="border:1px solid #ebd9c0"],
+  html[data-theme="luxe"] [style*="border:1px solid rgba(217,119,87"],
+  html[data-theme="luxe"] [style*="border-color:#e5e7eb"] {
+    border-color: rgba(255,255,255,0.08) !important;
+  }
 
   /* ===================================================================
      DARK MODE · flip variables · brand stays Crail Orange
@@ -508,7 +794,7 @@
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border-right: 1px solid var(--glass-border);
     padding: var(--gap-4);
-    overflow-y: auto;
+    /* v1.0.12 · no inner scroll · nav fits in viewport */
   }
   .nav-section-label {
     font-size: 11px;
@@ -540,11 +826,16 @@
   }
   .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
 
-  /* Main */
+  /* Main · v1.0.10 · tightened for 14"/16" MacBook Pro · cap max-width + reduce padding */
   .main {
     grid-area: main;
     overflow-y: auto;
-    padding: var(--gap-6);
+    padding: var(--gap-4);
+  }
+  .main > * {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   /* ===================================================================
@@ -558,9 +849,9 @@
     border: 1px solid var(--glass-border);
     border-radius: var(--r-lg);
     box-shadow: var(--glass-shadow);
-    padding: var(--gap-5);
+    padding: var(--gap-4);
   }
-  .glass-card + .glass-card { margin-top: var(--gap-4); }
+  .glass-card + .glass-card { margin-top: var(--gap-3); }
 
   /* v1.0.5 · Notes · Sticky board (B+C hybrid) */
   .dt-notes-board { column-count: 4; column-gap: 16px; }
@@ -589,7 +880,7 @@
 
   .page-title {
     font-family: var(--font-display);
-    font-size: 28px;
+    font-size: clamp(18px, 1.55vw, 26px);
     font-weight: 800;
     color: var(--ink);
     margin-bottom: var(--gap-2);
@@ -667,7 +958,7 @@
   }
   .kpi-value {
     font-family: var(--font-num);
-    font-size: 28px;
+    font-size: clamp(18px, 1.55vw, 26px);
     font-weight: 800;
     letter-spacing: -0.02em;
     font-feature-settings: 'tnum' 1;
@@ -784,7 +1075,7 @@
   /* All form-section-titles + section headings · prominent bold (keep brand color) */
   .form-section-title {
     font-weight: 800 !important;
-    font-size: 16px !important;
+    font-size: clamp(12px, 1vw, 16px) !important;
   }
   .data-table tbody td {
     padding: 12px;
@@ -1407,9 +1698,9 @@
     border-bottom: 1px solid var(--border);
   }
   .cal-weekday {
-    padding: 10px;
+    padding: 6px;
     text-align: center;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     color: var(--ink-mute);
     text-transform: uppercase;
@@ -1417,22 +1708,23 @@
   }
   .cal-weekday.weekend { color: var(--brand-dark); }
 
+  /* v1.0.17 · fluid responsive calendar · scales 1024→1920px */
   .cal-days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-auto-rows: minmax(110px, 1fr);
+    grid-auto-rows: minmax(clamp(68px, 5.6vw, 100px), 1fr);
   }
   .cal-day {
     border-right: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-    padding: 6px;
+    padding: clamp(4px, 0.35vw, 6px);
     cursor: pointer;
     transition: background 0.12s;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: clamp(2px, 0.2vw, 4px);
     overflow: hidden;
-    min-height: 110px;
+    min-height: clamp(68px, 5.6vw, 100px);
   }
   .cal-day:hover { background: rgba(255,255,255,0.5); }
   .cal-day.out-month { background: rgba(0,0,0,0.015); }
@@ -1442,22 +1734,22 @@
     background: var(--brand);
     color: white;
     border-radius: 50%;
-    width: 26px; height: 26px;
+    width: 22px; height: 22px;
     display: flex; align-items: center; justify-content: center;
     font-weight: 700;
   }
   .cal-day.weekend:not(.out-month) { background: rgba(217,119,87,0.04); }
   .cal-day:nth-child(7n) { border-right: none; }
   .cal-daynum {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--ink-soft);
-    padding: 2px 4px;
+    padding: 1px 3px;
     align-self: flex-start;
   }
   .cal-chip {
-    font-size: 10px;
-    padding: 3px 6px;
+    font-size: 9.5px;
+    padding: 2px 5px;
     border-radius: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1465,8 +1757,8 @@
     cursor: pointer;
     background: var(--glass);
     color: var(--ink);
-    line-height: 1.3;
-    border-left: 3px solid var(--brand);
+    line-height: 1.25;
+    border-left: 2px solid var(--brand);
   }
   .cal-chip:hover { background: white; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
   .cal-chip.wait_shoot { border-left-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
@@ -1547,15 +1839,16 @@
     display: grid;
     grid-template-columns: 280px 1fr;
     gap: 22px;
-    min-height: calc(100vh - 220px);
+    align-items: start;
   }
   @media (max-width: 1100px) {
     .settings-shell { grid-template-columns: 240px 1fr; }
   }
 
-  /* === Sidebar · multi-layer liquid glass === */
+  /* === Sidebar · multi-layer liquid glass · v1.0.11 sticky no inner scroll === */
   .settings-sidebar {
-    position: relative;
+    position: sticky;
+    top: var(--gap-4, 16px);
     border-radius: 22px;
     padding: 14px 12px;
     overflow: hidden;
@@ -1568,8 +1861,6 @@
       0 -1px 0 rgba(217,119,87,0.06) inset,
       0 20px 50px -10px rgba(217,119,87,0.20),
       0 4px 14px rgba(184,90,61,0.10);
-    overflow-y: auto;
-    max-height: calc(100vh - 220px);
   }
   .settings-sidebar::before {
     content: '';
@@ -1749,15 +2040,13 @@
   }
   .ss-footer strong { color: #B85A3D; font-family: 'Inter', sans-serif; font-weight: 700; }
 
-  /* === Settings content panel === */
+  /* === Settings content panel · v1.0.13 · no inner scroll === */
   .settings-content {
     background: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.72) 100%);
     backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(255,255,255,0.6);
     border-radius: 22px;
     padding: 28px 32px;
-    overflow-y: auto;
-    max-height: calc(100vh - 220px);
     box-shadow:
       0 1px 0 rgba(255,255,255,0.9) inset,
       0 8px 30px -8px rgba(217,119,87,0.18),
@@ -1998,7 +2287,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.5';
+const PIXORY_DESKTOP_VERSION = '1.0.17';
 
 // ===== Supabase config (must match mobile) =====
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
@@ -3247,12 +3536,12 @@ function renderDashboard(root) {
       </div>
 
       <!-- TODO LIST 6x2 -->
-      <div style="grid-column:span 6;grid-row:span 2;background:white;border-radius:18px;padding:20px 22px;box-shadow:0 4px 14px rgba(217,119,87,0.08);overflow:hidden;display:flex;flex-direction:column;">
+      <div style="grid-column:span 6;grid-row:span 2;background:white;border-radius:18px;padding:20px 22px;box-shadow:0 4px 14px rgba(217,119,87,0.08);display:flex;flex-direction:column;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <div style="font-size:13px;font-weight:800;color:var(--ink);">✅ To Do · ต้องทำต่อ</div>
           <div style="font-size:11px;color:var(--ink-mute);">${todos.length} รายการ</div>
         </div>
-        <div style="flex:1;overflow-y:auto;">
+        <div style="flex:1;">
           ${todos.length === 0
             ? `<div style="text-align:center;padding:30px 20px;color:var(--ink-mute);">
                 <div style="font-size:36px;margin-bottom:8px;">🎉</div>
@@ -4368,28 +4657,28 @@ function renderReportsOverview() {
         <div>
           <div style="font-size:11px;font-weight:700;color:var(--brand-dark);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:10px;">รายรับรวม · ปี ${REPORTS_YEAR + 543}</div>
           <div style="display:flex;align-items:baseline;gap:18px;">
-            <span style="font-family:'Inter',sans-serif;font-size:48px;font-weight:600;color:var(--brand-dark);line-height:1;">฿</span>
-            <span style="font-family:'Inter',sans-serif;font-weight:800;font-size:64px;line-height:1;letter-spacing:-0.02em;background:linear-gradient(135deg,#2A1F18,#B85A3D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${(Number(income) || 0).toLocaleString('en-US')}</span>
+            <span style="font-family:'Inter',sans-serif;font-size:clamp(22px, 1.95vw, 36px);font-weight:600;color:var(--brand-dark);line-height:1;">฿</span>
+            <span style="font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(30px, 2.65vw, 48px);line-height:1;letter-spacing:-0.02em;background:linear-gradient(135deg,#2A1F18,#B85A3D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${(Number(income) || 0).toLocaleString('en-US')}</span>
           </div>
           <div style="font-size:13px;color:var(--ink-mute);margin-top:8px;font-weight:500;">${yJobs.length} งาน · เฉลี่ย ${fmtTHB(avgJob)} ต่องาน · ปิดดีล ${closeRate}%</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:12px;padding:14px 16px;border:1px solid rgba(255,255,255,0.9);">
             <div style="font-size:10px;font-weight:600;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.08em;">💵 เงินสดเข้า</div>
-            <div style="font-size:22px;font-weight:800;color:var(--ink);margin-top:4px;line-height:1;">${fmtTHB(cashIn)}</div>
+            <div style="font-size:clamp(15px, 1.3vw, 22px);font-weight:800;color:var(--ink);margin-top:4px;line-height:1;">${fmtTHB(cashIn)}</div>
           </div>
           <div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:12px;padding:14px 16px;border:1px solid rgba(255,255,255,0.9);">
             <div style="font-size:10px;font-weight:600;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.08em;">💸 ค่าใช้จ่าย</div>
-            <div style="font-size:22px;font-weight:800;color:var(--ink);margin-top:4px;line-height:1;">${fmtTHB(totalExpense)}</div>
+            <div style="font-size:clamp(15px, 1.3vw, 22px);font-weight:800;color:var(--ink);margin-top:4px;line-height:1;">${fmtTHB(totalExpense)}</div>
           </div>
           <div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:12px;padding:14px 16px;border:1px solid rgba(255,255,255,0.9);">
             <div style="font-size:10px;font-weight:600;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.08em;">📈 กำไรสุทธิ</div>
-            <div style="font-size:22px;font-weight:800;color:var(--green);margin-top:4px;line-height:1;">${fmtTHB(profit)}</div>
+            <div style="font-size:clamp(15px, 1.3vw, 22px);font-weight:800;color:var(--green);margin-top:4px;line-height:1;">${fmtTHB(profit)}</div>
             <div style="font-size:11px;color:var(--ink-mute);margin-top:4px;">margin ${margin.toFixed(1)}%</div>
           </div>
           <div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:12px;padding:14px 16px;border:1px solid rgba(255,255,255,0.9);">
             <div style="font-size:10px;font-weight:600;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.08em;">⏳ ค้างรับ</div>
-            <div style="font-size:22px;font-weight:800;color:var(--yellow);margin-top:4px;line-height:1;">${fmtTHB(outstanding)}</div>
+            <div style="font-size:clamp(15px, 1.3vw, 22px);font-weight:800;color:var(--yellow);margin-top:4px;line-height:1;">${fmtTHB(outstanding)}</div>
           </div>
         </div>
       </div>
@@ -4397,7 +4686,7 @@ function renderReportsOverview() {
 
     <!-- ROW: Service Pie + Expense Pie · v1.0.7 · override .glass-card+.glass-card margin-top ที่ทำให้ขวาเลื่อนลง -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;align-items:stretch;">
-      <div class="glass-card" style="display:flex;flex-direction:column;min-height:380px;margin-top:0;">
+      <div class="glass-card" style="display:flex;flex-direction:column;min-height:300px;margin-top:0;">
         <div class="form-section-title">📷 รายรับตามประเภทบริการ</div>
         <div class="text-mute text-sm" style="margin-bottom:18px;">โดนัทลอย · proportional · รวม ${fmtTHB(svcTotal)} · ${svcEntries.length} ประเภท</div>
         <div style="display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:center;flex:1;">
@@ -4415,7 +4704,7 @@ function renderReportsOverview() {
         </div>
       </div>
 
-      <div class="glass-card" style="display:flex;flex-direction:column;min-height:380px;margin-top:0;">
+      <div class="glass-card" style="display:flex;flex-direction:column;min-height:300px;margin-top:0;">
         <div class="form-section-title">💸 รายจ่ายแยกหมวด</div>
         <div class="text-mute text-sm" style="margin-bottom:18px;">โดนัทลอย · รวม ${fmtTHB(expCatTotal)} · ${expEntries.length} หมวด</div>
         ${expEntries.length === 0
@@ -4463,19 +4752,19 @@ function renderReportsOverview() {
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
         <div style="padding:20px 22px;border-radius:14px;background:linear-gradient(135deg,#dbeafe,#eff6ff);border:1px solid #93c5fd;position:relative;">
           <div style="font-size:11px;font-weight:700;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.08em;">📝 ส่งใบเสนอ</div>
-          <div style="font-size:36px;font-weight:800;margin-top:4px;line-height:1;color:var(--ink);">${quotesSent}</div>
+          <div style="font-size:clamp(22px, 1.95vw, 36px);font-weight:800;margin-top:4px;line-height:1;color:var(--ink);">${quotesSent}</div>
           <div style="display:inline-block;padding:3px 10px;border-radius:999px;background:white;font-size:11px;font-weight:700;color:#1e40af;margin-top:8px;">100% baseline</div>
-          <div style="position:absolute;right:-20px;top:50%;transform:translateY(-50%);font-size:28px;color:var(--brand);">→</div>
+          <div style="position:absolute;right:-20px;top:50%;transform:translateY(-50%);font-size:clamp(18px, 1.55vw, 28px);color:var(--brand);">→</div>
         </div>
         <div style="padding:20px 22px;border-radius:14px;background:linear-gradient(135deg,#fef3c7,#fefce8);border:1px solid #fbbf24;position:relative;">
           <div style="font-size:11px;font-weight:700;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.08em;">✅ ลูกค้าอนุมัติ</div>
-          <div style="font-size:36px;font-weight:800;margin-top:4px;line-height:1;color:var(--ink);">${quotesApproved}</div>
+          <div style="font-size:clamp(22px, 1.95vw, 36px);font-weight:800;margin-top:4px;line-height:1;color:var(--ink);">${quotesApproved}</div>
           <div style="display:inline-block;padding:3px 10px;border-radius:999px;background:white;font-size:11px;font-weight:700;color:#92400e;margin-top:8px;">${approvedRate}% approved</div>
-          <div style="position:absolute;right:-20px;top:50%;transform:translateY(-50%);font-size:28px;color:var(--brand);">→</div>
+          <div style="position:absolute;right:-20px;top:50%;transform:translateY(-50%);font-size:clamp(18px, 1.55vw, 28px);color:var(--brand);">→</div>
         </div>
         <div style="padding:20px 22px;border-radius:14px;background:linear-gradient(135deg,#dcfce7,#f0fdf4);border:1px solid #86efac;">
           <div style="font-size:11px;font-weight:700;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.08em;">💼 ปิดดีล (= สร้างงาน)</div>
-          <div style="font-size:36px;font-weight:800;margin-top:4px;line-height:1;color:var(--ink);">${quotesConverted}</div>
+          <div style="font-size:clamp(22px, 1.95vw, 36px);font-weight:800;margin-top:4px;line-height:1;color:var(--ink);">${quotesConverted}</div>
           <div style="display:inline-block;padding:3px 10px;border-radius:999px;background:white;font-size:11px;font-weight:700;color:#15803d;margin-top:8px;">${closeRate}% close rate</div>
         </div>
       </div>
@@ -7202,9 +7491,7 @@ function renderSettingsTax() {
         <input type="number" id="pf-serial-running" value="1" />
         <input type="checkbox" id="pf-serial-resetYearly" checked />
       --></div>
-      <div style="display:none;background:#FBF7EE; border:1px solid #ebd9c0; border-radius:10px; padding:10px 14px; margin-top:8px; font-size:12px; color:#7c6856;">
-        <strong>ตัวอย่างเลขที่ถัดไป:</strong> <span style="font-family:'Inter',sans-serif; font-weight:700; color:#B85A3D;" id="pf-serial-preview">${escapeHtml(serial.prefix)}-${String((Number(serial.running)||1)+1).padStart(Number(serial.padding)||4, '0')}</span>
-      </div>
+      <!-- FIX · v1.0.6 · legacy serial preview removed · was throwing ReferenceError because 'serial' var was never defined · made entire renderSettingsTax fail silently -->
     </div>
 
     <div class="glass-card">
