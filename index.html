@@ -3816,6 +3816,40 @@
   </div>
 </div>
 
+<!-- ====== AUTH SCREEN: RESET PASSWORD (after clicking email link) ====== -->
+<div class="auth-screen" id="auth-reset">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 40 85 Q 40 65 60 65 L 70 65 L 82 50 Q 86 45 92 45 L 108 45 Q 114 45 118 50 L 130 65 L 140 65 Q 160 65 160 85 L 160 150 Q 160 165 145 165 L 55 165 Q 40 165 40 150 Z"/>
+        <circle cx="100" cy="118" r="28"/>
+        <circle cx="100" cy="118" r="14" stroke-width="5"/>
+        <circle cx="143" cy="80" r="4" fill="currentColor" stroke="none"/>
+      </svg>
+      <div class="auth-wordmark">pixory</div>
+    </div>
+    <div class="auth-panel">
+      <h2 class="auth-title">🔑 ตั้งรหัสผ่านใหม่</h2>
+      <p class="auth-sub">กรอกรหัสผ่านใหม่ที่คุณต้องการใช้ · อย่างน้อย 6 ตัว</p>
+      <div class="auth-error" id="reset-error"></div>
+      <div class="auth-success" id="reset-success"></div>
+      <div class="auth-field">
+        <label>รหัสผ่านใหม่</label>
+        <input type="password" id="reset-password" autocomplete="new-password" placeholder="อย่างน้อย 6 ตัว">
+      </div>
+      <div class="auth-field">
+        <label>ยืนยันรหัสผ่านใหม่</label>
+        <input type="password" id="reset-password-confirm" autocomplete="new-password" placeholder="พิมพ์อีกครั้ง">
+      </div>
+      <button class="auth-btn" id="reset-btn" onclick="doResetPassword()">บันทึกรหัสใหม่</button>
+      <div class="auth-divider"></div>
+      <div class="auth-links">
+        <a onclick="goAuth('login')">‹ กลับหน้าเข้าสู่ระบบ</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="phone-wrap">
   <div class="phone">
     <div class="notch"></div>
@@ -6962,7 +6996,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.24';
+const PIXORY_VERSION = '2.5.25';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -6973,6 +7007,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.25': {
+    date: '2026-05-29',
+    title: 'ลืมรหัสผ่าน · ใช้งานได้จริง end-to-end',
+    subtitle: 'กดส่งลิงก์ · เปิดเมล · คลิก · ตั้งรหัสใหม่ · เข้าได้เลย · ครบสูตร',
+    items: [
+      {
+        icon: '🔑',
+        title: 'ตั้งรหัสผ่านใหม่ครบ flow',
+        desc: 'เดิม · กดลืมรหัสแล้วได้ลิงก์ในอีเมล แต่กดลิงก์มาแล้วไม่มีหน้าให้ตั้งรหัสใหม่ · ตอนนี้ระบบจับ event PASSWORD_RECOVERY แล้วเด้งหน้าตั้งรหัสใหม่ให้อัตโนมัติ · พิมพ์รหัสใหม่ 2 ครั้งแล้วบันทึก · เข้าสู่ระบบเลย'
+      },
+      {
+        icon: '⏰',
+        title: 'ลิงก์หมดอายุใน 1 ชั่วโมง',
+        desc: 'เพื่อความปลอดภัย · ถ้าเกินเวลาให้กด "ลืมรหัส" ใหม่ · ระบบจะส่งลิงก์ใหม่ให้'
+      },
+      {
+        icon: '💻',
+        title: 'ใช้ได้ทั้งมือถือและเดสท๊อป',
+        desc: 'กดลืมรหัสบนมือถือ → ลิงก์เปิดมือถือ · กดบนเดสท๊อป → ลิงก์เปิดเดสท๊อป · เปลี่ยนรหัสแล้วใช้ได้ทั้ง 2 เครื่อง'
+      }
+    ]
+  },
   '2.5.24': {
     date: '2026-05-29',
     title: 'เปิดเวอชั่นเดสท๊อปได้แล้ว',
@@ -9289,6 +9345,17 @@ function initSupabase() {
       SUPABASE = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: { persistSession: true, autoRefreshToken: true, storage: window.localStorage, storageKey: 'pixory.auth.session' }
       });
+      // v2.5.25 · Listen for PASSWORD_RECOVERY · show reset screen when user clicks email link
+      try {
+        SUPABASE.auth.onAuthStateChange((event, session) => {
+          if (event === 'PASSWORD_RECOVERY') {
+            console.info('[auth] PASSWORD_RECOVERY · showing reset screen');
+            // Make sure UI is on auth view + show reset form
+            try { hideAuthScreens(); } catch(e){}
+            showAuthScreen('reset');
+          }
+        });
+      } catch(e) { console.warn('onAuthStateChange register failed', e); }
       return true;
     }
   } catch(e) { console.warn('Supabase init failed', e); }
@@ -9643,11 +9710,38 @@ async function doForgot() {
       btn.disabled = false; btn.textContent = t('auth.forgotBtn');
       return;
     }
-    setAuthSuccess('forgot', '✓ ส่งลิงก์ตั้งรหัสใหม่ไปที่อีเมลแล้ว · ตรวจ inbox ของคุณ');
+    setAuthSuccess('forgot', '✓ ส่งลิงก์ตั้งรหัสใหม่ไปที่อีเมลแล้ว · ตรวจ inbox ของคุณ · ลิงก์หมดอายุใน 1 ชั่วโมง');
     btn.disabled = false; btn.textContent = t('auth.forgotBtn');
   } catch(e) {
     setAuthError('forgot', 'เกิดข้อผิดพลาด: ' + (e.message || e));
     btn.disabled = false; btn.textContent = t('auth.forgotBtn');
+  }
+}
+
+// v2.5.25 · Set new password after clicking PASSWORD_RECOVERY link
+async function doResetPassword() {
+  clearAuthMsg('reset');
+  const pw = document.getElementById('reset-password').value || '';
+  const pw2 = document.getElementById('reset-password-confirm').value || '';
+  if (!pw || !pw2) { setAuthError('reset', 'กรุณากรอกรหัสผ่านทั้ง 2 ช่อง'); return; }
+  if (pw.length < 6) { setAuthError('reset', 'รหัสผ่านต้องอย่างน้อย 6 ตัว'); return; }
+  if (pw !== pw2) { setAuthError('reset', 'รหัสผ่านทั้ง 2 ช่องไม่ตรงกัน'); return; }
+  if (!SUPABASE) { setAuthError('reset', 'ระบบยังไม่พร้อม · ลองอีกครั้ง'); return; }
+  const btn = document.getElementById('reset-btn');
+  btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
+  try {
+    const { error } = await SUPABASE.auth.updateUser({ password: pw });
+    if (error) {
+      setAuthError('reset', error.message || 'เกิดข้อผิดพลาด · ลองอีกครั้ง');
+      btn.disabled = false; btn.textContent = 'บันทึกรหัสใหม่';
+      return;
+    }
+    setAuthSuccess('reset', '✓ ตั้งรหัสใหม่สำเร็จ · กำลังเข้าสู่ระบบ...');
+    // Session already exists from recovery flow · just refresh to load app
+    setTimeout(() => { location.reload(); }, 1200);
+  } catch(e) {
+    setAuthError('reset', 'เกิดข้อผิดพลาด: ' + (e.message || e));
+    btn.disabled = false; btn.textContent = 'บันทึกรหัสใหม่';
   }
 }
 
