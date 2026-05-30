@@ -850,6 +850,24 @@
   .seg-tabs { display: flex; background: #f3f4f6; padding: 4px; margin: 0 16px 12px; border-radius: 12px; gap: 4px; }
   .seg-tab { flex: 1; text-align: center; padding: 8px 10px; font-size: 13px; font-weight: 500; color: #7c7066; cursor: pointer; border-radius: 9px; transition: all .15s; }
   .seg-tab.active { background: white; color: #3a2f25; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  /* v2.5.54 · Team finalization · checkbox box · warm gold tone (matches Luxe palette) */
+  .team-final-box { display:flex; align-items:center; gap:10px; margin-top:12px; padding:10px 12px; background:#fef7e6; border:0.5px solid rgba(245,158,11,0.32); border-left:3px solid #d97706; border-radius:10px; cursor:pointer; font-size:13px; line-height:1.4; transition:background 0.15s; }
+  .team-final-box.is-checked { background:#ecfdf5; border-left-color:#10b981; border-color:rgba(16,185,129,0.30); }
+  .team-final-box .tfb-title { font-weight:600; color:#92400e; }
+  .team-final-box.is-checked .tfb-title { color:#065f46; }
+  .team-final-box .tfb-hint { display:block; font-size:11.5px; color:#a16207; margin-top:2px; }
+  .team-final-box.is-checked .tfb-hint { color:#0d7355; }
+  /* Pill on job-row · "⚠ ทีมยังไม่ครบ" */
+  .pill.team-warn { background:#fef3c7; color:#92400e; font-weight:600; }
+  /* Banner in job detail · prominent warning + 1-click action */
+  .team-warn-banner { display:flex; align-items:center; gap:10px; padding:12px 14px; background:#fef3c7; border-left:3px solid #d97706; border-radius:10px; margin:12px 16px; font-size:13px; line-height:1.4; }
+  .team-warn-banner .tw-info { flex:1; min-width:0; }
+  .team-warn-banner .tw-title { font-weight:600; color:#92400e; }
+  .team-warn-banner .tw-hint { display:block; font-size:11.5px; color:#a16207; margin-top:1px; }
+  .team-warn-banner .tw-action { flex-shrink:0; padding:6px 12px; font-size:12px; font-weight:600; background:#10b981; color:#fff; border:0; border-radius:8px; cursor:pointer; }
+  .team-warn-banner.is-final { background:#ecfdf5; border-left-color:#10b981; }
+  .team-warn-banner.is-final .tw-title { color:#065f46; }
+  .team-warn-banner.is-final .tw-hint { color:#0d7355; }
   .seg-count { display: inline-block; margin-left: 4px; font-size: 11px; color: #a89a8c; font-weight: 400; }
   .seg-tab.active .seg-count { color: #7c7066; }
   body.dark-theme .seg-tabs { background: #1c1c1c; }
@@ -1861,6 +1879,20 @@
   body.luxe-theme .pdb-funnel-row .step .l   { color: #A1A1AA !important; }
   body.luxe-theme .pdb-funnel-row .step.highlight { background: rgba(134,239,172,0.10) !important; border-color: rgba(134,239,172,0.25) !important; }
   body.luxe-theme .pdb-funnel-row .step.highlight .val { color: #86efac !important; }
+  /* v2.5.54 · Team finalization · Luxe tones (warm gold + green · matches Luxe palette) */
+  body.luxe-theme .team-final-box { background:rgba(216,160,86,0.10) !important; border-color:rgba(216,160,86,0.30) !important; border-left-color:#D4A056 !important; }
+  body.luxe-theme .team-final-box .tfb-title { color:#F2E0BA !important; }
+  body.luxe-theme .team-final-box .tfb-hint { color:#A89A8C !important; }
+  body.luxe-theme .team-final-box.is-checked { background:rgba(134,239,172,0.10) !important; border-color:rgba(134,239,172,0.30) !important; border-left-color:#86efac !important; }
+  body.luxe-theme .team-final-box.is-checked .tfb-title { color:#86efac !important; }
+  body.luxe-theme .team-final-box.is-checked .tfb-hint { color:#A89A8C !important; }
+  body.luxe-theme .pill.team-warn { background:rgba(216,160,86,0.18) !important; color:#F2E0BA !important; }
+  body.luxe-theme .team-warn-banner { background:rgba(216,160,86,0.10) !important; border-left-color:#D4A056 !important; }
+  body.luxe-theme .team-warn-banner .tw-title { color:#F2E0BA !important; }
+  body.luxe-theme .team-warn-banner .tw-hint { color:#A89A8C !important; }
+  body.luxe-theme .team-warn-banner .tw-action { background:#10b981 !important; color:#fff !important; }
+  body.luxe-theme .team-warn-banner.is-final { background:rgba(134,239,172,0.10) !important; border-left-color:#86efac !important; }
+  body.luxe-theme .team-warn-banner.is-final .tw-title { color:#86efac !important; }
   /* v2.5.52 · MISSING from v2.5.51 · job row + quote row prices (list views) · default = #3a2f25 (น้ำตาลเข้ม) */
   body.luxe-theme .job-row .price { color: #D4A056 !important; }
   /* v2.5.52 · empty state in quote list · inline color #a89a8c (already medium · double-check on Luxe) */
@@ -5122,6 +5154,16 @@
         <div style="margin-top: 10px;"><span class="pill deposit" id="job-pay-pill"></span> <span class="pill booked" id="job-status-pill"></span></div>
       </div>
 
+      <!-- v2.5.54 · Team finalization banner · only shows when j.teamStatus === 'incomplete' -->
+      <div id="job-team-warn-banner" class="team-warn-banner" style="display:none;">
+        <span style="font-size:18px;">⚠️</span>
+        <div class="tw-info">
+          <strong class="tw-title" data-i18n="job.teamWarnTitle">ทีมยังไม่ครบ</strong>
+          <span class="tw-hint" data-i18n="job.teamWarnHint">เลือกทีมเพิ่ม หรือกดยืนยันเมื่อครบ</span>
+        </div>
+        <button class="tw-action" onclick="markTeamFinal()" data-i18n="job.teamWarnAction">✓ ครบแล้ว</button>
+      </div>
+
       <div class="action-grid">
         <div class="act" onclick="goToQuote()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-jobs)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M26 14 L54 14 L66 26 L66 70 Q66 74 62 74 L26 74 Q22 74 22 70 L22 18 Q22 14 26 14 Z" fill="#fff"/><line x1="30" y1="38" x2="58" y2="38" stroke="#f5a623" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="48" x2="50" y2="48" stroke="#f5a623" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="30" y1="58" x2="58" y2="58" stroke="#f5a623" stroke-width="3" stroke-linecap="round" opacity="0.7"/></svg></span><span class="lbl" data-i18n="job.quote">ใบเสนอราคา</span></div>
         <div class="act" onclick="editCurrentJob()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-home)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 60 L50 32 L58 40 L30 68 L20 70 Z" fill="#fff"/><path d="M54 28 L60 22 Q64 18 68 22 L66 24 Q70 28 66 32 L62 36 Z" fill="#fff"/></svg></span><span class="lbl" data-i18n="job.editJob">แก้ไขงาน</span></div>
@@ -5391,6 +5433,14 @@
         <div class="sec-title">👥 ทีมช่าง (เลือกได้หลายคน)</div>
         <div class="chip-row" id="team-chip-row"></div>
         <div id="team-wage-list" style="margin-top: 12px;"></div>
+        <!-- v2.5.54 · Team finalization flag · ติ๊กเมื่อจัดทีมเรียบร้อย · default ไม่ติ๊ก = ยังไม่ครบ · ขึ้น warning บน job card -->
+        <label id="addTeamFinalBox" class="team-final-box">
+          <input type="checkbox" id="addTeamFinal" style="width:18px; height:18px; cursor:pointer; flex-shrink:0;" onchange="onTeamFinalToggle()">
+          <span style="min-width:0;">
+            <strong class="tfb-title" data-i18n="job.teamFinalTitle">ทีมครบแล้ว</strong>
+            <span class="tfb-hint" data-i18n="job.teamFinalHint">ติ๊กเมื่อจัดทีมเรียบร้อย · ไม่ติ๊ก = หาทีมเพิ่มทีหลัง</span>
+          </span>
+        </label>
       </div>
 
       <!-- Tab: ราคา -->
@@ -8088,7 +8138,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.53';
+const PIXORY_VERSION = '2.5.54';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8099,6 +8149,28 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.54': {
+    date: '2026-05-31',
+    title: 'สถานะ "ทีมยังไม่ครบ" · ไม่ต้องจำเอง',
+    subtitle: 'ติ๊กง่ายๆ ในฟอร์ม · เห็น warning เด่นๆ จนกว่าจะหาทีมครบ',
+    items: [
+      {
+        icon: '👥',
+        title: 'ติ๊ก "ทีมครบแล้ว" ในฟอร์มสร้างงาน',
+        desc: 'ตอนสร้างงานใหม่ · ถ้ายังไม่รู้ใครจะร่วมทีม · ไม่ต้องติ๊ก · ระบบจะจำให้ว่ายังไม่ครบ · พอจัดทีมเรียบร้อยค่อยมาติ๊ก'
+      },
+      {
+        icon: '⚠️',
+        title: 'แจ้งเตือนเด่นๆ ทุกที่จนกว่าจะติ๊กว่าครบ',
+        desc: 'งานที่ยังไม่ติ๊ก · ขึ้น pill สีอำพัน "⚠ ทีมยังไม่ครบ" ในแถวงาน + banner เด่นใน Job Detail · ไม่ลืม · พอเข้าไปกด "✓ ครบแล้ว" 1 ครั้ง · banner หายทันที + sync ขึ้น cloud'
+      },
+      {
+        icon: '🌿',
+        title: 'งานเก่าไม่มีผลกระทบ',
+        desc: 'งานที่สร้างก่อนหน้านี้ (ไม่มี field teamStatus) · ระบบถือว่า "ปกติ" · ไม่ขึ้น warning · ไม่เคลื่อนหน้าจอ Joe ที่ใช้อยู่'
+      }
+    ]
+  },
   '2.5.53': {
     date: '2026-05-30',
     title: 'แท็บ "งาน / ใบเสนอ" คุมโทนกับ Luxe Gold',
@@ -12484,6 +12556,16 @@ const I18N = {
   'chip.afterJob':            { th: '⏰ หลังวันงาน', en: '⏰ After job' },
   'chip.afterDelivery':       { th: '📦 หลังส่งงาน', en: '📦 After delivery' },
   'chip.beforeJobLabel':      { th: 'ก่อนวันงาน', en: 'Before job' },
+  // v2.5.54 · Team finalization status feature
+  'job.teamFinalTitle':       { th: 'ทีมครบแล้ว', en: 'Team finalized' },
+  'job.teamFinalHint':        { th: 'ติ๊กเมื่อจัดทีมเรียบร้อย · ไม่ติ๊ก = หาทีมเพิ่มทีหลัง', en: 'Tick when team locked · untick = team TBD' },
+  'job.teamFinalDone':        { th: 'ทีมครบแล้ว · พร้อมถ่าย', en: 'Team finalized · ready to shoot' },
+  'job.teamWarnTitle':        { th: 'ทีมยังไม่ครบ', en: 'Team not finalized' },
+  'job.teamWarnHint':         { th: 'เลือกทีมเพิ่ม หรือกดยืนยันเมื่อครบ', en: 'Pick more team · or confirm when ready' },
+  'job.teamWarnPill':         { th: '⚠ ทีมยังไม่ครบ', en: '⚠ Team TBD' },
+  'job.teamWarnAction':       { th: '✓ ครบแล้ว', en: '✓ Done' },
+  'toast.teamFinalized':      { th: '✓ ทีมครบแล้ว', en: '✓ Team finalized' },
+  'toast.teamReopened':       { th: '↺ เปิดเป็น ทีมยังไม่ครบ', en: '↺ Reopened as Team TBD' },
   'money.partial':      { th: 'ค้างชำระ', en: 'Partial' },
   'money.none':         { th: 'ยังไม่ได้รับเงิน', en: 'Unpaid' },
   'money.free':         { th: 'ฟรี', en: 'Free' },
@@ -13967,6 +14049,10 @@ function renderJobs(list, container) {
     } else {
       pill = '<span class="pill unpaid">' + t('money.none', 'ยังไม่ได้รับเงิน') + '</span>';
     }
+    // v2.5.54 · Team finalization pill · only shows when explicitly 'incomplete' (legacy jobs silent)
+    if (j.teamStatus === 'incomplete' && stage !== 'closed') {
+      pill += ' <span class="pill team-warn">' + t('job.teamWarnPill', '⚠ ทีมยังไม่ครบ') + '</span>';
+    }
     // v2.5.0 · Countdown hint (small text under date)
     let countdown = '';
     if (stage !== 'closed') {
@@ -14307,6 +14393,17 @@ function openJob(code) {
 
   window._currentJob = j;
 
+  // v2.5.54 · Show team warning banner if teamStatus === 'incomplete' (legacy jobs silent)
+  const _twBanner = document.getElementById('job-team-warn-banner');
+  if (_twBanner) {
+    if (j.teamStatus === 'incomplete' && getStageFromJobStatus(j.jobStatus) !== 'closed') {
+      _twBanner.style.display = '';
+      _twBanner.classList.remove('is-final');
+    } else {
+      _twBanner.style.display = 'none';
+    }
+  }
+
   // Invoice button label — change based on whether invoice exists
   const invBtn = document.getElementById('job-invoice-btn');
   if (invBtn) {
@@ -14361,6 +14458,26 @@ function openJob(code) {
       delSel.appendChild(o);
     });
   }
+}
+
+// v2.5.54 · One-click mark team as finalized · called from job detail banner button
+function markTeamFinal() {
+  const j = window._currentJob;
+  if (!j) return;
+  j.teamStatus = 'finalized';
+  saveData();
+  const banner = document.getElementById('job-team-warn-banner');
+  if (banner) {
+    banner.classList.add('is-final');
+    const title = banner.querySelector('.tw-title');
+    const hint = banner.querySelector('.tw-hint');
+    const btn = banner.querySelector('.tw-action');
+    if (title) title.textContent = t('job.teamFinalDone', 'ทีมครบแล้ว · พร้อมถ่าย');
+    if (hint) hint.style.display = 'none';
+    if (btn) btn.style.display = 'none';
+    setTimeout(() => { banner.style.display = 'none'; }, 1800);
+  }
+  if (typeof toast === 'function') toast(t('toast.teamFinalized', '✓ ทีมครบแล้ว'), 'success');
 }
 
 function changeJobStatus(newStatus) {
@@ -16687,6 +16804,12 @@ function openNewJob() {
   ADD_TEAM = new Set();
   ADD_TEAM_WAGES = {};
   ADD_SESSIONS = [];
+  // v2.5.54 · Reset team finalization checkbox to UNCHECKED for new jobs (default = "ยังไม่ครบ")
+  const _newTeamFinalEl = document.getElementById('addTeamFinal');
+  if (_newTeamFinalEl) {
+    _newTeamFinalEl.checked = false;
+    if (typeof onTeamFinalToggle === 'function') onTeamFinalToggle();
+  }
   // v1.9.14 · reset custom items
   resetCustomItems('add');
   // v1.9.19 · reset cost items · v1.9.31 also reset preset fields
@@ -16830,6 +16953,12 @@ function editCurrentJob() {
   if (typeof renderJobBillableBanner === 'function') renderJobBillableBanner(j);
   ADD_TEAM = new Set(j.team || []);
   ADD_TEAM_WAGES = j.teamWages ? {...j.teamWages} : {};
+  // v2.5.54 · Restore team finalization checkbox · legacy jobs (undefined) treated as finalized (no warning flood)
+  const _teamFinalEl = document.getElementById('addTeamFinal');
+  if (_teamFinalEl) {
+    _teamFinalEl.checked = (j.teamStatus === 'incomplete') ? false : true;
+    if (typeof onTeamFinalToggle === 'function') onTeamFinalToggle();
+  }
   // v2.5.2 · ensure session 1 has loc populated from legacy j.loc
   ADD_SESSIONS = getJobSessions(j).map(s => ({...s}));
   if (ADD_SESSIONS.length > 0 && !ADD_SESSIONS[0].loc && j.loc && j.loc !== '-') {
@@ -17037,6 +17166,8 @@ function collectAddFormData() {
     end: parseInt(endTime.split(':')[0], 10),
     team: Array.from(ADD_TEAM),
     teamWages: {...ADD_TEAM_WAGES},
+    // v2.5.54 · Team finalization status · save from checkbox state
+    teamStatus: (document.getElementById('addTeamFinal') && document.getElementById('addTeamFinal').checked) ? 'finalized' : 'incomplete',
     selectedServices: {...ADD_SELECTED},
     customItems: _addCustomSnapshot,  // v1.9.14
     costItems: _addCostsSnapshot,     // v1.9.19
@@ -22707,6 +22838,15 @@ function renderTeamWages() {
       recalcTeamWage();
     });
   });
+}
+
+// v2.5.54 · Toggle visual state of team-final box · checked = green (ครบแล้ว) · unchecked = amber (ยังไม่ครบ)
+function onTeamFinalToggle() {
+  const cb = document.getElementById('addTeamFinal');
+  const box = document.getElementById('addTeamFinalBox');
+  if (!cb || !box) return;
+  if (cb.checked) box.classList.add('is-checked');
+  else box.classList.remove('is-checked');
 }
 
 function recalcTeamWage() {
