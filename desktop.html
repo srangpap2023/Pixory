@@ -2862,7 +2862,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.28';
+const PIXORY_DESKTOP_VERSION = '1.0.31';
 
 // ===== Supabase config (must match mobile) =====
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
@@ -2928,6 +2928,8 @@ let DATA_VERSION = 0; // bumped on local change · used for conflict detection
 
 // ===== Constants =====
 const TODAY_ISO = () => new Date().toISOString().slice(0, 10);
+// v1.0.30 · labels intentionally kept Thai · used as data keys (matched against j.jobStatus in cloud + filters)
+// Display layer should translate via t('status.waitShoot' / 'status.waitDeliver' / 'status.closed') · TODO Phase 5
 const DEFAULT_JOB_STATUSES = [
   { label: 'รอถ่าย',   stage: 'wait_shoot',   isDefault: true },
   { label: 'รอส่งงาน', stage: 'wait_deliver', isDefault: true },
@@ -4077,7 +4079,7 @@ function renderDashboard(root) {
         ` : `
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--ink-mute);">
             <div style="font-size:42px;margin-bottom:8px;">🎉</div>
-            <div style="font-weight:700;color:var(--ink-soft);">ยังไม่มีงานที่จะมาถึง</div>
+            <div style="font-weight:700;color:var(--ink-soft);">${t('empty.noupcoming')}</div>
             <div style="font-size:12px;margin-top:4px;">พร้อมรับงานใหม่!</div>
           </div>
         `}
@@ -4261,7 +4263,7 @@ function renderCalendar(root) {
     <div class="page-header-row">
       <div>
         <div class="page-title">${escapeHtml(t('page.calendar'))}</div>
-        <div class="page-subtitle">ดูตารางงานเป็นรายเดือน · ${totalThisMonth} งานในเดือนนี้</div>
+        <div class="page-subtitle">${t('page.calendar.subtitle')} · ${totalThisMonth} ${t('tbl.jobs')}</div>
       </div>
       <button class="btn btn-primary" onclick="openJobModal()">+ สร้างงานใหม่</button>
     </div>
@@ -4359,7 +4361,7 @@ function renderCalendar(root) {
             <div class="form-section-title">📋 งานใน ${escapeHtml(monthName)}</div>
             <div class="empty-state" style="padding:30px 20px;">
               <div class="emoji">🎉</div>
-              <div class="title">เดือนนี้ยังไม่มีงาน</div>
+              <div class="title">${t('empty.jobsMonth')}</div>
               <div class="desc">รับงานใหม่ได้เต็มที่ · กดปุ่ม "+ สร้างงาน" ด้านบนเพื่อเพิ่ม</div>
             </div>
           </div>
@@ -4419,7 +4421,7 @@ function renderCalendar(root) {
                     <span class="pill" style="background:${stageBg};color:${stageColor};font-size:10px;">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span>
                     <div style="text-align:right;">
                       <div class="text-mono" style="font-weight:700;font-size:13px;">${fmtTHB(j.sell)}</div>
-                      ${remain > 0 ? `<div class="text-mono text-sm" style="font-size:10.5px;color:var(--yellow);">เหลือ ${fmtTHB(remain)}</div>` : `<div class="text-mono text-sm" style="font-size:10.5px;color:var(--green);">✓ ครบ</div>`}
+                      ${remain > 0 ? `<div class="text-mono text-sm" style="font-size:10.5px;color:var(--yellow);">เหลือ ${fmtTHB(remain)}</div>` : `<div class="text-mono text-sm" style="font-size:10.5px;color:var(--green);">${t('money.paidShort')}</div>`}
                     </div>
                   </div>
                 </div>
@@ -4494,7 +4496,7 @@ function openDayDetail(iso) {
           </div>`
         : `<table class="data-table">
             <thead><tr>
-              <th>เวลา</th><th>ลูกค้า · รหัส</th><th>Session / สถานที่</th><th>สถานะ</th><th class="text-right">ราคา</th><th class="text-right">คงเหลือ</th>
+              <th>${t('tbl.time')}</th><th>${t('tbl.customerCode')}</th><th>${t('tbl.sessionLoc')}</th><th>${t('tbl.status')}</th><th class="text-right">${t('tbl.price')}</th><th class="text-right">${t('tbl.remain')}</th>
             </tr></thead>
             <tbody>
               ${dayEntries.map(entry => {
@@ -4518,7 +4520,7 @@ function openDayDetail(iso) {
                     </td>
                     <td><span class="pill pill-${getStageFromJobStatus(j.jobStatus)}">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span></td>
                     <td class="amount-cell">${fmtTHB(j.sell)}</td>
-                    <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-weight:${remain === 0 ? 600 : 400};">${remain > 0 ? fmtTHB(remain) : '✓ ครบ'}</td>
+                    <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-weight:${remain === 0 ? 600 : 400};">${remain > 0 ? fmtTHB(remain) : t('money.paidShort')}</td>
                   </tr>`;
               }).join('')}
             </tbody>
@@ -4610,15 +4612,15 @@ function renderJobsTable() {
   if (filtered.length === 0) {
     return `<div class="empty-state">
       <div class="emoji">📅</div>
-      <div class="title">ยังไม่มีงานในกลุ่มนี้</div>
+      <div class="title">${t('empty.jobsGroup')}</div>
       <div class="desc">งานใหม่จะอยู่ที่ "รอถ่าย" จนกว่าจะถ่ายเสร็จ</div>
     </div>`;
   }
   return `
     <table class="data-table">
       <thead><tr>
-        <th>รหัส</th><th>ลูกค้า</th><th>วันงาน</th><th>ประเภท</th>
-        <th>สถานะ</th><th class="text-right">ราคา</th><th class="text-right">คงเหลือ</th>
+        <th>${t('tbl.code')}</th><th>${t('tbl.customer')}</th><th>${t('tbl.date')}</th><th>${t('tbl.type')}</th>
+        <th>${t('tbl.status')}</th><th class="text-right">${t('tbl.price')}</th><th class="text-right">${t('tbl.remain')}</th>
       </tr></thead>
       <tbody>
         ${filtered.map(j => {
@@ -4633,7 +4635,7 @@ function renderJobsTable() {
               <td>${escapeHtml(j.type || '-')}</td>
               <td><span class="pill pill-${getStageFromJobStatus(j.jobStatus)}">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span></td>
               <td class="amount-cell">${fmtTHB(j.sell)}</td>
-              <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-weight:${remain === 0 ? 600 : 400};">${remain > 0 ? fmtTHB(remain) : '✓ ครบ'}</td>
+              <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-weight:${remain === 0 ? 600 : 400};">${remain > 0 ? fmtTHB(remain) : t('money.paidShort')}</td>
             </tr>`;
         }).join('')}
       </tbody>
@@ -4646,7 +4648,7 @@ function renderJobsCards() {
   if (filtered.length === 0) {
     return `<div class="glass-card"><div class="empty-state">
       <div class="emoji">📅</div>
-      <div class="title">ยังไม่มีงานในกลุ่มนี้</div>
+      <div class="title">${t('empty.jobsGroup')}</div>
       <div class="desc">งานใหม่จะอยู่ที่ "รอถ่าย" จนกว่าจะถ่ายเสร็จ</div>
     </div></div>`;
   }
@@ -4688,7 +4690,7 @@ function renderJobsCards() {
             <span class="pill pill-${stage}" style="font-size:10px;">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span>
             <div style="text-align:right;">
               <div class="price">${fmtTHB(j.sell)}</div>
-              ${remain > 0 ? `<div class="remain" style="color:var(--yellow);">เหลือ ${fmtTHB(remain)}</div>` : `<div class="remain" style="color:var(--green);">✓ ครบ</div>`}
+              ${remain > 0 ? `<div class="remain" style="color:var(--yellow);">เหลือ ${fmtTHB(remain)}</div>` : `<div class="remain" style="color:var(--green);">${t('money.paidShort')}</div>`}
             </div>
           </div>
         </div>
@@ -4780,7 +4782,7 @@ function renderQuotesTable() {
   if (filtered.length === 0) {
     return `<div class="empty-state">
       <div class="emoji">📝</div>
-      <div class="title">ยังไม่มีใบเสนอในกลุ่มนี้</div>
+      <div class="title">${t('empty.quotesGroup')}</div>
       <div class="desc">เริ่มสร้างใบเสนอแรก → ส่งให้ลูกค้าอนุมัติ → สร้างเป็นงาน</div>
     </div>`;
   }
@@ -4788,7 +4790,7 @@ function renderQuotesTable() {
   return `
     <table class="data-table">
       <thead><tr>
-        <th>รหัส</th><th>ลูกค้า</th><th>ประเภท</th><th>วันงาน</th><th>📍 สถานที่</th><th>💬 ติดต่อ</th><th>สถานะ</th><th class="text-right">ราคา</th><th class="text-right">⏰ หมดอายุ</th>
+        <th>${t('tbl.code')}</th><th>${t('tbl.customer')}</th><th>${t('tbl.type')}</th><th>${t('tbl.date')}</th><th>${t('tbl.location')}</th><th>${t('tbl.contact')}</th><th>${t('tbl.status')}</th><th class="text-right">${t('tbl.price')}</th><th class="text-right">${t('tbl.expiry')}</th>
       </tr></thead>
       <tbody>
         ${filtered.map(q => {
@@ -4830,7 +4832,7 @@ function renderQuotesCards() {
   if (filtered.length === 0) {
     return `<div class="glass-card"><div class="empty-state">
       <div class="emoji">📝</div>
-      <div class="title">ยังไม่มีใบเสนอในกลุ่มนี้</div>
+      <div class="title">${t('empty.quotesGroup')}</div>
       <div class="desc">เริ่มสร้างใบเสนอแรก → ส่งให้ลูกค้าอนุมัติ → สร้างเป็นงาน</div>
     </div></div>`;
   }
@@ -5603,7 +5605,7 @@ function _renderReportsOverview_legacy() {
       ${topCust.length === 0
         ? '<div class="text-mute text-sm">ยังไม่มีงานในปีนี้</div>'
         : `<table class="data-table">
-            <thead><tr><th style="width:30px;">#</th><th>ลูกค้า</th><th class="text-right">งาน</th><th class="text-right">รายรับ</th></tr></thead>
+            <thead><tr><th style="width:30px;">${t('tbl.hash')}</th><th>${t('tbl.customer')}</th><th class="text-right">${t('tbl.jobs')}</th><th class="text-right">${t('tbl.revenue')}</th></tr></thead>
             <tbody>
               ${topCust.map(([name, val], i) => {
                 const jobCount = _reportYearJobs().filter(j => j.customer === name).length;
@@ -6148,7 +6150,7 @@ function _renderCustomerTable() {
         : `<div class="empty-state"><div class="emoji">👥</div><div class="title">ยังไม่มีลูกค้า</div><div class="desc">ลูกค้าจะเพิ่มอัตโนมัติเมื่อสร้างใบเสนอราคา/งานใหม่</div></div>`)
     : `<table class="data-table">
         <thead><tr>
-          <th>ชื่อ</th><th>ประเภท</th><th>เบอร์</th><th>LINE/FB</th><th class="text-right">งาน</th><th class="text-right">รายรับรวม</th>
+          <th>${t('tbl.name')}</th><th>${t('tbl.type')}</th><th>${t('tbl.phone')}</th><th>${t('tbl.lineOrFb')}</th><th class="text-right">${t('tbl.jobs')}</th><th class="text-right">${t('tbl.totalRevenue')}</th>
         </tr></thead>
         <tbody>
           ${filtered.map(r => {
@@ -6191,10 +6193,13 @@ function _noteFmtTime(iso) {
   return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
 }
 
-const NOTE_CAT_LABEL = {
-  customer: '👰 ลูกค้า', job: '📸 งาน', money: '💰 เงิน',
-  team: '👥 ทีม', idea: '💡 ไอเดีย', equipment: '🔧 อุปกรณ์', appt: '📅 นัด'
-};
+// v1.0.30 · returns localized note category labels · resolves via t() each call
+function getNoteCatLabel() {
+  return {
+    customer: t('note.cat.customer'), job: t('note.cat.job'), money: t('note.cat.money'),
+    team: t('note.cat.team'), idea: t('note.cat.idea'), equipment: t('note.cat.equipment'), appt: t('note.cat.appt')
+  };
+}
 
 function renderNotes(root) {
   const total = NOTES.length;
@@ -6213,22 +6218,22 @@ function renderNotes(root) {
   });
 
   const filterChips = [
-    { k: 'all', label: 'ทั้งหมด' },
-    { k: 'pinned', label: '📌 ปักหมุด' },
-    { k: 'todo', label: '⏰ ยังต้องทำ' },
-    { k: 'done', label: '✓ เสร็จแล้ว' },
-    { k: 'customer', label: '👰 ลูกค้า' },
-    { k: 'job', label: '📸 งาน' },
-    { k: 'money', label: '💰 เงิน' },
-    { k: 'team', label: '👥 ทีม' },
-    { k: 'idea', label: '💡 ไอเดีย' },
-    { k: 'appt', label: '📅 นัด' }
+    { k: 'all', label: t('filter.all') },
+    { k: 'pinned', label: t('filter.pinned') },
+    { k: 'todo', label: t('filter.todo') },
+    { k: 'done', label: t('filter.done') },
+    { k: 'customer', label: t('note.cat.customer') },
+    { k: 'job', label: t('note.cat.job') },
+    { k: 'money', label: t('note.cat.money') },
+    { k: 'team', label: t('note.cat.team') },
+    { k: 'idea', label: t('note.cat.idea') },
+    { k: 'appt', label: t('note.cat.appt') }
   ];
 
   root.innerHTML = `
     <div class="page-header-row">
       <div>
-        <div class="page-title">📝 บันทึก</div>
+        <div class="page-title">${t('page.notes')}</div>
         <div class="page-subtitle">${total} รายการ · ${todo} ยังต้องทำ · ${done} เสร็จ${pinned > 0 ? ' · 📌 ' + pinned + ' ปักหมุด' : ''}</div>
       </div>
       <button class="btn btn-primary" onclick="openNoteModal()">+ บันทึกใหม่</button>
@@ -6244,7 +6249,7 @@ function renderNotes(root) {
         </div>`
       : '<div class="dt-notes-board">' + list.map(n => {
           const color = NOTE_COLORS.includes(n.color) ? n.color : 'y';
-          const tag = NOTE_CAT_LABEL[n.category] || '';
+          const tag = getNoteCatLabel()[n.category] || '';
           const time = _noteFmtTime(n.updatedAt || n.createdAt);
           const safeId = String(n.id).replace(/'/g, "\\'");
           return '<div class="dt-note-card dt-nc-' + color + (n.pinned ? ' pinned' : '') + (n.done ? ' done' : '') + '" onclick="openNoteModal(\'' + safeId + '\')">' +
@@ -6293,7 +6298,7 @@ function openNoteModal(id) {
           <label>หมวด</label>
           <select id="nm-category">
             <option value="">ไม่ระบุ</option>
-            ${Object.entries(NOTE_CAT_LABEL).map(([k, v]) => '<option value="' + k + '"' + (n && n.category === k ? ' selected' : '') + '>' + v + '</option>').join('')}
+            ${Object.entries(getNoteCatLabel()).map(([k, v]) => '<option value="' + k + '"' + (n && n.category === k ? ' selected' : '') + '>' + v + '</option>').join('')}
           </select>
         </div>
         <div class="form-field">
@@ -6516,7 +6521,7 @@ function renderCustomerDetailHtml(name) {
           ? '<div class="text-mute text-sm">ยังไม่มีงานกับลูกค้านี้</div>'
           : `<table class="data-table">
               <thead><tr>
-                <th>รหัส</th><th>วันงาน</th><th>ประเภท</th><th>สถานะ</th><th class="text-right">ราคา</th><th class="text-right">คงเหลือ</th>
+                <th>${t('tbl.code')}</th><th>${t('tbl.date')}</th><th>${t('tbl.type')}</th><th>${t('tbl.status')}</th><th class="text-right">${t('tbl.price')}</th><th class="text-right">${t('tbl.remain')}</th>
               </tr></thead>
               <tbody>
                 ${custJobs.map(j => {
@@ -6528,7 +6533,7 @@ function renderCustomerDetailHtml(name) {
                       <td>${escapeHtml(j.type || '-')}</td>
                       <td><span class="pill pill-${getStageFromJobStatus(j.jobStatus)}">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span></td>
                       <td class="amount-cell">${fmtTHB(j.sell)}</td>
-                      <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-weight:${remain === 0 ? 600 : 400};">${remain > 0 ? fmtTHB(remain) : '✓ ครบ'}</td>
+                      <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-weight:${remain === 0 ? 600 : 400};">${remain > 0 ? fmtTHB(remain) : t('money.paidShort')}</td>
                     </tr>`;
                 }).join('')}
               </tbody>
@@ -6851,7 +6856,78 @@ const I18N = {
     'lang.en':               'English',
     'fontsize.sm':           'เล็ก',
     'fontsize.md':           'ปกติ',
-    'fontsize.lg':           'ใหญ่'
+    'fontsize.lg':           'ใหญ่',
+
+    // v1.0.29 · money status (✓ ครบ chip · table view · v1.0.28)
+    'money.paidShort':       '✓ ครบ',
+
+    // v1.0.29 · Lists & Tags consolidated pane (v1.0.26)
+    'set.lists-tags':        'ลิสต์และแท็ก',
+    'lists.title':           '🏷️ ลิสต์และแท็ก',
+    'lists.subtitle':        'รวม 4 หมวดที่ใช้จัดกลุ่ม·ทำงานในแอพ · เลือกแท็บด้านล่างเพื่อแก้แต่ละหมวด',
+    'lists.tab.jobtypes':    'ประเภทงาน',
+    'lists.tab.jobstatuses': 'สถานะงาน',
+    'lists.tab.sources':     'ช่องทางลูกค้า',
+    'lists.tab.expenseCats': 'หมวดค่าใช้จ่าย',
+
+    // v1.0.30 · Phase 3 · render functions sweep
+    // Empty states
+    'empty.noupcoming':      'ยังไม่มีงานที่จะมาถึง',
+    'empty.jobsMonth':       'เดือนนี้ยังไม่มีงาน',
+    'empty.jobsGroup':       'ยังไม่มีงานในกลุ่มนี้',
+    'empty.quotesGroup':     'ยังไม่มีใบเสนอในกลุ่มนี้',
+    'empty.expenses':        'ยังไม่มีค่าใช้จ่าย',
+    'empty.notesGroup':      'ยังไม่มีบันทึกในกลุ่มนี้',
+    'empty.nodata':          'ยังไม่มีข้อมูล',
+    'empty.jobsFirstNewWaitShoot': 'งานใหม่จะอยู่ที่ "รอถ่าย" จนกว่าจะถ่ายเสร็จ',
+    // Page subtitles
+    'page.calendar.subtitle':'ดูตารางงานเป็นรายเดือน',
+    'page.notes':            '📝 บันทึก',
+    // Notes categories
+    'note.cat.customer':     '👰 ลูกค้า',
+    'note.cat.job':          '📸 งาน',
+    'note.cat.money':        '💰 เงิน',
+    'note.cat.team':         '👥 ทีม',
+    'note.cat.idea':         '💡 ไอเดีย',
+    'note.cat.equipment':    '🔧 อุปกรณ์',
+    'note.cat.appt':         '📅 นัด',
+    // Filter chips (notes)
+    'filter.all':            'ทั้งหมด',
+    'filter.pinned':         '📌 ปักหมุด',
+    'filter.todo':           '⏰ ยังต้องทำ',
+    'filter.done':           '✓ เสร็จแล้ว',
+    // Form labels (notes editor)
+    // Table headers
+    'tbl.code':              'รหัส',
+    'tbl.customer':          'ลูกค้า',
+    'tbl.date':              'วันงาน',
+    'tbl.type':              'ประเภท',
+    'tbl.status':            'สถานะ',
+    'tbl.price':             'ราคา',
+    'tbl.remain':            'คงเหลือ',
+    'tbl.time':              'เวลา',
+    'tbl.customerCode':      'ลูกค้า · รหัส',
+    'tbl.sessionLoc':        'Session / สถานที่',
+    'tbl.location':          '📍 สถานที่',
+    'tbl.contact':           '💬 ติดต่อ',
+    'tbl.expiry':            '⏰ หมดอายุ',
+    'tbl.hash':              '#',
+    'tbl.jobs':              'งาน',
+    'tbl.revenue':           'รายรับ',
+    'tbl.phone':             'เบอร์',
+    'tbl.lineOrFb':          'LINE/FB',
+    'tbl.totalRevenue':      'รายรับรวม',
+    'tbl.name':              'ชื่อ',
+    // Settings menu (hardcoded in getQuickAccessLinks)
+    'set.services.alt':      'บริการและราคา',
+    'set.team.alt':           'ทีมงาน',
+    'set.banks.alt':          'บัญชีรับโอน',
+    'set.tax.alt':            'ภาษี',
+    'set.quoteTemplate.alt':  'เทมเพลตเอกสาร',
+    // Job status defaults (used in DEFAULT_JOB_STATUSES + tabs)
+    'status.waitShoot':      'รอถ่าย',
+    'status.waitDeliver':    'รอส่งงาน',
+    'status.closed':         'ปิดงาน'
   },
 
   en: {
@@ -6935,7 +7011,78 @@ const I18N = {
     'lang.en':               'English',
     'fontsize.sm':           'Small',
     'fontsize.md':           'Normal',
-    'fontsize.lg':           'Large'
+    'fontsize.lg':           'Large',
+
+    // v1.0.29 · money status (✓ ครบ chip · table view · v1.0.28)
+    'money.paidShort':       '✓ Paid',
+
+    // v1.0.29 · Lists & Tags consolidated pane (v1.0.26)
+    'set.lists-tags':        'Lists & Tags',
+    'lists.title':           '🏷️ Lists & Tags',
+    'lists.subtitle':        '4 categories for grouping app data · pick a tab below to edit',
+    'lists.tab.jobtypes':    'Job Types',
+    'lists.tab.jobstatuses': 'Statuses',
+    'lists.tab.sources':     'Lead Sources',
+    'lists.tab.expenseCats': 'Expense Cats',
+
+    // v1.0.30 · Phase 3 · render functions sweep
+    // Empty states
+    'empty.noupcoming':      'No upcoming jobs',
+    'empty.jobsMonth':       'No jobs this month',
+    'empty.jobsGroup':       'No jobs in this group',
+    'empty.quotesGroup':     'No quotes in this group',
+    'empty.expenses':        'No expenses',
+    'empty.notesGroup':      'No notes in this group',
+    'empty.nodata':          'No data',
+    'empty.jobsFirstNewWaitShoot': 'New jobs start as "Awaiting shoot" until shoot is done',
+    // Page subtitles
+    'page.calendar.subtitle':'View jobs by month',
+    'page.notes':            '📝 Notes',
+    // Notes categories
+    'note.cat.customer':     '👰 Customer',
+    'note.cat.job':          '📸 Job',
+    'note.cat.money':        '💰 Money',
+    'note.cat.team':         '👥 Team',
+    'note.cat.idea':         '💡 Idea',
+    'note.cat.equipment':    '🔧 Equipment',
+    'note.cat.appt':         '📅 Appt',
+    // Filter chips (notes)
+    'filter.all':            'All',
+    'filter.pinned':         '📌 Pinned',
+    'filter.todo':           '⏰ To-do',
+    'filter.done':           '✓ Done',
+    // Form labels (notes editor)
+    // Table headers
+    'tbl.code':              'Code',
+    'tbl.customer':          'Customer',
+    'tbl.date':              'Date',
+    'tbl.type':              'Type',
+    'tbl.status':            'Status',
+    'tbl.price':             'Price',
+    'tbl.remain':            'Remaining',
+    'tbl.time':              'Time',
+    'tbl.customerCode':      'Customer · Code',
+    'tbl.sessionLoc':        'Session / Location',
+    'tbl.location':          '📍 Location',
+    'tbl.contact':           '💬 Contact',
+    'tbl.expiry':            '⏰ Expiry',
+    'tbl.hash':              '#',
+    'tbl.jobs':              'Jobs',
+    'tbl.revenue':           'Revenue',
+    'tbl.phone':             'Phone',
+    'tbl.lineOrFb':          'LINE/FB',
+    'tbl.totalRevenue':      'Total revenue',
+    'tbl.name':              'Name',
+    // Settings menu (hardcoded in getQuickAccessLinks)
+    'set.services.alt':      'Services & pricing',
+    'set.team.alt':           'Team',
+    'set.banks.alt':          'Bank accounts',
+    'set.tax.alt':            'Tax',
+    'set.quoteTemplate.alt':  'Document templates',
+    // Job status defaults (used in DEFAULT_JOB_STATUSES + tabs)
+    'status.waitShoot':      'Awaiting shoot',
+    'status.waitDeliver':    'Awaiting delivery',
+    'status.closed':         'Closed'
   }
 };
 
@@ -7130,17 +7277,17 @@ function _computeDtShopSetup() {
   const items = [
     { key: 'profile',     label: 'ข้อมูลบริษัท',  icon: '🏢', goTo: 'profile',
       done: !!(PROFILE && PROFILE.shop && PROFILE.shop.trim()) },
-    { key: 'services',    label: 'บริการและราคา', icon: '📷', goTo: 'services',
+    { key: 'services',    label: t('set.services.alt'), icon: '📷', goTo: 'services',
       done: ((SERVICES||[]).length > 0) },
-    { key: 'team',        label: 'ทีมงาน',        icon: '👥', goTo: 'team',
+    { key: 'team',        label: t('set.team.alt'), icon: '👥', goTo: 'team',
       done: ((TEAM||[]).length > 0) },
-    { key: 'banks',       label: 'บัญชีรับโอน',   icon: '💳', goTo: 'banks',
+    { key: 'banks',       label: t('set.banks.alt'), icon: '💳', goTo: 'banks',
       done: ((BANKS||[]).length > 0) },
-    { key: 'tax',         label: 'ภาษี',           icon: '💰', goTo: 'tax',
+    { key: 'tax',         label: t('set.tax.alt'), icon: '💰', goTo: 'tax',
       done: !!(PROFILE && PROFILE.taxId) },
-    { key: 'quote-template', label: 'เทมเพลตเอกสาร', icon: '📄', goTo: 'quote-template',
+    { key: 'quote-template', label: t('set.quoteTemplate.alt'), icon: '📄', goTo: 'quote-template',
       done: !!(PROFILE && PROFILE.quoteTemplate) },
-    { key: 'lists',       label: 'ลิสต์และแท็ก',  icon: '🏷️', goTo: 'lists-tags',
+    { key: 'lists',       label: t('set.lists-tags'),  icon: '🏷️', goTo: 'lists-tags',
       done: ((JOB_TYPES||[]).length > 0 && (SOURCES||[]).length > 0 && (EXPENSE_CATS||[]).length > 0) }
   ];
   const doneCount = items.filter(x => x.done).length;
@@ -8059,11 +8206,12 @@ function setListsTagsTab(tab) {
 }
 
 function renderSettingsListsTags() {
+  // v1.0.29 · i18n · labels from dict (lists.tab.*) · hints kept hardcoded (examples · OK in either lang)
   const tabs = [
-    { id: 'jobtypes',     icon: '🎯', label: 'ประเภทงาน',      count: (JOB_TYPES||[]).length,    hint: 'Wedding · Pre-wed · Cinematography ฯลฯ' },
-    { id: 'jobstatuses',  icon: '🏷', label: 'สถานะงาน',       count: (getJobStatusList()||[]).length, hint: 'รอถ่าย · รอส่งงาน · ปิดงาน + ของคุณเอง' },
-    { id: 'sources',      icon: '📡', label: 'ช่องทางลูกค้า',  count: (SOURCES||[]).length,      hint: 'Facebook · IG · เพื่อนแนะนำ ฯลฯ' },
-    { id: 'expense-cats', icon: '💸', label: 'หมวดค่าใช้จ่าย', count: (EXPENSE_CATS||[]).length, hint: 'เดินทาง · Software · Marketing ฯลฯ' }
+    { id: 'jobtypes',     icon: '🎯', label: t('lists.tab.jobtypes'),    count: (JOB_TYPES||[]).length,    hint: 'Wedding · Pre-wed · Cinematography ฯลฯ' },
+    { id: 'jobstatuses',  icon: '🏷', label: t('lists.tab.jobstatuses'), count: (getJobStatusList()||[]).length, hint: 'รอถ่าย · รอส่งงาน · ปิดงาน + ของคุณเอง' },
+    { id: 'sources',      icon: '📡', label: t('lists.tab.sources'),     count: (SOURCES||[]).length,      hint: 'Facebook · IG · เพื่อนแนะนำ ฯลฯ' },
+    { id: 'expense-cats', icon: '💸', label: t('lists.tab.expenseCats'), count: (EXPENSE_CATS||[]).length, hint: 'เดินทาง · Software · Marketing ฯลฯ' }
   ];
   const active = tabs.find(t => t.id === LISTS_TAGS_TAB) || tabs[0];
 
@@ -8086,8 +8234,8 @@ function renderSettingsListsTags() {
   return `
     <div class="lists-tags-wrap">
       <div class="lt-intro">
-        <div class="lt-intro-title">🏷️ ลิสต์และแท็ก</div>
-        <div class="lt-intro-sub">รวม 4 หมวดที่ใช้จัดกลุ่ม·ทำงานในแอพ · เลือกแท็บด้านล่างเพื่อแก้แต่ละหมวด</div>
+        <div class="lt-intro-title">${escapeHtml(t('lists.title'))}</div>
+        <div class="lt-intro-sub">${escapeHtml(t('lists.subtitle'))}</div>
       </div>
       <div class="lt-tabs" role="tablist">${tabPills}</div>
       <div class="lt-hint">${escapeHtml(active.hint)}</div>
