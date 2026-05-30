@@ -8044,7 +8044,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.49';
+const PIXORY_VERSION = '2.5.50';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -11484,6 +11484,8 @@ function loadData() {
     migrateV254ServiceCategory();
     // === Migration v2.5.19: fix jobs that have source = "Quote XXX" (donut chart pollution) ===
     migrateV2519QuoteSource();
+    // === Auto-advance v2.5.50: status wait_shoot → wait_deliver after shoot date + 1 day @ 05:00 ===
+    autoAdvanceWaitShootJobs();
   } catch(e) { console.warn('load failed', e); }
 }
 
@@ -11508,6 +11510,42 @@ function migrateV2519QuoteSource() {
     PROFILE._v2519QuoteSourceMigrated = true;
     saveData();
     console.log('[Pixory v2.5.19] Migrated ' + fixed + ' job(s) with polluted source field');
+  }
+}
+
+// v2.5.50 · Auto-advance status: wait_shoot → wait_deliver after shoot date + 1 day @ 05:00 ICT
+// Runs on data load + after cloud sync · idempotent (jobs already past the check stay as-is unless still wait_shoot)
+// Side effect: changes j.jobStatus + j._autoAdvancedAt timestamp · then saveData() + toast notification
+function autoAdvanceWaitShootJobs() {
+  if (!Array.isArray(JOBS) || JOBS.length === 0) return;
+  // Find the default 'wait_deliver' status label from PROFILE.jobStatuses
+  const list = (PROFILE && Array.isArray(PROFILE.jobStatuses) && PROFILE.jobStatuses.length) ? PROFILE.jobStatuses : DEFAULT_JOB_STATUSES;
+  const defaultDeliver = list.find(s => s.isDefault && s.stage === 'wait_deliver');
+  if (!defaultDeliver) return; // safety · no default deliver status configured
+  let advancedCount = 0;
+  const advancedNames = [];
+  JOBS.forEach(j => {
+    if (!j || !j.date) return;
+    const stage = getStageFromJobStatus(j.jobStatus);
+    if (stage !== 'wait_shoot') return; // only advance from wait_shoot
+    if (!jobShootDatePassed(j)) return; // shoot date + 1 day @ 05:00 not yet passed
+    // Advance: store original label + timestamp · update jobStatus
+    j._previousJobStatus = j.jobStatus;
+    j._autoAdvancedAt = new Date().toISOString();
+    j.jobStatus = defaultDeliver.label;
+    advancedCount++;
+    if (advancedNames.length < 3) advancedNames.push(j.customer || j.code || '?');
+  });
+  if (advancedCount > 0) {
+    saveData();
+    console.log('[Pixory v2.5.50] Auto-advanced ' + advancedCount + ' job(s) to ' + defaultDeliver.label);
+    // Defer toast to avoid blocking initial render
+    setTimeout(() => {
+      try {
+        const more = advancedCount > 3 ? ' +' + (advancedCount - 3) + ' อื่น' : '';
+        toast('✨ ย้าย ' + advancedCount + ' งานเป็น "' + defaultDeliver.label + '" อัตโนมัติ (วันถ่ายผ่านแล้ว) · ' + advancedNames.join(', ') + more, 'info');
+      } catch(e) {}
+    }, 1500);
   }
 }
 
