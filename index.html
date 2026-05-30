@@ -8138,7 +8138,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.54';
+const PIXORY_VERSION = '2.5.57';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8149,6 +8149,72 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.57': {
+    date: '2026-05-31',
+    title: '⚠️ VAT threshold warning · เตือนเมื่อรายได้ใกล้/เกิน ฿1.8M',
+    subtitle: 'กฎหมายบังคับ · พลาดแล้วโดนปรับ ฿400-20k + 2× VAT',
+    items: [
+      {
+        icon: '🚨',
+        title: 'แดชบอร์ดเตือนเมื่อรายได้ปี YTD เกิน ฿1.8M',
+        desc: 'ถ้าคุณยังไม่ได้จดทะเบียน VAT · แต่รายได้สะสมปีนี้เกิน ฿1.8M (เกณฑ์ตามกฎหมาย) · จะมี banner สีแดงโผล่บนหัวแดชบอร์ด · บอกตรงๆ ว่าต้องจดภายใน 30 วัน · กดเข้าตั้งค่าได้เลย'
+      },
+      {
+        icon: '⚠️',
+        title: 'เตือนล่วงหน้าเมื่อใกล้เกณฑ์ ฿1.5M+',
+        desc: 'พอรายได้สะสมปีนี้ครบ ฿1.5M · จะมี banner สีเหลืองโชว์ "เหลืออีกเท่าไหร่ถึง ฿1.8M" · จะได้เตรียมตัวล่วงหน้า · ไม่ต้องตื่นตูมตอนใกล้ครบ'
+      },
+      {
+        icon: '✅',
+        title: 'ไม่รบกวนถ้าจดแล้ว',
+        desc: 'ถ้าใน ตั้งค่า → ภาษี ติ๊ก "จดทะเบียน VAT" ไว้แล้ว · banner จะไม่โชว์ · แสดงเฉพาะกรณีที่ "ยังไม่จด แต่รายได้ถึงเกณฑ์" เท่านั้น'
+      }
+    ]
+  },
+  '2.5.56': {
+    date: '2026-05-31',
+    title: '🔄 Multi-device sync · realtime จาก MacBook/iPad ปุ๊ปติ๊ก',
+    subtitle: 'มือถือเห็นข้อมูลใหม่ทันทีโดยไม่ต้องปิด-เปิดแอพ',
+    items: [
+      {
+        icon: '📲',
+        title: 'มือถือ subscribe realtime channel · ฟัง update จากเครื่องอื่นทันที',
+        desc: 'ก่อนหน้านี้: แก้งานบน MacBook · มือถือต้องปิด-เปิด app ค่อยเห็น · ตอนนี้: cloud อัพเดท → มือถือเห็นทันที (เหมือนเดสก์ทอปทำได้อยู่แล้ว) · ปลอดภัยกว่าเดิม · ลด conflict เพราะข้อมูลตรงกันตลอด'
+      },
+      {
+        icon: '🛡',
+        title: 'ระวังถ้าเปิด form กรอกข้อมูลอยู่',
+        desc: 'ถ้ามี sync เข้ามาตอนกำลังกรอก quote/job ใหม่ · ระบบจะ delay ไว้ · มี toast เตือน "save งานนี้ก่อน sync" · ไม่ทำลายของที่กรอกค้างไว้'
+      },
+      {
+        icon: '💬',
+        title: 'Popup conflict ใหม่ · อ่านง่ายขึ้น',
+        desc: 'ถ้าเจอข้อมูลใหม่กว่าจากเครื่องอื่นตอน save · popup จะแสดงจำนวนรายการ + ส่วนต่าง + แนะนำให้กด Cancel (ปลอดภัย) ก่อนกด OK · ลดโอกาสกดผิด · งานหาย'
+      }
+    ]
+  },
+  '2.5.55': {
+    date: '2026-05-31',
+    title: '🛡 ปิดช่องโหว่ sync · ป้องกัน status ที่ตั้งเองหายระหว่างเครื่อง',
+    subtitle: 'แก้บั๊กจาก v2.5.50 · ระบบ auto-ย้ายสถานะจะไม่แตะของที่ไม่รู้จัก',
+    items: [
+      {
+        icon: '🛡',
+        title: 'Safety guard · เฉพาะสถานะที่รู้จักเท่านั้นถึงจะถูกย้าย',
+        desc: 'เดิม · ถ้าเครื่องใหม่ login (เช่น iPad) ยังไม่ sync รายการสถานะของคุณ · ระบบ auto-ย้ายอาจแปลผิดว่า custom status ของคุณ ("ส่งแล้ว", "ตัดต่อ" ฯลฯ) คือ "รอถ่าย" · เลยย้ายทับ · ตอนนี้: ระบบจะข้ามสถานะที่ไม่รู้จัก · ไม่แตะของคุณ'
+      },
+      {
+        icon: '⏳',
+        title: 'รอ cloud sync ก่อนค่อย auto-ย้าย',
+        desc: 'ตอนเปิดแอพครั้งแรกบนเครื่องใหม่ · ระบบจะรอ pull cloud เสร็จก่อน (ประมาณ 3 วินาที) ค่อยทำงาน · ป้องกันการเข้าใจผิดจาก local data เก่า'
+      },
+      {
+        icon: '🙏',
+        title: 'ขออภัยที่ Joe เสีย 1 งานจากบั๊กนี้',
+        desc: '31 พ.ค. 2569 · งานใหม่ที่ลงบน MacBook หายเมื่อ iPad sync · root cause + fix อยู่ในรอบนี้ · จะไม่เกิดอีก'
+      }
+    ]
+  },
   '2.5.54': {
     date: '2026-05-31',
     title: 'สถานะ "ทีมยังไม่ครบ" · ไม่ต้องจำเอง',
@@ -11039,6 +11105,7 @@ async function doLogout() {
   if (!confirm(t('dlg.logout'))) return;
   try {
     if (typeof stopPresenceHeartbeat === 'function') stopPresenceHeartbeat();
+    if (typeof stopRealtimeSync === 'function') stopRealtimeSync(); // v2.5.56 · clean up realtime channel
     if (SUPABASE) await SUPABASE.auth.signOut();
   } catch(e) { console.warn('signOut failed', e); }
   CURRENT_USER = null;
@@ -11197,6 +11264,9 @@ let _cloudPushTimer = null;
 let _cloudSyncState = 'idle'; // 'idle' | 'syncing' | 'synced' | 'error' | 'offline'
 let _cloudLastSyncAt = null;  // ISO string of last successful push or pull
 let _cloudInitialSyncDone = false; // prevent debounced push from racing initial sync
+// v2.5.56 · Mobile realtime listener (mirror desktop pattern · M9 audit fix)
+let REALTIME_CHANNEL = null;
+let REALTIME_LAST_VERSION = 0;
 
 function setSyncState(state, detail) {
   _cloudSyncState = state;
@@ -11279,11 +11349,15 @@ async function pushToCloud(opts) {
           if (remoteVersion > localVersion && remoteDeviceId && remoteDeviceId !== DEVICE_ID) {
             const remoteCount = countMeaningfulItems(remote.data);
             const localCount = countMeaningfulItems(blob);
+            // v2.5.56 · clearer wording · default action = safe (Cancel)
+            const diffCount = remoteCount - localCount;
+            const diffText = diffCount > 0 ? ' (+' + diffCount + ' รายการมากกว่าเครื่องนี้)' : (diffCount < 0 ? ' (น้อยกว่าเครื่องนี้ ' + Math.abs(diffCount) + ')' : '');
             const msg = '⚠️ พบข้อมูลใหม่กว่าจากอีกเครื่อง\n\n'
-              + '☁️ ในคลาวด์ (เครื่องอื่น): v' + remoteVersion + ' · ' + remoteCount + ' รายการ\n'
-              + '📱 เครื่องนี้: v' + localVersion + ' · ' + localCount + ' รายการ\n\n'
-              + 'กด OK เพื่อทับข้อมูลในคลาวด์ด้วยข้อมูลเครื่องนี้ (อาจทำให้ข้อมูลจากอีกเครื่องหายได้)\n'
-              + 'กด Cancel เพื่อยกเลิก แล้ว Pull จากคลาวด์ก่อน';
+              + '☁️ คลาวด์: ' + remoteCount + ' รายการ' + diffText + '\n'
+              + '📱 เครื่องนี้: ' + localCount + ' รายการ\n\n'
+              + '👉 แนะนำ: กด Cancel · รีเฟรชหน้าเพื่อ pull ข้อมูลใหม่จาก cloud (ปลอดภัย)\n\n'
+              + '⚠️ ถ้ากด OK = ทับ cloud ด้วยข้อมูลเครื่องนี้\n'
+              + 'อาจทำให้ข้อมูลจากอีกเครื่อง (เพิ่งทำใหม่) หายไปได้';
             if (!confirm(msg)) {
               setSyncState('error', 'ยกเลิกการ push · pull ก่อนแล้วลองใหม่');
               return false;
@@ -11433,6 +11507,60 @@ async function syncOnStartup() {
     _cloudLastSyncAt = remote.updated_at;
     _cloudInitialSyncDone = true;
     setSyncState('synced');
+  }
+  // v2.5.56 · Start realtime listener AFTER initial sync completes (parity with desktop)
+  try { startRealtimeSync(); } catch(e) { console.warn('startRealtimeSync:', e); }
+}
+
+// v2.5.56 · Realtime listener · subscribes to user_data UPDATEs from other devices · M9 fix
+function startRealtimeSync() {
+  if (!CURRENT_USER || !SUPABASE) return;
+  stopRealtimeSync();
+  try {
+    REALTIME_CHANNEL = SUPABASE
+      .channel('user_data_' + CURRENT_USER.id)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'user_data',
+        filter: 'user_id=eq.' + CURRENT_USER.id
+      }, (payload) => onRealtimeUpdate(payload))
+      .subscribe();
+    console.log('[Pixory v2.5.56] Realtime listener active');
+  } catch(e) { console.warn('Realtime subscribe failed:', e); }
+}
+
+function stopRealtimeSync() {
+  if (REALTIME_CHANNEL && SUPABASE) {
+    try { SUPABASE.removeChannel(REALTIME_CHANNEL); } catch(e) {}
+    REALTIME_CHANNEL = null;
+  }
+}
+
+function onRealtimeUpdate(payload) {
+  const newRow = payload && payload.new;
+  if (!newRow || !newRow.data) return;
+  // Skip self-write (same device · we already have this)
+  if (newRow.data._meta && newRow.data._meta.device_id === DEVICE_ID) return;
+  const remoteVersion = (newRow.data._meta && newRow.data._meta.version) || 0;
+  if (remoteVersion <= REALTIME_LAST_VERSION) return; // already seen
+  REALTIME_LAST_VERSION = remoteVersion;
+  // Don't overwrite while user is editing · mobile uses screens not modals
+  // Skip if active screen is a form (add job / new quote / etc.)
+  const activeScreen = document.querySelector('.screen.active');
+  const screenId = activeScreen ? activeScreen.id : '';
+  const editingScreens = ['screen-add', 'screen-quote-new', 'screen-add-expense', 'screen-edit-service', 'screen-edit-package', 'screen-edit-item', 'screen-note-edit', 'screen-receive-payment'];
+  if (editingScreens.includes(screenId)) {
+    try { toast('📲 มีข้อมูลใหม่จากอีกเครื่อง · save งานนี้ก่อน sync', 'warn'); } catch(e) {}
+    return;
+  }
+  // Apply remote data
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newRow.data));
+    location.reload(); // simpler than partial re-init for mobile · ensures all in-memory state refreshed
+  } catch(e) {
+    console.warn('Realtime apply failed:', e);
+    try { toast('📲 sync ใหม่จากอีกเครื่อง · กดรีโหลด', 'info'); } catch(e2) {}
   }
 }
 
@@ -11724,30 +11852,54 @@ function migrateV2519QuoteSource() {
 // v2.5.50 · Auto-advance status: wait_shoot → wait_deliver after shoot date + 1 day @ 05:00 ICT
 // Runs on data load + after cloud sync · idempotent (jobs already past the check stay as-is unless still wait_shoot)
 // Side effect: changes j.jobStatus + j._autoAdvancedAt timestamp · then saveData() + toast notification
+// v2.5.55 HOTFIX · Auto-advance with 3 safety guards
+// Bug fixed: previous version used getStageFromJobStatus() which falls back to 'wait_shoot' for unknown
+// labels. On devices with stale PROFILE.jobStatuses (e.g., first login on iPad), custom statuses
+// like "ส่งแล้ว" were treated as wait_shoot · auto-advanced · pushed corrupted state to cloud · data loss.
+// Joe lost 1 job on 31 พ.ค. 2569 due to this.
 function autoAdvanceWaitShootJobs() {
   if (!Array.isArray(JOBS) || JOBS.length === 0) return;
+  // === Guard B · defer if initial cloud sync hasn't completed · retry after 3s ===
+  if (typeof _cloudInitialSyncDone !== 'undefined' && _cloudInitialSyncDone === false && typeof CURRENT_USER !== 'undefined' && CURRENT_USER) {
+    if (!window._autoAdvanceDeferred) {
+      window._autoAdvanceDeferred = true;
+      console.log('[Pixory v2.5.55] autoAdvance deferred · waiting for cloud sync');
+      setTimeout(() => { window._autoAdvanceDeferred = false; try { autoAdvanceWaitShootJobs(); } catch(e) {} }, 3000);
+    }
+    return;
+  }
   // Find the default 'wait_deliver' status label from PROFILE.jobStatuses
   const list = (PROFILE && Array.isArray(PROFILE.jobStatuses) && PROFILE.jobStatuses.length) ? PROFILE.jobStatuses : DEFAULT_JOB_STATUSES;
   const defaultDeliver = list.find(s => s.isDefault && s.stage === 'wait_deliver');
   if (!defaultDeliver) return; // safety · no default deliver status configured
+  // === Guard A · build EXACT label map · only advance labels known in current PROFILE.jobStatuses ===
+  // Critical: don't use getStageFromJobStatus() because it falls back to 'wait_shoot' for unknown labels.
+  // That fallback caused the corruption bug (custom statuses treated as wait_shoot on stale devices).
+  const labelMap = new Map(list.map(s => [s.label, s]));
   let advancedCount = 0;
+  let skippedUnknown = 0;
   const advancedNames = [];
   JOBS.forEach(j => {
     if (!j || !j.date) return;
-    const stage = getStageFromJobStatus(j.jobStatus);
-    if (stage !== 'wait_shoot') return; // only advance from wait_shoot
-    if (!jobShootDatePassed(j)) return; // shoot date + 1 day @ 05:00 not yet passed
-    // Advance: store original label + timestamp · update jobStatus
+    if (!j.jobStatus) return;
+    const entry = labelMap.get(j.jobStatus);
+    // Guard A · UNKNOWN label · skip · don't touch
+    if (!entry) { skippedUnknown++; return; }
+    // Resolve stage explicitly (no fallback) · only advance true wait_shoot
+    if (entry.stage !== 'wait_shoot') return;
+    if (!jobShootDatePassed(j)) return;
     j._previousJobStatus = j.jobStatus;
     j._autoAdvancedAt = new Date().toISOString();
     j.jobStatus = defaultDeliver.label;
     advancedCount++;
     if (advancedNames.length < 3) advancedNames.push(j.customer || j.code || '?');
   });
+  if (skippedUnknown > 0) {
+    console.log('[Pixory v2.5.55] autoAdvance skipped ' + skippedUnknown + ' unknown-label job(s) · safe · awaiting fresh PROFILE');
+  }
   if (advancedCount > 0) {
     saveData();
-    console.log('[Pixory v2.5.50] Auto-advanced ' + advancedCount + ' job(s) to ' + defaultDeliver.label);
-    // Defer toast to avoid blocking initial render
+    console.log('[Pixory v2.5.55] Auto-advanced ' + advancedCount + ' job(s) to ' + defaultDeliver.label);
     setTimeout(() => {
       try {
         const more = advancedCount > 3 ? ' +' + (advancedCount - 3) + ' อื่น' : '';
@@ -23206,6 +23358,25 @@ function renderDashboard() {
       (avgJob > 0 ? ' · เฉลี่ย ' + _pdbFmtMoney(avgJob) + '/งาน' : '') +
     '</div>' +
   '</div>';
+
+  // v2.5.57 · VAT threshold warning · law ฿1.8M · only current year + not-yet-registered
+  if (isCurrentYear && !PROFILE.vatRegistered && income >= 1500000) {
+    const isOver = income >= 1800000;
+    const vatColor = isOver ? '#dc2626' : '#D4A056';
+    const vatBg = isOver ? 'linear-gradient(135deg,#fee2e2,#fef2f2)' : 'linear-gradient(135deg,#F2E0BA,#fefce8)';
+    const vatInk = isOver ? '#7f1d1d' : '#7a5a1f';
+    const vatHead = isOver ? '🚨 รายได้ YTD เกิน ฿1.8M · ต้องจดทะเบียน VAT ภายใน 30 วัน' : '⚠️ ใกล้ถึงเกณฑ์ VAT ฿1.8M · เตรียมตัวจดทะเบียน';
+    const vatSub = isOver
+      ? 'YTD <strong>' + _pdbFmtMoney(income) + '</strong> · ตามกฎหมายต้องจดภายใน 30 วันที่ครบเกณฑ์ · ค่าปรับ ฿400-20k + 2× VAT ถ้าไม่จด'
+      : 'YTD <strong>' + _pdbFmtMoney(income) + '</strong> · เหลืออีก ' + _pdbFmtMoney(1800000 - income) + ' จะถึงเกณฑ์';
+    html += '<div style="background:' + vatBg + ';border-left:4px solid ' + vatColor + ';padding:14px 16px;border-radius:14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;">' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div style="font-size:13.5px;font-weight:700;color:' + vatInk + ';line-height:1.4;">' + vatHead + '</div>' +
+        '<div style="font-size:12px;color:' + vatInk + ';opacity:0.85;margin-top:4px;line-height:1.4;">' + vatSub + '</div>' +
+      '</div>' +
+      '<button onclick="navigate(\'settings\')" style="flex-shrink:0;padding:7px 12px;font-size:11.5px;font-weight:700;background:' + vatColor + ';color:#fff;border:0;border-radius:8px;cursor:pointer;white-space:nowrap;">ตั้งค่า VAT →</button>' +
+    '</div>';
+  }
 
   // KPI 4-cell row · wrapped in its own glass card
   html += '<div class="pdb-kpi-card"><div class="pdb-kpi-row">' +
