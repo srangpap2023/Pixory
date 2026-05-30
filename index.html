@@ -8044,7 +8044,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.48';
+const PIXORY_VERSION = '2.5.49';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -13313,14 +13313,15 @@ function setCurrentJobFilter(f) {
 }
 
 function jobsForFilter(f) {
-  // v2.5.0 · 5-tab structure (jobs can appear in multiple tabs — by design)
+  // v2.5.49 · parity with desktop · STATUS-based (เคารพ jobStatus ที่ user ตั้งเอง)
+  // เปลี่ยนจาก time-based (jobShootDatePassed) → status-based · ตรงกับเดสก์ทอป L:4604
   if (f === 'upcoming') {
-    // Shoot date is in the future · not yet closed
-    return JOBS.filter(j => !jobShootDatePassed(j) && getStageFromJobStatus(j.jobStatus) !== 'closed');
+    // jobStatus stage = wait_shoot (ผู้ใช้ยังไม่ได้เปลี่ยนสถานะ)
+    return JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_shoot');
   }
   if (f === 'wait_deliver') {
-    // Shoot date has passed (after 05:00 next day) · not yet closed
-    return JOBS.filter(j => jobShootDatePassed(j) && getStageFromJobStatus(j.jobStatus) !== 'closed');
+    // jobStatus stage = wait_deliver (ผู้ใช้ตั้งเป็นรอส่งงาน หรือสถานะ custom ที่ map กับ wait_deliver)
+    return JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_deliver');
   }
   if (f === 'debt') {
     // Money outstanding · regardless of stage
@@ -13329,9 +13330,9 @@ function jobsForFilter(f) {
   if (f === 'closed') {
     return JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'closed');
   }
-  // Legacy 'booked' filter still works (maps to 'upcoming')
+  // Legacy 'booked' filter still works (maps to 'upcoming' · status-based)
   if (f === 'booked') {
-    return JOBS.filter(j => !jobShootDatePassed(j) && getStageFromJobStatus(j.jobStatus) !== 'closed');
+    return JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_shoot');
   }
   return JOBS;
 }
