@@ -1861,6 +1861,10 @@
   body.luxe-theme .pdb-funnel-row .step .l   { color: #A1A1AA !important; }
   body.luxe-theme .pdb-funnel-row .step.highlight { background: rgba(134,239,172,0.10) !important; border-color: rgba(134,239,172,0.25) !important; }
   body.luxe-theme .pdb-funnel-row .step.highlight .val { color: #86efac !important; }
+  /* v2.5.52 · MISSING from v2.5.51 · job row + quote row prices (list views) · default = #3a2f25 (น้ำตาลเข้ม) */
+  body.luxe-theme .job-row .price { color: #D4A056 !important; }
+  /* v2.5.52 · empty state in quote list · inline color #a89a8c (already medium · double-check on Luxe) */
+  body.luxe-theme #quotes-list { color: #E4E4E7; }
   body.luxe-theme .settings-section { background: transparent; }
 
   /* ============================================
@@ -2013,15 +2017,22 @@
     border-color: rgba(184,133,74,0.45) !important;
   }
 
-  /* Segment tab · งาน / ใบเสนอ */
+  /* Segment tab · งาน / ใบเสนอ
+     v2.5.53 · ปรับโทนอุ่นทอง · ไม่ใช้ขาวล้วน (Joe report "ไม่คุมโทน") */
   body.luxe-theme .seg-tab {
     background: transparent !important;
-    color: #A1A1AA !important;
+    color: #A89A8C !important;  /* warm muted · was #A1A1AA cool gray */
   }
   body.luxe-theme .seg-tab.active {
-    background: rgba(255,255,255,0.08) !important;
-    color: #F4F4F5 !important;
+    background: rgba(216,160,86,0.10) !important;  /* subtle gold tint · was 0.08 white */
+    color: #F2E0BA !important;  /* warm cream · was #F4F4F5 pure white */
     box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  body.luxe-theme .seg-count {
+    color: #A89A8C !important;  /* warm muted */
+  }
+  body.luxe-theme .seg-tab.active .seg-count {
+    color: #D4A056 !important;  /* Luxe gold accent · was #7c7066 dark brown (อ่านยาก) */
   }
 
   /* Form inputs · session, location, year, auth, genre, wiz */
@@ -8077,7 +8088,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.51';
+const PIXORY_VERSION = '2.5.53';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8088,6 +8099,98 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.53': {
+    date: '2026-05-30',
+    title: 'แท็บ "งาน / ใบเสนอ" คุมโทนกับ Luxe Gold',
+    subtitle: 'เปลี่ยนจากขาวล้วน → ครีมอุ่น + ทอง · เข้ากับธีมทั้งหมด',
+    items: [
+      {
+        icon: '🎨',
+        title: 'หัวข้อแท็บ + เลขนับ ใช้โทนทอง',
+        desc: 'แท็บที่เลือก: ตัวอักษรเป็นครีมอุ่น (ไม่ใช่ขาวจัด) · พื้นหลังมีทินท์ทองอ่อนๆ · เลขนับ (26 · 11) ใช้สีทอง #D4A056 ตรงกับ Crail palette · อ่านง่าย + ดูเข้ากันทั้งจอ'
+      }
+    ]
+  },
+  '2.5.52': {
+    date: '2026-05-30',
+    title: 'เก็บตกธีม Luxe · ตัวเลขในหน้างาน + ใบเสนอ',
+    subtitle: 'ราคาในแต่ละแถว ปรับเป็นทองสว่าง · ชัดทันที',
+    items: [
+      {
+        icon: '💛',
+        title: 'ราคาในแถวงาน + ใบเสนอ',
+        desc: 'ตอน v2.5.51 ผมเก็บไม่ครบ · ฿25,000 / ฿12,000 / ฿36,000 ใน list view ยังเป็นน้ำตาลเข้ม · รอบนี้ใส่ทองสว่าง (#D4A056) · เห็นชัดทันที'
+      }
+    ]
+  },
+  '2.5.51': {
+    date: '2026-05-30',
+    title: 'ปรับธีม Luxe · อ่านง่ายขึ้นทุกหน้า',
+    subtitle: 'สีตัวอักษรชัดขึ้นในธีมทอง · หน้าใบเสนอ · หน้างาน · Dashboard',
+    items: [
+      {
+        icon: '🎨',
+        title: 'หัวข้อการ์ดในหน้าสร้างใบเสนอ + สร้างงาน',
+        desc: 'จากเดิมสีน้ำตาลเข้มอ่านยากบนพื้นทอง · ปรับเป็นสีขาวอุ่น · เห็นหัวข้อแต่ละ section ชัด · ตั้งแต่ "บริการถ่ายรูป" จนถึง "💎 ราคาสุทธิ"'
+      },
+      {
+        icon: '💰',
+        title: 'ตัวเลขยอดเงินในหน้างาน + ใบเสนอ',
+        desc: 'สรุปยอดในการ์ด (มัดจำ · ชำระแล้ว · คงเหลือ) เปลี่ยนเป็นเขียวสว่าง / ส้มสด · เห็นชัดทุกตัวเลข'
+      },
+      {
+        icon: '📊',
+        title: 'แดชบอร์ดรายได้แยกประเภท · โดนัทชาร์ท',
+        desc: 'ตัวเลขในชาร์ทรายได้ (legend %  · ยอดเงิน · ชื่อหมวด) เปลี่ยนเป็นสีสว่าง · KPI 4 ตัว (เงินสดเข้า · ค่าใช้จ่าย · กำไรสุทธิ · มูลค่า/งาน) ใช้สีสดใส 4 สีต่างกันอ่านง่าย'
+      }
+    ]
+  },
+  '2.5.50': {
+    date: '2026-05-30',
+    title: 'ระบบช่วยจำสถานะงาน · ย้าย "รอส่งงาน" ให้อัตโนมัติ',
+    subtitle: 'ตี 5 ของวันถัดไปหลังถ่าย · ระบบเปลี่ยนสถานะให้เอง · ไม่ต้องกดทีละงาน',
+    items: [
+      {
+        icon: '✨',
+        title: 'งานถ่ายเสร็จแล้ว · ย้ายเข้าแท็บ "รอส่งงาน" ให้อัตโนมัติ',
+        desc: 'งานที่สถานะยัง "รอถ่าย" แต่ผ่านวันถ่ายไปแล้ว · พอตี 5 ของวันถัดไประบบจะเปลี่ยนเป็น "รอส่งงาน" ให้ทันที · ไม่ต้องเข้าไปกดเปลี่ยน status ทีละงาน · เห็นทันทีว่ายังเหลืออะไรต้องส่งให้ลูกค้า'
+      },
+      {
+        icon: '🔔',
+        title: 'แจ้งเตือนเมื่อระบบช่วยจำ',
+        desc: 'พอเปิดแอพมีงานถูกย้าย · มี toast บอก "✨ ย้าย N งานเป็น \'รอส่งงาน\' อัตโนมัติ" + ชื่อลูกค้า · ไม่หายไปเงียบๆ'
+      },
+      {
+        icon: '🔄',
+        title: 'แท็บ "รอส่งงาน" ตรงกับสถานะที่คุณตั้งจริง',
+        desc: 'มือถือกับเดสก์ทอปนับเลขเหมือนกันแล้ว · เปลี่ยนจาก "นับจากวันถ่าย" เป็น "นับจาก status" · เคารพสิ่งที่ user เลือก'
+      }
+    ]
+  },
+  '2.5.49': {
+    date: '2026-05-30',
+    title: 'แท็บ "รอส่งงาน" มือถือ + เดสก์ทอป · นับตรงกัน',
+    subtitle: 'ระบบฟังที่คุณตั้ง status ไม่ใช่เดาจากวันที่',
+    items: [
+      {
+        icon: '🎯',
+        title: 'นับงานในแท็บตาม status ที่คุณตั้งเอง',
+        desc: 'ก่อนหน้านี้มือถือนับงาน "รอส่งงาน" จากวันถ่ายที่ผ่านไปแล้ว ส่วนเดสก์ทอปนับจาก status · เลขสองจอไม่ตรงกัน · ตอนนี้ทั้งคู่ใช้ status เป็นหลัก · เลขตรงกันแล้ว'
+      }
+    ]
+  },
+  '2.5.45': {
+    date: '2026-05-30',
+    title: 'ตัวเลขใน Pro Dashboard · ปัดเศษซื่อตรงขึ้น',
+    subtitle: 'แสดง 527.5K แทน 528K · ตรงกับยอดจริง',
+    items: [
+      {
+        icon: '📐',
+        title: 'โดนัทกลาง + KPI "รอชำระ" · เปลี่ยนวิธีปัดเศษ',
+        desc: 'จาก Math.round (ปัดขึ้น .5) เป็น .toFixed(1) (1 ทศนิยม) · ฿527,500 จะเห็น 527.5K · ตรงกับยอดรวมข้างบน · ไม่ลวงตา'
+      }
+    ]
+  },
   '2.5.43': {
     date: '2026-05-30',
     title: 'รวบเมนูตั้งค่า · ลิสต์และแท็กใน 1 หน้า',
