@@ -2890,7 +2890,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.35';
+const PIXORY_DESKTOP_VERSION = '1.0.38';
 
 // ===== Supabase config (must match mobile) =====
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
@@ -3634,11 +3634,15 @@ async function pushToCloud(opts) {
           if (remoteVersion > localVersion && remoteDeviceId && remoteDeviceId !== DEVICE_ID) {
             const countLocal = ((blob.JOBS||[]).length) + ((blob.QUOTES||[]).length) + ((blob.EXPENSES||[]).length);
             const countRemote = ((remote.data.JOBS||[]).length) + ((remote.data.QUOTES||[]).length) + ((remote.data.EXPENSES||[]).length);
+            // v1.0.37 · clearer wording · default action = safe (Cancel)
+            const diffCount = countRemote - countLocal;
+            const diffText = diffCount > 0 ? ' (+' + diffCount + ' รายการมากกว่าเครื่องนี้)' : (diffCount < 0 ? ' (น้อยกว่าเครื่องนี้ ' + Math.abs(diffCount) + ')' : '');
             const msg = '⚠️ พบข้อมูลใหม่กว่าจากอีกเครื่อง (เช่นมือถือ)\n\n'
-              + '☁ ในคลาวด์: v' + remoteVersion + ' · ' + countRemote + ' รายการ\n'
-              + '🖥 เครื่องนี้: v' + localVersion + ' · ' + countLocal + ' รายการ\n\n'
-              + 'กด OK = ทับด้วยข้อมูลเครื่องนี้ (เสี่ยงข้อมูลอีกเครื่องหาย)\n'
-              + 'กด Cancel = ยกเลิก · รีเฟรชหน้านี้เพื่อ pull ข้อมูลใหม่จาก cloud';
+              + '☁ คลาวด์: ' + countRemote + ' รายการ' + diffText + '\n'
+              + '🖥 เครื่องนี้: ' + countLocal + ' รายการ\n\n'
+              + '👉 แนะนำ: กด Cancel · รีเฟรชหน้าเพื่อ pull ข้อมูลใหม่จาก cloud (ปลอดภัย)\n\n'
+              + '⚠️ ถ้ากด OK = ทับด้วยข้อมูลเครื่องนี้\n'
+              + 'อาจทำให้ข้อมูลจากอีกเครื่อง (เพิ่งทำใหม่) หายไปได้';
             if (!confirm(msg)) {
               setSyncState('error', 'ยกเลิกการ save · รีเฟรชหน้าเพื่อ sync');
               toast('⚠ ยกเลิกการบันทึก · รีเฟรชหน้าเพื่อดึงข้อมูลใหม่', 'warn');
@@ -4030,6 +4034,25 @@ function renderDashboard(root) {
   const goalRemain = Math.max(0, yearlyGoal - ytdIncome);
   const monthlyNeed = monthsLeft > 0 ? goalRemain / monthsLeft : 0;
 
+  // v1.0.38 · VAT threshold warning · law ฿1.8M · penalty ฿400-20k + 2× VAT
+  // Show only if NOT yet VAT-registered (vatRegistered=false)
+  const vatThresholdBanner = (!PROFILE.vatRegistered && ytdIncome >= 1500000) ? `
+    <div style="grid-column:span 12;background:${ytdIncome >= 1800000 ? 'linear-gradient(135deg, #fee2e2, #fef2f2)' : 'linear-gradient(135deg, #fef3c7, #fefce8)'};border-left:4px solid ${ytdIncome >= 1800000 ? 'var(--red)' : 'var(--yellow)'};padding:14px 18px;border-radius:14px;display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+      <span style="font-size:24px;">${ytdIncome >= 1800000 ? '🚨' : '⚠️'}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:700;color:${ytdIncome >= 1800000 ? '#7f1d1d' : '#78350f'};">
+          ${ytdIncome >= 1800000 ? 'รายได้ YTD เกิน ฿1.8M · ต้องจดทะเบียน VAT ภายใน 30 วัน' : 'รายได้ YTD ใกล้ถึง ฿1.8M · พร้อมจดทะเบียน VAT'}
+        </div>
+        <div style="font-size:12px;color:${ytdIncome >= 1800000 ? '#991b1b' : '#92400e'};margin-top:4px;">
+          YTD: <strong>${fmtTHB(ytdIncome)}</strong> · เกณฑ์: ฿1,800,000 · ${ytdIncome >= 1800000 ? `เหลือเวลา ~30 วัน · ปรับ ฿400-20k + 2× VAT ถ้าไม่จด` : `เหลืออีก ${fmtTHB(1800000 - ytdIncome)} · ตามกฎหมายต้องจดภายใน 30 วันที่ครบ`}
+        </div>
+      </div>
+      <button onclick="navigate('settings');setTimeout(()=>setSettingsTab('tax'),50)" style="flex-shrink:0;padding:8px 14px;font-size:12px;font-weight:600;background:${ytdIncome >= 1800000 ? 'var(--red)' : 'var(--yellow)'};color:#fff;border:0;border-radius:8px;cursor:pointer;">
+        เปิดตั้งค่า VAT →
+      </button>
+    </div>
+  ` : '';
+
   // Next shoot + countdown
   const next = _nextShoot();
   let countdownText = '—', nextLine1 = '—', nextLine2 = '', nextLine3 = '';
@@ -4098,6 +4121,7 @@ function renderDashboard(root) {
       </div>
     </div>
 
+    ${vatThresholdBanner}
     <div style="display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:minmax(140px, auto);gap:16px;">
 
       <!-- BIG INCOME 6x2 -->
@@ -4785,17 +4809,27 @@ function jobShootDatePassed(j) {
 
 // v1.0.32 · Auto-advance status: wait_shoot → wait_deliver after shoot date + 1 day @ 05:00
 // Runs on data load + after cloud sync · idempotent · same logic as mobile autoAdvanceWaitShootJobs() L:11515
+// v1.0.36 HOTFIX · Auto-advance with safety guard · only advance KNOWN labels (no stage fallback)
+// Bug fixed: previous version used getStageFromJobStatus() which falls back to 'wait_shoot' for unknown
+// labels. On devices with stale PROFILE.jobStatuses (e.g., first login on iPad), custom statuses
+// like "ส่งแล้ว" were treated as wait_shoot · auto-advanced · pushed corrupted state to cloud.
+// Joe lost 1 job on 31 พ.ค. 2569 due to this.
 function autoAdvanceWaitShootJobs() {
   if (!Array.isArray(JOBS) || JOBS.length === 0) return;
   const list = (PROFILE && Array.isArray(PROFILE.jobStatuses) && PROFILE.jobStatuses.length) ? PROFILE.jobStatuses : DEFAULT_JOB_STATUSES;
   const defaultDeliver = list.find(s => s.isDefault && s.stage === 'wait_deliver');
   if (!defaultDeliver) return;
+  // === Guard A · exact label match · skip unknown labels (custom statuses on stale PROFILE) ===
+  const labelMap = new Map(list.map(s => [s.label, s]));
   let advancedCount = 0;
+  let skippedUnknown = 0;
   const advancedNames = [];
   JOBS.forEach(j => {
     if (!j || !j.date) return;
-    const stage = getStageFromJobStatus(j.jobStatus);
-    if (stage !== 'wait_shoot') return;
+    if (!j.jobStatus) return;
+    const entry = labelMap.get(j.jobStatus);
+    if (!entry) { skippedUnknown++; return; } // Guard A · unknown label · SKIP
+    if (entry.stage !== 'wait_shoot') return; // explicit · no fallback
     if (!jobShootDatePassed(j)) return;
     j._previousJobStatus = j.jobStatus;
     j._autoAdvancedAt = new Date().toISOString();
@@ -4803,9 +4837,12 @@ function autoAdvanceWaitShootJobs() {
     advancedCount++;
     if (advancedNames.length < 3) advancedNames.push(j.customer || j.code || '?');
   });
+  if (skippedUnknown > 0) {
+    console.log('[Pixory desktop v1.0.36] autoAdvance skipped ' + skippedUnknown + ' unknown-label job(s) · safe · awaiting fresh PROFILE');
+  }
   if (advancedCount > 0) {
     if (typeof saveData === 'function') saveData();
-    console.log('[Pixory desktop v1.0.32] Auto-advanced ' + advancedCount + ' job(s) to ' + defaultDeliver.label);
+    console.log('[Pixory desktop v1.0.36] Auto-advanced ' + advancedCount + ' job(s) to ' + defaultDeliver.label);
     setTimeout(() => {
       try {
         const more = advancedCount > 3 ? ' +' + (advancedCount - 3) + ' อื่น' : '';
@@ -8511,12 +8548,45 @@ function renderSettingsTax() {
         <div class="form-field">
           <label>จำนวนบุตร (อายุ ≤ 25 ปี)</label>
           <input type="number" id="pf-pit-children" min="0" max="20" value="${Number(pit.numChildren)||0}" />
-          <div class="hint">ลดหย่อนได้ ฿ 30,000/คน (บุตรที่ 2 ขึ้นไปเกิดหลังปี 2561 ฿ 60,000)</div>
+          <div class="hint">฿ 30,000/คน (บุตรที่ 2 ขึ้นไปเกิดหลังปี 2561 ฿ 60,000)</div>
+        </div>
+      </div>
+      <!-- v1.0.38 · ลดหย่อนละเอียด 5 fields · parity กับมือถือ (FIX C4 full) -->
+      <div class="form-section-title" style="font-size:13px;margin-top:14px;">📋 ลดหย่อนแยกหมวด · ละเอียด (เลือกกรอกที่คุณมี)</div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>ประกันชีวิต (บาท/ปี)</label>
+          <input type="number" id="pf-pit-life-insurance" min="0" step="1000" value="${Number(pit.lifeInsurance)||0}" />
+          <div class="hint">เพดาน ฿ 100,000</div>
         </div>
         <div class="form-field">
-          <label>ค่าลดหย่อนรวม (ประมาณ)</label>
-          <input type="number" id="pf-pit-deductions" min="0" step="1000" value="${Number(pit.lumpDeductions || pit.lifeInsurance || 0)||0}" />
-          <div class="hint">กรอกประมาณ · ที่ละเอียดกว่าให้ใช้ mobile</div>
+          <label>ประกันสุขภาพ (บาท/ปี)</label>
+          <input type="number" id="pf-pit-health-insurance" min="0" step="1000" value="${Number(pit.healthInsurance)||0}" />
+          <div class="hint">เพดาน ฿ 25,000 · รวมประกันชีวิตไม่เกิน ฿ 100,000</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>RMF/SSF/PVD (บาท/ปี)</label>
+          <input type="number" id="pf-pit-rmf-ssf" min="0" step="1000" value="${Number(pit.rmfSsf)||0}" />
+          <div class="hint">เพดาน 30% รายได้ · ไม่เกิน ฿ 500,000</div>
+        </div>
+        <div class="form-field">
+          <label>ดอกเบี้ยที่อยู่อาศัย (บาท/ปี)</label>
+          <input type="number" id="pf-pit-mortgage" min="0" step="1000" value="${Number(pit.mortgageInterest)||0}" />
+          <div class="hint">เพดาน ฿ 100,000</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>เงินบริจาค · ทั่วไป (บาท/ปี)</label>
+          <input type="number" id="pf-pit-donation" min="0" step="1000" value="${Number(pit.donation)||0}" />
+          <div class="hint">หักได้ตามจริง · ไม่เกิน 10% ของเงินได้สุทธิหลังหักลดหย่อนอื่น</div>
+        </div>
+        <div class="form-field">
+          <label>ค่าลดหย่อนรวม · อื่นๆ (lump · บาท/ปี)</label>
+          <input type="number" id="pf-pit-deductions" min="0" step="1000" value="${Number(pit.lumpDeductions)||0}" />
+          <div class="hint">ใส่ที่ไม่เข้าหมวดข้างบน (เช่น ประกันสังคม · พ่อแม่ ฯลฯ)</div>
         </div>
       </div>
     </div>
@@ -8544,7 +8614,13 @@ async function saveSettingsTax() {
   PROFILE.pit.maritalStatus = document.getElementById('pf-pit-marital').value || 'single';
   PROFILE.pit.spouseHasIncome = !!(document.getElementById('pf-pit-spouse-income') && document.getElementById('pf-pit-spouse-income').checked);
   PROFILE.pit.numChildren = Math.max(0, Number(document.getElementById('pf-pit-children').value) || 0);
-  PROFILE.pit.lumpDeductions = Math.max(0, Number(document.getElementById('pf-pit-deductions').value) || 0);
+  // v1.0.38 · 5 detailed deduction fields · parity กับ mobile (C4 full fix)
+  PROFILE.pit.lifeInsurance    = Math.max(0, Number(document.getElementById('pf-pit-life-insurance').value) || 0);
+  PROFILE.pit.healthInsurance  = Math.max(0, Number(document.getElementById('pf-pit-health-insurance').value) || 0);
+  PROFILE.pit.rmfSsf           = Math.max(0, Number(document.getElementById('pf-pit-rmf-ssf').value) || 0);
+  PROFILE.pit.mortgageInterest = Math.max(0, Number(document.getElementById('pf-pit-mortgage').value) || 0);
+  PROFILE.pit.donation         = Math.max(0, Number(document.getElementById('pf-pit-donation').value) || 0);
+  PROFILE.pit.lumpDeductions   = Math.max(0, Number(document.getElementById('pf-pit-deductions').value) || 0);
   // ล้าง field เก่า (legacy)
   if (PROFILE.pitHelper) delete PROFILE.pitHelper;
   await saveData();
