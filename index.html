@@ -1828,6 +1828,39 @@
   body.luxe-theme .section-title { background: transparent; }
   body.luxe-theme .section-title h2 { color: #F4F4F5; }
   body.luxe-theme .section-title a { color: #D4A056; }
+
+  /* v2.5.51 · Luxe contrast fixes · text สีเข้มทึบบนพื้นเข้ม · Joe reported 30 พ.ค. 2569 */
+  /* Form titles · screen-add + screen-quote-new · default = #3a2f25 (invisible on Luxe) */
+  body.luxe-theme #screen-add .sec-title,
+  body.luxe-theme #screen-quote-new .sec-title { color: #f5f0e8 !important; }
+  /* Settings section sub-titles · #7c7066 (low contrast on Luxe) */
+  body.luxe-theme .settings-section .sec-title { color: #E4E4E7 !important; }
+  /* Job/Quote detail block headings · default = #7c7066 */
+  body.luxe-theme .detail-block h3 { color: #F4F4F5 !important; }
+  /* Summary card money labels + amounts · default = #065f46 (dark green) */
+  body.luxe-theme .summary-card .sum-label { color: #A1A1AA !important; }
+  body.luxe-theme .summary-card .sum-val,
+  body.luxe-theme .summary-card .sum-total { color: #86efac !important; }
+  body.luxe-theme .summary-card .sum-neg { color: #fca5a5 !important; }
+  /* Pro Dashboard chart text · donut legend + KPI cells · default = #56473a / #7c6856 / #2A1F18 */
+  body.luxe-theme .pdb-donut-wrap .legend .name { color: #E4E4E7 !important; }
+  body.luxe-theme .pdb-donut-wrap .legend .pct  { color: #A1A1AA !important; }
+  body.luxe-theme .pdb-donut-wrap .legend .amt  { color: #F4F4F5 !important; }
+  body.luxe-theme .pdb-kpi-cell .lbl { color: #A1A1AA !important; }
+  body.luxe-theme .pdb-kpi-cell .val { color: #F4F4F5 !important; }
+  body.luxe-theme .pdb-kpi-cell .sub { color: #A1A1AA !important; }
+  /* KPI semantic colors · bump brightness for dark bg */
+  body.luxe-theme .pdb-kpi-cell.cash .val    { color: #86efac !important; }
+  body.luxe-theme .pdb-kpi-cell.expense .val { color: #fca5a5 !important; }
+  body.luxe-theme .pdb-kpi-cell.profit .val  { color: #fbbf24 !important; }
+  body.luxe-theme .pdb-kpi-cell.avg .val     { color: #93c5fd !important; }
+  /* Pro Dashboard funnel cells · default = #2A1F18 / #7c6856 */
+  body.luxe-theme .pdb-funnel-head { color: #F4F4F5 !important; }
+  body.luxe-theme .pdb-funnel-row .step { background: rgba(255,255,255,0.04) !important; border-color: rgba(255,255,255,0.06) !important; }
+  body.luxe-theme .pdb-funnel-row .step .val { color: #F4F4F5 !important; }
+  body.luxe-theme .pdb-funnel-row .step .l   { color: #A1A1AA !important; }
+  body.luxe-theme .pdb-funnel-row .step.highlight { background: rgba(134,239,172,0.10) !important; border-color: rgba(134,239,172,0.25) !important; }
+  body.luxe-theme .pdb-funnel-row .step.highlight .val { color: #86efac !important; }
   body.luxe-theme .settings-section { background: transparent; }
 
   /* ============================================
@@ -8044,7 +8077,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.50';
+const PIXORY_VERSION = '2.5.51';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
