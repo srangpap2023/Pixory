@@ -7289,19 +7289,19 @@
     <div class="screen" id="screen-settings-lists-tags">
       <div class="header">
         <button class="back" onclick="goTo('settings')">‹</button>
-        <h1><span style="margin-right:6px;">🏷️</span><span>ลิสต์และแท็ก</span></h1>
+        <h1><span style="margin-right:6px;">🏷️</span><span data-i18n="lists.title">ลิสต์และแท็ก</span></h1>
         <button class="icon-btn" id="lt-add-btn" onclick="openEdit('jobtype',-1)" style="color:#2563eb">+</button>
       </div>
 
-      <div style="padding: 4px 16px 6px; font-size: 12.5px; color: #7c7066; line-height: 1.5;">
+      <div style="padding: 4px 16px 6px; font-size: 12.5px; color: #7c7066; line-height: 1.5;" data-i18n="lists.hint">
         รวม <strong>4 หมวด</strong>ที่ใช้จัดกลุ่ม·ทำงานในแอพ · เลือกแท็บด้านล่างเพื่อแก้แต่ละหมวด
       </div>
 
       <div class="lt-tabs-mobile" id="lt-tabs-mobile">
-        <button class="lt-pill is-active" data-tab="jobtypes"     onclick="setListsTagsMobileTab('jobtypes')"><span class="lt-ico">🎯</span><span>ประเภท</span></button>
-        <button class="lt-pill"           data-tab="jobstatuses"  onclick="setListsTagsMobileTab('jobstatuses')"><span class="lt-ico">🏷</span><span>สถานะ</span></button>
-        <button class="lt-pill"           data-tab="sources"      onclick="setListsTagsMobileTab('sources')"><span class="lt-ico">📡</span><span>ช่องทาง</span></button>
-        <button class="lt-pill"           data-tab="expense-cats" onclick="setListsTagsMobileTab('expense-cats')"><span class="lt-ico">💸</span><span>รายจ่าย</span></button>
+        <button class="lt-pill is-active" data-tab="jobtypes"     onclick="setListsTagsMobileTab('jobtypes')"><span class="lt-ico">🎯</span><span data-i18n="lists.tab.jobtypes">ประเภท</span></button>
+        <button class="lt-pill"           data-tab="jobstatuses"  onclick="setListsTagsMobileTab('jobstatuses')"><span class="lt-ico">🏷</span><span data-i18n="lists.tab.jobstatuses">สถานะ</span></button>
+        <button class="lt-pill"           data-tab="sources"      onclick="setListsTagsMobileTab('sources')"><span class="lt-ico">📡</span><span data-i18n="lists.tab.sources">ช่องทาง</span></button>
+        <button class="lt-pill"           data-tab="expense-cats" onclick="setListsTagsMobileTab('expense-cats')"><span class="lt-ico">💸</span><span data-i18n="lists.tab.expenseCats">รายจ่าย</span></button>
       </div>
 
       <!-- Pane: ประเภทงาน -->
@@ -7311,22 +7311,22 @@
 
       <!-- Pane: สถานะงาน · ของฉัน -->
       <div id="lt-pane-jobstatuses" class="lt-pane-mobile" style="display:none;">
-        <div style="padding: 4px 16px 8px; font-size: 12.5px; color: #7c7066; line-height: 1.5;">
+        <div style="padding: 4px 16px 8px; font-size: 12.5px; color: #7c7066; line-height: 1.5;" data-i18n="lists.defaultStatusesHint">
           แอพมี <strong>3 สถานะหลัก</strong> ที่แก้ชื่อได้แต่ลบไม่ได้ · เพิ่ม <strong>สถานะของคุณเอง</strong>ได้
         </div>
         <div style="padding: 0 16px 12px;">
-          <div style="font-size:11px; color:#7c7066; text-transform:uppercase; letter-spacing:.5px; margin: 6px 4px 6px; font-weight:600;">สถานะหลัก · 3 อัน (ลบไม่ได้)</div>
+          <div style="font-size:11px; color:#7c7066; text-transform:uppercase; letter-spacing:.5px; margin: 6px 4px 6px; font-weight:600;" data-i18n="lists.sectionDefault">สถานะหลัก · 3 อัน (ลบไม่ได้)</div>
           <div id="job-status-defaults-list"></div>
 
-          <div style="font-size:11px; color:#7c7066; text-transform:uppercase; letter-spacing:.5px; margin: 16px 4px 6px; font-weight:600;">สถานะของคุณเอง</div>
+          <div style="font-size:11px; color:#7c7066; text-transform:uppercase; letter-spacing:.5px; margin: 16px 4px 6px; font-weight:600;" data-i18n="lists.sectionCustom">สถานะของคุณเอง</div>
           <div id="job-status-customs-list"></div>
 
           <button class="add-tile" onclick="openJobStatusEdit(-1)" style="margin-top:10px;">
             <span class="add-tile-icon">+</span>
-            <span>เพิ่มสถานะใหม่</span>
+            <span data-i18n="lists.addStatus">เพิ่มสถานะใหม่</span>
           </button>
 
-          <div style="background:#fef7eb; border:1px solid #f5e6c5; border-radius:10px; padding:10px 12px; margin-top:16px; font-size:11.5px; color:#7c4a14;">
+          <div style="background:#fef7eb; border:1px solid #f5e6c5; border-radius:10px; padding:10px 12px; margin-top:16px; font-size:11.5px; color:#7c4a14;" data-i18n="lists.statusesTip">
             💡 <strong>เคล็ดลับ:</strong> ลองเพิ่ม "ตัดต่อ" หรือ "ทำโทนสี" แล้วเลือก map กับ <strong>รอส่งงาน</strong> · งานที่ใช้สถานะนี้จะอยู่ในแท็บ "รอส่งงาน" ในหน้างาน
           </div>
         </div>
@@ -7430,11 +7430,11 @@
     <div class="screen" id="screen-settings-notif">
       <div class="header">
         <button class="back" onclick="goTo('settings')">‹</button>
-        <h1>การแจ้งเตือน</h1>
+        <h1 data-i18n="notif.title">การแจ้งเตือน</h1>
         <span style="width: 22px;"></span>
       </div>
 
-      <div class="notif-subhead">ดูตัวอย่างได้ก่อนเปิดใช้งานจริง</div>
+      <div class="notif-subhead" data-i18n="notif.subhead">ดูตัวอย่างได้ก่อนเปิดใช้งานจริง</div>
 
       <!-- Master Push toggle -->
       <div class="notif-master" id="push-master-row">
@@ -7443,7 +7443,7 @@
           <div class="nm-title">Push Notifications</div>
           <div class="nm-status off" id="push-status-text">
             <span class="pulse-dot off" id="push-status-dot"></span>
-            <span id="push-status-text-inner">ยังไม่เปิด · กดเพื่ออนุญาต</span>
+            <span id="push-status-text-inner" data-i18n="notif.pushOff">ยังไม่เปิด · กดเพื่ออนุญาต</span>
           </div>
         </div>
         <div class="notif-toggle-md" id="push-master-sw" onclick="togglePushMaster()"></div>
@@ -7459,7 +7459,7 @@
 
       <!-- Push live preview cards -->
       <div id="push-detail-rows" style="display:none;">
-        <div class="notif-group-title">เด้งแบบไหน · ดูตัวอย่างได้</div>
+        <div class="notif-group-title" data-i18n="notif.previewSection">เด้งแบบไหน · ดูตัวอย่างได้</div>
 
         <!-- 1. Morning briefing -->
         <div class="preview-card" id="preview-card-briefing">
@@ -7520,13 +7520,13 @@
           </div>
           <!-- v2.5.18 · Mode chips -->
           <div class="balance-mode-chips" style="display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 8px;">
-            <span class="balance-chip" data-mode="before" onclick="setBalanceDueMode('before')">🗓️ ก่อนวันงาน</span>
-            <span class="balance-chip" data-mode="on" onclick="setBalanceDueMode('on')">📍 ในวันงาน</span>
-            <span class="balance-chip" data-mode="after" onclick="setBalanceDueMode('after')">⏰ หลังวันงาน</span>
-            <span class="balance-chip disabled-soon" data-mode="afterDelivery" onclick="setBalanceDueMode('afterDelivery')" title="Coming soon">📦 หลังส่งงาน</span>
+            <span class="balance-chip" data-mode="before" onclick="setBalanceDueMode('before')" data-i18n="chip.beforeJob">🗓️ ก่อนวันงาน</span>
+            <span class="balance-chip" data-mode="on" onclick="setBalanceDueMode('on')" data-i18n="chip.onJobDay">📍 ในวันงาน</span>
+            <span class="balance-chip" data-mode="after" onclick="setBalanceDueMode('after')" data-i18n="chip.afterJob">⏰ หลังวันงาน</span>
+            <span class="balance-chip disabled-soon" data-mode="afterDelivery" onclick="setBalanceDueMode('afterDelivery')" title="Coming soon" data-i18n="chip.afterDelivery">📦 หลังส่งงาน</span>
           </div>
           <div class="pref-row" id="balance-stepper-row">
-            <span class="pref-label" id="balance-stepper-label">ก่อนวันงาน</span>
+            <span class="pref-label" id="balance-stepper-label" data-i18n="chip.beforeJobLabel">ก่อนวันงาน</span>
             <div class="pref-stepper">
               <button class="pref-btn" onclick="adjustPushDays('pushBalanceDueDays', -1)">−</button>
               <span class="pref-num" id="push-balance-days-display">1</span>
@@ -7537,16 +7537,16 @@
           </div>
           <!-- Stepper hidden row (when mode = 'on') · just toggle stays -->
           <div class="pref-row" id="balance-toggle-only-row" style="display:none;">
-            <span class="pref-label">เตือนในวันงาน</span>
+            <span class="pref-label" data-i18n="notif.balanceOnlyOn">เตือนในวันงาน</span>
             <div class="notif-toggle-mini" id="push-balance-sw-2" onclick="togglePushOption('pushBalanceDue')"></div>
           </div>
         </div>
 
-        <button class="notif-test-btn" onclick="sendTestPush()">🧪 ส่งข้อความทดสอบ</button>
+        <button class="notif-test-btn" onclick="sendTestPush()" data-i18n="notif.sendTest">🧪 ส่งข้อความทดสอบ</button>
       </div>
 
       <!-- In-app reminders -->
-      <div class="notif-group-title" style="padding-top: 28px;">เตือนงานในแอพ</div>
+      <div class="notif-group-title" style="padding-top: 28px;" data-i18n="notif.inAppSection">เตือนงานในแอพ</div>
       <div class="notif-other-card">
         <div class="notif-other-row">
           <div class="notif-other-icon green">📅</div>
@@ -8044,7 +8044,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.44';
+const PIXORY_VERSION = '2.5.48';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -10552,7 +10552,7 @@ function openLegalFromAuth(which) {
       bg.onclick = function(e) { if (e.target === bg) bg.remove(); };
       document.body.appendChild(bg);
     } else {
-      alert('โปรดดูรายละเอียดใน Settings → เกี่ยวกับ → ' + (which === 'terms' ? 'ข้อกำหนดการใช้บริการ' : 'นโยบายความเป็นส่วนตัว') + ' หลังสมัคร');
+      alert(t('dlg.signupReadDocs').replace('{doc}', which === 'terms' ? t('dlg.docTerms') : t('dlg.docPrivacy')));
     }
   } catch(e) {
     console.warn('openLegalFromAuth failed', e);
@@ -10828,7 +10828,7 @@ async function doResetPassword() {
 }
 
 async function doLogout() {
-  if (!confirm('ออกจากระบบ?\n\nข้อมูลในเครื่องนี้จะยังอยู่ · กลับมาล็อกอินใหม่เมื่อไหร่ก็ใช้ต่อได้')) return;
+  if (!confirm(t('dlg.logout'))) return;
   try {
     if (typeof stopPresenceHeartbeat === 'function') stopPresenceHeartbeat();
     if (SUPABASE) await SUPABASE.auth.signOut();
@@ -11248,7 +11248,7 @@ async function manualSync() {
       _cloudLastSyncAt = remote.updated_at;
       setSyncState('synced');
       // Reload page so in-memory data is fresh
-      if (confirm('พบข้อมูลใหม่จากเครื่องอื่น — รีโหลดเพื่อแสดงข้อมูลล่าสุด?')) {
+      if (confirm(t('dlg.cloudConflict'))) {
         location.reload();
       }
       return;
@@ -11261,7 +11261,7 @@ async function manualSync() {
 
 async function forceRefreshFromCloud() {
   if (!CURRENT_USER || !SUPABASE) { toast('ยังไม่ได้เชื่อมต่อ cloud'); return; }
-  if (!confirm('ดึงข้อมูลล่าสุดจาก cloud มาทับเครื่องนี้?\n\nข้อมูลในเครื่องนี้ที่ยังไม่ได้ซิงค์จะหายไป\n\nแนะนำใช้กรณีเครื่องนี้ดูข้อมูลไม่ครบ')) return;
+  if (!confirm(t('dlg.pullCloud'))) return;
   setSyncState('syncing');
   const remote = await pullFromCloud();
   if (!remote) { toast('ไม่มีข้อมูลใน cloud หรือดึงไม่สำเร็จ'); setSyncState('error', 'no data'); return; }
@@ -11677,7 +11677,7 @@ async function resetData() {
     ? '\n\n☁ ข้อมูลใน Cloud ของคุณก็จะถูกลบด้วย\n   ทุกเครื่องที่ login บัญชี ' + CURRENT_USER.email + ' จะกลับเป็นแอพเปล่า'
     : '';
   if (!confirm('⚠ ล้างทั้งแอพ — เริ่มจากศูนย์?\n\nรายการทุกอย่างจะถูกลบ:\n• งาน · ใบเสนอราคา · ค่าใช้จ่าย ทั้งหมด\n• ทีมงานทั้งหมด\n• บัญชีรับโอนทั้งหมด\n• โปรไฟล์ร้าน (ชื่อ · tagline · ติดต่อ · social)\n\nแพคเกจและการตั้งค่าอื่นๆ จะกลับเป็น default' + cloudWarning)) return;
-  if (!confirm('ยืนยันอีกครั้ง?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้\nควร Export Backup ก่อนถ้ายังไม่ได้ทำ\n\nกด OK เพื่อล้างเป็นแอพเปล่า หรือ Cancel เพื่อยกเลิก')) return;
+  if (!confirm(t('dlg.hardReset'))) return;
 
   // CRITICAL: delete cloud row FIRST so it doesn't restore on reload
   if (CURRENT_USER && SUPABASE) {
@@ -11715,7 +11715,7 @@ async function resetData() {
 
 async function resetTransactionData() {
   if (!confirm('🗑 ล้างข้อมูลงาน/ลูกค้า?\n\nรายการต่อไปนี้จะถูกลบ:\n• งานทั้งหมด (รวม demo)\n• ใบเสนอราคาทั้งหมด (รวม demo)\n• ค่าใช้จ่ายทั้งหมด (รวม demo)\n• รายชื่อลูกค้าทั้งหมด (รวมข้อมูลภาษี · เบอร์ · LINE)\n\nการตั้งค่าจะคงไว้:\n✓ แพคเกจ · ทีมงาน · Source\n✓ โปรไฟล์ร้าน · บัญชี · เทมเพลต' + ((CURRENT_USER && SUPABASE) ? '\n\n☁ ข้อมูลใน Cloud ก็จะถูกอัปเดทตามด้วย' : ''))) return;
-  if (!confirm('ยืนยันอีกครั้ง?\n\nกู้คืนไม่ได้ ควรกด Export Backup ก่อนถ้ายังไม่ได้ทำ')) return;
+  if (!confirm(t('dlg.softReset'))) return;
   // Ensure settings are persisted first (in case nothing saved yet)
   saveData();
   try {
@@ -11888,8 +11888,7 @@ const I18N = {
   'custom.categoryLabel':   { th: '🏷 หมวด', en: '🏷 Category' },
   'custom.categoryDefault': { th: 'ตามประเภทงาน', en: 'Same as job type' },
   'custom.pricePh':         { th: 'ราคา', en: 'Price' },
-  'custom.empty':           { th: 'ยังไม่มีรายการ · กด "+ เพิ่มรายการ" ด้านล่าง', en: 'No items yet · tap "+ Add Item" below' },
-  'custom.pricePh':      { th: 'ราคา', en: 'Price' },
+  // v2.5.46 · removed 2 duplicate keys (custom.empty and custom.pricePh) — canonical defs at lines above
   'custom.descPh':       { th: 'รายละเอียด (ไม่บังคับ · เช่น ถ่าย full HD · 2 ชม.)', en: 'Details (optional · e.g. full HD · 2 hrs)' },
   'cost.title':          { th: '💸 ต้นทุนงาน', en: '💸 Job Cost' },
   'cost.notShown':       { th: '· ค่าใช้จ่ายของเรา · หักจากกำไรอัตโนมัติ', en: '· our expenses · auto-deducted from profit' },
@@ -12260,16 +12259,72 @@ const I18N = {
 
   // Job filters · v2.5.0
   'filter.all':         { th: 'ทั้งหมด', en: 'All' },
-  'filter.booked':      { th: 'จอง', en: 'Booked' }, // legacy
   'filter.upcoming':    { th: 'กำลังจะถึง', en: 'Upcoming' },
   'filter.waitDeliver': { th: 'รอส่งงาน', en: 'To Deliver' },
   'filter.closed':      { th: 'ปิดงาน', en: 'Closed' },
   'filter.debt':        { th: 'ค้างชำระ', en: 'Unpaid' },
   // Money status · v2.5.0 · 3 levels
   'money.paid':         { th: 'ชำระครบ', en: 'Paid' },
+  'money.paidShort':    { th: '✓ ครบ', en: '✓ Paid' },
+  // v2.5.47 · Phase 2A · countdown labels · use t('time.inXDays').replace('{x}', n)
+  'time.today':         { th: 'วันนี้', en: 'Today' },
+  'time.tomorrow':      { th: 'พรุ่งนี้', en: 'Tomorrow' },
+  'time.inXDays':       { th: 'อีก {x} วัน', en: 'In {x} days' },
+  'time.xDaysAgo':      { th: 'ผ่านมา {x} วัน', en: '{x} days ago' },
+  'time.todayBang':     { th: '🎉 วันนี้!', en: '🎉 Today!' },
+  'time.xDaysUntilDelivery':  { th: 'อีก {x} วันจะถึงวันงาน', en: 'In {x} days · job day' },
+  'time.xDaysPastNotClosed':  { th: 'ผ่านมา {x} วัน · ยังไม่ปิด', en: '{x} days ago · still open' },
+  // v2.5.47 · Phase 2B · confirm/alert dialogs (17 dialogs · use t() at call site)
+  'dlg.signupReadDocs':       { th: 'โปรดดูรายละเอียดใน Settings → เกี่ยวกับ → {doc} หลังสมัคร', en: 'See Settings → About → {doc} after signup' },
+  'dlg.docTerms':             { th: 'ข้อกำหนดการใช้บริการ', en: 'Terms of Service' },
+  'dlg.docPrivacy':           { th: 'นโยบายความเป็นส่วนตัว', en: 'Privacy Policy' },
+  'dlg.logout':               { th: 'ออกจากระบบ?\n\nข้อมูลในเครื่องนี้จะยังอยู่ · กลับมาล็อกอินใหม่เมื่อไหร่ก็ใช้ต่อได้', en: 'Sign out?\n\nLocal data stays · sign in anytime to continue' },
+  'dlg.cloudConflict':        { th: 'พบข้อมูลใหม่จากเครื่องอื่น — รีโหลดเพื่อแสดงข้อมูลล่าสุด?', en: 'Newer data from another device — reload to apply?' },
+  'dlg.pullCloud':            { th: 'ดึงข้อมูลล่าสุดจาก cloud มาทับเครื่องนี้?\n\nข้อมูลในเครื่องนี้ที่ยังไม่ได้ซิงค์จะหายไป\n\nแนะนำใช้กรณีเครื่องนี้ดูข้อมูลไม่ครบ', en: 'Pull latest from cloud and overwrite this device?\n\nUnsynced local changes will be lost.\n\nUse this when local data looks incomplete' },
+  'dlg.hardReset':            { th: 'ยืนยันอีกครั้ง?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้\nควร Export Backup ก่อนถ้ายังไม่ได้ทำ\n\nกด OK เพื่อล้างเป็นแอพเปล่า หรือ Cancel เพื่อยกเลิก', en: 'Confirm again?\n\nThis cannot be undone\nExport backup first if you have not\n\nOK to wipe app, Cancel to abort' },
+  'dlg.softReset':            { th: 'ยืนยันอีกครั้ง?\n\nกู้คืนไม่ได้ ควรกด Export Backup ก่อนถ้ายังไม่ได้ทำ', en: 'Confirm again?\n\nCannot be restored · please Export Backup first' },
+  'dlg.deleteImage':          { th: 'ลบภาพนี้ออกจากคลัง?', en: 'Remove this photo from library?' },
+  'dlg.deleteItem':           { th: 'ลบรายการนี้?', en: 'Delete this item?' },
+  'dlg.restoreOverwrite':     { th: 'ยืนยันอีกครั้ง — ทับข้อมูลปัจจุบันทั้งหมด?\n\nกด OK เพื่อกู้คืน\nกด Cancel เพื่อยกเลิก', en: 'Confirm again — overwrite all current data?\n\nOK to restore, Cancel to abort' },
+  'dlg.deleteAvatar':         { th: 'ลบรูปโปรไฟล์?', en: 'Delete profile photo?' },
+  'dlg.pushOff':              { th: 'ปิดการแจ้งเตือนแบบ Push?\n\nคุณจะไม่ได้รับการเตือนงาน · ใบเสนอ · ยอดค้างเก็บ จนกว่าจะเปิดอีกครั้ง', en: 'Disable Push notifications?\n\nYou will not receive job · quote · balance reminders until re-enabled' },
+  'dlg.deleteJob':            { th: 'ยืนยันอีกครั้ง — ลบงาน {code}?', en: 'Confirm again — delete job {code}?' },
+  'dlg.convertQuoteToJob':    { th: 'แปลงใบเสนอนี้เป็นงานใหม่?\n\nระบบจะสร้างงานพร้อมรายละเอียดเดิม คุณจะกรอกมัดจำและทีมในขั้นตอนถัดไป', en: 'Convert this quote into a new job?\n\nSystem will create the job with existing details · enter deposit and team in next step' },
+  'dlg.duplicateCustomer':    { th: 'มีลูกค้าชื่อ "{newName}" อยู่แล้ว\n\nกด OK เพื่อรวมงานทั้งหมดของ "{oldName}" เข้ากับลูกค้านี้\nกด Cancel เพื่อยกเลิก', en: 'Customer "{newName}" already exists\n\nOK to merge all jobs from "{oldName}" into this customer, Cancel to abort' },
+  'dlg.deleteNote':           { th: 'ลบบันทึกนี้?', en: 'Delete this note?' },
+  'dlg.pushErrSubscribe':     { th: 'ไม่สามารถสมัครรับการแจ้งเตือนได้ · ตรวจสอบว่า admin ตั้งค่า VAPID key แล้ว', en: 'Could not subscribe for push · ensure admin has set VAPID key' },
+  'dlg.pushErrSavSub':        { th: 'ไม่สามารถบันทึกการสมัครได้ · ตรวจสอบ database table push_subscriptions', en: 'Could not save subscription · check push_subscriptions table' },
+  // v2.5.47 · Phase 2C · Notifications screen (high-impact UI labels)
+  'notif.title':              { th: 'การแจ้งเตือน', en: 'Notifications' },
+  'notif.subhead':            { th: 'ดูตัวอย่างได้ก่อนเปิดใช้งานจริง', en: 'Preview before enabling' },
+  'notif.pushOff':            { th: 'ยังไม่เปิด · กดเพื่ออนุญาต', en: 'Off · tap to enable' },
+  'notif.previewSection':     { th: 'เด้งแบบไหน · ดูตัวอย่างได้', en: 'Preview · what notifications look like' },
+  'notif.inAppSection':       { th: 'เตือนงานในแอพ', en: 'In-app reminders' },
+  'notif.sendTest':           { th: '🧪 ส่งข้อความทดสอบ', en: '🧪 Send test push' },
+  'notif.balanceOnlyOn':      { th: 'เตือนในวันงาน', en: 'Notify on job day' },
+  'notif.previewSubLabel':    { th: 'เวลาส่ง', en: 'Send time' },
+  'notif.previewQuoteAdvance':{ th: 'เตือนล่วงหน้า', en: 'Advance reminder' },
+  // Balance due mode chips (v2.5.18)
+  'chip.beforeJob':           { th: '🗓️ ก่อนวันงาน', en: '🗓️ Before job' },
+  'chip.onJobDay':            { th: '📍 ในวันงาน', en: '📍 On job day' },
+  'chip.afterJob':            { th: '⏰ หลังวันงาน', en: '⏰ After job' },
+  'chip.afterDelivery':       { th: '📦 หลังส่งงาน', en: '📦 After delivery' },
+  'chip.beforeJobLabel':      { th: 'ก่อนวันงาน', en: 'Before job' },
   'money.partial':      { th: 'ค้างชำระ', en: 'Partial' },
   'money.none':         { th: 'ยังไม่ได้รับเงิน', en: 'Unpaid' },
   'money.free':         { th: 'ฟรี', en: 'Free' },
+  // v2.5.46 · Lists & Tags screen (consolidated settings · v2.5.43)
+  'lists.title':                  { th: 'ลิสต์และแท็ก', en: 'Lists & Tags' },
+  'lists.hint':                   { th: 'รวม 4 หมวดที่ใช้จัดกลุ่ม·ทำงานในแอพ · เลือกแท็บด้านล่างเพื่อแก้แต่ละหมวด', en: '4 categories for grouping app data · pick a tab below to edit' },
+  'lists.tab.jobtypes':           { th: 'ประเภท', en: 'Types' },
+  'lists.tab.jobstatuses':        { th: 'สถานะ', en: 'Status' },
+  'lists.tab.sources':            { th: 'ช่องทาง', en: 'Sources' },
+  'lists.tab.expenseCats':        { th: 'รายจ่าย', en: 'Expense Cats' },
+  'lists.defaultStatusesHint':    { th: 'แอพมี 3 สถานะหลัก · เพิ่มเองได้ไม่จำกัด', en: '3 default statuses · add unlimited custom ones' },
+  'lists.sectionDefault':         { th: 'สถานะหลัก · 3 อัน', en: 'Default · 3 statuses' },
+  'lists.sectionCustom':          { th: 'สถานะของคุณเอง', en: 'Your custom statuses' },
+  'lists.addStatus':              { th: 'เพิ่มสถานะใหม่', en: '+ Add status' },
+  'lists.statusesTip':            { th: '💡 เคล็ดลับ: ลองเพิ่ม "ตัดต่อ" หรือ "ส่งพรีวิว" ตาม workflow ของคุณ', en: '💡 Tip: Try adding "Editing" or "Preview sent" for your workflow' },
   'filter.pending':     { th: 'รออนุมัติ', en: 'Pending' },
   'filter.approved':    { th: 'อนุมัติแล้ว', en: 'Approved' },
   'filter.rejected':    { th: 'ปฏิเสธ', en: 'Rejected' },
@@ -12995,7 +13050,7 @@ function renderWallpaperLibrary() {
     del.style.cssText = "position:absolute; top:4px; right:4px; width:22px; height:22px; border-radius:50%; background:rgba(0,0,0,.6); color:white; border:none; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center;";
     del.onclick = (e) => {
       e.stopPropagation();
-      if (!confirm('ลบภาพนี้ออกจากคลัง?')) return;
+      if (!confirm(t('dlg.deleteImage'))) return;
       const lib2 = getWallpaperLibrary();
       lib2.splice(idx, 1);
       saveWallpaperLibrary(lib2);
@@ -13194,7 +13249,7 @@ function saveEditItem() {
 
 function deleteEditItem() {
   if (!EDIT_CTX || EDIT_CTX.index < 0) return;
-  if (!confirm('ลบรายการนี้?')) return;
+  if (!confirm(t('dlg.deleteItem'))) return;
   const schema = EDIT_SCHEMAS[EDIT_CTX.type];
   const list = schema.list();
   list.splice(EDIT_CTX.index, 1);
@@ -13740,11 +13795,11 @@ function renderJobs(list, container) {
     // v2.5.0 · Countdown hint (small text under date)
     let countdown = '';
     if (stage !== 'closed') {
-      if (daysAway === 0) countdown = '<div class="job-countdown today">วันนี้</div>';
-      else if (daysAway === 1) countdown = '<div class="job-countdown soon">พรุ่งนี้</div>';
-      else if (daysAway > 1 && daysAway <= 7) countdown = '<div class="job-countdown soon">อีก ' + daysAway + ' วัน</div>';
-      else if (daysAway > 7) countdown = '<div class="job-countdown future">อีก ' + daysAway + ' วัน</div>';
-      else if (daysAway < 0) countdown = '<div class="job-countdown past">ผ่านมา ' + Math.abs(daysAway) + ' วัน</div>';
+      if (daysAway === 0) countdown = '<div class="job-countdown today">' + t('time.today') + '</div>';
+      else if (daysAway === 1) countdown = '<div class="job-countdown soon">' + t('time.tomorrow') + '</div>';
+      else if (daysAway > 1 && daysAway <= 7) countdown = '<div class="job-countdown soon">' + t('time.inXDays').replace('{x}', daysAway) + '</div>';
+      else if (daysAway > 7) countdown = '<div class="job-countdown future">' + t('time.inXDays').replace('{x}', daysAway) + '</div>';
+      else if (daysAway < 0) countdown = '<div class="job-countdown past">' + t('time.xDaysAgo').replace('{x}', Math.abs(daysAway)) + '</div>';
     }
     // Remaining balance — only shown if partial / none (NOT free)
     let remainHtml = '';
@@ -14232,7 +14287,7 @@ function saveExpense() {
 }
 
 function deleteExpense(idx) {
-  if (!confirm('ลบรายการนี้?')) return;
+  if (!confirm(t('dlg.deleteItem'))) return;
   EXPENSES.splice(idx, 1);
   saveData();
   renderExpenseList();
@@ -14429,7 +14484,7 @@ function importBackup(ev) {
       'ดำเนินการต่อ?';
 
     if (!confirm(msg)) return;
-    if (!confirm('ยืนยันอีกครั้ง — ทับข้อมูลปัจจุบันทั้งหมด?\n\nกด OK เพื่อกู้คืน\nกด Cancel เพื่อยกเลิก')) return;
+    if (!confirm(t('dlg.restoreOverwrite'))) return;
 
     // Write directly to localStorage in the schema saveData() uses
     (async () => {
@@ -14594,7 +14649,7 @@ function handleProfilePhotoUpload(e) {
 }
 
 function removeProfilePhoto() {
-  if (!confirm('ลบรูปโปรไฟล์?')) return;
+  if (!confirm(t('dlg.deleteAvatar'))) return;
   delete PROFILE.photo;
   saveData();
   renderProfilePhoto();
@@ -15635,14 +15690,14 @@ function computeNotifications() {
       const max = Math.max(jobMaxBefore, briefMax);
       if (daysAway <= max) {
         let level = 'info';
-        let when = 'อีก ' + daysAway + ' วัน';
-        if (daysAway === 0) { level = 'urgent'; when = 'วันนี้'; }
-        else if (daysAway === 1) { level = 'urgent'; when = 'พรุ่งนี้'; }
+        let when = t('time.inXDays').replace('{x}', daysAway);
+        if (daysAway === 0) { level = 'urgent'; when = t('time.today'); }
+        else if (daysAway === 1) { level = 'urgent'; when = t('time.tomorrow'); }
         else if (daysAway <= 3) { level = 'urgent'; }
         else if (daysAway <= 14) { level = 'warn'; }
         items.push({
           level, ico: '📅',
-          title: 'งาน ' + j.customer + (daysAway <= 1 ? ' · ' + when : ' · อีก ' + daysAway + ' วัน'),
+          title: 'งาน ' + j.customer + (daysAway <= 1 ? ' · ' + when : ' · ' + t('time.inXDays').replace('{x}', daysAway)),
           desc: (j.start || 14) + ':00 ' + j.loc + ' · ทีม ' + (j.team || []).join(', '),
           time: when, sort: daysAway, jobCode: j.code
         });
@@ -15653,8 +15708,8 @@ function computeNotifications() {
         items.push({
           level: 'warn', ico: '🤝',
           title: 'นัดคุย/บรีฟงาน — ' + j.customer,
-          desc: 'อีก ' + daysAway + ' วันจะถึงวันงาน · ' + j.type + ' · ' + j.loc,
-          time: 'อีก ' + daysAway + ' วัน', sort: -200 + daysAway, jobCode: j.code
+          desc: t('time.xDaysUntilDelivery').replace('{x}', daysAway) + ' · ' + j.type + ' · ' + j.loc,
+          time: t('time.inXDays').replace('{x}', daysAway), sort: -200 + daysAway, jobCode: j.code
         });
       }
     }
@@ -15680,7 +15735,7 @@ function computeNotifications() {
           ico: '💰',
           title: 'ทวงยอดคงเหลือ — ' + j.customer,
           desc: fmt(j.remain) + ' ยังไม่เก็บ · เหลือ ' + daysAway + ' วันก่อนงาน',
-          time: 'อีก ' + daysAway + ' วัน', sort: -100 + daysAway, jobCode: j.code
+          time: t('time.inXDays').replace('{x}', daysAway), sort: -100 + daysAway, jobCode: j.code
         });
       }
     }
@@ -15846,11 +15901,11 @@ function renderNextShootCard() {
   const days = Math.round(diffMs / 86400000);
   let countdownText;
   let countdownColor;
-  if (days === 0) { countdownText = 'วันนี้!';   countdownColor = '#dc2626'; }
-  else if (days === 1) { countdownText = 'พรุ่งนี้';  countdownColor = '#f97316'; }
-  else if (days < 7)  { countdownText = 'อีก ' + days + ' วัน';  countdownColor = '#d97706'; }
-  else if (days < 30) { countdownText = 'อีก ' + days + ' วัน';  countdownColor = '#2563eb'; }
-  else                { countdownText = 'อีก ' + days + ' วัน';  countdownColor = '#7c7066'; }
+  if (days === 0) { countdownText = t('time.today') + '!';   countdownColor = '#dc2626'; }
+  else if (days === 1) { countdownText = t('time.tomorrow');  countdownColor = '#f97316'; }
+  else if (days < 7)  { countdownText = t('time.inXDays').replace('{x}', days);  countdownColor = '#d97706'; }
+  else if (days < 30) { countdownText = t('time.inXDays').replace('{x}', days);  countdownColor = '#2563eb'; }
+  else                { countdownText = t('time.inXDays').replace('{x}', days);  countdownColor = '#7c7066'; }
   const sess = (j.sessions && j.sessions[0]) ? j.sessions[0] : null;
   const timeStr = sess ? ((sess.start || '?') + ' - ' + (sess.end || '?')) : '';
   const locStr = (sess && sess.loc && sess.loc !== '-') ? sess.loc : (j.loc && j.loc !== '-' ? j.loc : '');
@@ -16265,7 +16320,7 @@ async function togglePushMaster() {
   const detailRows = document.getElementById('push-detail-rows');
   if (NOTIF_SETTINGS.pushEnabled) {
     // Currently ON → turn OFF
-    if (!confirm('ปิดการแจ้งเตือนแบบ Push?\n\nคุณจะไม่ได้รับการเตือนงาน · ใบเสนอ · ยอดค้างเก็บ จนกว่าจะเปิดอีกครั้ง')) return;
+    if (!confirm(t('dlg.pushOff'))) return;
     try {
       const reg = await navigator.serviceWorker.ready;
       const existing = await reg.pushManager.getSubscription();
@@ -16305,12 +16360,12 @@ async function togglePushMaster() {
   // Subscribe
   const sub = await ensurePushSubscription();
   if (!sub) {
-    alert('ไม่สามารถสมัครรับการแจ้งเตือนได้ · ตรวจสอบว่า admin ตั้งค่า VAPID key แล้ว');
+    alert(t('dlg.pushErrSubscribe'));
     return;
   }
   const saved = await saveSubscriptionToSupabase(sub);
   if (!saved) {
-    alert('ไม่สามารถบันทึกการสมัครได้ · ตรวจสอบ database table push_subscriptions');
+    alert(t('dlg.pushErrSavSub'));
     return;
   }
   NOTIF_SETTINGS.pushEnabled = true;
@@ -16909,7 +16964,7 @@ function deleteCurrentJob() {
   const j = window._currentJob;
   if (!j) return;
   if (!confirm('🗑 ลบงาน "' + j.customer + '" (' + j.code + ')?\n\nรายการต่อไปนี้จะถูกลบไปด้วย:\n• ประวัติการรับเงิน\n• ค่าใช้จ่ายที่ผูกกับงาน\n\nกู้คืนไม่ได้')) return;
-  if (!confirm('ยืนยันอีกครั้ง — ลบงาน ' + j.code + '?')) return;
+  if (!confirm(t('dlg.deleteJob').replace('{code}', j.code))) return;
   const idx = JOBS.findIndex(x => x.code === j.code);
   if (idx >= 0) JOBS.splice(idx, 1);
   saveData();
@@ -17546,7 +17601,7 @@ function convertQuoteToJob(code) {
     // Orphan link (job was deleted) → clear and let convert proceed
     q.convertedJobCode = null;
   }
-  if (!confirm('แปลงใบเสนอนี้เป็นงานใหม่?\n\nระบบจะสร้างงานพร้อมรายละเอียดเดิม คุณจะกรอกมัดจำและทีมในขั้นตอนถัดไป')) return;
+  if (!confirm(t('dlg.convertQuoteToJob'))) return;
   // v1.9.11 C2 + M8 fix: use generateJobCode with event year (not current year, not length+1)
   const eventYear = q.dateEvent ? new Date(q.dateEvent).getFullYear() : new Date().getFullYear();
   const newCode = generateJobCode(eventYear);
@@ -20439,7 +20494,7 @@ function renameCurrentCustomer() {
   if (newName === oldName) return; // no change
   // Check collision — case-sensitive exact match (different from oldName check above)
   if (CUSTOMER_INFO[newName]) {
-    if (!confirm('มีลูกค้าชื่อ "' + newName + '" อยู่แล้ว\n\nกด OK เพื่อรวมงานทั้งหมดของ "' + oldName + '" เข้ากับลูกค้านี้\nกด Cancel เพื่อยกเลิก')) return;
+    if (!confirm(t('dlg.duplicateCustomer').replace('{newName}', newName).replace('{oldName}', oldName))) return;
     // Merge: keep newName's CUSTOMER_INFO, drop oldName's
   } else {
     // Move CUSTOMER_INFO key
@@ -22592,9 +22647,10 @@ function populateYearSelect() {
 }
 
 // v2.5.27 · Helpers for Pro Dashboard SVG rendering
+// v2.5.45 · honest rounding · toFixed(1) แทน Math.round() · "฿527.5K" แทน "฿528K" (parity กับ desktop v1.0.28)
 function _pdbFmtMoney(n) {
   if (n >= 1000000) return '฿' + (n / 1000000).toFixed(2) + 'M';
-  if (n >= 1000) return '฿' + Math.round(n / 1000) + 'K';
+  if (n >= 1000) return '฿' + (n / 1000).toFixed(1) + 'K';
   return '฿' + Math.round(n).toLocaleString('en-US');
 }
 function _pdbCapTopN(entries, max, label) {
@@ -23080,7 +23136,7 @@ async function saveNoteFromEdit() {
 }
 async function deleteNoteFromEdit() {
   if (!_editingNoteId) return;
-  if (!confirm('ลบบันทึกนี้?')) return;
+  if (!confirm(t('dlg.deleteNote'))) return;
   const idx = NOTES.findIndex(x => x.id === _editingNoteId);
   if (idx >= 0) NOTES.splice(idx, 1);
   await saveData();
@@ -23153,7 +23209,7 @@ function renderHomeBirthdays() {
   upcoming.forEach(c => {
     const row = document.createElement('div');
     row.style.cssText = 'display:flex; align-items:center; gap:12px; margin: 0 16px 8px; padding: 12px 14px; background: linear-gradient(135deg, #fef3c7 0%, #fff 70%); border-radius: 12px; border: 0.5px solid #fde68a;';
-    const daysLabel = c.daysUntil === 0 ? '🎉 วันนี้!' : c.daysUntil === 1 ? 'พรุ่งนี้' : 'อีก ' + c.daysUntil + ' วัน';
+    const daysLabel = c.daysUntil === 0 ? t('time.todayBang') : c.daysUntil === 1 ? t('time.tomorrow') : t('time.inXDays').replace('{x}', c.daysUntil);
     const labelColor = c.daysUntil === 0 ? '#b91c1c' : '#7c2d12';
     const safeName = c.name.replace(/'/g, "\\'");
     const hasLine = !!c.line;
@@ -23234,10 +23290,10 @@ function renderHomeActive() {
     else if (moneyLvl === 'partial') pill = '<span class="pill unpaid">' + t('money.partial', 'ค้างชำระ') + '</span>';
     else pill = '<span class="pill unpaid">' + t('money.none', 'ยังไม่ได้รับเงิน') + '</span>';
     let countdown = '';
-    if (daysAway === 0) countdown = '<span style="color:#dc2626; font-size:11px; font-weight:600;">วันนี้!</span>';
-    else if (daysAway > 0 && daysAway <= 7) countdown = '<span style="color:#d97706; font-size:11px; font-weight:600;">อีก ' + daysAway + ' วัน</span>';
-    else if (daysAway < 0) countdown = '<span style="color:#7c2d12; font-size:11px; font-weight:600;">ผ่านมา ' + Math.abs(daysAway) + ' วัน · ยังไม่ปิด</span>';
-    else countdown = '<span style="color:#7c7066; font-size:11px;">อีก ' + daysAway + ' วัน</span>';
+    if (daysAway === 0) countdown = '<span style="color:#dc2626; font-size:11px; font-weight:600;">' + t('time.today') + '!</span>';
+    else if (daysAway > 0 && daysAway <= 7) countdown = '<span style="color:#d97706; font-size:11px; font-weight:600;">' + t('time.inXDays').replace('{x}', daysAway) + '</span>';
+    else if (daysAway < 0) countdown = '<span style="color:#7c2d12; font-size:11px; font-weight:600;">' + t('time.xDaysPastNotClosed').replace('{x}', Math.abs(daysAway)) + '</span>';
+    else countdown = '<span style="color:#7c7066; font-size:11px;">' + t('time.inXDays').replace('{x}', daysAway) + '</span>';
     let cls = 'date-block';
     if (daysAway >= 0 && daysAway <= 30) cls += ' upcoming';
     if (j.remain > 0 && daysAway < 7) cls += ' warn';
