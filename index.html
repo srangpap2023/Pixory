@@ -397,12 +397,14 @@
   }
   .pit-mode-btn:active { transform: scale(.98); }
   .pit-mode-btn.active {
-    background: linear-gradient(135deg, #fef3c7, #fde68a);
-    border-color: #d8704a;
-    box-shadow: 0 2px 6px rgba(216,112,74,.15);
+    background: linear-gradient(135deg, #FDF1E0, #F2E0BA);
+    border-color: #B8854A;
+    box-shadow: 0 2px 6px rgba(184,133,74,.20);
   }
   body.dark-theme .pit-mode-btn { background: #2a2a2a; border-color: #404040; color: #f3f4f6; }
-  body.dark-theme .pit-mode-btn.active { background: #422006; border-color: #d8704a; }
+  body.dark-theme .pit-mode-btn.active { background: #422006; border-color: #D4A056; }
+  body.luxe-theme .pit-mode-btn { background: rgba(28,28,34,0.85) !important; color: #F4F4F5 !important; border-color: rgba(255,255,255,0.08) !important; }
+  body.luxe-theme .pit-mode-btn.active { background: linear-gradient(135deg, #422006, #57321b) !important; border-color: #D4A056 !important; color: #F2E0BA !important; }
 
   .pit-result-card {
     background: #fefcf9;
@@ -441,12 +443,21 @@
     margin-top: 14px;
     padding: 16px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    background: linear-gradient(135deg, #FDF1E0, #F2E0BA);
     text-align: center;
     font-size: 13.5px; font-weight: 600;
-    border: 1px solid #fbbf24;
+    border: 1px solid #D4A056;
+    color: #3a2f25;
   }
-  body.dark-theme .pit-final { background: linear-gradient(135deg, #422006, #57321b); border-color: #d97706; color: #fde68a; }
+  body.dark-theme .pit-final { background: linear-gradient(135deg, #422006, #57321b); border-color: #D4A056; color: #F2E0BA; }
+  body.luxe-theme .pit-final { background: linear-gradient(135deg, #422006, #57321b) !important; border-color: #D4A056 !important; color: #F2E0BA !important; }
+  body.luxe-theme .pit-result-card { background: rgba(28,28,34,0.85) !important; border-color: rgba(255,255,255,0.08) !important; color: #F4F4F5 !important; }
+  body.luxe-theme .pit-result-card .pit-row,
+  body.luxe-theme .pit-result-card .pit-row strong { color: #F4F4F5 !important; }
+  body.luxe-theme .pit-row-divider { border-top-color: rgba(255,255,255,0.12) !important; }
+  body.luxe-theme .pit-brackets { background: rgba(212,160,86,0.10) !important; border-left-color: #D4A056 !important; }
+  body.luxe-theme .pit-bracket-row { color: #D4A056 !important; }
+  body.luxe-theme .pit-summary-line { color: #D4A056 !important; }
   .pit-summary-line {
     text-align: center;
     font-size: 11px;
@@ -454,34 +465,45 @@
     margin-top: 6px;
   }
   .pit-compare-card {
-    background: #f0f9ff;
-    border: 0.5px solid #93c5fd;
+    background: #FDF1E0;
+    border: 0.5px solid rgba(184,133,74,.30);
     border-radius: 14px;
     padding: 14px;
     margin-top: 12px;
   }
   body.dark-theme .pit-compare-card { background: #1e293b; border-color: #475569; }
+  body.luxe-theme .pit-compare-card { background: rgba(28,28,34,0.85) !important; border-color: rgba(212,160,86,0.30) !important; }
   .pit-compare-title {
-    font-size: 12.5px; font-weight: 700; color: #1e40af; margin-bottom: 8px;
+    font-size: 12.5px; font-weight: 700; color: #7a5a1f; margin-bottom: 8px;
   }
-  body.dark-theme .pit-compare-title { color: #93c5fd; }
+  body.dark-theme .pit-compare-title { color: #F2E0BA; }
+  body.luxe-theme .pit-compare-title { color: #D4A056 !important; }
   .pit-compare-grid {
     display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
   }
   .pit-cc {
-    background: white;
-    border: 0.5px solid #bfdbfe;
+    background: #fefcf9;
+    border: 0.5px solid rgba(212,160,86,.30);
     border-radius: 10px;
     padding: 10px;
     text-align: center;
   }
   body.dark-theme .pit-cc { background: #0f172a; border-color: #475569; }
-  .pit-cc-label { font-size: 11px; color: #1e40af; font-weight: 600; }
-  body.dark-theme .pit-cc-label { color: #93c5fd; }
-  .pit-cc-val { font-size: 13px; font-weight: 700; color: #1e3a8a; margin-top: 2px; }
-  body.dark-theme .pit-cc-val { color: #dbeafe; }
-  .pit-compare-hint { font-size: 11.5px; color: #1e40af; margin-top: 8px; line-height: 1.5; }
-  body.dark-theme .pit-compare-hint { color: #93c5fd; }
+  /* .pit-cc covered by Luxe glass card group rule near L:1930 */
+  .pit-cc-label { font-size: 11px; color: #7a5a1f; font-weight: 600; }
+  body.dark-theme .pit-cc-label { color: #F2E0BA; }
+  body.luxe-theme .pit-cc-label { color: #D4A056 !important; }
+  .pit-cc-val { font-size: 13px; font-weight: 700; color: #3a2f25; margin-top: 2px; }
+  body.dark-theme .pit-cc-val { color: #F2E0BA; }
+  body.luxe-theme .pit-cc-val { color: #F4F4F5 !important; }
+  .pit-compare-hint { font-size: 11.5px; color: #7a5a1f; margin-top: 8px; line-height: 1.5; }
+  body.dark-theme .pit-compare-hint { color: #F2E0BA; }
+  body.luxe-theme .pit-compare-hint { color: #D4A056 !important; }
+  body.luxe-theme .pit-disclaimer { background: rgba(28,28,34,0.85) !important; color: #D4A056 !important; }
+  /* PIT info banners + Export button · Luxe overrides */
+  body.luxe-theme .pit-info-hero { background: rgba(28,28,34,0.85) !important; border-color: rgba(212,160,86,0.30) !important; color: #D4A056 !important; }
+  body.luxe-theme .pit-info-note { background: rgba(28,28,34,0.85) !important; border-color: rgba(255,255,255,0.08) !important; color: #D4A056 !important; }
+  body.luxe-theme .pit-export-btn { background: linear-gradient(135deg, #D4A056, #B8854A) !important; color: #1c1c22 !important; }
   .pit-disclaimer {
     background: #f7f4ef;
     border-radius: 10px;
@@ -6784,6 +6806,92 @@
           💡 <strong>คำแนะนำ:</strong> ถ้ารายได้รวมต่อปีของคุณยังไม่ถึง 1.8 ล้านบาท · ไม่จำเป็นต้องจดทะเบียน VAT · เปิด VAT เมื่อคุณจดแล้วเท่านั้น
         </div>
 
+        <!-- v2.5.60 · PIT Helper inline · merged from screen-pit-helper (parity กับเดสก์ทอป) -->
+        <div class="settings-section" style="margin-top:16px;">
+          <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; padding: 0 4px;">📊 ภาษีเงินได้ประจำปี (ภ.ง.ด.90/94)</div>
+
+          <div class="pit-info-hero" style="background:#FDF1E0; border:0.5px solid rgba(184,133,74,.30); border-radius:12px; padding:11px 13px; margin-bottom:12px; font-size:12px; color:#7a5a1f; line-height:1.55;">
+            ✨ <strong>PIT Helper</strong> — คำนวณภาษีเงินได้บุคคลธรรมดา · ใช้ข้อมูลจาก Pixory · กรอกแค่ที่จำเป็น
+          </div>
+
+          <div class="form-group" style="margin: 0 0 12px;">
+            <label>ปีภาษี <span style="color:#a89a8c; font-weight:400; font-size:11px;">· นับตามวันรับเงิน</span></label>
+            <select id="pit-year" onchange="refreshPITCalc()"></select>
+          </div>
+
+          <div class="form-group" style="margin: 0 0 10px;">
+            <label>สถานะ</label>
+            <select id="pit-marital" onchange="refreshPITCalc()">
+              <option value="single">โสด</option>
+              <option value="married">สมรส</option>
+              <option value="widowed">หม้าย</option>
+              <option value="divorced">หย่า</option>
+            </select>
+          </div>
+          <div class="form-group" id="pit-spouse-row" style="margin: 0 0 10px; display:none;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="pit-spouse-no-income" onchange="refreshPITCalc()" style="width:18px; height:18px;">
+              <span style="font-size:13.5px;">คู่สมรสไม่มีรายได้ (ลดหย่อน 60,000)</span>
+            </label>
+          </div>
+          <div class="form-group" style="margin: 0 0 10px;">
+            <label>จำนวนบุตร <span style="color:#a89a8c; font-size:11px;">(ลดหย่อน 30,000/คน)</span></label>
+            <input type="number" id="pit-children" min="0" max="20" value="0" oninput="refreshPITCalc()">
+          </div>
+          <div class="form-group" id="pit-children2018-row" style="margin: 0 0 12px; display:none;">
+            <label>ในจำนวนนี้ เป็นบุตรเกิดตั้งแต่ปี 2561+ <span style="color:#a89a8c; font-size:11px;">(บุตรคนที่ 2+ ได้ ฿60,000)</span></label>
+            <input type="number" id="pit-children-2018-plus" min="0" max="20" value="0" oninput="refreshPITCalc()">
+          </div>
+
+          <div style="font-size:11.5px; color:#7c7066; font-weight:700; margin: 6px 0 8px; padding-left:4px;">โหมดค่าใช้จ่าย</div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:14px;">
+            <button id="pit-mode-flat" class="pit-mode-btn active" onclick="setPITExpenseMode('flat60')">
+              <div style="font-size:13px; font-weight:700;">หักเหมา 60%</div>
+              <div style="font-size:10.5px; color:#7c7066; margin-top:2px;">ง่าย · ไม่ต้องเก็บบิล</div>
+            </button>
+            <button id="pit-mode-actual" class="pit-mode-btn" onclick="setPITExpenseMode('actual')">
+              <div style="font-size:13px; font-weight:700;">หักตามจริง</div>
+              <div style="font-size:10.5px; color:#7c7066; margin-top:2px;">จาก Pixory · cost จริง</div>
+            </button>
+          </div>
+
+          <details style="margin: 0 0 12px;">
+            <summary style="font-size:11.5px; color:#7c7066; font-weight:700; cursor:pointer; padding:6px 0; padding-left:4px;">▸ ลดหย่อนเพิ่มเติม (optional · 5 หมวด)</summary>
+            <div style="margin-top:10px;">
+              <div class="form-group" style="margin: 0 0 10px;">
+                <label>ประกันชีวิต <span style="color:#a89a8c; font-size:11px;">(max ฿100,000)</span></label>
+                <input type="number" id="pit-life-ins" min="0" value="0" oninput="refreshPITCalc()">
+              </div>
+              <div class="form-group" style="margin: 0 0 10px;">
+                <label>ประกันสุขภาพ <span style="color:#a89a8c; font-size:11px;">(max ฿25,000)</span></label>
+                <input type="number" id="pit-health-ins" min="0" value="0" oninput="refreshPITCalc()">
+              </div>
+              <div class="form-group" style="margin: 0 0 10px;">
+                <label>กองทุน RMF/SSF <span style="color:#a89a8c; font-size:11px;">(max ฿200,000)</span></label>
+                <input type="number" id="pit-rmf-ssf" min="0" value="0" oninput="refreshPITCalc()">
+              </div>
+              <div class="form-group" style="margin: 0 0 10px;">
+                <label>บริจาค <span style="color:#a89a8c; font-size:11px;">(max 10% เงินได้)</span></label>
+                <input type="number" id="pit-donation" min="0" value="0" oninput="refreshPITCalc()">
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label>ดอกเบี้ยกู้บ้าน <span style="color:#a89a8c; font-size:11px;">(max ฿100,000)</span></label>
+                <input type="number" id="pit-mortgage" min="0" value="0" oninput="refreshPITCalc()">
+              </div>
+            </div>
+          </details>
+
+          <!-- Live results (compute + render) -->
+          <div id="pit-results"></div>
+
+          <!-- Export Excel -->
+          <div style="padding: 6px 0 0;">
+            <button class="btn pit-export-btn" onclick="exportPITExcel()" style="margin:0; background:linear-gradient(135deg, #B8854A, #7a5a1f); color:#fff;">
+              <span style="margin-right:6px;">📥</span>บันทึก Excel · ภ.ง.ด.90 / 94
+            </button>
+          </div>
+        </div>
+
         <!-- Tax T3 — Report link -->
         <div class="settings-section" style="margin-top:16px;">
           <div style="border-radius: 12px; overflow: hidden;">
@@ -6799,19 +6907,7 @@
               </div>
               <div class="right">›</div>
             </div>
-            <!-- Tax T6 — PIT Helper link -->
-            <div class="settings-row" onclick="goTo('pit-helper')">
-              <div class="left">
-                <div class="ico-wrap svg-icon">
-                  <svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-orange)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="22" fill="#fff"/><text x="44" y="55" fill="#d8704a" font-size="32" font-weight="800" text-anchor="middle" font-family="-apple-system,Inter,sans-serif">฿</text></svg>
-                </div>
-                <div>
-                  <div class="row-title">ภาษีเงินได้ประจำปี (ภ.ง.ด.90/94)</div>
-                  <div class="row-sub">PIT Helper · คำนวณ + Export Excel · สำหรับช่างภาพอิสระ</div>
-                </div>
-              </div>
-              <div class="right">›</div>
-            </div>
+            <!-- v2.5.60 · PIT Helper moved INLINE (above) · removed standalone screen -->
           </div>
         </div>
       </div>
@@ -6887,111 +6983,7 @@
       </div>
     </div>
 
-    <!-- ====== SCREEN: PIT HELPER (ภ.ง.ด.90/94) — Tax T6 ====== -->
-    <div class="screen" id="screen-pit-helper">
-      <div class="header">
-        <button class="back" onclick="goTo('settings-tax')">‹</button>
-        <h1><span style="margin-right:6px;">📊</span><span>ภาษีเงินได้ประจำปี</span></h1>
-        <span style="width: 22px;"></span>
-      </div>
-
-      <div style="padding: 0 16px 16px;">
-        <div style="background:#fef3eb; border:0.5px solid rgba(216,112,74,.25); border-radius:12px; padding:12px 14px; margin-bottom:14px; font-size:12.5px; color:#7c2d12; line-height:1.55;">
-          ✨ <strong>PIT Helper</strong> — ช่วยคำนวณภาษีเงินได้บุคคลธรรมดา (ภ.ง.ด.90/94) สำหรับช่างภาพที่ไม่ได้จดบริษัท · ใช้ข้อมูลจาก Pixory ทั้งหมด · กรอกแค่ 3-5 ช่องนี้
-        </div>
-
-        <!-- v1.9.13 · M4 fix — explain date basis difference -->
-        <div style="background:#eff6ff; border:0.5px solid rgba(37,99,235,.2); border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:11.5px; color:#1e40af; line-height:1.55;">
-          ℹ️ <strong>เกณฑ์วันที่:</strong> PIT คำนวณ <strong>ตามวันรับเงิน (cash basis)</strong> ตามที่กรมสรรพากรกำหนดสำหรับบุคคลธรรมดา · ตัวเลขอาจต่างจาก "รายงานภาษี" (ภ.พ.30 / ภ.ง.ด.3) ที่ใช้วันออกใบเสร็จ/วันงาน — เป็นเรื่องปกติ ไม่ใช่บั๊ก
-        </div>
-
-        <!-- Year selector -->
-        <div class="form-group" style="margin: 0 0 14px;">
-          <label>ปีภาษี <span style="color:#7c7066; font-weight:400; font-size:11px;">· นับตามวันรับเงิน</span></label>
-          <select id="pit-year" onchange="refreshPITCalc()"></select>
-        </div>
-
-        <!-- Personal info -->
-        <div class="settings-section" style="margin: 0 0 14px;">
-          <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px;">ข้อมูลผู้เสียภาษี</div>
-          <div class="form-group" style="margin: 0 0 10px;">
-            <label>สถานะ</label>
-            <select id="pit-marital" onchange="refreshPITCalc()">
-              <option value="single">โสด</option>
-              <option value="married">สมรส</option>
-              <option value="widowed">หม้าย</option>
-              <option value="divorced">หย่า</option>
-            </select>
-          </div>
-          <div class="form-group" id="pit-spouse-row" style="margin: 0 0 10px; display:none;">
-            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-              <input type="checkbox" id="pit-spouse-no-income" onchange="refreshPITCalc()" style="width:18px; height:18px;">
-              <span style="font-size:13.5px;">คู่สมรสไม่มีรายได้ (ได้ลดหย่อน 60,000)</span>
-            </label>
-          </div>
-          <div class="form-group" style="margin: 0 0 10px;">
-            <label>จำนวนบุตรทั้งหมด <span style="color:#a89a8c; font-size:11px;">(ลดหย่อน 30,000/คน)</span></label>
-            <input type="number" id="pit-children" min="0" max="20" value="0" oninput="refreshPITCalc()">
-          </div>
-          <div class="form-group" id="pit-children2018-row" style="margin: 0; display:none;">
-            <label>ในจำนวนนี้ เป็นบุตรเกิดตั้งแต่ปี 2561 ขึ้นไป <span style="color:#a89a8c; font-size:11px;">(บุตรคนที่ 2+ ได้ ฿60,000)</span></label>
-            <input type="number" id="pit-children-2018-plus" min="0" max="20" value="0" oninput="refreshPITCalc()">
-          </div>
-        </div>
-
-        <!-- Expense mode toggle -->
-        <div class="settings-section" style="margin: 0 0 14px;">
-          <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px;">โหมดค่าใช้จ่าย</div>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-            <button id="pit-mode-flat" class="pit-mode-btn active" onclick="setPITExpenseMode('flat60')">
-              <div style="font-size:13.5px; font-weight:700;">หักเหมา 60%</div>
-              <div style="font-size:10.5px; color:#7c7066; margin-top:2px;">ง่าย · ไม่ต้องเก็บบิล</div>
-            </button>
-            <button id="pit-mode-actual" class="pit-mode-btn" onclick="setPITExpenseMode('actual')">
-              <div style="font-size:13.5px; font-weight:700;">หักตามจริง</div>
-              <div style="font-size:10.5px; color:#7c7066; margin-top:2px;">จาก Pixory · cost จริง</div>
-            </button>
-          </div>
-        </div>
-
-        <!-- Optional deductions (collapsible) -->
-        <details class="settings-section" style="margin: 0 0 14px;">
-          <summary style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; cursor:pointer; padding:4px 0;">▸ ค่าลดหย่อนเพิ่มเติม (optional)</summary>
-          <div style="margin-top:10px;">
-            <div class="form-group" style="margin: 0 0 10px;">
-              <label>ประกันชีวิต <span style="color:#a89a8c; font-size:11px;">(max 100,000)</span></label>
-              <input type="number" id="pit-life-ins" min="0" value="0" oninput="refreshPITCalc()">
-            </div>
-            <div class="form-group" style="margin: 0 0 10px;">
-              <label>ประกันสุขภาพ <span style="color:#a89a8c; font-size:11px;">(max 25,000)</span></label>
-              <input type="number" id="pit-health-ins" min="0" value="0" oninput="refreshPITCalc()">
-            </div>
-            <div class="form-group" style="margin: 0 0 10px;">
-              <label>กองทุน RMF/SSF <span style="color:#a89a8c; font-size:11px;">(max 200,000)</span></label>
-              <input type="number" id="pit-rmf-ssf" min="0" value="0" oninput="refreshPITCalc()">
-            </div>
-            <div class="form-group" style="margin: 0 0 10px;">
-              <label>บริจาค</label>
-              <input type="number" id="pit-donation" min="0" value="0" oninput="refreshPITCalc()">
-            </div>
-            <div class="form-group" style="margin: 0;">
-              <label>ดอกเบี้ยกู้บ้าน <span style="color:#a89a8c; font-size:11px;">(max 100,000)</span></label>
-              <input type="number" id="pit-mortgage" min="0" value="0" oninput="refreshPITCalc()">
-            </div>
-          </div>
-        </details>
-
-        <!-- Results (live) -->
-        <div id="pit-results"></div>
-
-        <!-- Export -->
-        <div style="padding: 14px 0 32px;">
-          <button class="btn" onclick="exportPITExcel()" style="margin:0; background:linear-gradient(135deg, #15803d, #166534);">
-            <span style="margin-right:6px;">📥</span>บันทึก Excel · ภ.ง.ด.90 / 94
-          </button>
-        </div>
-      </div>
-    </div>
+    <!-- v2.5.60 · screen-pit-helper ถูกลบ · PIT Helper รวมเข้า screen-settings-tax inline -->
 
     <!-- ====== SETTINGS HUB: การเงิน ====== -->
     <div class="screen" id="screen-settings-hub-finance">
@@ -8102,9 +8094,14 @@ function goTo(name) {
   if (name === 'settings-account') { updateAccountUI(); if (typeof updateSyncIndicatorUI === 'function') updateSyncIndicatorUI(); }
   if (name === 'settings') { if (typeof renderShopSetupHero === 'function') renderShopSetupHero(); }
   if (name === 'jobs') { if (typeof renderJobsWithCurrentFilter === 'function') { renderJobsWithCurrentFilter(); syncJobFilterChips(); } }
-  if (name === 'settings-tax') { if (typeof populateTaxSettings === 'function') { populateTaxSettings(); setupTaxToggleListener(); updateTaxHubSub(); } }
+  if (name === 'settings-tax') {
+    if (typeof populateTaxSettings === 'function') { populateTaxSettings(); setupTaxToggleListener(); updateTaxHubSub(); }
+    // v2.5.60 · PIT Helper now inline · populate + render here too
+    if (typeof renderPITHelper === 'function') renderPITHelper();
+  }
   if (name === 'tax-report')   { if (typeof renderTaxReport === 'function') renderTaxReport(); }
-  if (name === 'pit-helper')   { if (typeof renderPITHelper === 'function') renderPITHelper(); }
+  // v2.5.60 · backwards-compat: old pit-helper nav redirects to settings-tax
+  if (name === 'pit-helper')   { setTimeout(() => goTo('settings-tax'), 0); }
   // Toggle wizard-mode on body (hides topbar + bottom-nav during onboarding)
   document.body.classList.toggle('wizard-mode', name === 'wizard');
   if (name === 'settings-hub-packages') renderServicesList();
@@ -8138,7 +8135,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.57';
+const PIXORY_VERSION = '2.5.60';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8149,6 +8146,67 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.60': {
+    date: '2026-05-31',
+    title: '📋 รวมหน้าภาษีให้เหมือนเดสก์ทอป · 1 หน้าจบ',
+    subtitle: 'ตั้งค่า → ภาษี · มีครบ Tax ID, VAT, WHT, PIT, ลดหย่อน 5 ฟิลด์, Export Excel',
+    items: [
+      {
+        icon: '🎯',
+        title: 'PIT Helper รวมเข้าหน้าตั้งค่า/ภาษี',
+        desc: 'เมื่อก่อนต้องกด "ภาษีเงินได้ประจำปี" เข้าหน้าแยก · ตอนนี้ scroll ลงในตั้งค่า/ภาษี เจอครบเลย · ตั้งสถานะ บุตร โหมดค่าใช้จ่าย ลดหย่อน 5 หมวด · เห็นผลคำนวณ live ระหว่างพิมพ์ · กด Export Excel ได้ในหน้าเดียวกัน'
+      },
+      {
+        icon: '🧹',
+        title: 'ลบหน้า "ภาษีเงินได้ประจำปี" แยก',
+        desc: 'หน้าแยกถูกลบทิ้ง · ลด redirect/back-button confusion · ถ้ามี link เก่าค้างใน notification หรือ deeplink จะ redirect ไป settings-tax อัตโนมัติ'
+      },
+      {
+        icon: '⚖️',
+        title: 'parity 100% กับเดสก์ทอป',
+        desc: 'ทั้ง 2 platform ใช้โครงสร้างเดียวกัน · 1 หน้าจบ · ใช้ tablet สลับกับมือถือไม่งง · ลด cognitive load · เห็น Tax ID + VAT + PIT พร้อมกัน'
+      }
+    ]
+  },
+  '2.5.59': {
+    date: '2026-05-31',
+    title: '🐛 แก้บั๊ก · เปิดหน้า PIT Helper ไม่ trigger sync แล้ว',
+    subtitle: 'แค่กดเข้ามาดูตัวเลข ไม่ push ขึ้น cloud · ไม่รบกวนเครื่องอื่น',
+    items: [
+      {
+        icon: '🛑',
+        title: 'ก่อนหน้านี้ · เปิดหน้า = push cloud',
+        desc: 'กดเข้ามาหน้าภาษีเงินได้ประจำปีเฉยๆ · `renderPITHelper()` จะเรียก `refreshPITCalc()` ที่ save ลง cloud ทุกครั้ง · เครื่องอื่น (iPad/มือถือ) ได้รับ realtime notification ทั้งที่ไม่ได้แก้อะไร'
+      },
+      {
+        icon: '✅',
+        title: 'ตอนนี้ · เปิดหน้า = แค่อ่าน · ไม่ push',
+        desc: 'เพิ่ม flag `_pitSkipSave` · ตอน render ครั้งแรกข้าม `saveData()` · เฉพาะตอนกรอกข้อมูล (onchange/oninput) ค่อย save จริง · cloud writes ลดลงเยอะ · ลด notification spam · ปลอดภัยกว่าเดิม'
+      }
+    ]
+  },
+  '2.5.58': {
+    date: '2026-05-31',
+    title: '🎨 หน้า PIT Helper คุมโทน Luxe · ลบสีจัด',
+    subtitle: 'หน้าภาษีเงินได้ประจำปี (ภ.ง.ด.90/94) ไม่มีสีขาว/เหลือง/น้ำเงินจัดอีกต่อไป',
+    items: [
+      {
+        icon: '🟡',
+        title: 'ลบสีเหลือง · พื้นหลังกรอบสรุปภาษี',
+        desc: 'กรอบ "ขอคืนได้ / ต้องจ่ายเพิ่ม / ครบพอดี" และปุ่มโหมดค่าใช้จ่าย เคยใช้เหลือง amber (#fef3c7) · ตอนนี้ใช้ทองอุ่น (#FDF1E0/#F2E0BA) ทั้งคู่ · บน Luxe theme เป็นทองเข้มบนพื้นมืด'
+      },
+      {
+        icon: '⚪',
+        title: 'ลบสีขาว · กรอบเทียบ 2 โหมด',
+        desc: 'กรอบ "เทียบหักเหมา 60% vs หักตามจริง" เคยใช้พื้นหลังขาว/ฟ้าจัด (#f0f9ff + #1e40af) · ตอนนี้ใช้ครีม Luxe · ตัวอักษรเป็นทอง · บน dark mode/Luxe เป็น glass card สวยตามธีม'
+      },
+      {
+        icon: '🟢',
+        title: 'ลบสีเขียวจัด · ปุ่ม Excel',
+        desc: 'ปุ่ม "บันทึก Excel · ภ.ง.ด.90/94" เคยใช้เขียวเข้ม · ตอนนี้เป็น gradient ทอง Luxe ตรงโทน · ปุ่ม navigate ยังใช้สีปกติ'
+      }
+    ]
+  },
   '2.5.57': {
     date: '2026-05-31',
     title: '⚠️ VAT threshold warning · เตือนเมื่อรายได้ใกล้/เกิน ฿1.8M',
@@ -21565,6 +21623,9 @@ function computePIT(year, opts) {
   };
 }
 
+// v2.5.59 · skip saveData on initial render · เปิดหน้าไม่ trigger cloud push
+let _pitSkipSave = false;
+
 // Render the PIT Helper screen — pulls values from PROFILE.pit + computePIT result
 function renderPITHelper() {
   // Year selector — default current year
@@ -21608,7 +21669,10 @@ function renderPITHelper() {
   const c2018 = document.getElementById('pit-children2018-row');
   if (c2018) c2018.style.display = ((Number(pit.numChildren) || 0) > 0) ? '' : 'none';
 
+  // v2.5.59 · initial render = compute + display only · no cloud push
+  _pitSkipSave = true;
   refreshPITCalc();
+  _pitSkipSave = false;
 }
 
 // Read inputs, save to PROFILE.pit, recompute, render results
@@ -21636,7 +21700,8 @@ function refreshPITCalc() {
   PROFILE.pit.rmfSsf = getNum('pit-rmf-ssf');
   PROFILE.pit.donation = getNum('pit-donation');
   PROFILE.pit.mortgageInterest = getNum('pit-mortgage');
-  if (typeof saveData === 'function') saveData();
+  // v2.5.59 · guard against initial-render saveData spam
+  if (!_pitSkipSave && typeof saveData === 'function') saveData();
 
   // Show/hide spouse-no-income field based on marital
   const sp = document.getElementById('pit-spouse-row');
