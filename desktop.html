@@ -23,6 +23,9 @@
 <!-- Service Worker registration · separate cache from mobile (pixory-desktop-vX.Y.Z) -->
 <!-- v1.0.27 · updateViaCache:'none' · force browser to fetch fresh sw-desktop.js bypassing 24h HTTP cache -->
 <!--   Without this: users could be stuck on old SW up to 24h after deploy (mirrors mobile sw.js fix in v2.5.16) -->
+<!-- v1.0.28 · 2 visual lean-ups:
+       · donut center + pendingTotal · toFixed(1) แทน Math.round() · honest rounding · "527.5K" แทน "528K"
+       · table view ✓ ครบ chip · 3 จุด · เปลี่ยน "฿0" ขาวๆ → "✓ ครบ" เขียวเด่น (parity กับ card view + mobile) -->
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -2859,7 +2862,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.27';
+const PIXORY_DESKTOP_VERSION = '1.0.28';
 
 // ===== Supabase config (must match mobile) =====
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
@@ -4090,7 +4093,7 @@ function renderDashboard(root) {
       <div style="grid-column:span 3;background:linear-gradient(135deg, #fef3c7, #fefce8);border-left:4px solid var(--yellow);padding:18px 20px;border-radius:18px;cursor:pointer;" onclick="navigate('jobs')">
         <div style="font-size:11px;color:var(--ink-mute);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">⏳ รอชำระ</div>
         <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:32px;color:var(--yellow);line-height:1;margin-top:6px;display:flex;align-items:baseline;gap:4px;">
-          <span style="font-weight:500;font-size:18px;opacity:0.7;">฿</span><span>${pendingTotal >= 1000000 ? (pendingTotal/1000000).toFixed(2) + 'M' : Math.round(pendingTotal/1000) + 'K'}</span>
+          <span style="font-weight:500;font-size:18px;opacity:0.7;">฿</span><span>${pendingTotal >= 1000000 ? (pendingTotal/1000000).toFixed(2) + 'M' : (pendingTotal/1000).toFixed(1) + 'K'}</span>
         </div>
         <div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">${pendingCustomers} ลูกค้า · ตามได้</div>
       </div>
@@ -4515,7 +4518,7 @@ function openDayDetail(iso) {
                     </td>
                     <td><span class="pill pill-${getStageFromJobStatus(j.jobStatus)}">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span></td>
                     <td class="amount-cell">${fmtTHB(j.sell)}</td>
-                    <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};">${fmtTHB(remain)}</td>
+                    <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-weight:${remain === 0 ? 600 : 400};">${remain > 0 ? fmtTHB(remain) : '✓ ครบ'}</td>
                   </tr>`;
               }).join('')}
             </tbody>
@@ -4630,7 +4633,7 @@ function renderJobsTable() {
               <td>${escapeHtml(j.type || '-')}</td>
               <td><span class="pill pill-${getStageFromJobStatus(j.jobStatus)}">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span></td>
               <td class="amount-cell">${fmtTHB(j.sell)}</td>
-              <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};">${fmtTHB(remain)}</td>
+              <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-weight:${remain === 0 ? 600 : 400};">${remain > 0 ? fmtTHB(remain) : '✓ ครบ'}</td>
             </tr>`;
         }).join('')}
       </tbody>
@@ -5264,7 +5267,7 @@ function renderReportsOverview() {
         <div style="display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:center;flex:1;">
           ${_buildDonutSvg(
             svcEntriesView.map(e => ({ value: e.val, color: e.color })),
-            svcTotal >= 1000000 ? '฿' + (svcTotal/1000000).toFixed(2) + 'M' : '฿' + Math.round(svcTotal/1000) + 'K',
+            svcTotal >= 1000000 ? '฿' + (svcTotal/1000000).toFixed(2) + 'M' : '฿' + (svcTotal/1000).toFixed(1) + 'K',
             'รวม'
           )}
           ${_donutLegend(svcEntriesView.map(e => ({
@@ -5284,7 +5287,7 @@ function renderReportsOverview() {
           : `<div style="display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:center;flex:1;">
               ${_buildDonutSvg(
                 expEntriesView.map(e => ({ value: e.val, color: e.color })),
-                expCatTotal >= 1000000 ? '฿' + (expCatTotal/1000000).toFixed(2) + 'M' : '฿' + Math.round(expCatTotal/1000) + 'K',
+                expCatTotal >= 1000000 ? '฿' + (expCatTotal/1000000).toFixed(2) + 'M' : '฿' + (expCatTotal/1000).toFixed(1) + 'K',
                 'รวม'
               )}
               ${_donutLegend(expEntriesView.map(e => ({
@@ -6525,7 +6528,7 @@ function renderCustomerDetailHtml(name) {
                       <td>${escapeHtml(j.type || '-')}</td>
                       <td><span class="pill pill-${getStageFromJobStatus(j.jobStatus)}">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span></td>
                       <td class="amount-cell">${fmtTHB(j.sell)}</td>
-                      <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};">${fmtTHB(remain)}</td>
+                      <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-weight:${remain === 0 ? 600 : 400};">${remain > 0 ? fmtTHB(remain) : '✓ ครบ'}</td>
                     </tr>`;
                 }).join('')}
               </tbody>
