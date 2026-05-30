@@ -779,6 +779,7 @@
         <div class="left">
           <div class="label" id="acc-email-display">—</div>
           <div class="desc">บัญชี admin ที่ login อยู่</div>
+          <div id="auth-method-badge" style="font-size:11px;font-weight:700;margin-top:4px;"></div>
         </div>
       </div>
       <button class="btn-primary" style="background: rgba(239,68,68,.15); color:#fca5a5; border:1px solid rgba(239,68,68,.3); margin-top:10px;" id="logout-btn">ออกจากระบบ</button>
@@ -860,7 +861,21 @@
 
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_d_Pp52QFpipDvj4JlhCzNw_mBpgyEvE';
-const ADMIN_EMAIL  = 'srangpap2023@gmail.com';
+
+// v2.2 · Admin identity · prefer custom claim · email fallback for backwards compat
+// To add a new admin (one-time SQL in Supabase SQL Editor):
+//   UPDATE auth.users SET raw_app_meta_data = raw_app_meta_data || '{"role":"admin"}'::jsonb
+//   WHERE email = 'newadmin@example.com';
+// Then sign in / refresh session. Claim ships in JWT → no email leak in source.
+const ADMIN_EMAIL  = 'srangpap2023@gmail.com'; // fallback only · removable once claim is set
+function _isAdmin(user) {
+  if (!user) return false;
+  // Primary · custom claim (server-set, can't be forged from client)
+  const role = user.app_metadata && user.app_metadata.role;
+  if (role === 'admin') return true;
+  // Fallback · email match (will be removed in future version once all admins have role claim)
+  return user.email === ADMIN_EMAIL;
+}
 const ONLINE_THRESHOLD_SEC = 45;
 const REFRESH_INTERVAL_MS  = 10 * 1000;
 
@@ -1022,9 +1037,25 @@ function enterApp(user) {
   // Avatar initial
   document.getElementById('avatar-btn').textContent = (user.email || '?').charAt(0).toUpperCase();
   document.getElementById('acc-email-display').textContent = user.email || '—';
+  // v2.2 · Show auth path badge · ให้ Joe verify ว่ามาจาก claim หรือ fallback
+  const authBadge = document.getElementById('auth-method-badge');
+  if (authBadge) {
+    const role = user.app_metadata && user.app_metadata.role;
+    if (role === 'admin') {
+      authBadge.textContent = '🔐 via role claim';
+      authBadge.style.color = '#10b981';
+      authBadge.title = 'Admin verified via JWT app_metadata.role · ปลอดภัย · พร้อมลบ email fallback';
+    } else if (user.email === ADMIN_EMAIL) {
+      authBadge.textContent = '⚠️ via email fallback';
+      authBadge.style.color = '#f59e0b';
+      authBadge.title = 'Admin verified via hardcoded email · run SQL ใน Supabase แล้ว relogin';
+    } else {
+      authBadge.textContent = '';
+    }
+  }
   syncNotifSwitches();
-  if (user.email !== ADMIN_EMAIL) {
-    document.getElementById('view-home').innerHTML = `<div class="empty"><div class="icon">🔒</div><div class="title">ไม่ใช่บัญชี admin</div><div style="font-size:12px;margin-top:8px;color:var(--muted);">login ด้วย ${ADMIN_EMAIL}</div></div>`;
+  if (!_isAdmin(user)) {
+    document.getElementById('view-home').innerHTML = `<div class="empty"><div class="icon">🔒</div><div class="title">ไม่ใช่บัญชี admin</div><div style="font-size:12px;margin-top:8px;color:var(--muted);">ต้อง login ด้วยบัญชีที่ตั้ง role=admin ใน Supabase</div></div>`;
     return;
   }
   // v2.0 · Skeleton loader while initial data loads
