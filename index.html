@@ -504,6 +504,34 @@
   body.luxe-theme .pit-info-hero { background: rgba(28,28,34,0.85) !important; border-color: rgba(212,160,86,0.30) !important; color: #D4A056 !important; }
   body.luxe-theme .pit-info-note { background: rgba(28,28,34,0.85) !important; border-color: rgba(255,255,255,0.08) !important; color: #D4A056 !important; }
   body.luxe-theme .pit-export-btn { background: linear-gradient(135deg, #D4A056, #B8854A) !important; color: #1c1c22 !important; }
+
+  /* v2.5.61 · ลดหย่อนเพิ่มเติม · button-like summary · มองเห็นชัดทุก theme */
+  .pit-deductions-summary {
+    list-style: none;
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #FDF1E0, #fefcf9);
+    border: 1px solid rgba(184,133,74,.35);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 13.5px; font-weight: 700;
+    color: #7a5a1f;
+    transition: all .15s;
+  }
+  .pit-deductions-summary::-webkit-details-marker { display: none; }
+  .pit-deductions-summary:hover { background: linear-gradient(135deg, #F2E0BA, #FDF1E0); }
+  .pit-deductions-details[open] .pit-deductions-summary { border-color: #B8854A; }
+  .pit-deductions-details[open] .pit-ded-chev { transform: rotate(90deg); }
+  .pit-ded-chev { display:inline-block; transition: transform .2s; font-size:14px; color:#B8854A; }
+  .pit-ded-label { flex: 1; }
+  .pit-ded-hint { font-size: 11px; font-weight: 500; color: #B8854A; opacity: .85; }
+  body.dark-theme .pit-deductions-summary { background: linear-gradient(135deg, #422006, #57321b); border-color: #D4A056; color: #F2E0BA; }
+  body.dark-theme .pit-ded-chev { color: #D4A056; }
+  body.dark-theme .pit-ded-hint { color: #D4A056; }
+  body.luxe-theme .pit-deductions-summary { background: linear-gradient(135deg, #422006, #57321b) !important; border-color: #D4A056 !important; color: #F2E0BA !important; }
+  body.luxe-theme .pit-deductions-summary:hover { background: linear-gradient(135deg, #57321b, #6b4222) !important; }
+  body.luxe-theme .pit-ded-chev { color: #D4A056 !important; }
+  body.luxe-theme .pit-ded-hint { color: #D4A056 !important; }
   .pit-disclaimer {
     background: #f7f4ef;
     border-radius: 10px;
@@ -6855,8 +6883,12 @@
             </button>
           </div>
 
-          <details style="margin: 0 0 12px;">
-            <summary style="font-size:11.5px; color:#7c7066; font-weight:700; cursor:pointer; padding:6px 0; padding-left:4px;">▸ ลดหย่อนเพิ่มเติม (optional · 5 หมวด)</summary>
+          <details class="pit-deductions-details" style="margin: 0 0 12px;">
+            <summary class="pit-deductions-summary">
+              <span class="pit-ded-chev">▸</span>
+              <span class="pit-ded-label">ลดหย่อนเพิ่มเติม</span>
+              <span class="pit-ded-hint">5 หมวด · optional</span>
+            </summary>
             <div style="margin-top:10px;">
               <div class="form-group" style="margin: 0 0 10px;">
                 <label>ประกันชีวิต <span style="color:#a89a8c; font-size:11px;">(max ฿100,000)</span></label>
@@ -8135,7 +8167,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.60';
+const PIXORY_VERSION = '2.5.61';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
