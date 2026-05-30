@@ -1199,52 +1199,219 @@
   /* ===================================================================
      AUTH SCREEN
      =================================================================== */
+  /* v1.0.22 · Auth screen · MATCH MOBILE EXACTLY · orange gradient + brand header + white card */
   .auth-overlay {
     position: fixed; inset: 0;
     display: none;
+    flex-direction: column;
     align-items: center; justify-content: center;
     z-index: 100;
-    background:
-      radial-gradient(ellipse at top left, var(--bg-c) 0%, transparent 60%),
-      radial-gradient(ellipse at bottom right, var(--brand-light) 0%, transparent 50%),
-      linear-gradient(180deg, var(--bg-a) 0%, var(--bg-b) 100%);
+    padding: 40px 24px;
+    overflow-y: auto;
+    background: linear-gradient(160deg, #f9c5a3 0%, #f4a36a 38%, #d8704a 100%) !important;
   }
   .auth-overlay.show { display: flex; }
-  .auth-card {
-    background: var(--glass-strong);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--r-xl);
-    padding: var(--gap-8);
-    width: 460px;
-    max-height: 92vh;
-    overflow-y: auto;
-    box-shadow: var(--glass-shadow-lg);
+
+  /* Brand header above card · matches mobile exactly */
+  .auth-brand-header {
+    text-align: center;
+    margin-bottom: 28px;
   }
-  /* v1.0.3 · signup genre chips · multi-select */
-  .dt-genre-chip {
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: white;
-    border: 1px solid var(--border);
-    font-size: 12px;
+  .auth-brand-header svg {
+    width: 64px; height: 64px;
+    color: #fff;
+    margin: 0 auto 12px;
+    display: block;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,.2));
+  }
+  .auth-brand-header .auth-wordmark {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 36px;
+    letter-spacing: -0.02em;
+    color: #fff;
+    text-shadow: 0 2px 6px rgba(0,0,0,.18);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .auth-brand-header .auth-tagline {
+    font-size: 13px;
+    color: rgba(255,255,255,.85);
     font-weight: 500;
-    color: var(--ink);
+  }
+
+  /* White card · matches mobile */
+  .auth-card {
+    background: rgba(255,255,255,0.96) !important;
+    backdrop-filter: blur(20px);
+    border: none !important;
+    border-radius: 20px !important;
+    padding: 24px 20px 20px !important;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.08) !important;
+    color: #3a2f25 !important;
+  }
+
+  /* Title + sub */
+  .auth-card .auth-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #3a2f25 !important;
+    margin: 0 0 6px;
+    text-align: center;
+  }
+  .auth-card .auth-sub {
+    font-size: 13px;
+    color: #7c7066 !important;
+    text-align: center;
+    margin: 0 0 20px;
+    line-height: 1.5;
+  }
+
+  /* Fields */
+  .auth-card .auth-field { margin-bottom: 14px; }
+  .auth-card .auth-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #3a2f25 !important;
+    margin-bottom: 6px;
+  }
+  .auth-card .auth-field input {
+    width: 100%;
+    padding: 11px 14px;
+    font-size: 14px;
+    border: 1px solid #e8dfd5 !important;
+    border-radius: 10px;
+    background: #fff !important;
+    color: #3a2f25 !important;
+    box-sizing: border-box;
+    font-family: inherit;
+  }
+  .auth-card .auth-field input:focus {
+    outline: none !important;
+    border-color: #d8704a !important;
+    box-shadow: 0 0 0 3px rgba(216,112,74,.15) !important;
+  }
+  .auth-card .auth-field input::placeholder { color: #a89a8c; }
+
+  /* Button */
+  .auth-card .auth-btn {
+    width: 100%;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #f4a36a, #d8704a) !important;
+    border: none !important;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(216,112,74,.3) !important;
+    margin-top: 6px;
+    transition: all .15s;
+  }
+  .auth-card .auth-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(216,112,74,.4) !important; }
+  .auth-card .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Links + divider */
+  .auth-card .auth-links {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #7c7066;
+  }
+  .auth-card .auth-links a {
+    color: #d8704a !important;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .auth-card .auth-links a:hover { color: #b85a36 !important; text-decoration: underline; }
+  .auth-card .auth-divider {
+    height: 1px;
+    background: #e8dfd5;
+    margin: 16px 0;
+  }
+
+  /* Footer below card */
+  .auth-meta-footer {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 11.5px;
+    color: rgba(255,255,255,.85);
+    line-height: 1.4;
+  }
+
+  /* Hide old tab nav (no longer used) */
+  .auth-tabs { display: none !important; }
+
+  /* Pane visibility */
+  .auth-pane { display: none; }
+  .auth-pane.active { display: block; }
+
+  /* Dark theme support · keep optional for users who explicitly choose */
+  html[data-theme="dark"] .auth-overlay {
+    background: linear-gradient(160deg, #2a1810 0%, #4a1f0d 60%, #1a0a04 100%) !important;
+  }
+  html[data-theme="dark"] .auth-card {
+    background: rgba(36,36,40,0.96) !important;
+    color: #f5f5f7 !important;
+  }
+  html[data-theme="dark"] .auth-card .auth-title,
+  html[data-theme="dark"] .auth-card .auth-field label { color: #f5f5f7 !important; }
+  html[data-theme="dark"] .auth-card .auth-sub { color: #aaa !important; }
+  html[data-theme="dark"] .auth-card .auth-field input {
+    color: #f5f5f7 !important;
+    background: #2a2a2e !important;
+    border-color: #3a3a3e !important;
+  }
+  /* v1.0.25 · signup genre chips · multi-select · readable on auth white card */
+  .dt-genre-chip {
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #e0d4c0;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #3a2f25;
     cursor: pointer;
     user-select: none;
     transition: all 0.15s;
+    line-height: 1.2;
+    white-space: nowrap;
   }
   .dt-genre-chip:hover {
-    background: var(--brand-bg);
-    border-color: var(--brand-light);
+    background: #fef3eb;
+    border-color: #f4a36a;
+    color: #b85a36;
+    transform: translateY(-1px);
   }
   .dt-genre-chip.active {
-    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
-    color: white;
-    border-color: var(--brand-dark);
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(217,119,87,0.25);
+    background: linear-gradient(135deg, #f4a36a, #d8704a);
+    color: #ffffff;
+    border-color: transparent;
+    font-weight: 700;
+    box-shadow: 0 3px 10px rgba(216,112,74,0.35);
+  }
+  /* Genre chips container · compact tidy */
+  #dt-signup-genre-chips {
+    display: flex !important; flex-wrap: wrap !important;
+    gap: 7px !important;
+    padding: 12px !important;
+    background: #faf7f2 !important;
+    border: 1px solid #ece3d4 !important;
+    border-radius: 14px !important;
+  }
+  /* Genre "other" input · readable on white card */
+  #dt-signup-genre-other {
+    background: #ffffff !important;
+    border-color: #e0d4c0 !important;
+    color: #3a2f25 !important;
+  }
+  #dt-signup-genre-other:focus {
+    border-color: #d8704a !important;
+    box-shadow: 0 0 0 3px rgba(216,112,74,0.15) !important;
   }
   /* v1.0.3 · PDPA consent row */
   .dt-auth-consent {
@@ -2094,6 +2261,353 @@
   /* hide hidden items based on search */
   .ss-item.hidden { display: none; }
   .ss-group-label.hidden { display: none; }
+
+  /* === v1.0.26 · ลิสต์และแท็ก · sub-tabs (theme-aware) === */
+  .lists-tags-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .lt-intro {
+    padding: 14px 18px;
+    border-radius: 16px;
+    background:
+      radial-gradient(ellipse at top right, rgba(212,160,86,0.16) 0%, transparent 70%),
+      linear-gradient(135deg, rgba(184,133,74,0.08) 0%, rgba(184,133,74,0.02) 100%);
+    border: 1px solid rgba(184,133,74,0.22);
+  }
+  .lt-intro-title {
+    font-size: 15px; font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .lt-intro-sub {
+    font-size: 12.5px;
+    color: var(--ink-mute, #7c6856);
+    line-height: 1.55;
+  }
+  html[data-theme="luxe"] .lt-intro-title { color: #F4F4F5 !important; }
+  html[data-theme="luxe"] .lt-intro-sub   { color: #C7B89E !important; }
+  html[data-theme="dark"] .lt-intro-title { color: var(--ink) !important; }
+  html[data-theme="dark"] .lt-intro-sub   { color: var(--ink-mute) !important; }
+
+  .lt-tabs {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 6px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(184,133,74,0.18);
+    border-radius: 14px;
+    backdrop-filter: blur(8px);
+  }
+  html[data-theme="luxe"] .lt-tabs {
+    background: rgba(28,28,34,0.6) !important;
+    border-color: rgba(212,160,86,0.22) !important;
+  }
+  html[data-theme="dark"] .lt-tabs {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+
+  .lt-tab {
+    flex: 1 1 auto;
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 10px 14px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    color: #56473a;
+    font: inherit;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .lt-tab:hover {
+    background: rgba(184,133,74,0.10);
+    color: var(--ink);
+  }
+  .lt-tab.is-active {
+    background: linear-gradient(135deg, #D97757 0%, #B85A3D 100%);
+    color: white;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.30) inset,
+      0 -1px 0 rgba(0,0,0,0.10) inset,
+      0 4px 12px rgba(217,119,87,0.30);
+  }
+  html[data-theme="luxe"] .lt-tab { color: #C7B89E !important; }
+  html[data-theme="luxe"] .lt-tab:hover { background: rgba(212,160,86,0.14) !important; color: #F4F4F5 !important; }
+  html[data-theme="luxe"] .lt-tab.is-active {
+    background: linear-gradient(135deg, #D4A056 0%, #B8854A 100%) !important;
+    color: #1c1c22 !important;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.25) inset,
+      0 4px 14px rgba(212,160,86,0.35) !important;
+  }
+  html[data-theme="dark"] .lt-tab { color: var(--ink-soft) !important; }
+  html[data-theme="dark"] .lt-tab:hover { background: rgba(255,255,255,0.06) !important; color: var(--ink) !important; }
+  html[data-theme="dark"] .lt-tab.is-active {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark, var(--brand)) 100%) !important;
+    color: white !important;
+  }
+
+  .lt-tab-ico { font-size: 14px; line-height: 1; }
+  .lt-tab-label { font-weight: 600; }
+  .lt-tab-count {
+    font-family: 'Inter', sans-serif;
+    font-size: 10.5px; font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: rgba(184,133,74,0.15);
+    color: #7c6856;
+    min-width: 20px; text-align: center;
+  }
+  .lt-tab.is-active .lt-tab-count {
+    background: rgba(255,255,255,0.25);
+    color: white;
+  }
+  html[data-theme="luxe"] .lt-tab-count { background: rgba(212,160,86,0.16) !important; color: #C7B89E !important; }
+  html[data-theme="luxe"] .lt-tab.is-active .lt-tab-count { background: rgba(28,28,34,0.25) !important; color: #1c1c22 !important; }
+  html[data-theme="dark"] .lt-tab-count { background: rgba(255,255,255,0.06) !important; color: var(--ink-soft) !important; }
+
+  .lt-hint {
+    font-size: 12px;
+    color: var(--ink-mute, #7c6856);
+    padding: 0 4px;
+    margin-top: -4px;
+  }
+  html[data-theme="luxe"] .lt-hint { color: #9C8A6E !important; }
+  html[data-theme="dark"] .lt-hint { color: var(--ink-mute) !important; }
+
+  .lt-pane > .glass-card:first-child { margin-top: 0; }
+  .lt-pane > .glass-card:not(:first-child) { margin-top: 14px; }
+
+  /* Narrow viewports — let tabs scroll horizontally instead of cramming */
+  @media (max-width: 980px) {
+    .lt-tabs { flex-wrap: nowrap; overflow-x: auto; }
+    .lt-tab { flex: 0 0 auto; }
+  }
+
+  /* v1.0.24 · A2 Refined Shop Setup Overview · theme-aware */
+  .dt-shop-hero {
+    background:
+      radial-gradient(ellipse at top right, rgba(212,160,86,0.20) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(184,133,74,0.10) 0%, rgba(255,255,255,0.04) 100%);
+    border: 1px solid rgba(184,133,74,0.30);
+    border-radius: 22px;
+    padding: 24px 26px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  html[data-theme="luxe"] .dt-shop-hero {
+    background:
+      radial-gradient(ellipse at top right, rgba(212,160,86,0.22) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(184,133,74,0.10) 0%, rgba(28,28,34,0.92) 50%, rgba(28,28,34,0.95) 100%) !important;
+  }
+  .dt-shop-hero::after {
+    content:''; position:absolute; bottom:0; left:10%; right:10%; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(212,160,86,0.30), transparent);
+  }
+  .dt-shop-kicker {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10.5px; font-weight: 700;
+    color: #B8854A; letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 5px 10px;
+    background: rgba(184,133,74,0.12);
+    border: 1px solid rgba(184,133,74,0.25);
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+  html[data-theme="luxe"] .dt-shop-kicker { color: #D4A056 !important; }
+  .dt-shop-kicker .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #E8B870;
+    box-shadow: 0 0 6px rgba(232,184,112,0.7);
+    animation: dtShopPulse 2s ease-in-out infinite;
+  }
+  @keyframes dtShopPulse { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
+  .dt-shop-title {
+    font-family: 'Fraunces','Sarabun',serif;
+    font-style: italic; font-weight: 700;
+    font-size: 26px; line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .dt-shop-title .accent {
+    background: linear-gradient(135deg, #E8B870 0%, #B8854A 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .dt-shop-sub {
+    font-size: 13.5px; line-height: 1.5;
+    color: var(--ink-mute);
+    margin-bottom: 18px;
+  }
+  .dt-shop-bottom { display:flex; align-items:center; justify-content:space-between; gap:14px; }
+  .dt-shop-progress { display:flex; align-items:center; gap:10px; flex:1; max-width:340px; }
+  .dt-shop-bar {
+    flex:1; height:6px; border-radius:6px;
+    background: rgba(0,0,0,0.08); overflow:hidden;
+  }
+  html[data-theme="luxe"] .dt-shop-bar { background: rgba(255,255,255,0.08) !important; }
+  .dt-shop-fill {
+    height:100%; background: linear-gradient(90deg, #B8854A, #D4A056);
+    border-radius:6px; box-shadow: 0 0 6px rgba(212,160,86,0.4);
+    transition: width .3s ease;
+  }
+  .dt-shop-num {
+    font-family: 'Inter',sans-serif; font-weight: 700;
+    font-size: 13px; color: #B8854A; white-space: nowrap;
+  }
+  html[data-theme="luxe"] .dt-shop-num { color: #D4A056 !important; }
+  .dt-shop-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, #E8B870, #B8854A);
+    color: #0A0A0E;
+    padding: 11px 20px;
+    border-radius: 12px;
+    font-weight: 800; font-size: 13.5px;
+    border: none; cursor: pointer;
+    box-shadow: 0 6px 16px rgba(184,133,74,0.30), inset 0 1px 0 rgba(255,255,255,0.25);
+    transition: transform .15s;
+  }
+  .dt-shop-cta:hover { transform: translateY(-1px); }
+  .dt-shop-cta .arrow { transition: transform .2s; }
+  .dt-shop-cta:hover .arrow { transform: translateX(2px); }
+
+  .dt-shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .dt-shop-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer; transition: all .15s;
+  }
+  .dt-shop-card:hover { background: var(--card-strong, rgba(28,28,34,0.95)); border-color: rgba(255,255,255,0.12); }
+  .dt-shop-card.is-done { border-color: rgba(134,239,172,0.20); }
+  .dt-shop-card.is-next {
+    border-color: rgba(184,133,74,0.55);
+    background: linear-gradient(135deg, rgba(184,133,74,0.06) 0%, var(--card) 60%);
+    box-shadow: 0 0 0 1px rgba(184,133,74,0.55), 0 8px 20px -8px rgba(212,160,86,0.30);
+  }
+  .dt-shop-card-icon {
+    width: 42px; height: 42px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, rgba(184,133,74,0.12), rgba(184,133,74,0.04));
+    border: 1px solid rgba(184,133,74,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; flex-shrink: 0;
+  }
+  .dt-shop-card.is-done .dt-shop-card-icon {
+    background: linear-gradient(135deg, rgba(134,239,172,0.12), rgba(134,239,172,0.04));
+    border-color: rgba(134,239,172,0.20);
+  }
+  .dt-shop-card.is-next .dt-shop-card-icon {
+    background: linear-gradient(135deg, #E8B870, #B8854A);
+    color: #0A0A0E;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(184,133,74,0.30);
+  }
+  .dt-shop-card-body { flex: 1; min-width: 0; }
+  .dt-shop-card-title { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .dt-shop-card-status { flex-shrink: 0; }
+  .dt-shop-badge-done {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(134,239,172,0.16);
+    border: 1px solid rgba(134,239,172,0.30);
+    color: #15803d; font-size: 13px; font-weight: 800;
+  }
+  html[data-theme="luxe"] .dt-shop-badge-done { color: #86efac !important; }
+  .dt-shop-badge-todo {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(252,211,77,0.18);
+    border: 1px solid rgba(252,211,77,0.30);
+    color: #92400e; font-size: 14px; font-weight: 800;
+  }
+  html[data-theme="luxe"] .dt-shop-badge-todo { color: #fcd34d !important; }
+  .dt-shop-badge-next {
+    background: linear-gradient(135deg, #E8B870, #B8854A);
+    color: #0A0A0E;
+    padding: 6px 12px; border-radius: 999px;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.04em;
+    box-shadow: 0 3px 10px rgba(184,133,74,0.30);
+  }
+  .dt-shop-hero--done {
+    border-color: rgba(134,239,172,0.30);
+    background:
+      radial-gradient(ellipse at top right, rgba(134,239,172,0.18) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(134,239,172,0.08) 0%, rgba(255,255,255,0.04) 100%);
+  }
+  html[data-theme="luxe"] .dt-shop-hero--done {
+    background:
+      radial-gradient(ellipse at top right, rgba(134,239,172,0.20) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(134,239,172,0.10) 0%, rgba(28,28,34,0.92) 50%, rgba(28,28,34,0.95) 100%) !important;
+  }
+
+  /* v1.0.23 · Danger Zone · theme-aware classes (no inline hardcoded) */
+  .danger-zone-card {
+    background: rgba(220,38,38,0.04);
+    border-color: rgba(220,38,38,0.18);
+  }
+  .danger-zone-title { color: #dc2626; }
+  .danger-zone-inner {
+    border: 1px solid rgba(220,38,38,0.22);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+    background: rgba(255,255,255,0.04);
+  }
+  .danger-zone-inner-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .danger-zone-inner-desc {
+    font-size: 12px;
+    color: var(--ink-mute);
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+  .danger-zone-inner-desc .text-red { color: #dc2626; }
+  .danger-zone-inner-desc .text-green { color: #15803d; }
+  .danger-btn-soft { width: 100%; color: #dc2626 !important; border-color: rgba(220,38,38,0.28) !important; }
+  .danger-btn-amber { color: #b45309 !important; }
+  .danger-btn-hard { color: #dc2626 !important; }
+  .danger-zone-hint {
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    margin-top: 8px;
+    line-height: 1.5;
+    text-align: center;
+  }
+  /* Luxe theme · inner card สลัวสุภาพ + brighten semantic colors */
+  html[data-theme="luxe"] .danger-zone-card {
+    background: rgba(220,38,38,0.06) !important;
+    border-color: rgba(220,38,38,0.25) !important;
+  }
+  html[data-theme="luxe"] .danger-zone-title { color: #fca5a5 !important; }
+  html[data-theme="luxe"] .danger-zone-inner {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: rgba(255,255,255,0.10) !important;
+  }
+  html[data-theme="luxe"] .danger-zone-inner-title { color: var(--ink) !important; }
+  html[data-theme="luxe"] .danger-zone-inner-desc { color: var(--ink-soft) !important; }
+  html[data-theme="luxe"] .danger-zone-inner-desc .text-red { color: #fca5a5 !important; }
+  html[data-theme="luxe"] .danger-zone-inner-desc .text-green { color: #86efac !important; }
+  html[data-theme="luxe"] .danger-btn-soft { color: #fca5a5 !important; border-color: rgba(248,113,113,0.35) !important; background: rgba(248,113,113,0.08) !important; }
+  html[data-theme="luxe"] .danger-btn-amber { color: #fcd34d !important; }
+  html[data-theme="luxe"] .danger-btn-hard { color: #fca5a5 !important; }
+  html[data-theme="luxe"] .danger-zone-hint { color: var(--ink-mute) !important; }
+  /* Dark theme · similar warm contrast */
+  html[data-theme="dark"] .danger-zone-inner { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.10); }
+  html[data-theme="dark"] .danger-zone-inner-title,
+  html[data-theme="dark"] .danger-zone-inner-desc { color: var(--ink); }
 </style>
 </head>
 <body>
@@ -2102,18 +2616,23 @@
      AUTH OVERLAY
      =================================================================== -->
 <div id="auth-overlay" class="auth-overlay show">
-  <div class="auth-card">
-    <div class="auth-brand">
-      <h1>Pixory Desktop</h1>
-      <p>จัดการสตูดิโอช่างภาพ · บนคอม</p>
-    </div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" data-pane="login" onclick="switchAuthPane('login')">เข้าสู่ระบบ</button>
-      <button class="auth-tab" data-pane="signup" onclick="switchAuthPane('signup')">สมัครใหม่</button>
-    </div>
+  <!-- Brand header · matches mobile · camera SVG + pixory + tagline · all white on orange -->
+  <div class="auth-brand-header">
+    <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 40 85 Q 40 65 60 65 L 70 65 L 82 50 Q 86 45 92 45 L 108 45 Q 114 45 118 50 L 130 65 L 140 65 Q 160 65 160 85 L 160 150 Q 160 165 145 165 L 55 165 Q 40 165 40 150 Z"/>
+      <circle cx="100" cy="118" r="28"/>
+      <circle cx="100" cy="118" r="14" stroke-width="5"/>
+      <circle cx="143" cy="80" r="4" fill="currentColor" stroke="none"/>
+    </svg>
+    <div class="auth-wordmark">pixory</div>
+    <div class="auth-tagline">Studio in your pocket</div>
+  </div>
 
+  <div class="auth-card">
     <!-- Login pane -->
     <div id="auth-pane-login" class="auth-pane active">
+      <h2 class="auth-title">เข้าสู่ระบบ</h2>
+      <p class="auth-sub">ใช้บัญชี Pixory ของคุณ</p>
       <div id="login-msg" class="auth-msg"></div>
       <div class="auth-field">
         <label>อีเมล</label>
@@ -2124,14 +2643,20 @@
         <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
       </div>
       <button id="login-btn" class="auth-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
-      <div style="text-align:center;margin-top:12px;">
-        <a onclick="switchAuthPane('forgot')" style="font-size:12.5px;color:var(--brand-dark);cursor:pointer;text-decoration:underline;">ลืมรหัสผ่าน?</a>
+      <div class="auth-links">
+        <a onclick="switchAuthPane('forgot')">ลืมรหัสผ่าน?</a>
       </div>
-      <div class="auth-foot">ใช้บัญชีเดียวกับมือถือ · ข้อมูล sync อัตโนมัติ</div>
+      <div class="auth-divider"></div>
+      <div class="auth-links">
+        <span>ยังไม่มีบัญชี?</span>
+        <a onclick="switchAuthPane('signup')">สมัครสมาชิก</a>
+      </div>
     </div>
 
     <!-- Signup pane · v1.0.3 · full parity with mobile (studio + phone + LINE + genres + PDPA consent) -->
     <div id="auth-pane-signup" class="auth-pane">
+      <h2 class="auth-title">สมัครสมาชิก</h2>
+      <p class="auth-sub">เริ่มใช้ Pixory ฟรี · ใช้ได้ทันที</p>
       <div id="signup-msg" class="auth-msg"></div>
       <div class="auth-field">
         <label>อีเมล <span style="color:var(--ink-mute);font-weight:400;font-size:11px;">*</span></label>
@@ -2181,30 +2706,35 @@
           <a onclick="event.preventDefault();openLegalFromAuth('privacy')">นโยบายความเป็นส่วนตัว</a>
         </label>
       </div>
-      <button id="signup-btn" class="auth-btn" onclick="doSignup()" disabled>สมัครใหม่</button>
-      <div class="auth-foot">บัญชีเดียวใช้ได้ทั้งมือถือและเดสท๊อป · ข้อมูล sync อัตโนมัติ · ตรวจอีเมลยืนยันก่อนใช้งาน</div>
+      <button id="signup-btn" class="auth-btn" onclick="doSignup()" disabled>สมัครสมาชิก</button>
+      <div class="auth-divider"></div>
+      <div class="auth-links">
+        <span>มีบัญชีอยู่แล้ว?</span>
+        <a onclick="switchAuthPane('login')">เข้าสู่ระบบ</a>
+      </div>
     </div>
 
     <!-- v1.0.1 · Forgot password pane -->
     <div id="auth-pane-forgot" class="auth-pane">
+      <h2 class="auth-title">ลืมรหัสผ่าน</h2>
+      <p class="auth-sub">กรอกอีเมลของคุณ · เราจะส่งลิงก์ตั้งรหัสใหม่ไปให้</p>
       <div id="forgot-msg" class="auth-msg"></div>
-      <h3 style="text-align:center;margin:0 0 6px;font-size:18px;font-weight:700;color:var(--ink);">ลืมรหัสผ่าน</h3>
-      <p style="text-align:center;margin:0 0 16px;font-size:13px;color:var(--ink-mute);">กรอกอีเมลของคุณ · เราจะส่งลิงก์ตั้งรหัสใหม่ไปให้</p>
       <div class="auth-field">
         <label>อีเมล</label>
         <input type="email" id="forgot-email" placeholder="you@example.com" autocomplete="email" />
       </div>
       <button id="forgot-btn" class="auth-btn" onclick="doForgot()">ส่งลิงก์ตั้งรหัสใหม่</button>
-      <div style="text-align:center;margin-top:12px;">
-        <a onclick="switchAuthPane('login')" style="font-size:12.5px;color:var(--brand-dark);cursor:pointer;text-decoration:underline;">‹ กลับหน้าเข้าสู่ระบบ</a>
+      <div class="auth-divider"></div>
+      <div class="auth-links">
+        <a onclick="switchAuthPane('login')">‹ กลับหน้าเข้าสู่ระบบ</a>
       </div>
     </div>
 
     <!-- v1.0.1 · Reset password pane (shown after clicking PASSWORD_RECOVERY email link) -->
     <div id="auth-pane-reset" class="auth-pane">
+      <h2 class="auth-title">🔑 ตั้งรหัสผ่านใหม่</h2>
+      <p class="auth-sub">กรอกรหัสผ่านใหม่ที่คุณต้องการใช้ · อย่างน้อย 6 ตัว</p>
       <div id="reset-msg" class="auth-msg"></div>
-      <h3 style="text-align:center;margin:0 0 6px;font-size:18px;font-weight:700;color:var(--ink);">🔑 ตั้งรหัสผ่านใหม่</h3>
-      <p style="text-align:center;margin:0 0 16px;font-size:13px;color:var(--ink-mute);">กรอกรหัสผ่านใหม่ที่คุณต้องการใช้ · อย่างน้อย 6 ตัว</p>
       <div class="auth-field">
         <label>รหัสผ่านใหม่</label>
         <input type="password" id="reset-password" placeholder="อย่างน้อย 6 ตัว" autocomplete="new-password" />
@@ -2214,11 +2744,14 @@
         <input type="password" id="reset-password-confirm" placeholder="พิมพ์อีกครั้ง" autocomplete="new-password" />
       </div>
       <button id="reset-btn" class="auth-btn" onclick="doResetPassword()">บันทึกรหัสใหม่</button>
-      <div style="text-align:center;margin-top:12px;">
-        <a onclick="switchAuthPane('login')" style="font-size:12.5px;color:var(--brand-dark);cursor:pointer;text-decoration:underline;">‹ กลับหน้าเข้าสู่ระบบ</a>
+      <div class="auth-divider"></div>
+      <div class="auth-links">
+        <a onclick="switchAuthPane('login')">‹ กลับหน้าเข้าสู่ระบบ</a>
       </div>
     </div>
   </div>
+  <!-- Footer · matches mobile -->
+  <div class="auth-meta-footer">© Pixory 2026 · Studio Management for Photographers</div>
 </div>
 
 <!-- ===================================================================
@@ -2324,7 +2857,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.18';
+const PIXORY_DESKTOP_VERSION = '1.0.26';
 
 // ===== Supabase config (must match mobile) =====
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
@@ -2372,7 +2905,7 @@ const PKG_VIDEO = [];
 const PKG_PRE = [];
 const EQUIPMENT_CATEGORIES = [];
 let JOB_TYPES = ['Wedding','Pre-wedding','Engagement','Portrait','Family','Event','Corporate','Product','อื่นๆ'];
-let SOURCES = ['Facebook','Instagram','LINE','เว็บไซต์','เพื่อนแนะนำ','อื่นๆ'];
+let SOURCES = ['Facebook','Instagram','Instagram DM','LINE','Website','เว็บไซต์','Referral','เพื่อนแนะนำ','ลูกค้าเก่ากลับมา','Walk-in','อื่นๆ'];
 let EXPENSE_CATS = ['เดินทาง','ที่พัก','อุปกรณ์ถ่าย','เช่าอุปกรณ์','ค่ากินทีม','Software/Subscription','Marketing/โฆษณา','ค่าตัดต่อจ้างนอก','อื่นๆ'];
 let EQUIPMENT = [];
 let SERVICES = [];
@@ -2896,7 +3429,7 @@ function resetAppState() {
     QUOTE_TEMPLATE.footer = '';
   }
   JOB_TYPES = ['Wedding','Pre-wedding','Engagement','Portrait','Family','Event','Corporate','Product','อื่นๆ'];
-  SOURCES = ['Facebook','Instagram','LINE','เว็บไซต์','เพื่อนแนะนำ','อื่นๆ'];
+  SOURCES = ['Facebook','Instagram','Instagram DM','LINE','Website','เว็บไซต์','Referral','เพื่อนแนะนำ','ลูกค้าเก่ากลับมา','Walk-in','อื่นๆ'];
   EXPENSE_CATS = ['เดินทาง','ที่พัก','อุปกรณ์ถ่าย','เช่าอุปกรณ์','ค่ากินทีม','Software/Subscription','Marketing/โฆษณา','ค่าตัดต่อจ้างนอก','อื่นๆ'];
   EQUIPMENT = []; SERVICES = [];
   ADDONS = [
@@ -6217,7 +6750,9 @@ function getCustomerTypeMeta(code) {
 // PAGE · SETTINGS (read-only summary · full CRUD in Sprint 5)
 // ===================================================================
 
-let SETTINGS_TAB = 'profile';
+let SETTINGS_TAB = 'overview';
+// v1.0.26 · ลิสต์และแท็ก · sub-tab inside the consolidated lists-tags page
+let LISTS_TAGS_TAB = 'jobtypes'; // 'jobtypes' | 'jobstatuses' | 'sources' | 'expense-cats'
 
 // ===================================================================
 // I18N · ภาษา · TH (default) + EN
@@ -6255,6 +6790,8 @@ const I18N = {
     'page.settings':         '⚙️ ตั้งค่า',
 
     // Settings groups
+    'set.group.overview':    'เริ่มต้น',
+    'set.overview':          '🏪 ภาพรวมตั้งค่า',
     'set.group.business':    'ธุรกิจ',
     'set.group.finance':     'การเงิน',
     'set.group.system':      'ระบบ',
@@ -6340,6 +6877,8 @@ const I18N = {
     'page.customers':        '👥 Customers',
     'page.settings':         '⚙️ Settings',
 
+    'set.group.overview':    'Start here',
+    'set.overview':          '🏪 Setup Overview',
     'set.group.business':    'Business',
     'set.group.finance':     'Finance',
     'set.group.system':      'System',
@@ -6406,18 +6945,20 @@ function t(key, fallback) {
 // Each item: { id, icon, label, group, count? }
 function getSettingsMenu() {
   return [
+    // v1.0.24 · A2 Refined · Overview/Shop Setup (default landing)
+    { id: 'overview',      icon: '🏪', label: t('set.overview') || 'ภาพรวม', group: 'overview' },
+
     // กลุ่ม: ธุรกิจ
     { id: 'profile',       icon: '🏢', label: t('set.profile'),       group: 'business' },
     { id: 'services',      icon: '📷', label: t('set.services'),      group: 'business', count: (SERVICES||[]).length },
     { id: 'addons',        icon: '✨', label: t('set.addons'),        group: 'business', count: (ADDONS||[]).length },
-    { id: 'jobtypes',      icon: '🎯', label: t('set.jobtypes'),      group: 'business', count: (JOB_TYPES||[]).length },
-    { id: 'jobstatuses',   icon: '🏷', label: t('set.jobstatuses'),   group: 'business' },
-    { id: 'sources',       icon: '📡', label: t('set.sources'),       group: 'business', count: (SOURCES||[]).length },
     { id: 'team',          icon: '👥', label: t('set.team'),          group: 'business', count: (TEAM||[]).length },
+    // v1.0.26 · ลิสต์และแท็ก · รวม 4 หมวด: ประเภทงาน · สถานะงาน · ช่องทางลูกค้า · หมวดค่าใช้จ่าย
+    { id: 'lists-tags',    icon: '🏷️', label: 'ลิสต์และแท็ก',         group: 'business',
+      count: ((JOB_TYPES||[]).length) + ((SOURCES||[]).length) + ((EXPENSE_CATS||[]).length) },
 
     // กลุ่ม: การเงิน
     { id: 'banks',         icon: '🏦', label: t('set.banks'),         group: 'finance', count: (BANKS||[]).length },
-    { id: 'expense-cats',  icon: '💸', label: t('set.expense-cats'),  group: 'finance', count: (EXPENSE_CATS||[]).length },
     { id: 'quote-template',icon: '📄', label: t('set.quote-template'),group: 'finance' },
     { id: 'tax',           icon: '📑', label: t('set.tax'),           group: 'finance', count: PROFILE.vatRegistered ? 'VAT' : null },
 
@@ -6435,7 +6976,7 @@ function getSettingsMenu() {
   ];
 }
 function getSettingsGroupLabel(g) {
-  const map = { business: 'set.group.business', finance: 'set.group.finance', system: 'set.group.system', app: 'set.group.app' };
+  const map = { overview: 'set.group.overview', business: 'set.group.business', finance: 'set.group.finance', system: 'set.group.system', app: 'set.group.app' };
   return t(map[g] || '');
 }
 
@@ -6445,7 +6986,7 @@ function _getCurrentLang()  { try { return localStorage.getItem('pixory_lang')  
 
 function renderSettings(root) {
   const menu = getSettingsMenu();
-  const groups = ['business','finance','system','app'];
+  const groups = ['overview','business','finance','system','app'];
   const activeItem = menu.find(m => m.id === SETTINGS_TAB) || menu[0];
   const completion = _calcSettingsCompletion();
 
@@ -6552,16 +7093,19 @@ function _calcSettingsCompletion() {
 function renderSettingsPane() {
   const pane = document.getElementById('settings-pane');
   if (!pane) return;
+  // v1.0.26 · BC alias · กรณีมีโค้ดเก่าเรียก SETTINGS_TAB เดิมๆ ให้ redirect ไป lists-tags + เลือก sub-tab ที่ตรง
+  if (SETTINGS_TAB === 'jobtypes' || SETTINGS_TAB === 'jobstatuses' || SETTINGS_TAB === 'sources' || SETTINGS_TAB === 'expense-cats') {
+    LISTS_TAGS_TAB = SETTINGS_TAB;
+    SETTINGS_TAB = 'lists-tags';
+  }
   switch (SETTINGS_TAB) {
+    case 'overview':      pane.innerHTML = renderSettingsOverview(); break;
     case 'profile':       pane.innerHTML = renderSettingsProfile(); break;
     case 'services':      pane.innerHTML = renderSettingsServices(); break;
     case 'addons':        pane.innerHTML = renderSettingsAddons(); break;
-    case 'jobtypes':      pane.innerHTML = renderSettingsJobTypes(); break;
-    case 'jobstatuses':   pane.innerHTML = renderSettingsJobStatuses(); break;
-    case 'sources':       pane.innerHTML = renderSettingsSources(); break;
+    case 'lists-tags':    pane.innerHTML = renderSettingsListsTags(); break;
     case 'team':          pane.innerHTML = renderSettingsTeam(); break;
     case 'banks':         pane.innerHTML = renderSettingsBanks(); break;
-    case 'expense-cats':  pane.innerHTML = renderSettingsExpenseCats(); break;
     case 'quote-template':pane.innerHTML = renderSettingsQuoteTemplate(); break;
     case 'tax':           pane.innerHTML = renderSettingsTax(); break;
     case 'notif':         pane.innerHTML = renderSettingsNotif(); break;
@@ -6574,6 +7118,86 @@ function renderSettingsPane() {
     case 'about':         pane.innerHTML = renderSettingsAbout(); break;
     default:              pane.innerHTML = renderSettingsProfile();
   }
+}
+
+// ===== v1.0.24 · A2 Refined · Shop Setup Overview =====
+function _computeDtShopSetup() {
+  const items = [
+    { key: 'profile',     label: 'ข้อมูลบริษัท',  icon: '🏢', goTo: 'profile',
+      done: !!(PROFILE && PROFILE.shop && PROFILE.shop.trim()) },
+    { key: 'services',    label: 'บริการและราคา', icon: '📷', goTo: 'services',
+      done: ((SERVICES||[]).length > 0) },
+    { key: 'team',        label: 'ทีมงาน',        icon: '👥', goTo: 'team',
+      done: ((TEAM||[]).length > 0) },
+    { key: 'banks',       label: 'บัญชีรับโอน',   icon: '💳', goTo: 'banks',
+      done: ((BANKS||[]).length > 0) },
+    { key: 'tax',         label: 'ภาษี',           icon: '💰', goTo: 'tax',
+      done: !!(PROFILE && PROFILE.taxId) },
+    { key: 'quote-template', label: 'เทมเพลตเอกสาร', icon: '📄', goTo: 'quote-template',
+      done: !!(PROFILE && PROFILE.quoteTemplate) },
+    { key: 'lists',       label: 'ลิสต์และแท็ก',  icon: '🏷️', goTo: 'lists-tags',
+      done: ((JOB_TYPES||[]).length > 0 && (SOURCES||[]).length > 0 && (EXPENSE_CATS||[]).length > 0) }
+  ];
+  const doneCount = items.filter(x => x.done).length;
+  const total = items.length;
+  const pct = Math.round((doneCount / total) * 100);
+  const next = items.find(x => !x.done);
+  return { items, doneCount, total, pct, next };
+}
+
+function renderSettingsOverview() {
+  const { items, doneCount, total, pct, next } = _computeDtShopSetup();
+  const allDone = doneCount === total;
+
+  const heroHtml = allDone
+    ? `<div class="dt-shop-hero dt-shop-hero--done">
+         <div class="dt-shop-kicker"><span class="dot"></span> ตั้งค่าครบแล้ว</div>
+         <div class="dt-shop-title">🎉 พร้อมใช้ Pixory เต็มที่</div>
+         <div class="dt-shop-sub">ปรับแต่งเพิ่มได้ทุกเมนู · หรือเริ่มสร้างงานเลย</div>
+         <div class="dt-shop-bottom">
+           <div class="dt-shop-progress">
+             <div class="dt-shop-bar"><div class="dt-shop-fill" style="width:100%"></div></div>
+             <div class="dt-shop-num">${doneCount}/${total}</div>
+           </div>
+           <button class="dt-shop-cta" onclick="navigate('dashboard')">เริ่มงาน →</button>
+         </div>
+       </div>`
+    : `<div class="dt-shop-hero">
+         <div class="dt-shop-kicker"><span class="dot"></span> ขั้นถัดไป</div>
+         <div class="dt-shop-title">เพิ่ม <span class="accent">${escapeHtml(next.label)}</span><br>ของสตูดิโอคุณ</div>
+         <div class="dt-shop-sub">ตั้งอีก ${total - doneCount} อย่างเพื่อใช้แอพเต็มที่</div>
+         <div class="dt-shop-bottom">
+           <div class="dt-shop-progress">
+             <div class="dt-shop-bar"><div class="dt-shop-fill" style="width:${pct}%"></div></div>
+             <div class="dt-shop-num">${doneCount}/${total}</div>
+           </div>
+           <button class="dt-shop-cta" onclick="setSettingsTab('${next.goTo}')">ทำเลย <span class="arrow">→</span></button>
+         </div>
+       </div>`;
+
+  const gridHtml = items.map(it => `
+    <div class="dt-shop-card ${it.done ? 'is-done' : ''} ${(!allDone && next && next.key === it.key) ? 'is-next' : ''}"
+         onclick="setSettingsTab('${it.goTo}')">
+      <div class="dt-shop-card-icon">${it.icon}</div>
+      <div class="dt-shop-card-body">
+        <div class="dt-shop-card-title">${escapeHtml(it.label)}</div>
+      </div>
+      <div class="dt-shop-card-status">
+        ${it.done
+          ? '<span class="dt-shop-badge-done">✓</span>'
+          : (next && next.key === it.key
+              ? '<span class="dt-shop-badge-next">ทำเลย →</span>'
+              : '<span class="dt-shop-badge-todo">!</span>')}
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    ${heroHtml}
+    <div class="dt-shop-grid">
+      ${gridHtml}
+    </div>
+  `;
 }
 
 // ===== Profile · single form =====
@@ -7421,6 +8045,51 @@ function renderSettingsExpenseCats() {
     </div>
   `;
 }
+
+// ===== v1.0.26 · ลิสต์และแท็ก · รวม 4 หมวด · sub-tabs =====
+function setListsTagsTab(tab) {
+  LISTS_TAGS_TAB = tab;
+  const pane = document.getElementById('settings-pane');
+  if (pane) pane.innerHTML = renderSettingsListsTags();
+}
+
+function renderSettingsListsTags() {
+  const tabs = [
+    { id: 'jobtypes',     icon: '🎯', label: 'ประเภทงาน',      count: (JOB_TYPES||[]).length,    hint: 'Wedding · Pre-wed · Cinematography ฯลฯ' },
+    { id: 'jobstatuses',  icon: '🏷', label: 'สถานะงาน',       count: (getJobStatusList()||[]).length, hint: 'รอถ่าย · รอส่งงาน · ปิดงาน + ของคุณเอง' },
+    { id: 'sources',      icon: '📡', label: 'ช่องทางลูกค้า',  count: (SOURCES||[]).length,      hint: 'Facebook · IG · เพื่อนแนะนำ ฯลฯ' },
+    { id: 'expense-cats', icon: '💸', label: 'หมวดค่าใช้จ่าย', count: (EXPENSE_CATS||[]).length, hint: 'เดินทาง · Software · Marketing ฯลฯ' }
+  ];
+  const active = tabs.find(t => t.id === LISTS_TAGS_TAB) || tabs[0];
+
+  let body = '';
+  if (active.id === 'jobtypes')         body = renderSettingsJobTypes();
+  else if (active.id === 'jobstatuses') body = renderSettingsJobStatuses();
+  else if (active.id === 'sources')     body = renderSettingsSources();
+  else if (active.id === 'expense-cats')body = renderSettingsExpenseCats();
+
+  const tabPills = tabs.map(t => `
+    <button class="lt-tab ${t.id === active.id ? 'is-active' : ''}"
+            onclick="setListsTagsTab('${t.id}')"
+            type="button">
+      <span class="lt-tab-ico">${t.icon}</span>
+      <span class="lt-tab-label">${escapeHtml(t.label)}</span>
+      <span class="lt-tab-count">${t.count}</span>
+    </button>
+  `).join('');
+
+  return `
+    <div class="lists-tags-wrap">
+      <div class="lt-intro">
+        <div class="lt-intro-title">🏷️ ลิสต์และแท็ก</div>
+        <div class="lt-intro-sub">รวม 4 หมวดที่ใช้จัดกลุ่ม·ทำงานในแอพ · เลือกแท็บด้านล่างเพื่อแก้แต่ละหมวด</div>
+      </div>
+      <div class="lt-tabs" role="tablist">${tabPills}</div>
+      <div class="lt-hint">${escapeHtml(active.hint)}</div>
+      <div class="lt-pane">${body}</div>
+    </div>
+  `;
+}
 // FIX H10 · Logo upload handlers
 async function onLogoUpload(event) {
   const file = event.target.files[0];
@@ -8000,14 +8669,26 @@ function renderSettingsBackup() {
       <button class="btn btn-secondary" onclick="document.getElementById('backup-file-input').click()">📂 เลือกไฟล์ JSON เพื่อ Restore</button>
     </div>
 
-    <div class="glass-card" style="background:rgba(220,38,38,0.04); border-color:rgba(220,38,38,0.15);">
-      <div class="form-section-title" style="color:#dc2626;">⚠️ Danger Zone</div>
-      <div style="font-size:12.5px; color:#7c6856; margin-bottom:12px; line-height:1.6;">
-        <strong>ล้างข้อมูล</strong> · ลบทุกอย่างในระบบเริ่มใหม่ · ใช้ตอน setup ใหม่/ทดสอบเท่านั้น · <strong style="color:#dc2626;">ทำแล้วกู้ไม่ได้</strong>
+    <div class="glass-card danger-zone-card">
+      <div class="form-section-title danger-zone-title">⚠️ Danger Zone</div>
+
+      <!-- v1.0.23 · ล้างข้อมูลงาน/ลูกค้า · theme-aware -->
+      <div class="danger-zone-inner">
+        <div class="danger-zone-inner-title">🗑 ล้างข้อมูลงาน/ลูกค้า</div>
+        <div class="danger-zone-inner-desc">
+          ลบ <strong class="text-red">งาน · ใบเสนอ · ค่าใช้จ่าย · รายชื่อลูกค้า</strong><br>
+          เก็บไว้: <strong class="text-green">การตั้งค่า · แพคเกจ · ทีมงาน · บัญชี · โปรไฟล์</strong>
+        </div>
+        <button class="btn btn-secondary danger-btn-soft" onclick="resetTransactionDataDesktop()">🗑 ล้างข้อมูลงาน/ลูกค้า</button>
       </div>
+
+      <!-- Setup Wizard + Hard reset -->
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-        <button class="btn btn-secondary" style="color:#b45309;" onclick="restartSetupWizard()">🪄 Setup Wizard (เริ่มใหม่)</button>
-        <button class="btn btn-secondary" style="color:#dc2626;" onclick="clearAllDataDesktop()">🗑 ล้างข้อมูลทั้งหมด</button>
+        <button class="btn btn-secondary danger-btn-amber" onclick="restartSetupWizard()">🪄 Setup Wizard (เริ่มใหม่)</button>
+        <button class="btn btn-secondary danger-btn-hard" onclick="hardResetDesktop()">⚠️ ล้างทั้งแอพ</button>
+      </div>
+      <div class="danger-zone-hint">
+        💡 <strong>"ล้างทั้งแอพ"</strong> = ล้างข้อมูล + ตั้งค่า + ทีม + บัญชี · กลับเป็นแอพเปล่า · ใช้ตอนเริ่มใหม่หมด
       </div>
     </div>
   `;
@@ -8071,13 +8752,68 @@ function restartSetupWizard() {
   toast('Setup Wizard · Coming soon · ตอนนี้ใช้ Settings แต่ละ tab ปกติได้', 'info');
 }
 
-async function clearAllDataDesktop() {
-  const conf1 = prompt('⚠️ พิมพ์ "ลบ" เพื่อยืนยันลบข้อมูลทั้งหมด · กู้ไม่ได้!');
-  if (conf1 !== 'ลบ') { toast('ยกเลิก', 'info'); return; }
-  if (!confirm('🚨 ยืนยันครั้งสุดท้าย · ลบทุกอย่าง?')) return;
+// v1.0.21 · ล้างข้อมูลงาน/ลูกค้า · port from mobile resetTransactionData()
+// ลบ JOBS · QUOTES · EXPENSES · CUSTOMER_INFO เท่านั้น · เก็บการตั้งค่าทั้งหมด
+async function resetTransactionDataDesktop() {
+  const cloudWarning = (CURRENT_USER && SUPABASE)
+    ? '\n\n☁ ข้อมูลใน Cloud ก็จะถูกอัปเดทตามด้วย'
+    : '';
+  if (!confirm('🗑 ล้างข้อมูลงาน/ลูกค้า?\n\nรายการต่อไปนี้จะถูกลบ:\n• งานทั้งหมด\n• ใบเสนอราคาทั้งหมด\n• ค่าใช้จ่ายทั้งหมด\n• รายชื่อลูกค้าทั้งหมด (รวมข้อมูลภาษี · เบอร์ · LINE)\n\nการตั้งค่าจะคงไว้:\n✓ แพคเกจ · ทีมงาน · Source · ประเภทงาน\n✓ โปรไฟล์ร้าน · บัญชี · เทมเพลต' + cloudWarning)) return;
+  if (!confirm('ยืนยันอีกครั้ง?\n\nกู้คืนไม่ได้ ควรกด Export Backup ก่อนถ้ายังไม่ได้ทำ')) return;
+
+  // Clear transaction arrays
+  JOBS = [];
+  QUOTES = [];
+  EXPENSES = [];
+  CUSTOMER_INFO = {};
+
+  // Bump version +1000 to win realtime sync race (match mobile)
+  DATA_VERSION = (DATA_VERSION || 0) + 1000;
+  try { localStorage.setItem(DATA_STORAGE_KEY + '_justImported', '1'); } catch(e) {}
+
+  try {
+    await saveData({ force: true });
+    toast('✓ ล้างข้อมูลงาน/ลูกค้าแล้ว · กำลังโหลดใหม่...', 'success');
+    setTimeout(() => location.reload(), 800);
+  } catch(e) {
+    toast('ล้างข้อมูลสำเร็จแต่ sync cloud พลาด: ' + e.message, 'warn');
+    setTimeout(() => location.reload(), 1500);
+  }
+}
+
+// v1.0.21 · Hard reset · ลบทุกอย่าง · port from mobile resetData()
+// ลบ JOBS + QUOTES + EXPENSES + CUSTOMER_INFO + TEAM + BANKS + PROFILE
+async function hardResetDesktop() {
+  const cloudWarning = (CURRENT_USER && SUPABASE)
+    ? '\n\n☁ ข้อมูลใน Cloud ของคุณก็จะถูกลบด้วย\n   ทุกเครื่องที่ login บัญชี ' + CURRENT_USER.email + ' จะกลับเป็นแอพเปล่า'
+    : '';
+  if (!confirm('⚠ ล้างทั้งแอพ — เริ่มจากศูนย์?\n\nรายการทุกอย่างจะถูกลบ:\n• งาน · ใบเสนอราคา · ค่าใช้จ่าย · ลูกค้า\n• ทีมงานทั้งหมด\n• บัญชีรับโอนทั้งหมด\n• โปรไฟล์ร้าน (ชื่อ · tagline · ติดต่อ · social)\n\nแพคเกจและการตั้งค่าอื่นๆ จะกลับเป็น default' + cloudWarning)) return;
+  if (!confirm('ยืนยันอีกครั้ง?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้\nควร Export Backup ก่อนถ้ายังไม่ได้ทำ')) return;
+
+  // Delete cloud row FIRST so it doesn't restore on reload
+  if (CURRENT_USER && SUPABASE) {
+    try {
+      const { error } = await SUPABASE.from('user_data').delete().eq('user_id', CURRENT_USER.id);
+      if (error) {
+        if (!confirm('⚠ ลบข้อมูลจาก Cloud ไม่สำเร็จ — ' + error.message + '\n\nถ้ากด OK ต่อ จะลบเฉพาะเครื่องนี้ · Cloud ยังมีของเก่า · ข้อมูลจะกลับมาเมื่อรีโหลด')) return;
+      }
+    } catch(e) {
+      console.warn('Cloud reset error:', e);
+    }
+  }
+
+  // Reset all in-memory state
   JOBS = []; QUOTES = []; EXPENSES = []; CUSTOMER_INFO = {};
-  await saveData();
-  toast('✓ ลบข้อมูลแล้ว · โหลดใหม่...', 'success');
+  TEAM = []; BANKS = [];
+  Object.assign(PROFILE, { shop: '', tagline: '', phone: '', line: '', ig: '', fb: '', address: '', wizardDone: false });
+
+  // Clear localStorage entirely
+  try {
+    localStorage.removeItem(DATA_STORAGE_KEY);
+    localStorage.removeItem(DATA_STORAGE_KEY + '_justImported');
+  } catch(e) {}
+
+  toast('✓ ล้างเป็นแอพเปล่าแล้ว · กำลังโหลดใหม่...', 'success');
   setTimeout(() => location.reload(), 800);
 }
 
@@ -9725,7 +10461,8 @@ async function saveQuote(status) {
   const deposit = Number(document.getElementById('nq-deposit').value) || 0;
   // V4: deposit > sell
   if (deposit > c.sell) {
-    if (!confirm('⚠ มัดจำ (' + fmtTHB(deposit) + ') มากกว่าราคาขาย (' + fmtTHB(c.sell) + ') · ต้องการบันทึก?')) return;
+    alert('⛔ มัดจำ (' + fmtTHB(deposit) + ') มากกว่าราคาขาย (' + fmtTHB(c.sell) + ')\n\nกรุณาแก้ไขก่อนบันทึก');
+    return;
   }
   // V5: B2B/Gov + tax enabled + missing taxId/company → confirm
   const ctype = st.customerType;
@@ -10073,7 +10810,8 @@ async function saveJob() {
   if (st.sessions.length === 0) { toast('ใส่วันที่งานก่อน', 'error'); return; }
   const deposit = Number(document.getElementById('add-deposit').value) || 0;
   if (deposit > c.sell) {
-    if (!confirm('⚠ มัดจำมากกว่าราคาขาย · ต้องการบันทึก?')) return;
+    alert('⛔ มัดจำมากกว่าราคาขาย · กรุณาแก้ไขก่อนบันทึก');
+    return;
   }
   const ctype = st.customerType;
   const taxIdEl = document.getElementById('add-tf-taxid');
