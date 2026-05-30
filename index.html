@@ -1137,6 +1137,139 @@
   .settings-row .row-sub { font-size: 11px; color: #7c7066; }
   .settings-row .right { display: flex; align-items: center; gap: 6px; color: #a89a8c; font-size: 12px; }
 
+  /* v2.5.41 · A2 Refined · Shop Setup Hero + Status Badges (theme-aware) */
+  .shop-hero {
+    background:
+      radial-gradient(ellipse at top right, rgba(212,160,86,0.18) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(184,133,74,0.08) 0%, rgba(28,28,34,0.05) 100%);
+    border: 1px solid rgba(184,133,74,0.30);
+    border-radius: 20px;
+    padding: 18px 18px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  body.luxe-theme .shop-hero {
+    background:
+      radial-gradient(ellipse at top right, rgba(212,160,86,0.22) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(184,133,74,0.10) 0%, rgba(28,28,34,0.92) 50%, rgba(28,28,34,0.95) 100%) !important;
+  }
+  .shop-hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 12%; right: 12%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(212,160,86,0.30), transparent);
+  }
+  .shop-hero-kicker {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10.5px; font-weight: 700;
+    color: #B8854A; letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 4px 9px;
+    background: rgba(184,133,74,0.10);
+    border: 1px solid rgba(184,133,74,0.22);
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  body.luxe-theme .shop-hero-kicker { color: #D4A056 !important; }
+  .shop-hero-kicker .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #E8B870;
+    box-shadow: 0 0 6px rgba(232,184,112,0.7);
+    animation: shopHeroPulse 2s ease-in-out infinite;
+  }
+  @keyframes shopHeroPulse { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
+  .shop-hero-title {
+    font-family: 'Fraunces','Sarabun',serif;
+    font-style: italic; font-weight: 700;
+    font-size: 22px; line-height: 1.22;
+    color: #3a2f25;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  body.luxe-theme .shop-hero-title { color: #F4F4F5 !important; }
+  .shop-hero-title .accent {
+    background: linear-gradient(135deg, #E8B870 0%, #B8854A 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .shop-hero-sub {
+    font-size: 12.5px; line-height: 1.5;
+    color: #7c7066; margin-bottom: 14px;
+  }
+  body.luxe-theme .shop-hero-sub { color: #A1A1AA !important; }
+  .shop-hero-bottom {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .shop-progress {
+    display: flex; align-items: center; gap: 8px;
+    flex: 1; min-width: 0;
+  }
+  .shop-progress-bar {
+    flex: 1; height: 5px;
+    background: rgba(0,0,0,0.08);
+    border-radius: 5px; overflow: hidden;
+  }
+  body.luxe-theme .shop-progress-bar { background: rgba(255,255,255,0.08) !important; }
+  .shop-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #B8854A, #D4A056);
+    border-radius: 5px;
+    box-shadow: 0 0 6px rgba(212,160,86,0.4);
+    transition: width .3s ease;
+  }
+  .shop-progress-text {
+    font-family: 'Inter',sans-serif; font-weight: 700;
+    font-size: 12px; color: #B8854A;
+    white-space: nowrap;
+  }
+  body.luxe-theme .shop-progress-text { color: #D4A056 !important; }
+  .shop-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, #E8B870, #B8854A);
+    color: #0A0A0E;
+    padding: 9px 16px;
+    border-radius: 11px;
+    font-weight: 800; font-size: 12.5px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(184,133,74,0.28), inset 0 1px 0 rgba(255,255,255,0.22);
+    border: none; cursor: pointer;
+  }
+  .shop-cta .arrow { transition: transform .2s; }
+  .shop-cta:hover .arrow { transform: translateX(2px); }
+  .shop-hero--done {
+    background:
+      radial-gradient(ellipse at top right, rgba(134,239,172,0.18) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(134,239,172,0.08) 0%, rgba(28,28,34,0.05) 100%);
+    border-color: rgba(134,239,172,0.30);
+  }
+  body.luxe-theme .shop-hero--done {
+    background:
+      radial-gradient(ellipse at top right, rgba(134,239,172,0.20) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(134,239,172,0.10) 0%, rgba(28,28,34,0.92) 50%, rgba(28,28,34,0.95) 100%) !important;
+  }
+
+  /* Status badges in settings rows */
+  .shop-badge-done {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(74,222,128,0.16);
+    border: 1px solid rgba(74,222,128,0.30);
+    color: #15803d;
+    font-size: 12px; font-weight: 800;
+    margin-right: 4px;
+  }
+  body.luxe-theme .shop-badge-done { color: #86efac !important; }
+  .shop-badge-todo {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(252,211,77,0.18);
+    border: 1px solid rgba(252,211,77,0.35);
+    color: #92400e;
+    font-size: 12px; font-weight: 800;
+    margin-right: 4px;
+  }
+  body.luxe-theme .shop-badge-todo { color: #fcd34d !important; background: rgba(252,211,77,0.18) !important; }
+  .settings-row .right.is-done .shop-badge-done + * { display:none; }
+
   .item-row { background: white; padding: 12px 14px; margin: 0 16px 6px; border-radius: 12px; display: flex; align-items: center; gap: 12px; }
   .item-row .item-name { font-size: 14px; font-weight: 500; }
   .item-row .item-sub { font-size: 11px; color: #7c7066; margin-top: 1px; }
@@ -1398,6 +1531,13 @@
   body.luxe-theme .section-title h2,
   body.luxe-theme .form-section-title,
   body.luxe-theme h1, body.luxe-theme h2, body.luxe-theme h3 { color: #F4F4F5; }
+  /* Exception · Auth panels = white card on orange bg · keep dark text */
+  body.luxe-theme .auth-title { color: #3a2f25 !important; }
+  body.luxe-theme .auth-sub { color: #7c7066 !important; }
+  body.luxe-theme .auth-panel { background: rgba(255,255,255,0.96) !important; color: #3a2f25 !important; }
+  body.luxe-theme .auth-field label { color: #3a2f25 !important; }
+  body.luxe-theme .auth-field input { color: #3a2f25 !important; background: rgba(255,255,255,1) !important; border-color: #e8dfd5 !important; }
+  body.luxe-theme .auth-meta { color: rgba(255,255,255,0.85) !important; }
   body.luxe-theme .sub, body.luxe-theme .row-sub, body.luxe-theme .text-mute,
   body.luxe-theme label { color: #D4D4D8; }
   body.luxe-theme .text-faint { color: #A1A1AA; }
@@ -3222,38 +3362,114 @@
   }
   body.dark-theme .genre-label { color: #d4d4d8; }
   .genre-label .sub { color: #a89a8c; font-weight: 400; font-size: 11px; }
+  /* v2.5.42 · Genre chips · always readable · compact · pretty */
   .genre-chips {
-    display: flex; flex-wrap: wrap; gap: 6px;
-    padding: 10px; background: #fafaf7;
-    border: 1px solid #e5e0d8; border-radius: 12px;
+    display: flex; flex-wrap: wrap; gap: 7px;
+    padding: 12px;
+    background: #faf7f2;
+    border: 1px solid #ece3d4;
+    border-radius: 14px;
   }
-  body.dark-theme .genre-chips { background: rgba(255,255,255,.04); border-color: #3a3a3a; }
   .genre-chip {
-    padding: 6px 12px; border-radius: 50px;
-    background: white; border: 1px solid #e5e0d8;
-    font-size: 12.5px; font-weight: 500; color: #5a4a3a;
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #e0d4c0;
+    font-size: 12.5px; font-weight: 600;
+    color: #3a2f25;
     cursor: pointer; user-select: none;
     transition: all .15s;
+    line-height: 1.2;
+    white-space: nowrap;
   }
-  body.dark-theme .genre-chip { background: rgba(255,255,255,.06); border-color: #4a4a4a; color: #d4d4d8; }
-  .genre-chip:hover { background: #fef3eb; border-color: #f4d4b8; }
-  body.dark-theme .genre-chip:hover { background: rgba(216,112,74,.15); }
+  .genre-chip:hover {
+    background: #fef3eb;
+    border-color: #f4a36a;
+    color: #b85a36;
+    transform: translateY(-1px);
+  }
   .genre-chip.active {
-    background: linear-gradient(135deg, #e87f5a, #d8704a);
-    border-color: transparent; color: white; font-weight: 700;
-    box-shadow: 0 2px 6px rgba(216,112,74,.3);
+    background: linear-gradient(135deg, #f4a36a, #d8704a);
+    border-color: transparent;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 3px 10px rgba(216,112,74,.35);
   }
+  /* Dark theme · same readable pattern */
+  body.dark-theme .genre-chips { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.10); }
+  body.dark-theme .genre-chip { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); color: #f5f5f5; }
+  body.dark-theme .genre-chip:hover { background: rgba(244,163,106,.18); border-color: rgba(244,163,106,.45); color: #f4a36a; }
+  body.dark-theme .genre-chip.active { color: #fff; }
+  /* Auth screen lives on white card always · keep light readable regardless of luxe theme */
+  body.luxe-theme .auth-card .genre-chips { background: #faf7f2 !important; border-color: #ece3d4 !important; }
+  body.luxe-theme .auth-card .genre-chip { background: #ffffff !important; border-color: #e0d4c0 !important; color: #3a2f25 !important; }
+  body.luxe-theme .auth-card .genre-chip:hover { background: #fef3eb !important; border-color: #f4a36a !important; color: #b85a36 !important; }
+  body.luxe-theme .auth-card .genre-chip.active { background: linear-gradient(135deg, #f4a36a, #d8704a) !important; color: #fff !important; border-color: transparent !important; }
   .genre-other-input {
     width: 100%; margin-top: 8px;
-    padding: 9px 12px; border-radius: 10px;
-    background: white; border: 1px solid #e5e0d8;
-    font-size: 13px; color: #2a1f17; outline: none;
+    padding: 10px 14px; border-radius: 10px;
+    background: #ffffff; border: 1px solid #e0d4c0;
+    font-size: 13px; color: #3a2f25; outline: none;
     font-family: inherit;
     display: none;
   }
-  body.dark-theme .genre-other-input { background: rgba(255,255,255,.06); border-color: #4a4a4a; color: #f5f5f5; }
+  .genre-other-input:focus { border-color: #d8704a; box-shadow: 0 0 0 3px rgba(216,112,74,.15); }
+  body.dark-theme .genre-other-input { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); color: #f5f5f5; }
+  body.luxe-theme .auth-card .genre-other-input { background: #ffffff !important; border-color: #e0d4c0 !important; color: #3a2f25 !important; }
   .genre-other-input:focus { border-color: #d8704a; }
   .genre-other-input.show { display: block; }
+
+  /* === v2.5.43 · ลิสต์และแท็ก · sub-tab pills (mobile) · theme-aware · 4 pills fit ≤375px === */
+  .lt-tabs-mobile {
+    display: flex;
+    gap: 4px;
+    margin: 6px 12px 12px;
+    padding: 4px;
+    background: rgba(255,255,255,0.65);
+    border: 1px solid #ece3d4;
+    border-radius: 14px;
+  }
+  body.dark-theme .lt-tabs-mobile { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+  body.luxe-theme .lt-tabs-mobile { background: rgba(28,28,34,0.65) !important; border-color: rgba(212,160,86,0.22) !important; }
+
+  .lt-pill {
+    flex: 1 1 0;        /* ทุก pill กว้างเท่ากัน · บีบได้ถ้าจอแคบ */
+    min-width: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 4px;
+    padding: 8px 4px;
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    color: #56473a;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.18s ease;
+  }
+  .lt-pill > span:not(.lt-ico) { overflow: hidden; text-overflow: ellipsis; }
+  .lt-pill:active { transform: scale(0.97); }
+  .lt-pill .lt-ico { font-size: 13px; line-height: 1; }
+  .lt-pill.is-active {
+    background: linear-gradient(135deg, #f4a36a 0%, #d8704a 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(216,112,74,0.30);
+  }
+  body.dark-theme .lt-pill { color: #c8c2bd; }
+  body.dark-theme .lt-pill.is-active { background: linear-gradient(135deg, #b8855a 0%, #8a5a3e 100%); color: #fff; }
+  body.luxe-theme .lt-pill { color: #C7B89E !important; }
+  body.luxe-theme .lt-pill.is-active {
+    background: linear-gradient(135deg, #D4A056 0%, #B8854A 100%) !important;
+    color: #1c1c22 !important;
+    box-shadow: 0 2px 8px rgba(212,160,86,0.35) !important;
+  }
+
+  .lt-pane-mobile { animation: ltFade 0.18s ease; }
+  @keyframes ltFade { from { opacity: 0.4; transform: translateY(2px); } to { opacity: 1; transform: none; } }
   .auth-btn:disabled {
     background: #d1d5db;
     color: #a89a8c;
@@ -5139,16 +5355,16 @@
         <div class="form-row" style="padding: 0;">
           <div class="form-group" style="margin: 0 0 10px;">
             <label>⏱ Extra time (บาท)</label>
-            <input type="number" value="0" id="addExtraTime" placeholder="0" oninput="updateAddTotal()">
+            <input type="number" value="0" min="0" id="addExtraTime" placeholder="0" oninput="updateAddTotal()">
           </div>
           <div class="form-group" style="margin: 0 0 10px;">
             <label data-i18n="aj.discountBaht">ส่วนลด (บาท)</label>
-            <input type="number" value="0" id="addDiscount" oninput="updateAddTotal()">
+            <input type="number" value="0" min="0" id="addDiscount" oninput="updateAddTotal()">
           </div>
         </div>
         <div class="form-group" style="margin: 0 0 10px;">
           <label data-i18n="aj.depositBaht">มัดจำ (บาท)</label>
-          <input type="number" value="0" id="addDeposit">
+          <input type="number" value="0" min="0" id="addDeposit">
         </div>
       </div>
 
@@ -5891,16 +6107,16 @@
         <div class="form-row" style="margin-bottom: 10px;">
           <div class="form-group" style="margin: 0;">
             <label data-i18n="aj.extraTimeBaht">⏱ Extra time (บาท)</label>
-            <input type="number" value="0" id="nq-extratime" placeholder="0" oninput="updateNQTotal()">
+            <input type="number" value="0" min="0" id="nq-extratime" placeholder="0" oninput="updateNQTotal()">
           </div>
           <div class="form-group" style="margin: 0;">
             <label data-i18n="aj.discountBaht">ส่วนลด (บาท)</label>
-            <input type="number" value="0" id="nq-discount" oninput="updateNQTotal()">
+            <input type="number" value="0" min="0" id="nq-discount" oninput="updateNQTotal()">
           </div>
         </div>
         <div class="form-group" style="margin: 0 0 10px;">
           <label data-i18n="aj.depositForBook">มัดจำเพื่อจองคิว (บาท)</label>
-          <input type="number" value="0" id="nq-deposit" placeholder="5000">
+          <input type="number" value="0" min="0" id="nq-deposit" placeholder="5000">
         </div>
         <div class="form-group" style="margin: 0 0 10px;">
           <label data-i18n="aj.quoteExpireDate">วันหมดอายุราคา</label>
@@ -6238,27 +6454,35 @@
         <span style="width: 22px;"></span>
       </div>
 
+      <!-- v2.5.41 · A2 Refined · Shop Setup Hero -->
+      <div id="shop-setup-hero" style="margin:0 16px 14px;"></div>
+
       <div class="settings-section">
         <div style="border-radius: 12px; overflow: hidden;">
-          <div class="settings-row" onclick="goTo('settings-profile')">
+          <div class="settings-row" onclick="goTo('settings-profile')" data-setup-key="profile">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-gray)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="22" y="32" width="44" height="36" rx="3" fill="#fff"/><path d="M22 32 L28 22 L60 22 L66 32 Z" fill="#fff"/><rect x="38" y="46" width="12" height="22" fill="url(#ic-gray)"/><rect x="28" y="40" width="6" height="6" rx="1" fill="url(#ic-gray)"/><rect x="54" y="40" width="6" height="6" rx="1" fill="url(#ic-gray)"/></svg></div><div><div class="row-title" data-i18n="set.profile">ข้อมูลบริษัท</div><div class="row-sub" id="hub-profile-sub" data-i18n="set.profileSub">โปรไฟล์ร้าน · ชื่อ · ติดต่อ</div></div></div>
-            <div class="right">›</div>
+            <div class="right setup-status" data-setup-status="profile">›</div>
           </div>
-          <div class="settings-row" onclick="goTo('settings-hub-packages')">
-            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-orange)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M44 22 L66 32 L66 56 L44 66 L22 56 L22 32 Z" fill="#fff"/><path d="M44 22 L66 32 L44 42 L22 32 Z" fill="#fff" stroke="#ff7e22" stroke-width="1" opacity="0.95"/><line x1="44" y1="42" x2="44" y2="66" stroke="#ff7e22" stroke-width="1.5"/></svg></div><div><div class="row-title" data-i18n="set.packages">แพ็คเกจ & ราคา</div><div class="row-sub" data-i18n="set.packagesSub">บริการที่ขาย · ประเภทงาน · Source</div></div></div>
-            <div class="right">›</div>
+          <div class="settings-row" onclick="goTo('settings-hub-packages')" data-setup-key="services">
+            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-orange)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M44 22 L66 32 L66 56 L44 66 L22 56 L22 32 Z" fill="#fff"/><path d="M44 22 L66 32 L44 42 L22 32 Z" fill="#fff" stroke="#ff7e22" stroke-width="1" opacity="0.95"/><line x1="44" y1="42" x2="44" y2="66" stroke="#ff7e22" stroke-width="1.5"/></svg></div><div><div class="row-title" data-i18n="set.packages">บริการและราคา</div><div class="row-sub" data-i18n="set.packagesSub">บริการหลัก · เสริม · ประเภทงาน</div></div></div>
+            <div class="right setup-status" data-setup-status="services">›</div>
           </div>
-          <div class="settings-row" onclick="goTo('settings-team')">
+          <div class="settings-row" onclick="goTo('settings-team')" data-setup-key="team">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-purple)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="34" cy="36" r="8" fill="#fff"/><circle cx="56" cy="36" r="8" fill="#fff"/><path d="M22 70 Q22 54 34 54 Q46 54 46 70 Z" fill="#fff"/><path d="M44 70 Q44 54 56 54 Q68 54 68 70 Z" fill="#fff"/></svg></div><div><div class="row-title" data-i18n="set.team">ผู้ใช้งาน / ทีม</div><div class="row-sub" id="hub-team-sub" data-i18n="set.teamSub">ทีมงาน + ค่าจ้าง</div></div></div>
-            <div class="right">›</div>
+            <div class="right setup-status" data-setup-status="team">›</div>
           </div>
-          <div class="settings-row" onclick="goTo('settings-hub-finance')">
+          <!-- v2.5.43 · ลิสต์และแท็ก · รวม 4 หมวด (ประเภทงาน · สถานะงาน · ช่องทางลูกค้า · หมวดค่าใช้จ่าย) -->
+          <div class="settings-row" onclick="goTo('settings-lists-tags')" data-setup-key="lists">
+            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-orange)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 30 L42 22 L62 30 L62 58 L42 66 L22 58 Z" fill="#fff"/><circle cx="32" cy="36" r="4" fill="#ff7e22"/><circle cx="52" cy="36" r="4" fill="#ff7e22" opacity="0.8"/><circle cx="32" cy="50" r="4" fill="#ff7e22" opacity="0.6"/><circle cx="52" cy="50" r="4" fill="#ff7e22" opacity="0.4"/></svg></div><div><div class="row-title">ลิสต์และแท็ก</div><div class="row-sub" id="hub-lists-sub">ประเภทงาน · สถานะ · ช่องทาง · หมวดรายจ่าย</div></div></div>
+            <div class="right setup-status" data-setup-status="lists">›</div>
+          </div>
+          <div class="settings-row" onclick="goTo('settings-hub-finance')" data-setup-key="finance">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-rep)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="22" fill="#fff"/><text x="44" y="55" fill="#1a9d6a" font-size="32" font-weight="800" text-anchor="middle" font-family="-apple-system,Inter,sans-serif">฿</text></svg></div><div><div class="row-title" data-i18n="set.finance">การเงิน</div><div class="row-sub" data-i18n="set.financeSub">บัญชี · หมวดรายจ่าย · ใบเสนอราคา</div></div></div>
-            <div class="right">›</div>
+            <div class="right setup-status" data-setup-status="finance">›</div>
           </div>
-          <div class="settings-row" onclick="goTo('settings-tax')">
+          <div class="settings-row" onclick="goTo('settings-tax')" data-setup-key="tax">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-indigo)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="20" y="20" width="48" height="54" rx="4" fill="#fff"/><line x1="26" y1="32" x2="62" y2="32" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round"/><line x1="26" y1="42" x2="58" y2="42" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="26" y1="52" x2="62" y2="52" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round" opacity="0.7"/><line x1="26" y1="62" x2="48" y2="62" stroke="url(#ic-indigo)" stroke-width="3" stroke-linecap="round" opacity="0.6"/><circle cx="62" cy="62" r="4" fill="#d8704a"/></svg></div><div><div class="row-title"><span data-i18n="set.tax">ภาษี</span> <span style="display:none;">PRO</span></div><div class="row-sub" id="hub-tax-sub" data-i18n="set.taxSub">เลข 13 หลัก · VAT · ที่อยู่ออกใบกำกับ</div></div></div>
-            <div class="right">›</div>
+            <div class="right setup-status" data-setup-status="tax">›</div>
           </div>
           <div class="settings-row" onclick="goTo('settings-notif')">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-cal-header)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M44 18 Q28 18 28 38 L28 54 L22 60 L22 64 L66 64 L66 60 L60 54 L60 38 Q60 18 44 18 Z" fill="#fff"/><circle cx="44" cy="14" r="3" fill="#fff"/><path d="M38 66 Q38 74 44 74 Q50 74 50 66 Z" fill="#fff"/></svg></div><div><div class="row-title" data-i18n="set.notif">การแจ้งเตือน</div><div class="row-sub" data-i18n="set.notifSub">เตือนกี่วันก่อน/หลังวันงาน</div></div></div>
@@ -6688,10 +6912,7 @@
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-home)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 36 L44 20 L66 36 Z" fill="#fff"/><rect x="24" y="36" width="6" height="22" fill="#fff"/><rect x="36" y="36" width="6" height="22" fill="#fff"/><rect x="46" y="36" width="6" height="22" fill="#fff"/><rect x="58" y="36" width="6" height="22" fill="#fff"/><rect x="20" y="58" width="48" height="6" rx="1" fill="#fff"/></svg></div><div><div class="row-title">บัญชีรับโอน</div><div class="row-sub" id="bank-sub-count">ใส่ในใบเสนอราคา</div></div></div>
             <div class="right">›</div>
           </div>
-          <div class="settings-row" onclick="goTo('settings-expense-cat')">
-            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-cal-header)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 16 L66 16 L66 72 L58 66 L50 72 L44 66 L38 72 L30 66 L22 72 Z" fill="#fff"/><line x1="30" y1="32" x2="58" y2="32" stroke="#d92020" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="42" x2="50" y2="42" stroke="#d92020" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="30" y1="52" x2="58" y2="52" stroke="#d92020" stroke-width="3" stroke-linecap="round" opacity="0.7"/></svg></div><div><div class="row-title">หมวดค่าใช้จ่าย</div><div class="row-sub">เดินทาง · Software · Marketing ฯลฯ</div></div></div>
-            <div class="right">›</div>
-          </div>
+          <!-- v2.5.43 · "หมวดค่าใช้จ่าย" ย้ายไป "ลิสต์และแท็ก" ในหน้าตั้งค่าหลัก -->
           <div class="settings-row" onclick="goTo('settings-quote-template')">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-indigo)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M26 14 L54 14 L66 26 L66 70 Q66 74 62 74 L26 74 Q22 74 22 70 L22 18 Q22 14 26 14 Z" fill="#fff"/><path d="M54 14 L54 26 L66 26 Z" fill="url(#ic-indigo)" opacity="0.3"/><line x1="30" y1="40" x2="58" y2="40" stroke="#4a5fd4" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="50" x2="50" y2="50" stroke="#4a5fd4" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="30" y1="60" x2="58" y2="60" stroke="#4a5fd4" stroke-width="3" stroke-linecap="round" opacity="0.7"/></svg></div><div><div class="row-title">เทมเพลตใบเสนอราคา</div><div class="row-sub">เงื่อนไข · footer · คำขึ้นต้น</div></div></div>
             <div class="right">›</div>
@@ -6726,50 +6947,7 @@
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-rep)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="40" y="22" width="8" height="44" rx="4" fill="#fff"/><rect x="22" y="40" width="44" height="8" rx="4" fill="#fff"/></svg></div><div><div class="row-title">บริการเสริม</div><div class="row-sub" id="hub-addons-sub">QR · Profile · etc.</div></div></div>
             <div class="right">›</div>
           </div>
-          <div class="settings-row" onclick="goTo('settings-jobtypes')">
-            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-pink)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M16 44 L44 16 L72 16 L72 44 L44 72 Z" fill="#fff"/><circle cx="58" cy="30" r="5" fill="#e94e8d"/></svg></div><div><div class="row-title">ประเภทงาน</div><div class="row-sub" id="hub-jobtypes-sub">Wedding · Pre-wed ฯลฯ</div></div></div>
-            <div class="right">›</div>
-          </div>
-          <!-- v2.5.0 · Custom job statuses -->
-          <div class="settings-row" onclick="goTo('settings-jobstatuses')">
-            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-teal)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="20" y="22" width="48" height="44" rx="6" fill="#fff"/><rect x="26" y="30" width="36" height="5" rx="2" fill="url(#ic-teal)"/><rect x="26" y="40" width="28" height="5" rx="2" fill="url(#ic-teal)" opacity="0.7"/><rect x="26" y="50" width="32" height="5" rx="2" fill="url(#ic-teal)" opacity="0.5"/></svg></div><div><div class="row-title">สถานะงานของฉัน</div><div class="row-sub" id="hub-jobstatuses-sub">รอถ่าย · รอส่งงาน · ปิดงาน + ของคุณเอง</div></div></div>
-            <div class="right">›</div>
-          </div>
-          <div class="settings-row" onclick="goTo('settings-source')">
-            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-orange)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 36 L40 30 L62 18 L62 66 L40 54 L22 48 Z" fill="#fff"/><rect x="22" y="36" width="10" height="12" fill="#fff"/><path d="M28 48 L26 64 L34 64 L32 48 Z" fill="#fff"/></svg></div><div><div class="row-title">Source ลูกค้า</div><div class="row-sub" id="hub-source-sub">Facebook · Referral ฯลฯ</div></div></div>
-            <div class="right">›</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ====== SCREEN: SETTINGS · JOB STATUSES (v2.5.0) ====== -->
-    <div class="screen" id="screen-settings-jobstatuses">
-      <div class="header">
-        <button class="back" onclick="goTo('settings-hub-packages')">‹</button>
-        <h1>🏷 สถานะงานของฉัน</h1>
-        <span style="width: 22px;"></span>
-      </div>
-
-      <div style="padding: 12px 16px 8px; font-size: 12.5px; color: #7c7066; line-height: 1.5;">
-        แอพมี <strong>3 สถานะหลัก</strong> ที่แก้ชื่อได้แต่ลบไม่ได้ · เพราะแท็บในหน้า "งาน" ทำงานจากสถานะนี้<br>
-        เพิ่ม <strong>สถานะของคุณเอง</strong>ได้ · เช่น "ตัดต่อ" · "ปรับแสง" · "ส่ง preview" · แต่ละอันต้องเลือกว่าจัดอยู่ใน 1 ใน 3 หลัก
-      </div>
-
-      <div style="padding: 0 16px 12px;">
-        <div style="font-size:11px; color:#7c7066; text-transform:uppercase; letter-spacing:.5px; margin: 10px 4px 6px; font-weight:600;">สถานะหลัก · 3 อัน (ลบไม่ได้)</div>
-        <div id="job-status-defaults-list"></div>
-
-        <div style="font-size:11px; color:#7c7066; text-transform:uppercase; letter-spacing:.5px; margin: 16px 4px 6px; font-weight:600;">สถานะของคุณเอง</div>
-        <div id="job-status-customs-list"></div>
-
-        <button class="add-tile" onclick="openJobStatusEdit(-1)" style="margin-top:10px;">
-          <span class="add-tile-icon">+</span>
-          <span>เพิ่มสถานะใหม่</span>
-        </button>
-
-        <div style="background:#fef7eb; border:1px solid #f5e6c5; border-radius:10px; padding:10px 12px; margin-top:16px; font-size:11.5px; color:#7c4a14;">
-          💡 <strong>เคล็ดลับ:</strong> ลองเพิ่ม "ตัดต่อ" หรือ "ทำโทนสี" แล้วเลือก map กับ <strong>รอส่งงาน</strong> · งานที่ใช้สถานะนี้จะอยู่ในแท็บ "รอส่งงาน" ในหน้างาน
+          <!-- v2.5.43 · ประเภทงาน/สถานะงาน/Source ย้ายไป "ลิสต์และแท็ก" ในหน้าตั้งค่าหลัก -->
         </div>
       </div>
     </div>
@@ -6865,7 +7043,7 @@
       </div>
       <div class="form-group" style="margin: 0 16px 10px;">
         <label>ราคา (บาท)</label>
-        <input type="number" id="pkg-price-input" placeholder="0">
+        <input type="number" id="pkg-price-input" min="0" placeholder="0">
       </div>
       <div class="form-group" style="margin: 0 16px 10px;">
         <label>รายละเอียด</label>
@@ -7107,14 +7285,62 @@
       <div id="list-addons"></div>
     </div>
 
-    <!-- ====== SETTINGS: JOB TYPES ====== -->
-    <div class="screen" id="screen-settings-jobtypes">
+    <!-- ====== SETTINGS: ลิสต์และแท็ก · v2.5.43 · รวม 4 หมวด ====== -->
+    <div class="screen" id="screen-settings-lists-tags">
       <div class="header">
         <button class="back" onclick="goTo('settings')">‹</button>
-        <h1>🏷 ประเภทงาน</h1>
-        <button class="icon-btn" onclick="openEdit('jobtype',-1)" style="color:#2563eb">+</button>
+        <h1><span style="margin-right:6px;">🏷️</span><span>ลิสต์และแท็ก</span></h1>
+        <button class="icon-btn" id="lt-add-btn" onclick="openEdit('jobtype',-1)" style="color:#2563eb">+</button>
       </div>
-      <div id="list-jobtypes"></div>
+
+      <div style="padding: 4px 16px 6px; font-size: 12.5px; color: #7c7066; line-height: 1.5;">
+        รวม <strong>4 หมวด</strong>ที่ใช้จัดกลุ่ม·ทำงานในแอพ · เลือกแท็บด้านล่างเพื่อแก้แต่ละหมวด
+      </div>
+
+      <div class="lt-tabs-mobile" id="lt-tabs-mobile">
+        <button class="lt-pill is-active" data-tab="jobtypes"     onclick="setListsTagsMobileTab('jobtypes')"><span class="lt-ico">🎯</span><span>ประเภท</span></button>
+        <button class="lt-pill"           data-tab="jobstatuses"  onclick="setListsTagsMobileTab('jobstatuses')"><span class="lt-ico">🏷</span><span>สถานะ</span></button>
+        <button class="lt-pill"           data-tab="sources"      onclick="setListsTagsMobileTab('sources')"><span class="lt-ico">📡</span><span>ช่องทาง</span></button>
+        <button class="lt-pill"           data-tab="expense-cats" onclick="setListsTagsMobileTab('expense-cats')"><span class="lt-ico">💸</span><span>รายจ่าย</span></button>
+      </div>
+
+      <!-- Pane: ประเภทงาน -->
+      <div id="lt-pane-jobtypes" class="lt-pane-mobile">
+        <div id="list-jobtypes"></div>
+      </div>
+
+      <!-- Pane: สถานะงาน · ของฉัน -->
+      <div id="lt-pane-jobstatuses" class="lt-pane-mobile" style="display:none;">
+        <div style="padding: 4px 16px 8px; font-size: 12.5px; color: #7c7066; line-height: 1.5;">
+          แอพมี <strong>3 สถานะหลัก</strong> ที่แก้ชื่อได้แต่ลบไม่ได้ · เพิ่ม <strong>สถานะของคุณเอง</strong>ได้
+        </div>
+        <div style="padding: 0 16px 12px;">
+          <div style="font-size:11px; color:#7c7066; text-transform:uppercase; letter-spacing:.5px; margin: 6px 4px 6px; font-weight:600;">สถานะหลัก · 3 อัน (ลบไม่ได้)</div>
+          <div id="job-status-defaults-list"></div>
+
+          <div style="font-size:11px; color:#7c7066; text-transform:uppercase; letter-spacing:.5px; margin: 16px 4px 6px; font-weight:600;">สถานะของคุณเอง</div>
+          <div id="job-status-customs-list"></div>
+
+          <button class="add-tile" onclick="openJobStatusEdit(-1)" style="margin-top:10px;">
+            <span class="add-tile-icon">+</span>
+            <span>เพิ่มสถานะใหม่</span>
+          </button>
+
+          <div style="background:#fef7eb; border:1px solid #f5e6c5; border-radius:10px; padding:10px 12px; margin-top:16px; font-size:11.5px; color:#7c4a14;">
+            💡 <strong>เคล็ดลับ:</strong> ลองเพิ่ม "ตัดต่อ" หรือ "ทำโทนสี" แล้วเลือก map กับ <strong>รอส่งงาน</strong> · งานที่ใช้สถานะนี้จะอยู่ในแท็บ "รอส่งงาน" ในหน้างาน
+          </div>
+        </div>
+      </div>
+
+      <!-- Pane: ช่องทางลูกค้า -->
+      <div id="lt-pane-sources" class="lt-pane-mobile" style="display:none;">
+        <div id="list-source"></div>
+      </div>
+
+      <!-- Pane: หมวดค่าใช้จ่าย -->
+      <div id="lt-pane-expense-cats" class="lt-pane-mobile" style="display:none;">
+        <div id="list-expense-cat"></div>
+      </div>
     </div>
 
     <!-- ====== SETTINGS: TEAM ====== -->
@@ -7128,25 +7354,7 @@
       <div id="list-team"></div>
     </div>
 
-    <!-- ====== SETTINGS: EXPENSE CATEGORIES ====== -->
-    <div class="screen" id="screen-settings-expense-cat">
-      <div class="header">
-        <button class="back" onclick="goTo('settings')">‹</button>
-        <h1><span style="margin-right:6px;">🧾</span><span data-i18n="header.expCat">หมวดค่าใช้จ่าย</span></h1>
-        <button class="icon-btn" onclick="openEdit('expcat',-1)" style="color:#2563eb">+</button>
-      </div>
-      <div id="list-expense-cat"></div>
-    </div>
-
-    <!-- ====== SETTINGS: SOURCE ====== -->
-    <div class="screen" id="screen-settings-source">
-      <div class="header">
-        <button class="back" onclick="goTo('settings')">‹</button>
-        <h1>📣 Source ลูกค้า</h1>
-        <button class="icon-btn" onclick="openEdit('source',-1)" style="color:#2563eb">+</button>
-      </div>
-      <div id="list-source"></div>
-    </div>
+    <!-- v2.5.43 · screen-settings-expense-cat + screen-settings-source removed · content moved into screen-settings-lists-tags -->
 
     <!-- ====== EDIT ITEM (universal) ====== -->
     <div class="screen" id="screen-edit-item">
@@ -7593,7 +7801,7 @@ const ADDONS = [
   {key:'qr', name:'QR หน้า Backdrop', price:3000},
   {key:'profile', name:'Profile', price:6000},
 ];
-const JOB_TYPES = ['Wedding','Pre-wedding','Engagement','Profile','Photobooth only','Video only','Other'];
+const JOB_TYPES = ['Wedding','Pre-wedding','Engagement','Portrait','Family','Event','Corporate','Product','Photobooth only','Video only','อื่นๆ'];
 const JOB_STATUSES = ['จอง','ถ่ายแล้ว','กำลังตัดต่อ','ส่งงานแล้ว','ปิดงาน']; // legacy · kept for backward compat
 const DELIVERY_STATUSES = ['ยังไม่ถ่าย','รอตัดต่อ','กำลังตัดต่อ','ส่งไฟล์แล้ว','ส่งอัลบั้มแล้ว']; // legacy · UI hidden in v2.5.0 but field preserved
 // v2.5.0 · 3 stage groups for tab filtering · all custom statuses must map to one of these
@@ -7652,7 +7860,7 @@ function getMoneyStatus(j) {
   if (paid > 0) return 'partial';                           // 🟡 มีมัดจำ · ค้าง ฿X
   return 'none';                                            // 🔴 ยังไม่ได้รับเงิน
 }
-const SOURCES = ['Facebook','Instagram DM','Website','Referral','ลูกค้าเก่ากลับมา','Walk-in','Other'];
+const SOURCES = ['Facebook','Instagram','Instagram DM','LINE','Website','เว็บไซต์','Referral','เพื่อนแนะนำ','ลูกค้าเก่ากลับมา','Walk-in','อื่นๆ'];
 const EXPENSE_CATS = ['เดินทาง','ที่พัก','อุปกรณ์ถ่าย','เช่าอุปกรณ์','ค่ากินทีม','Software/Subscription','Marketing/โฆษณา','ค่าตัดต่อจ้างนอก','อื่นๆ'];
 
 const TEAM = [];
@@ -7727,7 +7935,42 @@ function autoSetJobTypeFromService(ctx, jobType) {
 let _navStack = ['home'];
 let _navIgnorePop = false;
 
+// v2.5.43 · ลิสต์และแท็ก · consolidated screen state
+let LISTS_TAGS_MOBILE_TAB = 'jobtypes'; // 'jobtypes' | 'jobstatuses' | 'sources' | 'expense-cats'
+function setListsTagsMobileTab(tab) {
+  if (!['jobtypes','jobstatuses','sources','expense-cats'].includes(tab)) return;
+  LISTS_TAGS_MOBILE_TAB = tab;
+  // Toggle pill active class
+  document.querySelectorAll('#lt-tabs-mobile .lt-pill').forEach(p => {
+    p.classList.toggle('is-active', p.getAttribute('data-tab') === tab);
+  });
+  // Show/hide panes
+  ['jobtypes','jobstatuses','sources','expense-cats'].forEach(t => {
+    const pane = document.getElementById('lt-pane-' + t);
+    if (pane) pane.style.display = (t === tab) ? '' : 'none';
+  });
+  // Update "+" button → call the right add action for current tab
+  const addBtn = document.getElementById('lt-add-btn');
+  if (addBtn) {
+    if (tab === 'jobtypes')          addBtn.onclick = () => openEdit('jobtype', -1);
+    else if (tab === 'sources')      addBtn.onclick = () => openEdit('source', -1);
+    else if (tab === 'expense-cats') addBtn.onclick = () => openEdit('expcat', -1);
+    else if (tab === 'jobstatuses')  addBtn.onclick = () => openJobStatusEdit(-1);
+  }
+  // Re-render the appropriate list when switching tabs (ensures latest)
+  try {
+    if (tab === 'jobstatuses' && typeof renderJobStatusesSettings === 'function') renderJobStatusesSettings();
+    else if (typeof renderSettingsLists === 'function') renderSettingsLists();
+  } catch (e) { console.warn('lt re-render:', e); }
+}
+
 function goTo(name) {
+  // v2.5.43 · ลิสต์และแท็ก · BC alias — old IDs redirect to consolidated screen
+  if (name === 'settings-jobtypes')    { setListsTagsMobileTab('jobtypes');    name = 'settings-lists-tags'; }
+  else if (name === 'settings-jobstatuses'){ setListsTagsMobileTab('jobstatuses'); name = 'settings-lists-tags'; }
+  else if (name === 'settings-source') { setListsTagsMobileTab('sources');     name = 'settings-lists-tags'; }
+  else if (name === 'settings-expense-cat'){ setListsTagsMobileTab('expense-cats'); name = 'settings-lists-tags'; }
+
   // Wizard interception: while wizard is active, back to "settings" or "home" goes to wizard
   if (_wizardActive && (name === 'settings' || name === 'home')) {
     name = 'wizard';
@@ -7763,6 +8006,7 @@ function goTo(name) {
     if (typeof attachMonthSwipeGesture === 'function') attachMonthSwipeGesture();
   }
   if (name === 'settings-account') { updateAccountUI(); if (typeof updateSyncIndicatorUI === 'function') updateSyncIndicatorUI(); }
+  if (name === 'settings') { if (typeof renderShopSetupHero === 'function') renderShopSetupHero(); }
   if (name === 'jobs') { if (typeof renderJobsWithCurrentFilter === 'function') { renderJobsWithCurrentFilter(); syncJobFilterChips(); } }
   if (name === 'settings-tax') { if (typeof populateTaxSettings === 'function') { populateTaxSettings(); setupTaxToggleListener(); updateTaxHubSub(); } }
   if (name === 'tax-report')   { if (typeof renderTaxReport === 'function') renderTaxReport(); }
@@ -7773,6 +8017,12 @@ function goTo(name) {
   if (name === 'service-detail') renderServiceDetail();
   // v2.5.0 · Custom job statuses
   if (name === 'settings-jobstatuses' && typeof renderJobStatusesSettings === 'function') renderJobStatusesSettings();
+  // v2.5.43 · ลิสต์และแท็ก · ensure current tab is visible + lists are populated
+  if (name === 'settings-lists-tags') {
+    if (typeof setListsTagsMobileTab === 'function') setListsTagsMobileTab(LISTS_TAGS_MOBILE_TAB || 'jobtypes');
+    if (typeof renderSettingsLists === 'function') renderSettingsLists();
+    if (typeof renderJobStatusesSettings === 'function') renderJobStatusesSettings();
+  }
   if (name === 'settings-font-size') renderFontSizeOptions();
   if (name === 'equipment') renderEquipmentList();
   if (name.startsWith('settings')) updateSettingsSubcounts();
@@ -7794,7 +8044,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.38';
+const PIXORY_VERSION = '2.5.44';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -7805,6 +8055,23 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.43': {
+    date: '2026-05-30',
+    title: 'รวบเมนูตั้งค่า · ลิสต์และแท็กใน 1 หน้า',
+    subtitle: 'ลดเมนูที่ซ้อนซ้อน · ดูง่ายขึ้น · จัดการเร็วขึ้น',
+    items: [
+      {
+        icon: '🏷️',
+        title: 'รวม 4 หมวดเข้าเมนูเดียว · "ลิสต์และแท็ก"',
+        desc: 'ประเภทงาน · สถานะงาน · ช่องทางลูกค้า · หมวดค่าใช้จ่าย รวมในหน้าเดียวพร้อม sub-tab · เมนูตั้งค่าหลักดูน้อยลง ไม่น่ากลัว · ลิงก์เดิมที่กดจากที่อื่นก็ยัง work เหมือนเดิม'
+      },
+      {
+        icon: '✨',
+        title: 'Shop Setup ภาพรวม นับ 6 อย่าง',
+        desc: 'เพิ่ม "ลิสต์และแท็ก" ในแบบทดสอบ Shop Setup hero · ช่วยให้รู้ว่าตั้งครบหรือยัง'
+      }
+    ]
+  },
   '2.5.26': {
     date: '2026-05-29',
     title: 'ลดขั้นตอน · กด "สร้างงาน" จากใบเสนอได้เลย',
@@ -14411,6 +14678,111 @@ function updateTaxHubSub() {
   el.textContent = parts.length > 0 ? parts.join(' · ') : 'เลข 13 หลัก · VAT · ที่อยู่ออกใบกำกับ';
 }
 
+// v2.5.41 · A2 Refined · Shop Setup Hero + status badges
+function computeShopSetup() {
+  // 7 หมวด · เช็คว่าหมวดไหน "ตั้งแล้ว"
+  const items = [
+    {
+      key: 'profile',
+      label: 'ข้อมูลบริษัท',
+      done: !!(PROFILE && PROFILE.shop && PROFILE.shop.trim()),
+      goTo: 'settings-profile'
+    },
+    {
+      key: 'services',
+      label: 'บริการและราคา',
+      done: (typeof SERVICES !== 'undefined' && SERVICES && SERVICES.length > 0),
+      goTo: 'settings-hub-packages'
+    },
+    {
+      key: 'team',
+      label: 'ทีมงาน',
+      done: (typeof TEAM !== 'undefined' && TEAM && TEAM.length > 0),
+      goTo: 'settings-team'
+    },
+    {
+      key: 'finance',
+      label: 'บัญชีรับโอน',
+      done: (typeof BANKS !== 'undefined' && BANKS && BANKS.length > 0),
+      goTo: 'settings-hub-finance'
+    },
+    {
+      key: 'tax',
+      label: 'ภาษี',
+      done: !!(PROFILE && PROFILE.taxId),
+      goTo: 'settings-tax'
+    },
+    // v2.5.43 · ลิสต์และแท็ก · ครบเมื่อมี ≥1 รายการในทุก 3 หมวด (สถานะงาน auto-seeded เสมอ)
+    {
+      key: 'lists',
+      label: 'ลิสต์และแท็ก',
+      done: ((typeof JOB_TYPES !== 'undefined' && JOB_TYPES && JOB_TYPES.length > 0)
+          && (typeof SOURCES !== 'undefined' && SOURCES && SOURCES.length > 0)
+          && (typeof EXPENSE_CATS !== 'undefined' && EXPENSE_CATS && EXPENSE_CATS.length > 0)),
+      goTo: 'settings-lists-tags'
+    }
+  ];
+  const doneCount = items.filter(x => x.done).length;
+  const total = items.length;
+  const pct = Math.round((doneCount / total) * 100);
+  const next = items.find(x => !x.done) || null;
+  return { items, doneCount, total, pct, next };
+}
+
+function renderShopSetupHero() {
+  const wrap = document.getElementById('shop-setup-hero');
+  if (!wrap) return;
+  const { items, doneCount, total, pct, next } = computeShopSetup();
+
+  // Update status badges on each row
+  items.forEach(it => {
+    const el = document.querySelector('[data-setup-status="' + it.key + '"]');
+    if (el) {
+      if (it.done) {
+        el.innerHTML = '<span class="shop-badge-done" aria-label="ตั้งแล้ว">✓</span>';
+        el.classList.add('is-done');
+      } else {
+        el.innerHTML = '<span class="shop-badge-todo" aria-label="ยังไม่ตั้ง">!</span>';
+        el.classList.remove('is-done');
+      }
+    }
+  });
+
+  // Render hero card · A2 Refined style
+  if (doneCount === total) {
+    // All done · celebrate
+    wrap.innerHTML = `
+      <div class="shop-hero shop-hero--done">
+        <div class="shop-hero-kicker"><span class="dot"></span> ตั้งค่าครบแล้ว</div>
+        <div class="shop-hero-title">🎉 พร้อมใช้ Pixory เต็มที่</div>
+        <div class="shop-hero-sub">ปรับแต่งเพิ่มได้ทุกเมนู · หรือเริ่มสร้างงานเลย</div>
+        <div class="shop-hero-bottom">
+          <div class="shop-progress">
+            <div class="shop-progress-bar"><div class="shop-progress-fill" style="width:100%"></div></div>
+            <div class="shop-progress-text">${doneCount}/${total}</div>
+          </div>
+          <button class="shop-cta" onclick="goTo('home')">เริ่มงาน →</button>
+        </div>
+      </div>
+    `;
+  } else {
+    wrap.innerHTML = `
+      <div class="shop-hero">
+        <div class="shop-hero-kicker"><span class="dot"></span> ขั้นถัดไป</div>
+        <div class="shop-hero-title">เพิ่ม <span class="accent">${next.label}</span><br>ของสตูดิโอคุณ</div>
+        <div class="shop-hero-sub">ตั้ง ${total - doneCount} อย่างที่เหลือเพื่อใช้แอพเต็มที่</div>
+        <div class="shop-hero-bottom">
+          <div class="shop-progress">
+            <div class="shop-progress-bar"><div class="shop-progress-fill" style="width:${pct}%"></div></div>
+            <div class="shop-progress-text">${doneCount}/${total}</div>
+          </div>
+          <button class="shop-cta" onclick="goTo('${next.goTo}')">ทำเลย <span class="arrow">→</span></button>
+        </div>
+      </div>
+    `;
+  }
+}
+
 function saveTaxSettings() {
   const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
   PROFILE.taxId = getVal('tax-id');
@@ -16613,7 +16985,8 @@ function savePayment() {
   const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
   if (amount <= 0) { toast('กรุณากรอกจำนวนเงิน'); return; }
   if (amount > j.remain) {
-    if (!confirm('จำนวนเกินยอดคงเหลือ ' + fmt(j.remain) + '\nต้องการบันทึก ' + fmt(amount) + ' ใช่ไหม?')) return;
+    alert('⛔ จำนวนเงิน ' + fmt(amount) + ' เกินยอดคงเหลือ ' + fmt(j.remain) + '\n\nกรุณาแก้ไขก่อนบันทึก');
+    return;
   }
   const date = document.getElementById('pay-date').value || new Date().toISOString().slice(0,10);
   const note = document.getElementById('pay-note').value;
@@ -18108,7 +18481,8 @@ function saveNewQuote(status) {
   _totalCheck += parseFloat((document.getElementById('nq-extratime')||{}).value) || 0;
   const _sellCheck = Math.max(0, _totalCheck - _discCheck);
   if (_depositCheck > _sellCheck && _sellCheck > 0) {
-    if (!confirm('⚠ มัดจำ (฿' + Math.round(_depositCheck).toLocaleString() + ') มากกว่าราคาขาย (฿' + Math.round(_sellCheck).toLocaleString() + ')\n\nต้องการบันทึกอยู่หรือไม่?')) return;
+    alert('⛔ มัดจำ (฿' + Math.round(_depositCheck).toLocaleString() + ') มากกว่าราคาขาย (฿' + Math.round(_sellCheck).toLocaleString() + ')\n\nกรุณาตรวจสอบและแก้ไขก่อนบันทึก');
+    return;
   }
   const nick = (document.getElementById('nq-nick')||{}).value || '';
   const phone = document.getElementById('nq-phone').value || '';
