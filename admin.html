@@ -862,19 +862,15 @@
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_d_Pp52QFpipDvj4JlhCzNw_mBpgyEvE';
 
-// v2.2 · Admin identity · prefer custom claim · email fallback for backwards compat
+// v2.3 · Admin identity · 100% role-claim based (no email leak in source)
 // To add a new admin (one-time SQL in Supabase SQL Editor):
 //   UPDATE auth.users SET raw_app_meta_data = raw_app_meta_data || '{"role":"admin"}'::jsonb
 //   WHERE email = 'newadmin@example.com';
-// Then sign in / refresh session. Claim ships in JWT → no email leak in source.
-const ADMIN_EMAIL  = 'srangpap2023@gmail.com'; // fallback only · removable once claim is set
+// Then sign in / refresh session. Claim ships in JWT · server-set · client can't forge.
 function _isAdmin(user) {
   if (!user) return false;
-  // Primary · custom claim (server-set, can't be forged from client)
   const role = user.app_metadata && user.app_metadata.role;
-  if (role === 'admin') return true;
-  // Fallback · email match (will be removed in future version once all admins have role claim)
-  return user.email === ADMIN_EMAIL;
+  return role === 'admin';
 }
 const ONLINE_THRESHOLD_SEC = 45;
 const REFRESH_INTERVAL_MS  = 10 * 1000;
@@ -1037,18 +1033,14 @@ function enterApp(user) {
   // Avatar initial
   document.getElementById('avatar-btn').textContent = (user.email || '?').charAt(0).toUpperCase();
   document.getElementById('acc-email-display').textContent = user.email || '—';
-  // v2.2 · Show auth path badge · ให้ Joe verify ว่ามาจาก claim หรือ fallback
+  // v2.3 · Show auth verification badge
   const authBadge = document.getElementById('auth-method-badge');
   if (authBadge) {
     const role = user.app_metadata && user.app_metadata.role;
     if (role === 'admin') {
-      authBadge.textContent = '🔐 via role claim';
+      authBadge.textContent = '🔐 verified via role claim';
       authBadge.style.color = '#10b981';
-      authBadge.title = 'Admin verified via JWT app_metadata.role · ปลอดภัย · พร้อมลบ email fallback';
-    } else if (user.email === ADMIN_EMAIL) {
-      authBadge.textContent = '⚠️ via email fallback';
-      authBadge.style.color = '#f59e0b';
-      authBadge.title = 'Admin verified via hardcoded email · run SQL ใน Supabase แล้ว relogin';
+      authBadge.title = 'Admin verified via JWT app_metadata.role · server-set · ปลอดภัย';
     } else {
       authBadge.textContent = '';
     }
