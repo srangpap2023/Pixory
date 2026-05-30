@@ -2862,7 +2862,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.31';
+const PIXORY_DESKTOP_VERSION = '1.0.32';
 
 // ===== Supabase config (must match mobile) =====
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
@@ -3478,6 +3478,8 @@ function applyDataBlob(blob) {
   // === FIX C · Migrate · ensure PROFILE.jobStatuses รวม custom labels จาก JOBS ===
   // ตรงกับ mobile v2.5.12 · ป้องกัน dropdown สถานะงาน reset ค่าเดิมตอน edit
   try { _ensureProfileJobStatuses(); } catch(e) { console.warn('jobStatuses migration:', e); }
+  // v1.0.32 · Auto-advance status: wait_shoot → wait_deliver after shoot date + 1 day @ 05:00
+  try { autoAdvanceWaitShootJobs(); } catch(e) { console.warn('auto-advance:', e); }
 }
 
 function _ensureProfileJobStatuses() {
@@ -4704,6 +4706,48 @@ function getStageFromJobStatus(label) {
   const list = (PROFILE.jobStatuses && PROFILE.jobStatuses.length) ? PROFILE.jobStatuses : DEFAULT_JOB_STATUSES;
   const found = list.find(s => s.label === label);
   return found ? found.stage : 'wait_shoot';
+}
+
+// v1.0.32 · parity with mobile · returns true if "shoot date + 1 day at 05:00 local time" has passed
+function jobShootDatePassed(j) {
+  if (!j || !j.date) return false;
+  const shoot = new Date(j.date);
+  if (isNaN(shoot.getTime())) return false;
+  shoot.setDate(shoot.getDate() + 1);
+  shoot.setHours(5, 0, 0, 0);
+  return Date.now() >= shoot.getTime();
+}
+
+// v1.0.32 · Auto-advance status: wait_shoot → wait_deliver after shoot date + 1 day @ 05:00
+// Runs on data load + after cloud sync · idempotent · same logic as mobile autoAdvanceWaitShootJobs() L:11515
+function autoAdvanceWaitShootJobs() {
+  if (!Array.isArray(JOBS) || JOBS.length === 0) return;
+  const list = (PROFILE && Array.isArray(PROFILE.jobStatuses) && PROFILE.jobStatuses.length) ? PROFILE.jobStatuses : DEFAULT_JOB_STATUSES;
+  const defaultDeliver = list.find(s => s.isDefault && s.stage === 'wait_deliver');
+  if (!defaultDeliver) return;
+  let advancedCount = 0;
+  const advancedNames = [];
+  JOBS.forEach(j => {
+    if (!j || !j.date) return;
+    const stage = getStageFromJobStatus(j.jobStatus);
+    if (stage !== 'wait_shoot') return;
+    if (!jobShootDatePassed(j)) return;
+    j._previousJobStatus = j.jobStatus;
+    j._autoAdvancedAt = new Date().toISOString();
+    j.jobStatus = defaultDeliver.label;
+    advancedCount++;
+    if (advancedNames.length < 3) advancedNames.push(j.customer || j.code || '?');
+  });
+  if (advancedCount > 0) {
+    if (typeof saveData === 'function') saveData();
+    console.log('[Pixory desktop v1.0.32] Auto-advanced ' + advancedCount + ' job(s) to ' + defaultDeliver.label);
+    setTimeout(() => {
+      try {
+        const more = advancedCount > 3 ? ' +' + (advancedCount - 3) + ' อื่น' : '';
+        if (typeof toast === 'function') toast('✨ ย้าย ' + advancedCount + ' งานเป็น "' + defaultDeliver.label + '" อัตโนมัติ (วันถ่ายผ่านแล้ว) · ' + advancedNames.join(', ') + more, 'info');
+      } catch(e) {}
+    }, 1500);
+  }
 }
 
 // ===================================================================
