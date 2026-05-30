@@ -1150,6 +1150,34 @@
   .pill-paid { background: var(--green-bg); color: var(--green); }
   .pill-deposit { background: var(--yellow-bg); color: var(--yellow); }
   .pill-unpaid { background: #f3f4f6; color: #6b7280; }
+  /* v1.0.35 · Team finalization · warm amber (light) · gold tint (Luxe via inline overrides at theme block) */
+  .pill-team-warn { background: #fef3c7; color: #92400e; font-weight: 600; }
+  .team-final-box { display:flex; align-items:center; gap:10px; margin-top:12px; padding:10px 12px; background:#fef7e6; border:0.5px solid rgba(245,158,11,0.32); border-left:3px solid #d97706; border-radius:10px; cursor:pointer; font-size:13px; line-height:1.4; transition:background 0.15s; }
+  .team-final-box.is-checked { background:#ecfdf5; border-left-color:#10b981; border-color:rgba(16,185,129,0.30); }
+  .team-final-box .tfb-title { font-weight:600; color:#92400e; }
+  .team-final-box.is-checked .tfb-title { color:#065f46; }
+  .team-final-box .tfb-hint { display:block; font-size:11.5px; color:#a16207; margin-top:2px; }
+  .team-final-box.is-checked .tfb-hint { color:#0d7355; }
+  .team-warn-banner { display:flex; align-items:center; gap:10px; padding:12px 14px; background:#fef3c7; border-left:3px solid #d97706; border-radius:10px; margin:12px 0; font-size:13px; line-height:1.4; }
+  .team-warn-banner .tw-info { flex:1; min-width:0; }
+  .team-warn-banner .tw-title { font-weight:600; color:#92400e; }
+  .team-warn-banner .tw-hint { display:block; font-size:11.5px; color:#a16207; margin-top:1px; }
+  .team-warn-banner .tw-action { flex-shrink:0; padding:6px 12px; font-size:12px; font-weight:600; background:#10b981; color:#fff; border:0; border-radius:8px; cursor:pointer; }
+  .team-warn-banner.is-final { background:#ecfdf5; border-left-color:#10b981; }
+  .team-warn-banner.is-final .tw-title { color:#065f46; }
+  .team-warn-banner.is-final .tw-hint { color:#0d7355; }
+  /* Luxe theme overrides · warm gold tones · ไม่ใช้แอมเบอร์เย็น · match Crail palette */
+  html[data-theme="luxe"] .pill-team-warn { background:rgba(216,160,86,0.18) !important; color:#F2E0BA !important; }
+  html[data-theme="luxe"] .team-final-box { background:rgba(216,160,86,0.10) !important; border-color:rgba(216,160,86,0.30) !important; border-left-color:#D4A056 !important; }
+  html[data-theme="luxe"] .team-final-box .tfb-title { color:#F2E0BA !important; }
+  html[data-theme="luxe"] .team-final-box .tfb-hint { color:#A89A8C !important; }
+  html[data-theme="luxe"] .team-final-box.is-checked { background:rgba(134,239,172,0.10) !important; border-color:rgba(134,239,172,0.30) !important; border-left-color:#86efac !important; }
+  html[data-theme="luxe"] .team-final-box.is-checked .tfb-title { color:#86efac !important; }
+  html[data-theme="luxe"] .team-warn-banner { background:rgba(216,160,86,0.10) !important; border-left-color:#D4A056 !important; }
+  html[data-theme="luxe"] .team-warn-banner .tw-title { color:#F2E0BA !important; }
+  html[data-theme="luxe"] .team-warn-banner .tw-hint { color:#A89A8C !important; }
+  html[data-theme="luxe"] .team-warn-banner.is-final { background:rgba(134,239,172,0.10) !important; border-left-color:#86efac !important; }
+  html[data-theme="luxe"] .team-warn-banner.is-final .tw-title { color:#86efac !important; }
 
   /* Tabs */
   .tab-row {
@@ -2862,7 +2890,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.32';
+const PIXORY_DESKTOP_VERSION = '1.0.35';
 
 // ===== Supabase config (must match mobile) =====
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
@@ -3963,14 +3991,27 @@ function renderDashboard(root) {
   const pendingTotal = allPending.reduce((s,j) => s + Math.max(0, (j.sell||0) - (j.deposit||0)), 0);
   const pendingCustomers = new Set(allPending.map(j => j.customer)).size;
 
-  // This week closed
-  const weekAgo = _addDays(new Date(), -7).toISOString().slice(0,10);
-  const weekClosed = JOBS.filter(j => {
-    if (getStageFromJobStatus(j.jobStatus) !== 'closed') return false;
-    const recent = (j.payments || []).some(p => p.date && p.date >= weekAgo);
-    return recent;
+  // v1.0.34 · Cash inflow this month vs last month (replaces confusing "ปิดสัปดาห์นี้")
+  // sum payment.amount where payment.date in current month / previous month
+  const _now = new Date();
+  const _curMonth = _now.getMonth();
+  const _curYear = _now.getFullYear();
+  const _lastMonth = _curMonth === 0 ? 11 : _curMonth - 1;
+  const _lastMonthYear = _curMonth === 0 ? _curYear - 1 : _curYear;
+  let monthCashIn = 0, lastMonthCashIn = 0, monthPayCount = 0;
+  JOBS.forEach(j => {
+    (j.payments || []).forEach(p => {
+      if (!p || !p.date) return;
+      const d = new Date(p.date);
+      if (isNaN(d.getTime())) return;
+      const m = d.getMonth(), y = d.getFullYear();
+      const amt = Number(p.amount) || 0;
+      if (m === _curMonth && y === _curYear) { monthCashIn += amt; monthPayCount++; }
+      else if (m === _lastMonth && y === _lastMonthYear) { lastMonthCashIn += amt; }
+    });
   });
-  const weekClosedSum = weekClosed.reduce((s,j) => s + (Number(j.sell)||0), 0);
+  const monthGrowthPct = lastMonthCashIn > 0 ? Math.round(((monthCashIn - lastMonthCashIn) / lastMonthCashIn) * 100) : (monthCashIn > 0 ? 100 : 0);
+  const monthLabel = TH_MONTHS_FULL[_curMonth].slice(0, 3) + '.'; // ม.ค./ก.พ./...
 
   // YTD income + margin
   const yearJobs = JOBS.filter(j => j.date && new Date(j.date).getFullYear() === yr);
@@ -4012,26 +4053,34 @@ function renderDashboard(root) {
     }
   }
 
-  // 7-day trend
-  const trend = _weeklyTrend();
-  const trendMax = Math.max(...trend.map(d => d.sum), 1);
-  const trendTotal = trend.reduce((s,d) => s + d.sum, 0);
-  const trendPrev7 = JOBS.reduce((s,j) => s + ((j.payments||[]).filter(p => {
-    if (!p.date) return false;
-    const days = _daysBetween(p.date, today);
-    return days >= 8 && days <= 14;
-  }).reduce((ss,p) => ss + (Number(p.amount)||0), 0)), 0);
-  const trendDelta = trendPrev7 > 0 ? ((trendTotal - trendPrev7) / trendPrev7 * 100) : 0;
-
-  // Sparkline path
-  const sparkW = 200, sparkH = 50;
-  const points = trend.map((d, i) => {
-    const x = (i / 6) * sparkW;
-    const y = sparkH - (d.sum / trendMax) * (sparkH - 8) - 4;
-    return x.toFixed(1) + ',' + y.toFixed(1);
+  // v1.0.34 · Pending quotes (รอตอบ + ใกล้หมดอายุ) — replaces 7-day income chart
+  // pending = status pending/draft · not converted · not rejected · not expired
+  const _todayIso = new Date().toISOString().slice(0, 10);
+  const pendingQuotes = (QUOTES || []).filter(q => {
+    const s = q && q.status;
+    if (s === 'converted' || s === 'rejected') return false;
+    if (q && q.dateExpire && q.dateExpire < _todayIso) return false; // expired
+    return s === 'pending' || s === 'draft' || s === 'approved' || !s;
   });
-  const polyline = points.join(' ');
-  const polyArea = points.join(' L ') + ' L ' + sparkW + ',' + sparkH + ' L 0,' + sparkH + ' Z';
+  // Sort by days since sent (oldest first · most urgent)
+  pendingQuotes.sort((a, b) => {
+    const ad = a && a.dateSent ? a.dateSent : '';
+    const bd = b && b.dateSent ? b.dateSent : '';
+    return ad.localeCompare(bd); // ascending · oldest first
+  });
+  const pendingTopQuotes = pendingQuotes.slice(0, 5);
+  const pendingQuoteSum = pendingQuotes.reduce((s, q) => s + (Number(q.sell) || 0), 0);
+  // Days since sent · expiry warning
+  const _daysAgo = (iso) => {
+    if (!iso) return 0;
+    const d = new Date(iso); if (isNaN(d.getTime())) return 0;
+    return Math.floor((Date.now() - d.getTime()) / 86400000);
+  };
+  const _daysUntilExpire = (iso) => {
+    if (!iso) return null;
+    const d = new Date(iso); if (isNaN(d.getTime())) return null;
+    return Math.floor((d.getTime() - Date.now()) / 86400000);
+  };
 
   // Todos
   const todos = _deriveTodos().slice(0, 6);
@@ -4088,10 +4137,16 @@ function renderDashboard(root) {
       </div>
 
       <!-- 4 mini KPI cards 3×1 each -->
+      <!-- v1.0.34 · Cash inflow this month + MoM trend (replaces "ปิดสัปดาห์นี้" which conflated closed status + recent payment) -->
       <div style="grid-column:span 3;background:linear-gradient(135deg, #dcfce7, #f0fdf4);border-left:4px solid var(--green);padding:18px 20px;border-radius:18px;">
-        <div style="font-size:11px;color:var(--ink-mute);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">✅ ปิดสัปดาห์นี้</div>
-        <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:34px;color:var(--green);line-height:1;margin-top:6px;">${weekClosed.length}</div>
-        <div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">งาน · รวม ${fmtTHB(weekClosedSum)}</div>
+        <div style="font-size:11px;color:var(--ink-mute);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;justify-content:space-between;">
+          <span>💰 เงินเข้า ${escapeHtml(monthLabel)}</span>
+          ${monthGrowthPct !== 0 ? `<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;background:${monthGrowthPct > 0 ? 'rgba(34,197,94,0.18)' : 'rgba(220,38,38,0.18)'};color:${monthGrowthPct > 0 ? 'var(--green)' : '#dc2626'};">${monthGrowthPct > 0 ? '↑' : '↓'} ${Math.abs(monthGrowthPct)}%</span>` : ''}
+        </div>
+        <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:30px;color:var(--green);line-height:1;margin-top:6px;display:flex;align-items:baseline;gap:4px;">
+          <span style="font-weight:500;font-size:18px;opacity:0.7;">฿</span><span>${monthCashIn >= 1000000 ? (monthCashIn/1000000).toFixed(2) + 'M' : (monthCashIn/1000).toFixed(1) + 'K'}</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">${monthPayCount} รายการรับเงิน · vs เดือนก่อน ${fmtTHB(lastMonthCashIn)}</div>
       </div>
 
       <div style="grid-column:span 3;background:linear-gradient(135deg, #fef3c7, #fefce8);border-left:4px solid var(--yellow);padding:18px 20px;border-radius:18px;cursor:pointer;" onclick="navigate('jobs')">
@@ -4132,26 +4187,36 @@ function renderDashboard(root) {
         </div>
       </div>
 
-      <!-- TREND 6x1 -->
-      <div style="grid-column:span 6;background:white;border-radius:18px;padding:18px 22px;box-shadow:0 4px 14px rgba(217,119,87,0.08);">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+      <!-- v1.0.34 · QUOTES PIPELINE 6x1 · replaces 7-day chart (Joe report 30 พ.ค. "lumpy + +0% noise") -->
+      <div style="grid-column:span 6;background:white;border-radius:18px;padding:18px 22px;box-shadow:0 4px 14px rgba(217,119,87,0.08);cursor:pointer;" onclick="navigate('quotes')">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
           <div>
-            <div style="font-size:11px;font-weight:700;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.1em;">📈 รายรับ 7 วันล่าสุด</div>
-            <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:22px;margin-top:4px;">${fmtTHB(trendTotal)}</div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.1em;">📝 ใบเสนอ · รอตอบ + ใกล้หมดอายุ</div>
+            <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:22px;margin-top:4px;">${pendingQuotes.length} <span style="font-size:13px;font-weight:500;color:var(--ink-mute);">ใบ · ฿${pendingQuoteSum >= 1000000 ? (pendingQuoteSum/1000000).toFixed(2) + 'M' : (pendingQuoteSum/1000).toFixed(0) + 'K'}</span></div>
           </div>
-          <div style="background:${trendDelta >= 0 ? 'var(--green-bg)' : 'var(--red-bg)'};color:${trendDelta >= 0 ? 'var(--green)' : 'var(--red)'};padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;">${trendDelta >= 0 ? '↗' : '↘'} ${trendDelta >= 0 ? '+' : ''}${trendDelta.toFixed(0)}%</div>
+          ${pendingQuotes.length === 0 ? '<div style="background:var(--green-bg);color:var(--green);padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;">✓ เคลียร์หมด</div>' : ''}
         </div>
-        <svg viewBox="0 0 ${sparkW} ${sparkH}" preserveAspectRatio="none" style="width:100%;height:50px;">
-          <defs><linearGradient id="dash-spark" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#D97757" stop-opacity="0.4"/>
-            <stop offset="100%" stop-color="#D97757" stop-opacity="0"/>
-          </linearGradient></defs>
-          <path d="M ${polyArea}" fill="url(#dash-spark)"/>
-          <polyline points="${polyline}" fill="none" stroke="#B85A3D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:6px;font-size:10px;color:var(--ink-mute);text-align:center;font-weight:600;">
-          ${trend.map(d => `<div>${escapeHtml(d.label)}</div>`).join('')}
-        </div>
+        ${pendingQuotes.length === 0
+          ? `<div style="text-align:center;padding:18px 0;color:var(--ink-mute);font-size:12.5px;">🎉 ทุกใบเสนอตอบแล้ว · พร้อมรับใบเสนอใหม่</div>`
+          : `<div style="display:flex;flex-direction:column;gap:6px;">
+              ${pendingTopQuotes.map(q => {
+                const daysAgo = _daysAgo(q.dateSent);
+                const daysExp = _daysUntilExpire(q.dateExpire);
+                const expWarn = (daysExp != null && daysExp <= 3);
+                const urgency = expWarn ? 'red' : (daysAgo >= 7 ? 'yellow' : 'ink-mute');
+                const urgencyColor = expWarn ? 'var(--red)' : (daysAgo >= 7 ? '#d97706' : 'var(--ink-soft)');
+                const urgencyText = expWarn ? `⚠ หมดอายุใน ${daysExp} วัน` : (daysAgo >= 7 ? `⏳ ${daysAgo} วันแล้ว · ใกล้หมด` : `⏳ ${daysAgo} วันแล้ว`);
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-radius:8px;background:rgba(247,244,239,0.5);">
+                  <div style="min-width:0;flex:1;">
+                    <div style="font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(q.customer || '-')}</div>
+                    <div style="font-size:10.5px;color:${urgencyColor};margin-top:1px;">${urgencyText}</div>
+                  </div>
+                  <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:13px;color:var(--brand-dark);margin-left:8px;white-space:nowrap;">${fmtTHB(q.sell || 0)}</div>
+                </div>`;
+              }).join('')}
+              ${pendingQuotes.length > 5 ? `<div style="font-size:11px;color:var(--ink-mute);text-align:center;margin-top:4px;">+ อีก ${pendingQuotes.length - 5} ใบ · กดเพื่อดูทั้งหมด</div>` : ''}
+            </div>`
+        }
       </div>
 
       <!-- GOAL 6x1 -->
@@ -4520,7 +4585,7 @@ function openDayDetail(iso) {
                       <div style="font-size:12.5px;">${escapeHtml(sessLabel)}${multiBadge}</div>
                       ${locText ? `<div style="font-size:11px; color:var(--ink-mute); margin-top:2px;">${escapeHtml(locText)}</div>` : ''}
                     </td>
-                    <td><span class="pill pill-${getStageFromJobStatus(j.jobStatus)}">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span></td>
+                    <td><span class="pill pill-${getStageFromJobStatus(j.jobStatus)}">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span>${j.teamStatus === 'incomplete' && getStageFromJobStatus(j.jobStatus) !== 'closed' ? ` <span class="pill pill-team-warn">${escapeHtml(t('job.teamWarnPill'))}</span>` : ''}</td>
                     <td class="amount-cell">${fmtTHB(j.sell)}</td>
                     <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-weight:${remain === 0 ? 600 : 400};">${remain > 0 ? fmtTHB(remain) : t('money.paidShort')}</td>
                   </tr>`;
@@ -4635,7 +4700,7 @@ function renderJobsTable() {
               <td><strong>${escapeHtml(j.customer || '-')}</strong></td>
               <td${tooltip ? ` title="${escapeHtml(tooltip)}"` : ''}>${dateChips}</td>
               <td>${escapeHtml(j.type || '-')}</td>
-              <td><span class="pill pill-${getStageFromJobStatus(j.jobStatus)}">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span></td>
+              <td><span class="pill pill-${getStageFromJobStatus(j.jobStatus)}">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span>${j.teamStatus === 'incomplete' && getStageFromJobStatus(j.jobStatus) !== 'closed' ? ` <span class="pill pill-team-warn">${escapeHtml(t('job.teamWarnPill'))}</span>` : ''}</td>
               <td class="amount-cell">${fmtTHB(j.sell)}</td>
               <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-weight:${remain === 0 ? 600 : 400};">${remain > 0 ? fmtTHB(remain) : t('money.paidShort')}</td>
             </tr>`;
@@ -4689,7 +4754,7 @@ function renderJobsCards() {
           })()}
 
           <div class="bottom-row">
-            <span class="pill pill-${stage}" style="font-size:10px;">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span>
+            <span class="pill pill-${stage}" style="font-size:10px;">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span>${j.teamStatus === 'incomplete' && stage !== 'closed' ? ` <span class="pill pill-team-warn" style="font-size:10px;">${escapeHtml(t('job.teamWarnPill'))}</span>` : ''}
             <div style="text-align:right;">
               <div class="price">${fmtTHB(j.sell)}</div>
               ${remain > 0 ? `<div class="remain" style="color:var(--yellow);">เหลือ ${fmtTHB(remain)}</div>` : `<div class="remain" style="color:var(--green);">${t('money.paidShort')}</div>`}
@@ -6575,7 +6640,7 @@ function renderCustomerDetailHtml(name) {
                       <td class="code-cell">${escapeHtml(j.code || '-')}</td>
                       <td>${_renderJobDateChips(j)}</td>
                       <td>${escapeHtml(j.type || '-')}</td>
-                      <td><span class="pill pill-${getStageFromJobStatus(j.jobStatus)}">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span></td>
+                      <td><span class="pill pill-${getStageFromJobStatus(j.jobStatus)}">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span>${j.teamStatus === 'incomplete' && getStageFromJobStatus(j.jobStatus) !== 'closed' ? ` <span class="pill pill-team-warn">${escapeHtml(t('job.teamWarnPill'))}</span>` : ''}</td>
                       <td class="amount-cell">${fmtTHB(j.sell)}</td>
                       <td class="amount-cell" style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-weight:${remain === 0 ? 600 : 400};">${remain > 0 ? fmtTHB(remain) : t('money.paidShort')}</td>
                     </tr>`;
@@ -6913,6 +6978,15 @@ const I18N = {
     'lists.tab.jobstatuses': 'สถานะงาน',
     'lists.tab.sources':     'ช่องทางลูกค้า',
     'lists.tab.expenseCats': 'หมวดค่าใช้จ่าย',
+    // v1.0.35 · Team finalization feature
+    'job.teamFinalTitle':    'ทีมครบแล้ว',
+    'job.teamFinalHint':     'ติ๊กเมื่อจัดทีมเรียบร้อย · ไม่ติ๊ก = หาทีมเพิ่มทีหลัง',
+    'job.teamFinalDone':     'ทีมครบแล้ว · พร้อมถ่าย',
+    'job.teamWarnTitle':     'ทีมยังไม่ครบ',
+    'job.teamWarnHint':      'เลือกทีมเพิ่ม หรือกดยืนยันเมื่อครบ',
+    'job.teamWarnPill':      '⚠ ทีมยังไม่ครบ',
+    'job.teamWarnAction':    '✓ ครบแล้ว',
+    'toast.teamFinalized':   '✓ ทีมครบแล้ว',
 
     // v1.0.30 · Phase 3 · render functions sweep
     // Empty states
@@ -7068,6 +7142,15 @@ const I18N = {
     'lists.tab.jobstatuses': 'Statuses',
     'lists.tab.sources':     'Lead Sources',
     'lists.tab.expenseCats': 'Expense Cats',
+    // v1.0.35 · Team finalization feature
+    'job.teamFinalTitle':    'Team finalized',
+    'job.teamFinalHint':     'Tick when team locked · untick = team TBD',
+    'job.teamFinalDone':     'Team finalized · ready to shoot',
+    'job.teamWarnTitle':     'Team not finalized',
+    'job.teamWarnHint':      'Pick more team · or confirm when ready',
+    'job.teamWarnPill':      '⚠ Team TBD',
+    'job.teamWarnAction':    '✓ Done',
+    'toast.teamFinalized':   '✓ Team finalized',
 
     // v1.0.30 · Phase 3 · render functions sweep
     // Empty states
@@ -9422,6 +9505,7 @@ const FORM_STATE = {
     costs: [],           // Job: [{id, name, desc, price, category, slot?}] · WITH category
     team: new Set(),     // Set of names
     teamWages: {},       // { name: wage }
+    teamFinal: false,    // v1.0.35 · explicit "ทีมครบแล้ว" checkbox state
     editing: null,
     custCounter: 0,
     costCounter: 0,
@@ -9443,7 +9527,7 @@ function resetFormState(ctx) {
   } else {
     FORM_STATE.add = {
       selected: {}, addons: {}, sessions: [], custom: [], costs: [],
-      team: new Set(), teamWages: {},
+      team: new Set(), teamWages: {}, teamFinal: false,
       editing: null, custCounter: 0, costCounter: 0,
       customerType: 'B2C', taxOn: false, taxTouched: false,
       taxOpts: { includeVat: false, vatRate: 7, includeWht: false, whtRate: 3, whtBasis: 'base' }
@@ -10049,13 +10133,32 @@ function renderFormBody(ctx, item) {
 }
 
 function renderJobOnlyTeamSection(j) {
+  const st = FORM_STATE.add;
+  const isFinal = !!st.teamFinal;
   return `
     <div class="form-section">
       <div class="form-section-title">👥 ทีมงาน</div>
       <div id="add-team-chips" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
       <div id="add-team-wages" style="margin-top:8px;"></div>
+      <label id="add-team-final-box" class="team-final-box ${isFinal ? 'is-checked' : ''}">
+        <input type="checkbox" id="add-team-final" ${isFinal ? 'checked' : ''} style="width:18px;height:18px;cursor:pointer;flex-shrink:0;" onchange="onTeamFinalToggleDesktop()">
+        <span style="min-width:0;">
+          <strong class="tfb-title">${escapeHtml(t('job.teamFinalTitle'))}</strong>
+          <span class="tfb-hint">${escapeHtml(t('job.teamFinalHint'))}</span>
+        </span>
+      </label>
     </div>
   `;
+}
+
+// v1.0.35 · Toggle visual state of team-final box + persist to FORM_STATE
+function onTeamFinalToggleDesktop() {
+  const cb = document.getElementById('add-team-final');
+  const box = document.getElementById('add-team-final-box');
+  if (!cb || !box) return;
+  FORM_STATE.add.teamFinal = !!cb.checked;
+  if (cb.checked) box.classList.add('is-checked');
+  else box.classList.remove('is-checked');
 }
 
 // ===================================================================
@@ -10847,6 +10950,8 @@ function openJobModal(code) {
     }
     if (Array.isArray(j.team)) st.team = new Set(j.team);
     if (j.teamWages) st.teamWages = JSON.parse(JSON.stringify(j.teamWages));
+    // v1.0.35 · Restore team finalization · legacy jobs (undefined) treated as finalized · no warning flood
+    st.teamFinal = (j.teamStatus === 'incomplete') ? false : true;
     // === MIGRATION · ดึง j.loc (legacy/top-level) เข้า sessions[0].loc ถ้าว่าง ===
     // ตรงกับ mobile v2.5.2 · ป้องกัน sync แล้วสถานที่หายจากการ์ด/edit modal
     if (st.sessions.length > 0 && !st.sessions[0].loc && j.loc && j.loc !== '-') {
@@ -10990,6 +11095,11 @@ function toggleTeamMember(name) {
 
 function updateTeamWage(name, val) {
   FORM_STATE.add.teamWages[name] = val;
+  // v1.0.33 · trigger live recompute · "ค่าแรงทีม (รวมอัตโนมัติ)" updates while typing
+  // Don't call renderTeamUI() · would steal focus from the input · only refresh summary card
+  if (typeof updateFormSummary === 'function') {
+    try { updateFormSummary('add'); } catch (e) { console.warn('updateFormSummary:', e); }
+  }
 }
 
 // ===== Save Job =====
@@ -11106,6 +11216,8 @@ async function saveJob() {
     source: (document.getElementById('add-source')?.value) || (SOURCES[SOURCES.length - 1] || 'อื่นๆ'),
     fromQuote: existing?.fromQuote,
     team, teamWages, teamCost,
+    // v1.0.35 · Team finalization status from checkbox
+    teamStatus: (FORM_STATE.add.teamFinal ? 'finalized' : 'incomplete'),
     travelCost: existing?.travelCost || 0,
     otherCost: existing?.otherCost || 0,
     billableCosts: existing?.billableCosts || [],
@@ -11242,6 +11354,17 @@ function renderJobDetailHtml(j) {
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
+
+      ${(j.teamStatus === 'incomplete' && stage !== 'closed') ? `
+      <!-- v1.0.35 · Team finalization banner · 1-click mark complete -->
+      <div id="job-team-warn-banner" class="team-warn-banner">
+        <span style="font-size:18px;">⚠️</span>
+        <div class="tw-info">
+          <strong class="tw-title">${escapeHtml(t('job.teamWarnTitle'))}</strong>
+          <span class="tw-hint">${escapeHtml(t('job.teamWarnHint'))}</span>
+        </div>
+        <button class="tw-action" onclick="markTeamFinal('${escapeHtml(j.code)}')">${escapeHtml(t('job.teamWarnAction'))}</button>
+      </div>` : ''}
 
       <!-- 🎯 STATUS CARD · current stage + next action CTA -->
       <div style="border-radius:16px;padding:20px 22px;background:${sc.bg};border:2px solid ${sc.border};box-shadow:0 4px 16px rgba(0,0,0,0.06);margin-bottom:14px;">
@@ -11605,6 +11728,19 @@ function renderExtraItemsListInline(doc) {
 }
 
 // Quick change job status to specific stage (auto-pick default label of that stage)
+// v1.0.35 · One-click mark team finalized · called from job detail banner button
+async function markTeamFinal(code) {
+  const j = (JOBS || []).find(x => x.code === code);
+  if (!j) return;
+  j.teamStatus = 'finalized';
+  if (typeof saveData === 'function') await saveData();
+  if (typeof toast === 'function') toast(t('toast.teamFinalized', '✓ ทีมครบแล้ว'), 'success');
+  // Re-render detail modal to reflect new state
+  if (typeof openModalWithHtml === 'function') openModalWithHtml(renderJobDetailHtml(j));
+  // Re-render jobs list if currently visible
+  if (CURRENT_PAGE === 'jobs' && typeof renderJobs === 'function') renderJobs(document.getElementById('main'));
+}
+
 async function quickChangeJobStatus(code, targetStage) {
   const j = JOBS.find(x => x.code === code);
   if (!j) return;
