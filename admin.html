@@ -805,6 +805,16 @@
       </div>
     </div>
 
+    <!-- v2.6 · Broadcast push to users -->
+    <div class="panel">
+      <div class="panel-title">📣 ประกาศถึงผู้ใช้ (Push) <span style="font-size:11px;color:var(--muted);font-weight:400;">· เฉพาะคนที่เปิด push</span></div>
+      <input type="text" id="bc-title" maxlength="80" placeholder="หัวข้อ · เช่น Pixory v2.5.67 มาแล้ว 🎉" autocomplete="off" style="width:100%;padding:9px 12px;background:#241b15;border:1px solid #3a2e24;border-radius:10px;color:#F2E0BA;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:8px;" />
+      <textarea id="bc-body" rows="3" maxlength="300" placeholder="ข้อความที่จะเด้งหาผู้ใช้…" style="width:100%;padding:9px 12px;background:#241b15;border:1px solid #3a2e24;border-radius:10px;color:#F2E0BA;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;resize:vertical;margin-bottom:8px;"></textarea>
+      <input type="text" id="bc-url" maxlength="200" placeholder="ลิงก์เมื่อกด (ไม่บังคับ · เช่น /?whatsnew)" autocomplete="off" style="width:100%;padding:9px 12px;background:#241b15;border:1px solid #3a2e24;border-radius:10px;color:#F2E0BA;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;" />
+      <button class="btn-primary" id="bc-send" onclick="sendBroadcast()" style="margin-top:10px;">📣 ส่งประกาศ</button>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;">⚠️ ส่งบ่อยเกินไป = คนปิด push หรือลบแอป · ใช้ตอนสำคัญจริงๆ (เวอร์ชันใหม่ · โปรโมชัน · แจ้งระบบ)</div>
+    </div>
+
     <div class="panel">
       <div class="panel-title">⚙ บัญชี</div>
       <div class="settings-row" style="border-bottom:none;">
@@ -943,6 +953,31 @@ let _currentTab = 'home';
 let _currentUserFilter = 'all';
 let _userSearch = '';  // v2.6 · text search in Users view
 function onUserSearch(v) { _userSearch = String(v || '').trim().toLowerCase(); renderUsersView(_lastUsers || []); }
+
+// v2.6 · Broadcast push to all users · calls Edge Function admin_broadcast (auth via current admin JWT)
+async function sendBroadcast() {
+  const title = (document.getElementById('bc-title').value || '').trim();
+  const body = (document.getElementById('bc-body').value || '').trim();
+  const url = (document.getElementById('bc-url').value || '').trim();
+  if (!title || !body) { alert('ใส่หัวข้อและข้อความก่อนส่ง'); return; }
+  const recip = (_lastUsers || []).filter(u => u.pushEnabled).length;
+  if (!confirm('📣 ส่งประกาศนี้ถึงผู้ใช้ที่เปิด push (~' + recip + ' คน)?\n\n' + title + '\n' + body)) return;
+  const btn = document.getElementById('bc-send');
+  btn.disabled = true; btn.textContent = 'กำลังส่ง...';
+  try {
+    const { data, error } = await SUPABASE.functions.invoke('admin_broadcast', { body: { title, body, url } });
+    if (error) throw error;
+    if (data && data.error) throw new Error(data.error);
+    const s = data && data.summary;
+    alert(s ? ('✓ ส่งสำเร็จ ' + s.sent + '/' + s.total + ' เครื่อง' + (s.removed ? ' · ลบ sub ตาย ' + s.removed : '')) : '✓ ส่งแล้ว');
+    document.getElementById('bc-body').value = '';
+    document.getElementById('bc-url').value = '';
+  } catch (e) {
+    alert('ส่งไม่สำเร็จ: ' + (e.message || e) + '\n\n(ถ้ายังไม่ได้ deploy Edge Function "admin_broadcast" ใน Supabase จะส่งไม่ได้)');
+  } finally {
+    btn.disabled = false; btn.textContent = '📣 ส่งประกาศ';
+  }
+}
 
 // ============ NOTIF PREFS ============
 function loadNotifPrefs() {
