@@ -5215,7 +5215,8 @@
       </div>
 
       <div class="action-grid">
-        <div class="act" onclick="goToQuote()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-jobs)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M26 14 L54 14 L66 26 L66 70 Q66 74 62 74 L26 74 Q22 74 22 70 L22 18 Q22 14 26 14 Z" fill="#fff"/><line x1="30" y1="38" x2="58" y2="38" stroke="#f5a623" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="48" x2="50" y2="48" stroke="#f5a623" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="30" y1="58" x2="58" y2="58" stroke="#f5a623" stroke-width="3" stroke-linecap="round" opacity="0.7"/></svg></span><span class="lbl" data-i18n="job.quote">ใบเสนอราคา</span></div>
+        <!-- v2.5.65 · removed "ใบเสนอราคา" (goToQuote · phantom quote-from-job · confusing dup number + billableCosts render bug) · real quote stays in Quotes/customer -->
+
         <div class="act" onclick="editCurrentJob()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-home)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 60 L50 32 L58 40 L30 68 L20 70 Z" fill="#fff"/><path d="M54 28 L60 22 Q64 18 68 22 L66 24 Q70 28 66 32 L62 36 Z" fill="#fff"/></svg></span><span class="lbl" data-i18n="job.editJob">แก้ไขงาน</span></div>
         <div class="act" onclick="openAddExpenseForJob()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-cal-header)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 16 L66 16 L66 72 L58 66 L50 72 L44 66 L38 72 L30 66 L22 72 Z" fill="#fff"/><line x1="30" y1="32" x2="58" y2="32" stroke="#d92020" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="42" x2="50" y2="42" stroke="#d92020" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="30" y1="52" x2="58" y2="52" stroke="#d92020" stroke-width="3" stroke-linecap="round" opacity="0.7"/></svg></span><span class="lbl" data-i18n="job.recordExpense">บันทึก ค่าใช้</span></div>
         <div class="act" onclick="openReceivePayment()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-rep)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="22" fill="#fff"/><text x="44" y="55" fill="#1a9d6a" font-size="32" font-weight="800" text-anchor="middle" font-family="-apple-system,Inter,sans-serif">฿</text></svg></span><span class="lbl" data-i18n="job.receivePayment">รับเงิน</span></div>
@@ -8191,7 +8192,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.64';
+const PIXORY_VERSION = '2.5.65';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8202,6 +8203,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.65': {
+    date: '2026-05-31',
+    title: '🧾 แก้ค่าเดินทาง/ค่าใช้จ่ายที่เก็บลูกค้า หายจากราคางาน',
+    subtitle: 'งานที่แปลงจากใบเสนอ · เปิดแก้แล้วเซฟ ตัวเลขไม่หล่นอีก',
+    items: [
+      { icon: '🧾', title: 'ค่าที่เก็บลูกค้าจากใบเสนอ นับเข้าราคางานครบ', desc: 'เมื่อก่อนงานที่แปลงจากใบเสนอ ถ้าเปิดหน้าแก้งานแล้วกดบันทึก · ค่าเดินทาง/ค่าใช้จ่ายที่เก็บลูกค้าจะหายจากราคาขาย · ตอนนี้รวมครบถูกต้องทั้งตอนแก้และบันทึก' },
+      { icon: '🧹', title: 'เอาปุ่ม "ใบเสนอราคา" ออกจากหน้ารายละเอียดงาน', desc: 'ปุ่มนี้สร้างใบเสนอซ้ำเลขใหม่ทำให้สับสน · ใบเสนอจริงดูได้จากแท็บใบเสนอ/หน้าลูกค้าเหมือนเดิม' }
+    ]
+  },
   '2.5.64': {
     date: '2026-05-31',
     title: '📈 รายรับ OT / Add-on หลังถ่าย เข้าสรุปแล้ว',
@@ -17178,6 +17188,7 @@ function openNewJob() {
   _editJobCode = null;
   ADD_SELECTED = {};
   ADD_ADDONS = {};
+  ADD_BILLABLE = [];  // v2.5.65 · new job has no carried billable costs
   if (typeof ADD_OPEN_SVC !== 'undefined') ADD_OPEN_SVC = null;
   ADD_TEAM = new Set();
   ADD_TEAM_WAGES = {};
@@ -17327,6 +17338,8 @@ function editCurrentJob() {
     _addLoadCostItemsSplit(_migrate);
   }
   if (typeof _addUpdateCostsSum === 'function') _addUpdateCostsSum();
+  // v2.5.65 · carry billable costs (revenue from converted quote) so they stay in sell on edit→save
+  ADD_BILLABLE = Array.isArray(j.billableCosts) ? JSON.parse(JSON.stringify(j.billableCosts)) : [];
   // v1.9.30 · billable banner (if job has billableCosts from converted quote)
   if (typeof renderJobBillableBanner === 'function') renderJobBillableBanner(j);
   ADD_TEAM = new Set(j.team || []);
@@ -17433,6 +17446,8 @@ function collectAddFormData() {
   total += _customTotal('add');
   const extraTime = parseFloat(document.getElementById('addExtraTime').value) || 0;
   total += extraTime;  // ← Fix: include Extra time in total
+  // v2.5.65 · billable costs carried from a converted quote (revenue) must stay in sell · was dropped on edit→save
+  (Array.isArray(ADD_BILLABLE) ? ADD_BILLABLE : []).forEach(c => { total += (parseFloat(c && c.price) || 0); });
   // v1.9.14 · snapshot of custom items, drop empty rows · v1.9.15 also persist desc · v1.9.27 also persist category
   const _addCustomSnapshot = _customGetState('add')
     .filter(c => (c.name && c.name.trim()) || (parseFloat(c.price) || 0) > 0)
@@ -22947,6 +22962,8 @@ function renderCustomers() {
 // ========== ADD JOB ==========
 let ADD_SELECTED = {};   // { [serviceId]: { packageId, packageName, price, serviceName, color } }
 let ADD_ADDONS = {};
+// v2.5.65 · billable cost items carried from a converted quote (revenue · e.g. ค่าเดินทางที่เก็บลูกค้า) · must count in sell
+let ADD_BILLABLE = [];
 let ADD_TEAM = new Set();
 let ADD_TEAM_WAGES = {};
 let ADD_SESSIONS = [];   // [{ date, start, end, label }]
@@ -23277,6 +23294,14 @@ function updateAddTotal() {
     total += extra;
     _items.push({ name: '⏱ Extra time', price: extra });
   }
+  // v2.5.65 · billable costs carried from a converted quote (revenue · e.g. ค่าเดินทางที่เก็บลูกค้า)
+  (Array.isArray(ADD_BILLABLE) ? ADD_BILLABLE : []).forEach(c => {
+    const p = parseFloat(c && c.price) || 0;
+    if (p > 0) {
+      total += p;
+      _items.push({ name: (c && c.name && String(c.name).trim()) ? c.name : 'รายการจากใบเสนอ', price: p });
+    }
+  });
   const disc = parseFloat(document.getElementById('addDiscount').value) || 0;
   const finalP = Math.max(0, total - disc);
   // Tax T2 — VAT/WHT from current toggle state
