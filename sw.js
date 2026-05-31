@@ -5,7 +5,7 @@
 //   - Supabase API calls: never cache (live data only)
 // NOTE: bump CACHE_NAME on every release so old caches are evicted on activate
 
-const CACHE_NAME = 'pixory-v2.5.67';
+const CACHE_NAME = 'pixory-v2.5.68';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -125,7 +125,7 @@ self.addEventListener('push', (event) => {
     badge: './icon-192.png',
     tag: payload.tag || 'pixory-' + Date.now(),
     renotify: true,
-    requireInteraction: false,
+    requireInteraction: true, // v2.5.68 · ไม่ปัดทิ้งเอง · ผู้ใช้ต้องกดเอง (ประกาศจะไม่หายก่อนอ่าน)
     data: { url: payload.url || './' }
   };
   event.waitUntil(self.registration.showNotification(payload.title, options));
@@ -133,7 +133,10 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const target = (event.notification.data && event.notification.data.url) || './';
+  // v2.5.68 · resolve against the app's real base · กัน absolute '/' ที่ชี้ origin root → 404 (host แบบ subpath)
+  let target = (event.notification.data && event.notification.data.url) || './';
+  try { target = new URL(String(target).replace(/^\/+/, './'), self.registration.scope).href; }
+  catch (e) { target = self.registration.scope; }
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       // Focus existing window if already open
