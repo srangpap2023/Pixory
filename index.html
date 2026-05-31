@@ -88,6 +88,67 @@
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
   }
 
+  /* ===== v2.5.69 · Onboarding Wizard · Dark Luxury (theme-independent · high contrast) ===== */
+  /* scoped under #screen-wizard (id) → beats body.luxe-theme / body.dark-theme class rules */
+  #screen-wizard,
+  body.wizard-mode #screen-wizard {
+    background: radial-gradient(125% 80% at 50% -6%, #2b2b30 0%, #1a1a1d 46%, #0f0f11 100%) !important;
+    color: #F2EFE8 !important;
+  }
+  /* progress dots → champagne bar */
+  #screen-wizard #wizard-progress-dots { display:flex !important; gap:5px; padding:6px 22px 2px; }
+  #screen-wizard .wiz-dot { flex:1; height:4px; border-radius:99px; background:rgba(242,239,232,.13); }
+  #screen-wizard .wiz-dot.active, #screen-wizard .wiz-dot.done { background:linear-gradient(90deg,#ECDAA6,#D4BC82); }
+  /* hero */
+  #screen-wizard .wiz-hero-icon { background:linear-gradient(135deg,#2a2a2f,#1d1d21) !important; box-shadow:0 8px 22px rgba(0,0,0,.5), inset 0 0 0 1.5px rgba(212,188,130,.45) !important; color:#F2EFE8; }
+  #screen-wizard .wiz-celebrate-checkmark { color:#86CBA0 !important; box-shadow:inset 0 0 0 1.5px rgba(134,203,160,.55) !important; }
+  #screen-wizard .wiz-title { background:none !important; -webkit-text-fill-color:#fff !important; color:#fff !important; }
+  #screen-wizard .wiz-subtitle { color:#B7B2A8 !important; }
+  /* brand lockup */
+  #screen-wizard .pixory-icon { color:#D4BC82 !important; }
+  #screen-wizard .pixory-wordmark { color:#fff !important; }
+  #screen-wizard .pixory-tagline { color:#B7B2A8 !important; }
+  /* carousel card + text */
+  #screen-wizard .wiz-carousel { background:#1C1C1F !important; border:1px solid rgba(212,188,130,.20) !important; border-radius:16px !important; }
+  #screen-wizard .wiz-pp-solution, #screen-wizard .wiz-pp-tagline, #screen-wizard .wiz-cl-close,
+  #screen-wizard .wiz-mf-quote, #screen-wizard .wiz-mf-quote p, #screen-wizard .wiz-cl-list li { color:#E7E2D8 !important; }
+  #screen-wizard .wiz-pp-solution strong, #screen-wizard .wiz-mf-quote strong, #screen-wizard .wiz-mf-em { color:#ECDAA6 !important; }
+  #screen-wizard .wiz-cl-head { color:#B7B2A8 !important; }
+  #screen-wizard .wiz-cl-check { color:#86CBA0 !important; }
+  #screen-wizard .wiz-pp-pain .line { color:#E7E2D8 !important; }
+  #screen-wizard .wiz-pp-pain .x { color:#D98F76 !important; }
+  #screen-wizard .wiz-car-label { color:#827F78 !important; }
+  #screen-wizard .wiz-car-dot { background:rgba(242,239,232,.22) !important; }
+  #screen-wizard .wiz-car-dot.active { background:#D4BC82 !important; }
+  /* forms */
+  #screen-wizard .form-group label { color:#F2EFE8 !important; font-weight:700; }
+  #screen-wizard .form-group .req { color:#ECDAA6 !important; }
+  #screen-wizard .form-group input, #screen-wizard .form-group textarea {
+    background:#141416 !important; border:1.5px solid rgba(212,188,130,.22) !important; color:#F2EFE8 !important; border-radius:12px !important;
+  }
+  #screen-wizard .form-group input::placeholder, #screen-wizard .form-group textarea::placeholder { color:#827F78 !important; }
+  #screen-wizard .form-group input:focus, #screen-wizard .form-group textarea:focus { border-color:#D4BC82 !important; }
+  /* tip */
+  #screen-wizard .wiz-tip { background:rgba(212,188,130,.08) !important; border:1px solid rgba(212,188,130,.22) !important; color:#ECDAA6 !important; border-radius:12px !important; }
+  /* big tappable */
+  #screen-wizard .wiz-bigbtn { background:#1C1C1F !important; border:1.5px solid rgba(212,188,130,.22) !important; color:#fff !important; }
+  #screen-wizard .wiz-bigbtn-ico { background:rgba(212,188,130,.14) !important; box-shadow:inset 0 0 0 1px rgba(212,188,130,.22); }
+  #screen-wizard .wiz-bigbtn-title { color:#fff !important; }
+  #screen-wizard .wiz-bigbtn-sub { color:#B7B2A8 !important; }
+  /* edited inline boxes → classes */
+  #screen-wizard .wiz-vat { background:rgba(212,188,130,.08); border:1px solid rgba(212,188,130,.22); border-radius:12px; padding:11px 13px; font-size:12px; color:#ECDAA6; line-height:1.55; margin-top:14px; }
+  #screen-wizard .wiz-vat b { color:#fff; }
+  #screen-wizard .wiz-skipnote { text-align:center; font-size:11.5px; color:#827F78; padding:6px 0 2px; }
+  #screen-wizard .wiz-donetext { font-size:13px; color:#B7B2A8; line-height:1.7; max-width:280px; margin:0 auto; }
+  #screen-wizard .wiz-donetext b { color:#fff; }
+  #screen-wizard .wiz-confetti { color:#D4BC82 !important; }
+  /* done CTA buttons */
+  #screen-wizard .wiz-done-pri { display:block; width:100%; max-width:300px; margin:20px auto 0; border:none; font:inherit; font-weight:800; font-size:15px; padding:14px; border-radius:14px; cursor:pointer; background:linear-gradient(135deg,#ECDAA6,#D4BC82); color:#14140F; box-shadow:0 8px 22px rgba(212,188,130,.32); }
+  #screen-wizard .wiz-done-sec { display:block; width:100%; max-width:300px; margin:10px auto 0; background:transparent; border:1.5px solid rgba(212,188,130,.22); color:#F2EFE8; font:inherit; font-weight:800; font-size:14px; padding:13px; border-radius:14px; cursor:pointer; }
+  /* nav buttons */
+  #screen-wizard #wizard-next-btn { background:linear-gradient(135deg,#ECDAA6,#D4BC82) !important; color:#14140F !important; border:none !important; box-shadow:0 8px 20px rgba(212,188,130,.32) !important; font-weight:800 !important; }
+  #screen-wizard #wizard-back-btn { background:transparent !important; color:#F2EFE8 !important; border:1.5px solid rgba(212,188,130,.22) !important; font-weight:800 !important; }
+
   .screen { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: 100px; display: none; }
   .screen.active { display: block; }
 
@@ -4681,34 +4742,35 @@
      Shown to existing users who signed up before v1.9.42 (no consent record).
      Blocking · cannot be dismissed except by accepting or signing out.
 -->
-<div id="reconsent-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:99998; align-items:center; justify-content:center; padding:18px;">
-  <div style="background:#fff; max-width:520px; width:100%; max-height:88vh; overflow:hidden; border-radius:18px; box-shadow:0 24px 64px rgba(0,0,0,.45); display:flex; flex-direction:column;" id="reconsent-card">
-    <div style="padding:22px 22px 14px; background:linear-gradient(180deg, #fef3eb, #fdf8f3); border-bottom:1px solid #f0e6d8;">
+<style>#reconsent-accept-btn:disabled{opacity:.42; cursor:not-allowed; box-shadow:none;}</style>
+<div id="reconsent-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:99998; align-items:center; justify-content:center; padding:18px;">
+  <div id="reconsent-card" style="max-width:480px; width:100%; max-height:88vh; overflow:hidden; border-radius:22px; box-shadow:0 24px 64px rgba(0,0,0,.6); display:flex; flex-direction:column; border:1px solid rgba(212,188,130,.22); background:radial-gradient(125% 70% at 50% 0%, #2b2b30 0%, #1a1a1d 52%, #121214 100%); color:#F2EFE8; font-family:inherit;">
+    <div style="padding:22px 22px 16px; text-align:center; border-bottom:1px solid rgba(212,188,130,.18);">
       <div style="font-size:32px; line-height:1; margin-bottom:8px;">📜</div>
-      <h2 style="margin:0 0 6px; font-size:18px; font-weight:700; color:#2a1f17;">เราได้ปรับปรุงเอกสารทางกฎหมาย</h2>
-      <p style="margin:0; font-size:13px; line-height:1.55; color:#5a4a3a;">เพื่อความโปร่งใสและคุ้มครองสิทธิของคุณตาม PDPA · กรุณาอ่านและยอมรับเอกสารทั้ง 2 ฉบับก่อนใช้งานต่อ</p>
+      <h2 style="margin:0 0 6px; font-size:18px; font-weight:800; color:#fff;">เราได้ปรับปรุงเอกสารทางกฎหมาย</h2>
+      <p style="margin:0; font-size:13px; line-height:1.55; color:#B7B2A8;">เพื่อความโปร่งใสและคุ้มครองสิทธิของคุณตาม PDPA · กรุณาอ่านและยอมรับเอกสารทั้ง 2 ฉบับก่อนใช้งานต่อ</p>
     </div>
-    <div style="flex:1; overflow-y:auto; padding:18px 22px; font-size:13.5px; line-height:1.6; color:#3a2f25;">
-      <div style="background:#fef3eb; border:1px solid #f4d4b8; border-radius:12px; padding:14px; margin-bottom:14px;">
-        <div style="font-weight:700; margin-bottom:6px; color:#7c2d12;">สรุปสั้นๆ:</div>
-        <div style="font-size:12.5px;">• <strong>Pixory ฟรี</strong> · ไม่มีค่าใช้จ่าย<br>
-        • <strong>ไม่ใช่ที่ปรึกษาภาษี</strong> · ตัวเลขต้องตรวจสอบเอง<br>
-        • <strong>ข้อมูลของคุณเป็นของคุณ</strong> · Export/ลบได้ตลอด<br>
-        • <strong>ไม่ขายข้อมูล</strong> · ไม่ทำ ad profiling<br>
-        • เก็บข้อมูลที่ Supabase (AWS US) · เข้ารหัส HTTPS</div>
+    <div style="flex:1; overflow-y:auto; padding:18px 22px;">
+      <div style="background:#1C1C1F; border:1px solid rgba(212,188,130,.22); border-radius:13px; padding:14px;">
+        <div style="font-weight:800; margin-bottom:7px; color:#ECDAA6; font-size:13px;">สรุปสั้นๆ</div>
+        <div style="font-size:12.5px; line-height:1.85; color:#F2EFE8;">• <strong style="color:#fff;">Pixory ฟรี</strong> · ไม่มีค่าใช้จ่าย<br>
+        • <strong style="color:#fff;">ไม่ใช่ที่ปรึกษาภาษี</strong> · ตัวเลขต้องตรวจสอบเอง<br>
+        • <strong style="color:#fff;">ข้อมูลของคุณเป็นของคุณ</strong> · Export/ลบได้ตลอด<br>
+        • <strong style="color:#fff;">ไม่ขายข้อมูล</strong> · ไม่ทำ ad profiling<br>
+        • เก็บข้อมูลที่ Supabase · เข้ารหัส HTTPS</div>
       </div>
-      <div style="display:flex; gap:10px; margin-bottom:14px;">
-        <button onclick="openLegalFromAuth('terms')" style="flex:1; padding:11px 12px; background:transparent; border:1px solid #d8704a; color:#d8704a; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer;">📜 อ่านข้อกำหนด</button>
-        <button onclick="openLegalFromAuth('privacy')" style="flex:1; padding:11px 12px; background:transparent; border:1px solid #d8704a; color:#d8704a; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer;">🔒 อ่านนโยบายฯ</button>
+      <div style="display:flex; gap:10px; margin-top:14px;">
+        <button onclick="openLegalFromAuth('terms')" style="flex:1; padding:11px 12px; background:transparent; border:1.5px solid #D4BC82; color:#ECDAA6; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;">📜 อ่านข้อกำหนด</button>
+        <button onclick="openLegalFromAuth('privacy')" style="flex:1; padding:11px 12px; background:transparent; border:1.5px solid #D4BC82; color:#ECDAA6; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;">🔒 อ่านนโยบายฯ</button>
       </div>
-      <label style="display:flex; align-items:flex-start; gap:10px; padding:14px; background:#fdf8f3; border:1px solid #ead9c9; border-radius:10px; cursor:pointer; user-select:none;">
-        <input type="checkbox" id="reconsent-cb" onchange="updateReConsentBtnState()" style="flex-shrink:0; width:18px; height:18px; margin-top:2px; accent-color:#d8704a; cursor:pointer;">
-        <span style="font-size:13px; line-height:1.5; color:#3a2f25;">ฉันได้อ่านและยอมรับ <strong>ข้อกำหนดการใช้บริการ</strong> และ <strong>นโยบายความเป็นส่วนตัว</strong> ฉบับปรับปรุงล่าสุด</span>
+      <label style="display:flex; align-items:flex-start; gap:10px; padding:13px; margin-top:14px; background:#1C1C1F; border:1px solid rgba(212,188,130,.22); border-radius:12px; cursor:pointer; user-select:none;">
+        <input type="checkbox" id="reconsent-cb" onchange="updateReConsentBtnState()" style="flex-shrink:0; width:18px; height:18px; margin-top:2px; accent-color:#D4BC82; cursor:pointer;">
+        <span style="font-size:12.5px; line-height:1.5; color:#F2EFE8;">ฉันได้อ่านและยอมรับ <strong style="color:#fff;">ข้อกำหนดการใช้บริการ</strong> และ <strong style="color:#fff;">นโยบายความเป็นส่วนตัว</strong> ฉบับปรับปรุงล่าสุด</span>
       </label>
     </div>
-    <div style="padding:16px 22px; background:#fafaf7; border-top:1px solid #f0e6d8; display:flex; gap:10px;">
-      <button id="reconsent-logout-btn" onclick="reconsentLogout()" style="flex:0 0 auto; padding:12px 18px; background:transparent; border:1px solid #d1d5db; color:#6b6157; border-radius:10px; font-size:13.5px; font-weight:500; cursor:pointer;">ออกจากระบบ</button>
-      <button id="reconsent-accept-btn" onclick="reconsentAccept()" disabled style="flex:1; padding:12px 18px; background:linear-gradient(180deg, #e87f5a, #d8704a); border:none; color:#fff; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(216,112,74,.3);">ยอมรับและใช้งานต่อ</button>
+    <div style="padding:16px 22px; border-top:1px solid rgba(212,188,130,.18); display:flex; gap:10px;">
+      <button id="reconsent-logout-btn" onclick="reconsentLogout()" style="flex:0 0 auto; padding:12px 18px; background:transparent; border:1.5px solid rgba(212,188,130,.22); color:#B7B2A8; border-radius:12px; font-size:13.5px; font-weight:700; cursor:pointer; font-family:inherit;">ออกจากระบบ</button>
+      <button id="reconsent-accept-btn" onclick="reconsentAccept()" disabled style="flex:1; padding:12px 18px; background:linear-gradient(135deg, #ECDAA6, #D4BC82); border:none; color:#14140F; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; box-shadow:0 4px 14px rgba(212,188,130,.32); font-family:inherit;">ยอมรับและใช้งานต่อ</button>
     </div>
   </div>
 </div>
@@ -8285,7 +8347,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.68';
+const PIXORY_VERSION = '2.5.69';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8296,6 +8358,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.69': {
+    date: '2026-05-31',
+    title: '✨ หน้าตั้งค่าครั้งแรก โฉมใหม่ Dark Luxury',
+    subtitle: 'อ่านง่ายขึ้น สวยขึ้น · เริ่มต้นใช้งานลื่นไหลกว่าเดิม',
+    items: [
+      { icon: '🖤', title: 'Onboarding ดีไซน์ใหม่ ดำ-ทอง พรีเมียม', desc: 'หน้าตั้งค่าครั้งแรกและหน้ายอมรับเงื่อนไข ปรับเป็นโทนดำ-แชมเปญโกลด์ คอนทราสต์สูง อ่านชัดทุกธีม (แก้ปัญหาตัวหนังสือมืดบนพื้นมืดที่อ่านไม่ออก)' },
+      { icon: '🚀', title: 'ตั้งค่าเสร็จ → สร้างใบเสนอราคาแรกได้เลย', desc: 'จบขั้นตอนตั้งค่ามีปุ่มลัด "สร้างใบเสนอราคาแรก" พาเริ่มงานจริงทันที ไม่ต้องหาเอง' }
+    ]
+  },
   '2.5.68': {
     date: '2026-05-31',
     title: '📣 ประกาศจากแอป · อ่านเต็มได้ ไม่หาย',
@@ -16240,10 +16311,7 @@ const WIZARD_STEPS = [
         <div class="form-group"><label>💬 LINE Official</label><input type="text" id="wiz-line" placeholder="@yourstudio"></div>
         <div class="form-group"><label>📸 Instagram</label><input type="text" id="wiz-ig" placeholder="@yourstudio"></div>
         <!-- Tax setup hint (Tax T5) — subtle, optional -->
-        <div style="margin-top:14px; padding:12px 14px; border-radius:12px; background:#fef3eb; border:0.5px solid rgba(216,112,74,.25); font-size:12.5px; line-height:1.55; color:#7c2d12;">
-          <div style="font-weight:700; font-size:13px; margin-bottom:3px;">📋 จดทะเบียน VAT แล้วหรือยัง?</div>
-          <div>ส่วนใหญ่ของช่างภาพ <strong>ยังไม่จด</strong> (รายได้ &lt; 1.8 ล้าน/ปี) — ไม่ต้องตั้งค่าตอนนี้ก็ได้ · เปิดในตั้งค่า → ภาษี เมื่อพร้อม</div>
-        </div>
+        <div class="wiz-vat"><b>📋 จดทะเบียน VAT แล้วหรือยัง?</b><br>ช่างภาพส่วนใหญ่ <b>ยังไม่จด</b> (รายได้ &lt; 1.8 ล้าน/ปี) — ข้ามได้ · ตั้งทีหลังที่ ตั้งค่า → ภาษี เมื่อพร้อม</div>
       </div>
     `,
     onEnter: () => {
@@ -16285,7 +16353,7 @@ const WIZARD_STEPS = [
         </div>
         <div style="font-size: 18px; opacity:.6;">›</div>
       </button>
-      <div style="font-size:11px; color:#a89a8c; text-align:center; padding:4px 0;">ข้ามและกลับมาตั้งทีหลังได้</div>
+      <div class="wiz-skipnote">ข้ามและกลับมาตั้งทีหลังได้</div>
     `,
   },
   {
@@ -16307,7 +16375,7 @@ const WIZARD_STEPS = [
         </div>
         <div style="font-size: 18px; opacity:.6;">›</div>
       </button>
-      <div style="font-size:11px; color:#a89a8c; text-align:center; padding:4px 0;">ข้ามและกลับมาตั้งทีหลังได้</div>
+      <div class="wiz-skipnote">ข้ามและกลับมาตั้งทีหลังได้</div>
     `,
   },
   {
@@ -16329,7 +16397,7 @@ const WIZARD_STEPS = [
         </div>
         <div style="font-size: 18px; opacity:.6;">›</div>
       </button>
-      <div style="font-size:11px; color:#a89a8c; text-align:center; padding:4px 0;">ข้ามและกลับมาตั้งทีหลังได้</div>
+      <div class="wiz-skipnote">ข้ามและกลับมาตั้งทีหลังได้</div>
     `,
   },
   {
@@ -16370,10 +16438,9 @@ const WIZARD_STEPS = [
         <span class="wiz-confetti" style="left:70%; top:12%; animation-delay:.7s;">✺</span>
         <span class="wiz-confetti" style="left:50%; top:10%; animation-delay:.9s;">✦</span>
         <span class="wiz-confetti" style="left:20%; top:18%; animation-delay:1.1s;">✶</span>
-        <div style="font-size:13px; color:#7c7066; line-height:1.8; max-width: 280px; margin: 0 auto;">
-          แก้ไขทุกอย่างได้ที่ <strong>⚙ ตั้งค่า</strong><br><br>
-          เริ่มสร้างงานหรือใบเสนอราคาแรก
-        </div>
+        <div class="wiz-donetext">ลองสร้าง <b>ใบเสนอราคาแรก</b> ดูเลย<br>แก้ทุกอย่างได้ที่ <b>⚙ ตั้งค่า</b> ตลอดเวลา</div>
+        <button class="wiz-done-pri" onclick="finishWizardToQuote()">✨ สร้างใบเสนอราคาแรก</button>
+        <button class="wiz-done-sec" onclick="finishWizard()">ไปหน้าหลัก</button>
       </div>
     `,
     isCelebrate: true,
@@ -16575,6 +16642,9 @@ function renderWizardStep() {
   // Back button
   const backBtn = document.getElementById('wizard-back-btn');
   const nextBtn = document.getElementById('wizard-next-btn');
+  // v2.5.69 · done step has its own CTA buttons in the body → hide the default nav row
+  const navRow = document.getElementById('wizard-nav-row');
+  if (navRow) navRow.style.display = step.isCelebrate ? 'none' : 'flex';
   if (WIZARD_STEP === 0) {
     backBtn.style.display = 'none';
     nextBtn.style.flex = '';
@@ -16631,6 +16701,17 @@ function finishWizard() {
   renderCustomers();
   goTo('home');
   toast('🎉 พร้อมใช้งานแล้ว!');
+}
+
+// v2.5.69 · finish onboarding → jump straight to creating the first quote (activation aha-moment)
+function finishWizardToQuote() {
+  PROFILE.wizardDone = true;
+  _wizardActive = false;
+  saveData();
+  try { updateGreeting(); updateHomeKPIs(); renderHomeNotifs(); renderCustomers(); } catch(e) {}
+  if (typeof openNewQuote === 'function') openNewQuote();
+  else goTo('home');
+  toast('🎉 มาสร้างใบเสนอราคาแรกกัน!');
 }
 
 // ========== NOTIFICATIONS ==========
