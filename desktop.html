@@ -19,6 +19,8 @@
 <link rel="mask-icon" href="./pixory-icon.svg" color="#D97757"/>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- v1.0.47 · shared money/date helpers (single source · ต้อง push ไฟล์นี้ด้วยเสมอ) -->
+<script src="./pixory-helpers.js"></script>
 
 <!-- Service Worker registration · separate cache from mobile (pixory-desktop-vX.Y.Z) -->
 <!-- v1.0.27 · updateViaCache:'none' · force browser to fetch fresh sw-desktop.js bypassing 24h HTTP cache -->
@@ -2896,12 +2898,21 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.45';
+const PIXORY_DESKTOP_VERSION = '1.0.47';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.46': {
+    date: '2026-06-01',
+    title: '🧮 กราฟ & ภาษีแม่นขึ้น',
+    subtitle: 'โดนัทตรงกับมือถือ · เก็บกวาดปุ่มที่ยังไม่เปิด',
+    items: [
+      { icon: '🥧', title: 'โดนัทแบ่งประเภทงาน คิดค่าที่เก็บลูกค้าด้วย', desc: 'สัดส่วนในกราฟโดนัทรวม billable costs (ค่าเดินทาง/ค่าที่เก็บลูกค้าจากใบเสนอ) ให้ตรงกับฝั่งมือถือ' },
+      { icon: '🧹', title: 'ปัดเศษฐานภาษี + เอาปุ่มที่ยังไม่เปิดออก', desc: 'ฐานภาษีปัดเศษคงที่ตรงกับมือถือ · เอาปุ่ม "Setup Wizard (เริ่มใหม่)" ที่ยังไม่เปิดใช้งานออก' }
+    ]
+  },
   '1.0.45': {
     date: '2026-05-31',
     title: '📣 ประกาศจากแอป · อ่านเต็มได้ ไม่หาย',
@@ -3024,32 +3035,19 @@ const PKG_PB = [];
 const PKG_VIDEO = [];
 const PKG_PRE = [];
 const EQUIPMENT_CATEGORIES = [];
-// v1.0.41 · A2 · additional-billing invoice extras (OT + post-shoot add-ons) = real job income
-// Counted in revenue (dashboard · reports · by-customer · donut) + PIT base + VAT threshold (parity w/ mobile).
-function jobInvExtra(j) {
-  if (!j || !j.invoice) return 0;
-  var e = Number(j.invoice.extraTime) || 0;
-  var a = Array.isArray(j.invoice.addOns) ? j.invoice.addOns.reduce(function (s, x) { return s + (Number(x && x.price) || 0); }, 0) : 0;
-  return e + a;
+// ===== v1.0.47 · money/date helpers · SINGLE SOURCE = pixory-helpers.js (โหลดใน <head> ก่อนแล้ว) =====
+// ⛔ ห้ามแก้สูตรที่นี่ · แก้ที่ pixory-helpers.js ที่เดียว (ทั้งมือถือ+คอมใช้ร่วมกัน)
+// บล็อกล่างเป็น FALLBACK เฉพาะกรณีไฟล์โหลดไม่ติด/ลืม push เท่านั้น (กันแอปพัง) · ต้องตรงกับ pixory-helpers.js
+if (typeof window.jobRevenue !== 'function') {
+  window.jobInvExtra = function (j) { if (!j || !j.invoice) return 0; var e = Number(j.invoice.extraTime) || 0; var a = Array.isArray(j.invoice.addOns) ? j.invoice.addOns.reduce(function (s, x) { return s + (Number(x && x.price) || 0); }, 0) : 0; return e + a; };
+  window.jobRevenue = function (j) { return (Number(j && j.sell) || 0) + window.jobInvExtra(j); };
+  window.jobOutstanding = function (j) { if (!j) return 0; if (j.invoice && j.invoice.balancePaid) return 0; return Math.max(0, (Number(j.sell) || 0) - (Number(j.deposit) || 0)) + window.jobInvExtra(j); };
+  window.jobPaid = function (j) { return window.jobRevenue(j) - window.jobOutstanding(j); };
+  window.jobBookingDate = function (j) { if (!j) return ''; return String(j._createdAt || j.dateDeposit || j.depositPaidDate || j.date || '').slice(0, 10); };
+  window._isSameMonth = function (s, y, m) { if (!s) return false; var d = new Date(s); return !isNaN(d.getTime()) && d.getFullYear() === y && d.getMonth() === m; };
+  window._isSameMonthD = window._isSameMonth;
+  console.warn('[Pixory] pixory-helpers.js ไม่ได้โหลด · ใช้ fallback ในตัว · ตรวจว่า push ไฟล์ pixory-helpers.js แล้ว');
 }
-function jobRevenue(j) { return (Number(j && j.sell) || 0) + jobInvExtra(j); }
-// v1.0.44 · "booking date" = วันที่จอง/สร้างงานเข้ามา · for เคส/ยอดขายเดือนนี้ · fallback covers old jobs
-function jobBookingDate(j) {
-  if (!j) return '';
-  return String(j._createdAt || j.dateDeposit || j.depositPaidDate || j.date || '').slice(0, 10);
-}
-function _isSameMonthD(dateStr, y, mo) {
-  if (!dateStr) return false;
-  var d = new Date(dateStr);
-  return !isNaN(d.getTime()) && d.getFullYear() === y && d.getMonth() === mo;
-}
-// v1.0.41 · A2 · outstanding incl unpaid OT/add-on · base (sell−deposit) + invExtra · 0 once invoice balance paid
-function jobOutstanding(j) {
-  if (!j) return 0;
-  if (j.invoice && j.invoice.balancePaid) return 0;
-  return Math.max(0, (Number(j.sell) || 0) - (Number(j.deposit) || 0)) + jobInvExtra(j);
-}
-function jobPaid(j) { return jobRevenue(j) - jobOutstanding(j); }
 let JOB_TYPES = ['Wedding','Pre-wedding','Engagement','Portrait','Family','Event','Corporate','Product','อื่นๆ'];
 let SOURCES = ['Facebook','Instagram','Instagram DM','LINE','Website','เว็บไซต์','Referral','เพื่อนแนะนำ','ลูกค้าเก่ากลับมา','Walk-in','อื่นๆ'];
 let EXPENSE_CATS = ['เดินทาง','ที่พัก','อุปกรณ์ถ่าย','เช่าอุปกรณ์','ค่ากินทีม','Software/Subscription','Marketing/โฆษณา','ค่าตัดต่อจ้างนอก','อื่นๆ'];
@@ -5483,6 +5481,11 @@ function renderReportsOverview() {
       const p = parseFloat(ci.price) || 0;
       if (p > 0) { const cat = (ci.category || '').trim() || fallback; gross += p; components.push({ price: p, category: cat }); }
     });
+    // v1.0.46 · MUST MATCH mobile · นับ billableCosts เข้า gross · ไม่งั้น ratio=sell/gross เพี้ยน สไลซ์โดนัทไม่ตรงมือถือ
+    (j.billableCosts || []).forEach(ci => {
+      const p = parseFloat(ci.price) || 0;
+      if (p > 0) { const cat = (ci.category || '').trim() || fallback; gross += p; components.push({ price: p, category: cat }); }
+    });
     if (gross > 0) {
       const ratio = sell / gross;
       components.forEach(c => { svcMap[c.category] = (svcMap[c.category] || 0) + c.price * ratio; });
@@ -5833,6 +5836,11 @@ function _renderReportsOverview_legacy() {
       if (j.other > 0) { gross += j.other; components.push({ price: j.other, category: fallback }); }
     }
     (j.customItems || []).forEach(ci => {
+      const p = parseFloat(ci.price) || 0;
+      if (p > 0) { const cat = (ci.category || '').trim() || fallback; gross += p; components.push({ price: p, category: cat }); }
+    });
+    // v1.0.46 · MUST MATCH mobile · นับ billableCosts เข้า gross · ไม่งั้น ratio=sell/gross เพี้ยน สไลซ์โดนัทไม่ตรงมือถือ
+    (j.billableCosts || []).forEach(ci => {
       const p = parseFloat(ci.price) || 0;
       if (p > 0) { const cat = (ci.category || '').trim() || fallback; gross += p; components.push({ price: p, category: cat }); }
     });
@@ -9243,8 +9251,7 @@ function renderSettingsBackup() {
       </div>
 
       <!-- Setup Wizard + Hard reset -->
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-        <button class="btn btn-secondary danger-btn-amber" onclick="restartSetupWizard()">🪄 Setup Wizard (เริ่มใหม่)</button>
+      <div style="display:grid; grid-template-columns:1fr; gap:12px;">
         <button class="btn btn-secondary danger-btn-hard" onclick="hardResetDesktop()">⚠️ ล้างทั้งแอพ</button>
       </div>
       <div class="danger-zone-hint">
@@ -10105,7 +10112,7 @@ function calcTax(base, opts) {
   }
   const netReceived = round2(grandTotal - whtAmount);
 
-  return { base, vatAmount, vatRate, whtAmount, whtRate, whtBasis, grandTotal, netReceived, includeVat, includeWht };
+  return { base: round2(base), vatAmount, vatRate, whtAmount, whtRate, whtBasis, grandTotal, netReceived, includeVat, includeWht };
 }
 
 function buildTaxSnapshot(base, opts, enabled) {
