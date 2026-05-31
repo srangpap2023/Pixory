@@ -2812,6 +2812,10 @@
       <div id="global-search-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border-radius:14px;margin-top:6px;box-shadow:0 12px 40px rgba(217,119,87,0.20),0 2px 8px rgba(0,0,0,0.08);max-height:60vh;overflow-y:auto;z-index:100;border:1px solid rgba(184,90,61,0.18);"></div>
     </div>
     <div class="topbar-spacer"></div>
+    <button id="announce-bell" onclick="openAnnounceInbox()" title="ประกาศจาก Pixory" aria-label="ประกาศ" style="position:relative; background:transparent; border:none; cursor:pointer; font-size:19px; padding:4px 8px; line-height:1; margin-right:4px;">
+      📣
+      <span id="announce-bell-badge" style="display:none; position:absolute; top:-2px; right:0; min-width:16px; height:16px; padding:0 4px; background:var(--red,#d8704a); color:#fff; border-radius:999px; font-size:10px; line-height:16px; font-weight:700; box-sizing:border-box;"></span>
+    </button>
     <div id="sync-pill" class="sync-pill" title="สถานะการเชื่อมต่อข้อมูล">
       <span class="sync-dot"></span>
       <span id="sync-text" data-i18n="app.syncReady">พร้อม</span>
@@ -2901,7 +2905,7 @@ const RELEASE_NOTES = {
     title: '📣 ประกาศจากแอป · อ่านเต็มได้ ไม่หาย',
     subtitle: 'ประกาศเด้งให้อ่านในแอป กดอ่านซ้ำได้ ไม่ตกหล่น',
     items: [
-      { icon: '📣', title: 'กล่องประกาศในแอป', desc: 'มีประกาศใหม่ แอปเด้งข้อความเต็มให้อ่าน · ไม่โดนตัดหรือหายเหมือนการแจ้งเตือนหน้าจอ · ยังไม่อ่าน เปิดแอปครั้งหน้าก็ยังเห็น' },
+      { icon: '📣', title: 'กล่องประกาศในแอป', desc: 'มีประกาศใหม่ แอปเด้งข้อความเต็มให้อ่าน · ไม่โดนตัดหรือหายเหมือนการแจ้งเตือนหน้าจอ · กดปุ่ม 📣 บนแถบบนเพื่ออ่านย้อนหลัง' },
       { icon: '🔔', title: 'แจ้งเตือนค้างจนกว่าจะกด', desc: 'การแจ้งเตือนแบบเด้ง (push) ไม่หายเอง · ค้างไว้จนกดอ่าน' }
     ]
   },
@@ -9793,8 +9797,10 @@ function showCurrentVersionNotes() { showWhatsNewModal(PIXORY_DESKTOP_VERSION); 
 // ========== v1.0.45 · ANNOUNCEMENTS (desktop · mirrors mobile) ==========
 // push = แค่กระดิ่งเรียก · ข้อความจริงเก็บใน table announcements → เปิดแอปอ่านเต็มได้ ไม่หาย
 const ANNOUNCE_SEEN_KEY = 'pixory.announcements.seen';
-let _announceQueue = [];
+let _announceQueue = [];       // unseen · สำหรับเด้ง popup
+let _announceAll = [];         // ทั้งหมด · สำหรับรายการในกระดิ่ง 📣
 let _currentAnnounce = null;
+let _announceInboxMode = false; // true = เปิดจากกระดิ่ง (ปิดแล้วไม่เด้งอันถัดไป)
 
 function _getSeenAnnounce() {
   try { return JSON.parse(localStorage.getItem(ANNOUNCE_SEEN_KEY) || '[]') || []; } catch(e) { return []; }
@@ -9835,19 +9841,23 @@ function showAnnounceModal(ann) {
 }
 
 function dismissAnnounce() {
+  const inbox = _announceInboxMode; _announceInboxMode = false;
   if (_currentAnnounce) _markAnnounceSeen(_currentAnnounce.id);
   _currentAnnounce = null;
   closeModal();
-  setTimeout(() => { try { _showNextAnnounce(); } catch(e) {} }, 250);
+  try { updateAnnounceBell(); } catch(e) {}
+  if (!inbox) setTimeout(() => { try { _showNextAnnounce(); } catch(e) {} }, 250);
 }
 
 function announceAction() {
   const ann = _currentAnnounce;
   if (_announceHasUrl(ann)) {
+    _announceInboxMode = false;
     _markAnnounceSeen(ann.id);
     const u = ann.url;
     _currentAnnounce = null;
     closeModal();
+    try { updateAnnounceBell(); } catch(e) {}
     try {
       if (/^https?:\/\//i.test(u)) window.location.href = u;
       else window.location.hash = u.replace(/^[#./]+/, '');
@@ -9855,6 +9865,58 @@ function announceAction() {
   } else {
     dismissAnnounce();
   }
+}
+
+function _unreadAnnounceCount() {
+  try { const seen = _getSeenAnnounce(); return (_announceAll || []).filter(a => !seen.includes(a.id)).length; }
+  catch(e) { return 0; }
+}
+
+// อัปเดต badge บนปุ่มกระดิ่ง 📣
+function updateAnnounceBell() {
+  const badge = document.getElementById('announce-bell-badge');
+  if (!badge) return;
+  const n = _unreadAnnounceCount();
+  if (n > 0) { badge.style.display = ''; badge.textContent = n; }
+  else { badge.style.display = 'none'; }
+}
+
+// เปิดประกาศเดี่ยวจากรายการในกระดิ่ง (อ่านย้อนหลัง)
+function openAnnouncementById(id) {
+  const ann = (_announceAll || []).find(a => a.id === id);
+  if (!ann) return;
+  _announceInboxMode = true;
+  showAnnounceModal(ann);
+}
+
+// เปิด "กล่องประกาศ" — รายการประกาศทั้งหมด (ถาวร · กดอ่านซ้ำได้)
+async function openAnnounceInbox() {
+  if (!(_announceAll && _announceAll.length)) { try { await _fetchAnnouncements(); } catch(e) {} }
+  const seen = _getSeenAnnounce();
+  let rows;
+  if (!_announceAll || !_announceAll.length) {
+    rows = '<div style="text-align:center; padding:48px 20px; color:var(--ink-mute); font-size:14px;">📭 ยังไม่มีประกาศ</div>';
+  } else {
+    rows = _announceAll.map(a => {
+      const unread = !seen.includes(a.id);
+      const raw = (a.body || '').replace(/\s+/g, ' ').trim();
+      const preview = raw.slice(0, 110) + (raw.length > 110 ? '…' : '');
+      return `<div onclick="openAnnouncementById(${a.id})" style="display:flex; gap:12px; padding:14px 12px; border-bottom:1px solid var(--border); cursor:pointer; border-radius:8px;" onmouseover="this.style.background='var(--glass)'" onmouseout="this.style.background='transparent'">
+        <div style="font-size:20px; line-height:1.2; flex-shrink:0;">📣</div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-weight:600; color:var(--ink); margin-bottom:2px;">${escapeHtml(a.title || 'ประกาศ')}${unread ? ' <span style="font-size:11px; color:var(--red,#d8704a); font-weight:700;">🆕 ใหม่</span>' : ''}</div>
+          <div style="font-size:13px; color:var(--ink-mute); line-height:1.5; margin-bottom:3px;">${escapeHtml(preview)}</div>
+          <div style="font-size:11px; color:var(--ink-mute);">${escapeHtml(_fmtAnnounceDate(a.created_at))}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  openModalWithHtml(`
+    <div class="modal-header">
+      <div class="modal-title">📣 ประกาศจาก Pixory</div>
+      <button class="modal-close" onclick="closeModal()" aria-label="ปิด">✕</button>
+    </div>
+    <div class="modal-body" style="padding:8px 16px 16px;">${rows}</div>`);
 }
 
 function _showNextAnnounce() {
@@ -9865,8 +9927,9 @@ function _showNextAnnounce() {
   showAnnounceModal(ann);
 }
 
-async function checkAnnouncements() {
-  if (!SUPABASE || !CURRENT_USER) return;
+// ดึงประกาศ → เก็บใน _announceAll (ไม่เด้ง popup)
+async function _fetchAnnouncements() {
+  if (!SUPABASE || !CURRENT_USER) return [];
   try {
     const since = new Date(Date.now() - 60 * 24 * 3600 * 1000).toISOString();
     const { data, error } = await SUPABASE
@@ -9875,11 +9938,19 @@ async function checkAnnouncements() {
       .gte('created_at', since)
       .order('created_at', { ascending: false })
       .limit(20);
-    if (error || !data) return;
-    const seen = _getSeenAnnounce();
-    _announceQueue = data.filter(a => !seen.includes(a.id));
-    _showNextAnnounce();
-  } catch(e) { console.warn('checkAnnouncements failed', e); }
+    if (error || !data) return _announceAll;
+    _announceAll = data;
+    return data;
+  } catch(e) { console.warn('_fetchAnnouncements failed', e); return _announceAll; }
+}
+
+async function checkAnnouncements() {
+  const data = await _fetchAnnouncements();
+  try { updateAnnounceBell(); } catch(e) {}
+  if (!data || !data.length) return;
+  const seen = _getSeenAnnounce();
+  _announceQueue = data.filter(a => !seen.includes(a.id));
+  _showNextAnnounce();
 }
 
 // Auto-check after login · delayed so it doesn't fight the dashboard render
