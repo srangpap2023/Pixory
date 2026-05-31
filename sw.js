@@ -5,7 +5,7 @@
 //   - Supabase API calls: never cache (live data only)
 // NOTE: bump CACHE_NAME on every release so old caches are evicted on activate
 
-const CACHE_NAME = 'pixory-v2.5.61';
+const CACHE_NAME = 'pixory-v2.5.64';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -34,7 +34,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+        keys.filter((k) => k.startsWith('pixory-v') && k !== CACHE_NAME).map((k) => caches.delete(k))
       )
     )
   );
