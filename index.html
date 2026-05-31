@@ -16,6 +16,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- v2.5.72 · shared money/date helpers (single source · ต้อง push ไฟล์นี้ด้วยเสมอ) -->
+<script src="./pixory-helpers.js"></script>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   /* App font size — uses zoom on screen content for clean proportional scaling */
@@ -2007,6 +2009,10 @@
   body.luxe-theme .pdb-donut-wrap .legend .name { color: #E4E4E7 !important; }
   body.luxe-theme .pdb-donut-wrap .legend .pct  { color: #A1A1AA !important; }
   body.luxe-theme .pdb-donut-wrap .legend .amt  { color: #F4F4F5 !important; }
+  /* v2.5.71 · home quick-access row subtitles · อ่านชัดทุกธีม (เดิม inline #7c7066 มืดบนมืด) */
+  .cust-row .hsub { font-size: 12px; color: #7c7066; }
+  body.dark-theme .cust-row .hsub { color: #a89a8c; }
+  body.luxe-theme .cust-row .hsub { color: #A89A8C; }
   body.luxe-theme .pdb-kpi-cell .lbl { color: #A1A1AA !important; }
   body.luxe-theme .pdb-kpi-cell .val { color: #F4F4F5 !important; }
   body.luxe-theme .pdb-kpi-cell .sub { color: #A1A1AA !important; }
@@ -5251,7 +5257,7 @@
           <div class="avatar" style="background:#dbeafe;color:#1e40af" id="home-customer-avatar">0</div>
           <div style="flex:1">
             <div style="font-size:14px;font-weight:500;" id="home-customer-title" data-i18n="home.customersTitle">ลูกค้าทั้งหมด</div>
-            <div style="font-size:12px;color:#7c7066;" id="home-customer-sub" data-i18n="home.noJobsYet">ยังไม่มีงานในระบบ</div>
+            <div class="hsub" id="home-customer-sub" data-i18n="home.noJobsYet">ยังไม่มีงานในระบบ</div>
           </div>
           <div style="color:#a89a8c">›</div>
         </div>
@@ -5259,7 +5265,7 @@
           <div class="avatar" style="background:#fee2e2;color:#991b1b">🧾</div>
           <div style="flex:1">
             <div style="font-size:14px;font-weight:500;" data-i18n="home.expenseTitle">ค่าใช้จ่ายทั้งหมด</div>
-            <div style="font-size:12px;color:#7c7066;" id="home-expense-sum" data-i18n="home.expenseSub">ปีนี้ — รวมจะคำนวณให้</div>
+            <div class="hsub" id="home-expense-sum" data-i18n="home.expenseSub">ปีนี้ — รวมจะคำนวณให้</div>
           </div>
           <div style="color:#a89a8c">›</div>
         </div>
@@ -5267,7 +5273,7 @@
           <div class="avatar" style="background:#e0e7ff;color:#3730a3">🎒</div>
           <div style="flex:1">
             <div style="font-size:14px;font-weight:500;" data-i18n="home.equipTitle">คลังอุปกรณ์</div>
-            <div style="font-size:12px;color:#7c7066;" id="home-equipment-sum" data-i18n="home.equipSub">ดูอุปกรณ์ที่มีในคลัง</div>
+            <div class="hsub" id="home-equipment-sum" data-i18n="home.equipSub">ดูอุปกรณ์ที่มีในคลัง</div>
           </div>
           <div style="color:#a89a8c">›</div>
         </div>
@@ -7787,7 +7793,8 @@
             <span class="balance-chip" data-mode="before" onclick="setBalanceDueMode('before')" data-i18n="chip.beforeJob">🗓️ ก่อนวันงาน</span>
             <span class="balance-chip" data-mode="on" onclick="setBalanceDueMode('on')" data-i18n="chip.onJobDay">📍 ในวันงาน</span>
             <span class="balance-chip" data-mode="after" onclick="setBalanceDueMode('after')" data-i18n="chip.afterJob">⏰ หลังวันงาน</span>
-            <span class="balance-chip disabled-soon" data-mode="afterDelivery" onclick="setBalanceDueMode('afterDelivery')" title="Coming soon" data-i18n="chip.afterDelivery">📦 หลังส่งงาน</span>
+            <!-- v2.5.71 · ซ่อน chip "หลังส่งงาน" (ยังไม่เปิดใช้ · phase 2) · กันปุ่มกดแล้วขึ้น coming soon -->
+            <span class="balance-chip disabled-soon" data-mode="afterDelivery" onclick="setBalanceDueMode('afterDelivery')" title="Coming soon" data-i18n="chip.afterDelivery" style="display:none;">📦 หลังส่งงาน</span>
           </div>
           <div class="pref-row" id="balance-stepper-row">
             <span class="pref-label" id="balance-stepper-label" data-i18n="chip.beforeJobLabel">ก่อนวันงาน</span>
@@ -8164,33 +8171,18 @@ function escapeHtml(s) {
   });
 }
 
-// v2.5.64 · A2 · additional-billing invoice extras (OT + post-shoot add-ons) = real job income
-// Counted in revenue (KPI · dashboard · by-type donut · by-customer · reports) + PIT base + VAT threshold.
-// (Outstanding balance handled separately · invoice already tracks its own balanceDue.)
-function jobInvExtra(j) {
-  if (!j || !j.invoice) return 0;
-  var e = Number(j.invoice.extraTime) || 0;
-  var a = Array.isArray(j.invoice.addOns) ? j.invoice.addOns.reduce(function (s, x) { return s + (Number(x && x.price) || 0); }, 0) : 0;
-  return e + a;
-}
-function jobRevenue(j) { return (Number(j && j.sell) || 0) + jobInvExtra(j); }
-// v2.5.64 · A2 · outstanding incl unpaid OT/add-on · = invoice balanceDue (remain + invExtra) · 0 once invoice balance paid
-function jobOutstanding(j) {
-  if (!j) return 0;
-  if (j.invoice && j.invoice.balancePaid) return 0;
-  return (Number(j.remain) || 0) + jobInvExtra(j);
-}
-function jobPaid(j) { return jobRevenue(j) - jobOutstanding(j); }
-// v2.5.67 · "booking date" = วันที่จอง/สร้างงานเข้ามา · for เคส/ยอดขายเดือนนี้ · fallback chain covers old jobs
-function jobBookingDate(j) {
-  if (!j) return '';
-  var d = j._createdAt || j.dateDeposit || j.depositPaidDate || j.date || '';
-  return String(d).slice(0, 10);
-}
-function _isSameMonth(dateStr, y, m) {
-  if (!dateStr) return false;
-  var d = new Date(dateStr);
-  return !isNaN(d) && d.getFullYear() === y && d.getMonth() === m;
+// ===== v2.5.72 · money/date helpers · SINGLE SOURCE = pixory-helpers.js (โหลดใน <head> ก่อนแล้ว) =====
+// ⛔ ห้ามแก้สูตรที่นี่ · แก้ที่ pixory-helpers.js ที่เดียว (ทั้งมือถือ+คอมใช้ร่วมกัน)
+// บล็อกล่างเป็น FALLBACK เฉพาะกรณีไฟล์โหลดไม่ติด/ลืม push เท่านั้น (กันแอปพัง) · ต้องตรงกับ pixory-helpers.js
+if (typeof window.jobRevenue !== 'function') {
+  window.jobInvExtra = function (j) { if (!j || !j.invoice) return 0; var e = Number(j.invoice.extraTime) || 0; var a = Array.isArray(j.invoice.addOns) ? j.invoice.addOns.reduce(function (s, x) { return s + (Number(x && x.price) || 0); }, 0) : 0; return e + a; };
+  window.jobRevenue = function (j) { return (Number(j && j.sell) || 0) + window.jobInvExtra(j); };
+  window.jobOutstanding = function (j) { if (!j) return 0; if (j.invoice && j.invoice.balancePaid) return 0; return Math.max(0, (Number(j.sell) || 0) - (Number(j.deposit) || 0)) + window.jobInvExtra(j); };
+  window.jobPaid = function (j) { return window.jobRevenue(j) - window.jobOutstanding(j); };
+  window.jobBookingDate = function (j) { if (!j) return ''; return String(j._createdAt || j.dateDeposit || j.depositPaidDate || j.date || '').slice(0, 10); };
+  window._isSameMonth = function (s, y, m) { if (!s) return false; var d = new Date(s); return !isNaN(d.getTime()) && d.getFullYear() === y && d.getMonth() === m; };
+  window._isSameMonthD = window._isSameMonth;
+  console.warn('[Pixory] pixory-helpers.js ไม่ได้โหลด · ใช้ fallback ในตัว · ตรวจว่า push ไฟล์ pixory-helpers.js แล้ว');
 }
 // Smart K formatter — 24000→"24K", 8500→"8.5K", 8900→"8.9K"
 function fmtPkgK(n) {
@@ -8347,7 +8339,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.69';
+const PIXORY_VERSION = '2.5.72';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8358,6 +8350,24 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.71': {
+    date: '2026-06-01',
+    title: '🧮 เก็บรายละเอียดให้เนียนขึ้น',
+    subtitle: 'ประวัติมัดจำครบ · ตัวหนังสือหน้าหลักอ่านชัดทุกธีม',
+    items: [
+      { icon: '🧾', title: 'แปลงใบเสนอ→งาน ลงมัดจำในประวัติทันที', desc: 'งานที่แปลงจากใบเสนอ จะมีรายการมัดจำในประวัติการจ่ายเงินตั้งแต่แรก ไม่ต้องรอ' },
+      { icon: '🌙', title: 'ตัวหนังสือสรุปหน้าหลักอ่านชัดทุกธีม', desc: 'บรรทัดย่อย (ลูกค้า/ค่าใช้จ่าย/อุปกรณ์) บนหน้าหลัก ปรับสีให้อ่านออกบนธีมมืด/Luxe' }
+    ]
+  },
+  '2.5.70': {
+    date: '2026-06-01',
+    title: '🔒 ความถูกต้อง + ความปลอดภัย',
+    subtitle: 'ยอดค้างเก็บตรงกันทุกเครื่อง · ข้อมูลไม่หาย · ปิดช่องโหว่',
+    items: [
+      { icon: '💰', title: 'ยอดค้างเก็บตรงกันมือถือ-คอม', desc: 'ปรับสูตรคำนวณยอดค้างเก็บให้คิดจาก ราคาขาย − ยอดที่จ่ายแล้ว เหมือนกันทั้ง 2 เครื่อง (เดิมมือถือพึ่งค่าที่อาจค้างเก่า ทำให้ตัวเลขต่างกัน)' },
+      { icon: '🛡️', title: 'อุดช่องโหว่ + กันข้อมูลหาย', desc: 'ปิดช่องโหว่ความปลอดภัยในการแสดงชื่อรายการ/ลูกค้า · กันหมวดอุปกรณ์ที่ตั้งจากคอมหายเวลาเปิดบนมือถือ' }
+    ]
+  },
   '2.5.69': {
     date: '2026-05-31',
     title: '✨ หน้าตั้งค่าครั้งแรก โฉมใหม่ Dark Luxury',
@@ -12113,8 +12123,9 @@ function stopRealtimeSync() {
 function onRealtimeUpdate(payload) {
   const newRow = payload && payload.new;
   if (!newRow || !newRow.data) return;
-  // Skip self-write (same device · we already have this)
-  if (newRow.data._meta && newRow.data._meta.device_id === DEVICE_ID) return;
+  // Skip self-write (same device · we already have this) · v2.5.71 · fallback ไป column device_id ถ้า _meta หาย (กัน reload ตัวเอง)
+  const _remoteDev = (newRow.data._meta && newRow.data._meta.device_id) || newRow.device_id;
+  if (_remoteDev === DEVICE_ID) return;
   const remoteVersion = (newRow.data._meta && newRow.data._meta.version) || 0;
   if (remoteVersion <= REALTIME_LAST_VERSION) return; // already seen
   REALTIME_LAST_VERSION = remoteVersion;
@@ -12152,7 +12163,10 @@ async function manualSync() {
   if (ok) {
     // After push, also pull (in case another device pushed during the wait)
     const remote = await pullFromCloud();
-    if (remote && new Date(remote.updated_at).getTime() > new Date(_cloudLastSyncAt).getTime()) {
+    // v2.5.72 · ถ้า remote ที่ใหม่กว่าเป็น "push ของเครื่องเราเอง" → ไม่ใช่ conflict (กัน prompt หลอกหลัง push สำเร็จ)
+    const _rMeta = remote && remote.data && remote.data._meta;
+    const _remoteIsOurs = !!(_rMeta && _rMeta.device_id === DEVICE_ID);
+    if (remote && !_remoteIsOurs && new Date(remote.updated_at).getTime() > new Date(_cloudLastSyncAt).getTime()) {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(remote.data)); } catch(e) {}
       _cloudLastSyncAt = remote.updated_at;
       setSyncState('synced');
@@ -12162,6 +12176,8 @@ async function manualSync() {
       }
       return;
     }
+    if (remote && remote.updated_at) _cloudLastSyncAt = remote.updated_at; // ขยับ marker (รวมกรณี push ของเราเอง)
+    setSyncState('synced');
     toast('✓ ซิงค์เรียบร้อย');
   } else {
     toast('⚠ ซิงค์ไม่สำเร็จ — ลองอีกครั้ง');
@@ -12286,7 +12302,8 @@ function saveData() {
     } catch(e) {}
     const blob = {
       PKG_PHOTO, PKG_PB, PKG_VIDEO, PKG_PRE, ADDONS, JOB_TYPES, SOURCES, EXPENSE_CATS, TEAM, EXPENSES,
-      JOBS, QUOTES, PROFILE, BANKS, QUOTE_TEMPLATE, NOTIF_SETTINGS, SERVICES, CUSTOMER_INFO, EQUIPMENT, NOTES
+      JOBS, QUOTES, PROFILE, BANKS, QUOTE_TEMPLATE, NOTIF_SETTINGS, SERVICES, CUSTOMER_INFO, EQUIPMENT, NOTES,
+      EQUIPMENT_CATEGORIES  // v2.5.70 · carry-through · กันมือถือเซฟทับหมวดอุปกรณ์ที่ตั้งจากเดสก์ทิ้ง
     };
     if (_meta) blob._meta = _meta;
     const serialized = JSON.stringify(blob);
@@ -12367,6 +12384,7 @@ function loadData() {
     replaceMaster(JOB_TYPES, d.JOB_TYPES, 'JOB_TYPES');
     replaceMaster(SOURCES, d.SOURCES, 'SOURCES');
     replaceMaster(EXPENSE_CATS, d.EXPENSE_CATS, 'EXPENSE_CATS');
+    replaceMaster(EQUIPMENT_CATEGORIES, d.EQUIPMENT_CATEGORIES, 'EQUIPMENT_CATEGORIES'); // v2.5.70 · รับค่าจาก cloud (เดสก์ตั้งได้) · guard ว่างไม่ทับ default
 
     // Settings + objects
     if (d.PROFILE) Object.assign(PROFILE, d.PROFILE);
@@ -18323,7 +18341,7 @@ function showQuoteScreen(data, source) {
   items.innerHTML = '';
   function addItem(name, desc, price) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${name}${desc ? '<br><span style="color:#7c7066; font-size:11px;">'+desc+'</span>' : ''}</td><td class="right">${fmt(price)}</td>`;
+    tr.innerHTML = `<td>${escapeHtml(name)}${desc ? '<br><span style="color:#7c7066; font-size:11px;">'+escapeHtml(desc)+'</span>' : ''}</td><td class="right">${fmt(price)}</td>`;
     items.appendChild(tr);
   }
   // Render from selectedServices (new flexible format)
@@ -18697,6 +18715,8 @@ function convertQuoteToJob(code) {
     total: q.total, sell: q.sell, discount: q.discount,
     deposit: qDeposit, remain: qRemain, payStatus: qPayStatus,
     depositPaidDate: qDeposit > 0 ? today : null,
+    depositInitial: qDeposit,  // v2.5.71 · ให้ savePayment ถัดไปคิดยอดสะสมถูก
+    payments: qDeposit > 0 ? [{ date: today, amount: qDeposit, note: 'มัดจำ (จากใบเสนอ)' }] : [],  // v2.5.71 · ลงมัดจำในประวัติจ่ายตั้งแต่แปลง
     jobStatus: 'รอถ่าย', delivery: 'ยังไม่ถ่าย', // v2.5.0 · was 'จอง' · delivery legacy
     // v2.5.19 · Fix bug: was `source: 'Quote ' + q.code` which created a new chart category per quote
     // Now uses last SOURCES entry (Other/อื่นๆ) by default · user can edit in Job detail
@@ -19534,7 +19554,7 @@ function _renderPkgDropdown(ctx, container) {
           const isActive = isSelected && sel.packageId === p.id;
           const opt = document.createElement('div');
           opt.className = 'pkg-dd-option' + (isActive ? ' selected' : '');
-          opt.innerHTML = '<span>' + (isActive ? '✓ ' : '') + p.name + '</span><span class="pkg-dd-opt-price">฿' + (p.price || 0).toLocaleString() + '</span>';
+          opt.innerHTML = '<span>' + (isActive ? '✓ ' : '') + escapeHtml(p.name) + '</span><span class="pkg-dd-opt-price">฿' + (p.price || 0).toLocaleString() + '</span>';
           opt.onclick = function (e) {
             e.stopPropagation();
             const wasEmpty = Object.keys(SELECTED).length === 0;
@@ -20900,7 +20920,7 @@ function renderInvoicePDF(job) {
   itemsEl.innerHTML = '';
   function addItem(name, desc, price) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${name}${desc ? '<br><span style="color:#7c7066; font-size:11px;">'+desc+'</span>' : ''}</td><td class="right">${fmt(price)}</td>`;
+    tr.innerHTML = `<td>${escapeHtml(name)}${desc ? '<br><span style="color:#7c7066; font-size:11px;">'+escapeHtml(desc)+'</span>' : ''}</td><td class="right">${fmt(price)}</td>`;
     itemsEl.appendChild(tr);
   }
   if (job.selectedServices) {
@@ -23321,7 +23341,7 @@ function renderCustomers() {
     row.innerHTML = `<div class="avatar" style="background:${bg}; color:${fg}">${initials || '?'}</div>
       <div style="flex:1; min-width:0;">
         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-          <span style="font-size:14px; font-weight:500;">${cu.name}</span>
+          <span style="font-size:14px; font-weight:500;">${escapeHtml(cu.name)}</span>
           ${_typePill}
         </div>
         <div style="font-size:12px; color:#7c7066; margin-top:2px;">${cu.jobs} งาน</div>
