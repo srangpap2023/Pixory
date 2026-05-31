@@ -102,6 +102,27 @@
   .card.compact { padding: 12px 14px; }
 
   .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 4px 16px 12px; }
+  /* v2.5.67 · monthly summary card · 3-theme safe */
+  .msum { margin: 4px 16px 12px; background: #fff; border: 0.5px solid rgba(0,0,0,0.06); border-radius: 16px; padding: 13px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  .msum-head { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #7c7066; margin-bottom: 10px; font-weight: 600; }
+  .msum-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }
+  .msum-tile { background: rgba(0,0,0,0.03); border-radius: 10px; padding: 9px 5px; text-align: center; }
+  .msum-tile .v { font-size: 15px; font-weight: 700; color: #3a2f25; line-height: 1.1; }
+  .msum-tile .l { font-size: 10px; color: #7c7066; margin-top: 3px; }
+  .msum-tile.cash .v { color: #0f6e56; }
+  .msum-tile.debt .v { color: #dc2626; }
+  body.dark-theme .msum { background: #1c1c1c; border-color: rgba(255,255,255,0.06); }
+  body.dark-theme .msum-tile { background: rgba(255,255,255,0.04); }
+  body.dark-theme .msum-tile .v { color: #f5f0e8; }
+  body.dark-theme .msum-tile .l, body.dark-theme .msum-head { color: #a89a8c; }
+  body.dark-theme .msum-tile.cash .v { color: #86efac; }
+  body.dark-theme .msum-tile.debt .v { color: #fca5a5; }
+  body.luxe-theme .msum { background: rgba(255,255,255,0.04); border-color: rgba(212,160,86,0.22); }
+  body.luxe-theme .msum-tile { background: rgba(255,255,255,0.04); }
+  body.luxe-theme .msum-tile .v { color: #F2E0BA; }
+  body.luxe-theme .msum-tile .l, body.luxe-theme .msum-head { color: #A89A8C; }
+  body.luxe-theme .msum-tile.cash .v { color: #86efac; }
+  body.luxe-theme .msum-tile.debt .v { color: #fca5a5; }
   .kpi { background: white; border-radius: 14px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
   .kpi .label { font-size: 12px; color: #7c7066; margin-bottom: 4px; }
   .kpi .value { font-size: 22px; font-weight: 600; }
@@ -193,6 +214,17 @@
   .chip-row { display: flex; flex-wrap: wrap; gap: 8px 6px; align-items: flex-start; }
   .chip { padding: 7px 12px; border-radius: 16px; background: white; border: 0.5px solid #d1d5db; font-size: 12px; cursor: pointer; user-select: none; transition: all .1s; }
   .chip.active { background: #3a2f25; color: white; border-color: #3a2f25; }
+  /* v2.5.67 · "รอจัดทีม" warn chip + count badge · 3-theme */
+  .chip.chip-warn { border-color: rgba(239,159,39,0.5); color: #b45309; }
+  .chip.chip-warn.active { background: #EF9F27; color: #412402; border-color: #EF9F27; }
+  .chip .chip-cnt { background: rgba(239,159,39,0.2); color: #b45309; border-radius: 999px; padding: 0 6px; margin-left: 4px; font-size: 10.5px; font-weight: 700; }
+  .chip.chip-warn.active .chip-cnt { background: rgba(65,36,2,0.22); color: #412402; }
+  body.dark-theme .chip.chip-warn { color: #EF9F27; border-color: rgba(239,159,39,0.4); }
+  body.dark-theme .chip.chip-warn.active { background: #EF9F27; color: #412402; border-color: #EF9F27; }
+  body.dark-theme .chip.chip-warn .chip-cnt { background: rgba(239,159,39,0.2); color: #EF9F27; }
+  body.luxe-theme .chip.chip-warn { color: #EF9F27; border-color: rgba(239,159,39,0.45); }
+  body.luxe-theme .chip.chip-warn.active { background: #EF9F27; color: #412402; border-color: #EF9F27; }
+  body.luxe-theme .chip.chip-warn .chip-cnt { background: rgba(239,159,39,0.2); color: #EF9F27; }
   .chip .price { color: #7c7066; margin-left: 6px; font-size: 11px; }
   .chip.active .price { color: #d1d5db; }
   .chip.team-chip { display: flex; align-items: center; gap: 5px; }
@@ -695,7 +727,7 @@
   .detail-row .k { color: #7c7066; }
   .detail-row .v { font-weight: 500; text-align: right; }
 
-  .action-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; padding: 0 16px 14px; }
+  .action-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; padding: 0 16px 14px; }
   .action-grid .act { background: white; border-radius: 12px; padding: 12px 4px; text-align: center; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
   .action-grid .act .ico { font-size: 22px; display: block; margin-bottom: 4px; }
   .action-grid .act .lbl { font-size: 10px; color: #4b5563; }
@@ -4197,6 +4229,20 @@
     color: #f5f0e8 !important;
     border-color: rgba(255,255,255,0.1) !important;
   }
+  /* v2.5.66 · Luxe theme overrides · ก่อนหน้าใช้ base (พื้นอ่อน · text มืด) อ่านไม่ออกบน Luxe */
+  body.luxe-theme .cost-item-row {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: rgba(212,160,86,0.22) !important;
+  }
+  body.luxe-theme .cost-item-row input[type="text"],
+  body.luxe-theme .cost-item-row input[type="number"] {
+    background: rgba(28,28,34,0.75) !important;
+    color: #F2E0BA !important;
+    border-color: rgba(212,160,86,0.30) !important;
+  }
+  body.luxe-theme .cost-item-row input::placeholder {
+    color: #A89A8C !important;
+  }
 
   /* v1.9.18 · Tabbed form layout for New Job + New Quote (Layout C) */
   .form-tabs {
@@ -5041,6 +5087,17 @@
         </div>
       </div>
 
+      <!-- v2.5.67 · monthly summary card -->
+      <div class="msum" id="home-month-summary">
+        <div class="msum-head">📅 <span data-i18n="msum.title">เดือนนี้</span> · <span id="msum-month"></span></div>
+        <div class="msum-grid">
+          <div class="msum-tile"><div class="v" id="msum-cases">0</div><div class="l" data-i18n="msum.cases">เคส</div></div>
+          <div class="msum-tile"><div class="v" id="msum-sales">฿0</div><div class="l" data-i18n="msum.sales">ยอดขาย</div></div>
+          <div class="msum-tile cash"><div class="v" id="msum-collected">฿0</div><div class="l" data-i18n="msum.collected">เก็บแล้ว</div></div>
+          <div class="msum-tile debt"><div class="v" id="msum-outstanding">฿0</div><div class="l" data-i18n="msum.outstanding">ค้างเก็บ</div></div>
+        </div>
+      </div>
+
       <div class="kpi-grid">
         <div class="kpi income">
           <div class="label" data-i18n="home.kpiRevenue">ยอดขาย</div>
@@ -5170,6 +5227,7 @@
         <div class="chip" onclick="filterJobs('wait_deliver', this)" data-i18n="filter.waitDeliver">รอส่งงาน</div>
         <div class="chip" onclick="filterJobs('debt', this)" data-i18n="filter.debt">ค้างชำระ</div>
         <div class="chip" onclick="filterJobs('closed', this)" data-i18n="filter.closed">ปิดงาน</div>
+        <div class="chip chip-warn" id="chip-team-incomplete" onclick="filterJobs('team_incomplete', this)"><span data-i18n="filter.teamIncomplete">รอจัดทีม</span><span class="chip-cnt" id="chip-team-cnt" style="display:none;"></span></div>
       </div>
 
       <!-- Quotes filters -->
@@ -5218,7 +5276,7 @@
         <!-- v2.5.65 · removed "ใบเสนอราคา" (goToQuote · phantom quote-from-job · confusing dup number + billableCosts render bug) · real quote stays in Quotes/customer -->
 
         <div class="act" onclick="editCurrentJob()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-home)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 60 L50 32 L58 40 L30 68 L20 70 Z" fill="#fff"/><path d="M54 28 L60 22 Q64 18 68 22 L66 24 Q70 28 66 32 L62 36 Z" fill="#fff"/></svg></span><span class="lbl" data-i18n="job.editJob">แก้ไขงาน</span></div>
-        <div class="act" onclick="openAddExpenseForJob()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-cal-header)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 16 L66 16 L66 72 L58 66 L50 72 L44 66 L38 72 L30 66 L22 72 Z" fill="#fff"/><line x1="30" y1="32" x2="58" y2="32" stroke="#d92020" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="42" x2="50" y2="42" stroke="#d92020" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="30" y1="52" x2="58" y2="52" stroke="#d92020" stroke-width="3" stroke-linecap="round" opacity="0.7"/></svg></span><span class="lbl" data-i18n="job.recordExpense">บันทึก ค่าใช้</span></div>
+        <div class="act" onclick="openAddExpenseForJob()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-cal-header)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 16 L66 16 L66 72 L58 66 L50 72 L44 66 L38 72 L30 66 L22 72 Z" fill="#fff"/><line x1="30" y1="32" x2="58" y2="32" stroke="#d92020" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="42" x2="50" y2="42" stroke="#d92020" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="30" y1="52" x2="58" y2="52" stroke="#d92020" stroke-width="3" stroke-linecap="round" opacity="0.7"/></svg></span><span class="lbl" data-i18n="job.recordExpense">บันทึกค่าใช้จ่าย</span></div>
         <div class="act" onclick="openReceivePayment()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-rep)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="22" fill="#fff"/><text x="44" y="55" fill="#1a9d6a" font-size="32" font-weight="800" text-anchor="middle" font-family="-apple-system,Inter,sans-serif">฿</text></svg></span><span class="lbl" data-i18n="job.receivePayment">รับเงิน</span></div>
       </div>
 
@@ -8037,6 +8095,17 @@ function jobOutstanding(j) {
   return (Number(j.remain) || 0) + jobInvExtra(j);
 }
 function jobPaid(j) { return jobRevenue(j) - jobOutstanding(j); }
+// v2.5.67 · "booking date" = วันที่จอง/สร้างงานเข้ามา · for เคส/ยอดขายเดือนนี้ · fallback chain covers old jobs
+function jobBookingDate(j) {
+  if (!j) return '';
+  var d = j._createdAt || j.dateDeposit || j.depositPaidDate || j.date || '';
+  return String(d).slice(0, 10);
+}
+function _isSameMonth(dateStr, y, m) {
+  if (!dateStr) return false;
+  var d = new Date(dateStr);
+  return !isNaN(d) && d.getFullYear() === y && d.getMonth() === m;
+}
 // Smart K formatter — 24000→"24K", 8500→"8.5K", 8900→"8.9K"
 function fmtPkgK(n) {
   if (n == null) return '';
@@ -8192,7 +8261,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.65';
+const PIXORY_VERSION = '2.5.67';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8203,6 +8272,24 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.67': {
+    date: '2026-05-31',
+    title: '📅 สรุปเดือนนี้ + ฟิลเตอร์ "รอจัดทีม"',
+    subtitle: 'เห็น pulse เดือนนี้บนหน้าหลัก · กรองงานที่ทีมยังไม่ครบได้',
+    items: [
+      { icon: '📅', title: 'การ์ดสรุปเดือนนี้ บนหน้าหลัก', desc: 'เห็นทันทีว่าเดือนนี้: จองกี่เคส · ยอดขายเท่าไหร่ · เก็บเงินเข้ามาแล้วเท่าไหร่ · ค้างเก็บอีกเท่าไหร่ (เคส/ยอดขายนับตามวันที่จองเข้ามา)' },
+      { icon: '👥', title: 'ฟิลเตอร์ "รอจัดทีม" ในหน้างาน', desc: 'กดชิป "รอจัดทีม" เห็นเฉพาะงานที่ยังจัดทีมไม่ครบ + มีตัวเลขนับ · ไม่พลาดงานที่ต้องหาทีมเพิ่ม' }
+    ]
+  },
+  '2.5.66': {
+    date: '2026-05-31',
+    title: '🌙 แก้ตัวหนังสือมืดในธีม Luxe',
+    subtitle: 'ช่อง "ค่าใช้จ่ายในงานนี้" อ่านออกแล้วบนธีมทอง-มืด',
+    items: [
+      { icon: '🌙', title: 'ช่องค่าใช้จ่ายในงาน อ่านชัดบน Luxe', desc: 'เดิมตัวหนังสือในช่องกรอกค่าใช้จ่าย (ใบเสนอ/งาน) มืดจนมองไม่เห็นบนธีม Luxe · ตอนนี้พื้นเข้ม ตัวอักษรครีม อ่านง่าย' },
+      { icon: '🎛', title: 'ปุ่มในหน้ารายละเอียดงาน เรียงพอดีขึ้น', desc: 'จัดปุ่ม แก้ไขงาน · บันทึกค่าใช้จ่าย · รับเงิน ให้เต็มแถวสวยงาม (ไม่แหว่ง) · เปลี่ยนชื่อ "บันทึกค่าใช้" เป็น "บันทึกค่าใช้จ่าย"' }
+    ]
+  },
   '2.5.65': {
     date: '2026-05-31',
     title: '🧾 แก้ค่าเดินทาง/ค่าใช้จ่ายที่เก็บลูกค้า หายจากราคางาน',
@@ -12574,6 +12661,12 @@ const I18N = {
   'home.greetEvening':  { th: 'สวัสดีตอนเย็น',  en: 'Good evening' },
   'home.totalRevenue':  { th: 'รายได้รวม',         en: 'Total Revenue' },
   'home.kpiRevenue':    { th: 'ยอดขาย',           en: 'Revenue' },
+  'msum.title':         { th: 'เดือนนี้',          en: 'This month' },
+  'msum.cases':         { th: 'เคส',               en: 'Cases' },
+  'msum.sales':         { th: 'ยอดขาย',           en: 'Sales' },
+  'msum.collected':     { th: 'เก็บแล้ว',          en: 'Collected' },
+  'msum.outstanding':   { th: 'ค้างเก็บ',          en: 'Outstanding' },
+  'filter.teamIncomplete': { th: 'รอจัดทีม',        en: 'Team TBD' },
   'home.kpiProfit':     { th: 'กำไรสุทธิ',         en: 'Net Profit' },
   'home.kpiDebt':       { th: '⚠ ลูกหนี้คงค้าง',    en: '⚠ Outstanding' },
   'home.kpiOpen':       { th: 'งานที่ยังไม่ปิด',     en: 'Open Jobs' },
@@ -12977,7 +13070,7 @@ const I18N = {
   'job.detailTitle':    { th: 'รายละเอียดงาน', en: 'Job Details' },
   'job.quote':          { th: 'ใบเสนอราคา', en: 'Quote' },
   'job.editJob':        { th: 'แก้ไขงาน', en: 'Edit' },
-  'job.recordExpense':  { th: 'บันทึก ค่าใช้', en: 'Record Cost' },
+  'job.recordExpense':  { th: 'บันทึกค่าใช้จ่าย', en: 'Record Expense' },
   'job.receivePayment': { th: 'รับเงิน', en: 'Payment' },
   'job.payment':        { th: 'การชำระเงิน', en: 'Payment' },
   'job.status':         { th: 'สถานะ', en: 'Status' },
@@ -13973,6 +14066,10 @@ function jobsForFilter(f) {
   if (f === 'closed') {
     return JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'closed');
   }
+  if (f === 'team_incomplete') {
+    // v2.5.67 · ทีมยังไม่ครบ · ยังไม่ปิดงาน (ตรงกับ pill เตือน)
+    return JOBS.filter(j => j.teamStatus === 'incomplete' && getStageFromJobStatus(j.jobStatus) !== 'closed');
+  }
   // Legacy 'booked' filter still works (maps to 'upcoming' · status-based)
   if (f === 'booked') {
     return JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_shoot');
@@ -13996,6 +14093,12 @@ function renderJobsWithCurrentFilter() {
   }
   const cntEl = document.getElementById('jobs-count');
   if (cntEl) cntEl.textContent = filtered.length + ' ' + t('home.jobsCount');
+  // v2.5.67 · update "รอจัดทีม" chip count (hide if 0)
+  try {
+    const _tc = JOBS.filter(j => j.teamStatus === 'incomplete' && getStageFromJobStatus(j.jobStatus) !== 'closed').length;
+    const _tcEl = document.getElementById('chip-team-cnt');
+    if (_tcEl) { _tcEl.textContent = _tc; _tcEl.style.display = _tc > 0 ? '' : 'none'; }
+  } catch(e) {}
   renderJobs(filtered, 'jobs-list');
 }
 
@@ -14350,7 +14453,7 @@ function reRenderJobsOrQuotes() {
 // v2.5.11 C6 · match 5-tab order: ทั้งหมด · กำลังจะถึง · รอส่งงาน · ค้างชำระ · ปิดงาน
 function syncJobFilterChips() {
   const chips = document.querySelectorAll('#screen-jobs #jobs-filter-row .chip');
-  const filterOrder = ['all', 'upcoming', 'wait_deliver', 'debt', 'closed'];
+  const filterOrder = ['all', 'upcoming', 'wait_deliver', 'debt', 'closed', 'team_incomplete'];
   // Legacy 'booked' maps to 'upcoming'
   let f = _currentJobFilter;
   if (f === 'booked') f = 'upcoming';
@@ -16524,7 +16627,27 @@ function updateCounts() {
   if (segQuotes) segQuotes.textContent = QUOTES.length;
 }
 
+// v2.5.67 · monthly summary card · เคส/ยอดขาย by booking date · เก็บแล้ว by payment date · ค้างเก็บ = total outstanding
+function renderMonthSummary() {
+  const now = new Date(); const y = now.getFullYear(); const m = now.getMonth();
+  let cases = 0, sales = 0, collected = 0, outstanding = 0;
+  (JOBS || []).forEach(j => {
+    if (_isSameMonth(jobBookingDate(j), y, m)) { cases++; sales += jobRevenue(j); }
+    (j.payments || []).forEach(p => { if (_isSameMonth(p.date, y, m)) collected += (Number(p.amount) || 0); });
+    outstanding += jobOutstanding(j);
+  });
+  const MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  set('msum-month', (LANG === 'en' ? MONTHS_EN[m] : MONTHS[m]) + ' ' + displayYear(y));
+  set('msum-cases', cases);
+  set('msum-sales', fmtK(sales));
+  set('msum-collected', fmtK(collected));
+  set('msum-outstanding', fmtK(outstanding));
+}
+
 function updateHomeKPIs() {
+  try { renderMonthSummary(); } catch(e) { console.warn('renderMonthSummary:', e); }
   const yr = new Date().getFullYear();
   const yearJobs = JOBS.filter(j => new Date(j.date).getFullYear() === yr);
   const totalRev = yearJobs.reduce((s,j) => s + jobRevenue(j), 0);
@@ -17600,7 +17723,8 @@ function saveAddJob() {
   } else {
     // Create new
     const newCode = document.getElementById('new-job-code').textContent;
-    const newJob = { code: newCode, ...data, payments: [] };
+    // v2.5.67 · stamp creation time (for "เคส/ยอดขายเดือนนี้" by booking date) · only on new, never overwrite on edit
+    const newJob = { code: newCode, ...data, _createdAt: new Date().toISOString(), payments: [] };
     // Auto-log the deposit payment (user filled deposit > 0 = received)
     if (newJob.deposit > 0) {
       const depDate = newJob.dateDeposit || new Date().toISOString().slice(0, 10);
@@ -18333,6 +18457,8 @@ function convertQuoteToJob(code) {
     // Traceability preserved via fromQuote + note
     source: (Array.isArray(SOURCES) && SOURCES.length > 0) ? SOURCES[SOURCES.length - 1] : 'อื่นๆ',
     fromQuote: q.code,
+    // v2.5.67 · stamp creation time for "เคส/ยอดขายเดือนนี้" (booking date)
+    _createdAt: new Date().toISOString(),
     // v2.5.63 fix · converted job has no team yet → mark incomplete (was undefined → wrongly showed "ทีมครบแล้ว")
     teamStatus: 'incomplete',
     teamCost: 0, otherCost: 0, travelCost: 0, profit: q.sell,
