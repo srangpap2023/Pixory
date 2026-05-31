@@ -2036,8 +2036,8 @@
   body.luxe-theme .pkg-dd-menu,
   body.luxe-theme .pwa-install-banner,
   body.luxe-theme .pwa-ios-modal .pwa-modal-card,
-  body.luxe-theme #whatsnew-modal .wn-card,
-  body.luxe-theme #whatsnew-modal .wn-actions {
+  body.luxe-theme .wn-modal .wn-card,
+  body.luxe-theme .wn-modal .wn-actions {
     background: rgba(20,20,26,0.96) !important;
     color: #F4F4F5 !important;
     border-color: rgba(255,255,255,0.10) !important;
@@ -3871,7 +3871,7 @@
   }
 
   /* ============ WHAT'S NEW MODAL ============ */
-  #whatsnew-modal {
+  .wn-modal {
     position: fixed;
     inset: 0;
     background: rgba(20, 14, 8, 0.55);
@@ -3884,10 +3884,10 @@
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
   }
-  #whatsnew-modal.show { display: flex; }
+  .wn-modal.show { display: flex; }
   @keyframes wn-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
-  #whatsnew-modal .wn-card {
+  .wn-modal .wn-card {
     background: #fff;
     border-radius: 22px;
     width: 100%;
@@ -3902,7 +3902,7 @@
     animation: wn-pop .35s cubic-bezier(.18, .89, .32, 1.28);
     position: relative;
   }
-  body.dark-theme #whatsnew-modal .wn-card {
+  body.dark-theme .wn-modal .wn-card {
     background: #261d15;
     color: #f5f0e8;
   }
@@ -3910,17 +3910,17 @@
     from { transform: scale(.9) translateY(20px); opacity: 0; }
     to { transform: scale(1) translateY(0); opacity: 1; }
   }
-  #whatsnew-modal .wn-header {
+  .wn-modal .wn-header {
     background: linear-gradient(165deg, #f9c5a3 0%, #f4a36a 50%, #d8704a 100%);
     padding: 28px 24px 22px;
     text-align: center;
     position: relative;
     flex-shrink: 0; /* v1.9.11 — keep header visible while body scrolls */
   }
-  body.dark-theme #whatsnew-modal .wn-header {
+  body.dark-theme .wn-modal .wn-header {
     background: linear-gradient(165deg, #4a2e1c 0%, #5a3a26 50%, #6a4a32 100%);
   }
-  #whatsnew-modal .wn-close {
+  .wn-modal .wn-close {
     position: absolute;
     top: 12px;
     right: 14px;
@@ -3937,18 +3937,18 @@
     justify-content: center;
     line-height: 1;
   }
-  #whatsnew-modal .wn-logo {
+  .wn-modal .wn-logo {
     width: 52px;
     height: 52px;
     margin: 0 auto 10px;
   }
-  #whatsnew-modal .wn-logo svg {
+  .wn-modal .wn-logo svg {
     width: 100%;
     height: 100%;
     color: #fff;
     filter: drop-shadow(0 2px 6px rgba(0,0,0,.15));
   }
-  #whatsnew-modal .wn-version-pill {
+  .wn-modal .wn-version-pill {
     display: inline-block;
     background: rgba(255,255,255,0.25);
     color: #fff;
@@ -3959,7 +3959,7 @@
     border-radius: 999px;
     margin-bottom: 8px;
   }
-  #whatsnew-modal .wn-title {
+  .wn-modal .wn-title {
     font-size: 18px;
     font-weight: 800;
     color: #fff;
@@ -3967,20 +3967,20 @@
     text-shadow: 0 1px 3px rgba(0,0,0,0.08);
     line-height: 1.3;
   }
-  #whatsnew-modal .wn-subtitle {
+  .wn-modal .wn-subtitle {
     font-size: 12.5px;
     color: rgba(255,255,255,0.92);
     margin-top: 4px;
     font-weight: 500;
   }
-  #whatsnew-modal .wn-body {
+  .wn-modal .wn-body {
     padding: 22px 22px 18px;
     /* v1.9.11 — scrollable when release notes are long */
     flex: 1 1 auto;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-  #whatsnew-modal .wn-section-label {
+  .wn-modal .wn-section-label {
     font-size: 10.5px;
     font-weight: 700;
     text-transform: uppercase;
@@ -3988,19 +3988,19 @@
     color: #a89a8c;
     margin-bottom: 12px;
   }
-  body.dark-theme #whatsnew-modal .wn-section-label { color: #807870; }
-  #whatsnew-modal .wn-item {
+  body.dark-theme .wn-modal .wn-section-label { color: #807870; }
+  .wn-modal .wn-item {
     display: flex;
     align-items: flex-start;
     gap: 12px;
     padding: 10px 0;
     border-bottom: 1px solid rgba(20,14,8,0.06);
   }
-  body.dark-theme #whatsnew-modal .wn-item {
+  body.dark-theme .wn-modal .wn-item {
     border-color: rgba(255,255,255,0.06);
   }
-  #whatsnew-modal .wn-item:last-child { border-bottom: none; }
-  #whatsnew-modal .wn-item .icon {
+  .wn-modal .wn-item:last-child { border-bottom: none; }
+  .wn-modal .wn-item .icon {
     flex-shrink: 0;
     width: 32px;
     height: 32px;
@@ -4011,25 +4011,25 @@
     justify-content: center;
     font-size: 16px;
   }
-  body.dark-theme #whatsnew-modal .wn-item .icon {
+  body.dark-theme .wn-modal .wn-item .icon {
     background: linear-gradient(135deg, #3a2818, #4a2e1c);
   }
-  #whatsnew-modal .wn-item .content { flex: 1; min-width: 0; }
-  #whatsnew-modal .wn-item .item-title {
+  .wn-modal .wn-item .content { flex: 1; min-width: 0; }
+  .wn-modal .wn-item .item-title {
     font-size: 13.5px;
     font-weight: 700;
     color: #3a2f25;
     line-height: 1.35;
   }
-  body.dark-theme #whatsnew-modal .wn-item .item-title { color: #f5f0e8; }
-  #whatsnew-modal .wn-item .item-desc {
+  body.dark-theme .wn-modal .wn-item .item-title { color: #f5f0e8; }
+  .wn-modal .wn-item .item-desc {
     font-size: 11.5px;
     color: #7c7066;
     line-height: 1.45;
     margin-top: 2px;
   }
-  body.dark-theme #whatsnew-modal .wn-item .item-desc { color: #b8b0a4; }
-  #whatsnew-modal .wn-actions {
+  body.dark-theme .wn-modal .wn-item .item-desc { color: #b8b0a4; }
+  .wn-modal .wn-actions {
     padding: 14px 22px 22px;
     /* v1.9.11 — pin CTA to bottom + safe area for iPhone home indicator */
     padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
@@ -4037,11 +4037,11 @@
     background: #fff;
     border-top: 1px solid rgba(20,14,8,0.06);
   }
-  body.dark-theme #whatsnew-modal .wn-actions {
+  body.dark-theme .wn-modal .wn-actions {
     background: #261d15;
     border-top-color: rgba(255,255,255,0.06);
   }
-  #whatsnew-modal .wn-primary {
+  .wn-modal .wn-primary {
     width: 100%;
     background: linear-gradient(180deg, #e87f5a, #d8704a);
     color: #fff;
@@ -4055,14 +4055,14 @@
     box-shadow: 0 4px 12px rgba(216, 112, 74, 0.32);
     letter-spacing: 0.2px;
   }
-  #whatsnew-modal .wn-primary:active { transform: scale(0.98); }
-  #whatsnew-modal .wn-footer-note {
+  .wn-modal .wn-primary:active { transform: scale(0.98); }
+  .wn-modal .wn-footer-note {
     font-size: 10.5px;
     color: #a89a8c;
     text-align: center;
     margin-top: 10px;
   }
-  body.dark-theme #whatsnew-modal .wn-footer-note { color: #807870; }
+  body.dark-theme .wn-modal .wn-footer-note { color: #807870; }
 
   /* v1.9.24 · Inline tax fields block (B2B/Gov) */
   .tax-fields-inline {
@@ -4626,7 +4626,7 @@
 </div>
 
 <!-- ====== WHAT'S NEW MODAL (filled by JS) ====== -->
-<div id="whatsnew-modal">
+<div id="whatsnew-modal" class="wn-modal">
   <div class="wn-card">
     <div class="wn-header">
       <button class="wn-close" onclick="dismissWhatsNew()" aria-label="ปิด">×</button>
@@ -4649,6 +4649,30 @@
     <div class="wn-actions">
       <button class="wn-primary" onclick="dismissWhatsNew()">รับทราบ · เริ่มใช้งาน</button>
       <div class="wn-footer-note" id="wn-footer-note">ขอบคุณที่ใช้ Pixory · พัฒนาโดยช่างภาพ เพื่อช่างภาพ</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== ANNOUNCEMENT MODAL (v2.5.68) · ประกาศจากแอดมิน · เก็บไว้อ่านเต็มในแอป (ไม่หายเหมือน push) ====== -->
+<div id="announce-modal" class="wn-modal">
+  <div class="wn-card">
+    <div class="wn-header">
+      <button class="wn-close" onclick="dismissAnnounce()" aria-label="ปิด">×</button>
+      <div class="wn-logo" style="font-size:30px; line-height:52px;">📣</div>
+      <span class="wn-version-pill" id="an-pill">ประกาศ</span>
+      <div class="wn-title" id="an-title"></div>
+      <div class="wn-subtitle" id="an-date"></div>
+    </div>
+    <div class="wn-body">
+      <div class="wn-item">
+        <div class="content">
+          <div class="item-desc" id="an-body" style="white-space:pre-wrap; font-size:14px; line-height:1.65;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="wn-actions">
+      <button class="wn-primary" id="an-action" onclick="announceAction()">รับทราบ</button>
+      <div class="wn-footer-note">ขอบคุณที่ใช้ Pixory</div>
     </div>
   </div>
 </div>
@@ -8261,7 +8285,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.67';
+const PIXORY_VERSION = '2.5.68';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8272,6 +8296,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.68': {
+    date: '2026-05-31',
+    title: '📣 ประกาศจากแอป · อ่านเต็มได้ ไม่หาย',
+    subtitle: 'ประกาศจะเด้งให้อ่านในแอป กดอ่านซ้ำได้ ไม่ตกหล่นเหมือนแจ้งเตือนเด้ง',
+    items: [
+      { icon: '📣', title: 'กล่องประกาศในแอป', desc: 'เมื่อมีประกาศใหม่ แอปจะเด้งข้อความเต็มๆ ให้อ่าน · ไม่โดนตัดครึ่งหรือหายไปเหมือนการแจ้งเตือนหน้าจอ · ถ้ายังไม่ได้อ่าน เปิดแอปครั้งหน้าก็ยังเห็น' },
+      { icon: '🔔', title: 'แจ้งเตือนค้างจนกว่าจะกด', desc: 'การแจ้งเตือนแบบเด้ง (push) จะไม่หายเอง · ค้างไว้จนกดอ่าน เพื่อไม่ให้พลาดเรื่องสำคัญ' }
+    ]
+  },
   '2.5.67': {
     date: '2026-05-31',
     title: '📅 สรุปเดือนนี้ + ฟิลเตอร์ "รอจัดทีม"',
@@ -10669,11 +10702,106 @@ function showWhatsNewModal(versionKey) {
 function dismissWhatsNew() {
   document.getElementById('whatsnew-modal').classList.remove('show');
   try { localStorage.setItem(LAST_SEEN_VERSION_KEY, PIXORY_VERSION); } catch(e) {}
+  // v2.5.68 · หลังปิด What's New แล้ว ค่อยโชว์ประกาศที่ยังไม่อ่าน (ถ้ามี · จะได้ไม่ชนกัน)
+  setTimeout(() => { try { _showNextAnnounce(); } catch(e) {} }, 220);
 }
 
 // Called from About page / Settings — manual replay
 function showCurrentVersionNotes() {
   showWhatsNewModal(PIXORY_VERSION);
+}
+
+// ========== v2.5.68 · ANNOUNCEMENTS (กล่องประกาศในแอป) ==========
+// push = แค่กระดิ่งเรียก · ข้อความจริงเก็บใน table announcements → เปิดแอปแล้วอ่านเต็มได้ ไม่หาย
+const ANNOUNCE_SEEN_KEY = 'pixory.announcements.seen';
+let _announceQueue = [];
+let _currentAnnounce = null;
+
+function _getSeenAnnounce() {
+  try { return JSON.parse(localStorage.getItem(ANNOUNCE_SEEN_KEY) || '[]') || []; } catch(e) { return []; }
+}
+function _markAnnounceSeen(id) {
+  if (id == null) return;
+  try {
+    const s = _getSeenAnnounce();
+    if (!s.includes(id)) { s.push(id); localStorage.setItem(ANNOUNCE_SEEN_KEY, JSON.stringify(s.slice(-300))); }
+  } catch(e) {}
+}
+function _fmtAnnounceDate(iso) {
+  try { return new Date(iso).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  catch(e) { return ''; }
+}
+function _announceHasUrl(ann) {
+  return !!(ann && ann.url && ann.url !== './' && ann.url !== '/' && ann.url !== './desktop.html');
+}
+
+function showAnnounceModal(ann) {
+  if (!ann) return;
+  _currentAnnounce = ann;
+  const title = document.getElementById('an-title');
+  const dateEl = document.getElementById('an-date');
+  const body = document.getElementById('an-body');
+  const action = document.getElementById('an-action');
+  if (title) title.textContent = ann.title || 'ประกาศจาก Pixory';   // textContent = กัน XSS
+  if (dateEl) dateEl.textContent = _fmtAnnounceDate(ann.created_at);
+  if (body) body.textContent = ann.body || '';                      // textContent = กัน XSS · คง newline ผ่าน pre-wrap
+  if (action) action.textContent = _announceHasUrl(ann) ? 'เปิดดู' : 'รับทราบ';
+  document.getElementById('announce-modal').classList.add('show');
+}
+
+function dismissAnnounce() {
+  if (_currentAnnounce) _markAnnounceSeen(_currentAnnounce.id);
+  document.getElementById('announce-modal').classList.remove('show');
+  _currentAnnounce = null;
+  setTimeout(() => { try { _showNextAnnounce(); } catch(e) {} }, 220);  // โชว์ประกาศถัดไปถ้ามี
+}
+
+function announceAction() {
+  const ann = _currentAnnounce;
+  if (_announceHasUrl(ann)) {
+    _markAnnounceSeen(ann.id);
+    const u = ann.url;
+    document.getElementById('announce-modal').classList.remove('show');
+    _currentAnnounce = null;
+    try {
+      if (/^https?:\/\//i.test(u)) window.location.href = u;
+      else window.location.hash = u.replace(/^[#./]+/, '');   // hash route ในแอป
+    } catch(e) {}
+  } else {
+    dismissAnnounce();
+  }
+}
+
+function _showNextAnnounce() {
+  if (!_announceQueue || !_announceQueue.length) return;
+  // อย่าเด้งทับ auth / wizard / what's new / re-consent
+  if (document.querySelector('.auth-screen.active')) return;
+  if (typeof _wizardActive !== 'undefined' && _wizardActive) return;
+  const wn = document.getElementById('whatsnew-modal');
+  if (wn && wn.classList.contains('show')) return;
+  const recon = document.getElementById('reconsent-modal');
+  if (recon && recon.style.display === 'flex') return;
+  const am = document.getElementById('announce-modal');
+  if (am && am.classList.contains('show')) return;  // มีอันเปิดอยู่แล้ว
+  const ann = _announceQueue.shift();
+  showAnnounceModal(ann);
+}
+
+async function checkAnnouncements() {
+  if (!SUPABASE || !CURRENT_USER) return;
+  try {
+    const since = new Date(Date.now() - 60 * 24 * 3600 * 1000).toISOString(); // 60 วันล่าสุด
+    const { data, error } = await SUPABASE
+      .from('announcements')
+      .select('id,title,body,url,created_at')
+      .gte('created_at', since)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (error || !data) return;   // ตารางยังไม่มี/ดึงไม่ได้ → เงียบ ไม่รบกวนผู้ใช้
+    const seen = _getSeenAnnounce();
+    _announceQueue = data.filter(a => !seen.includes(a.id));  // ใหม่สุดก่อน (data เรียง desc แล้ว)
+    _showNextAnnounce();
+  } catch(e) { console.warn('checkAnnouncements failed', e); }
 }
 
 // v1.9.41 · Legal screens (Privacy Policy + Terms of Service)
@@ -24570,6 +24698,8 @@ async function initAfterAuth() {
 
   // After home/wizard is settled — check for version notes to display
   try { checkVersionUpdate(); } catch(e) { console.warn('checkVersionUpdate failed', e); }
+  // v2.5.68 · then check for unread announcements (delayed so it doesn't fight What's New)
+  try { setTimeout(() => { checkAnnouncements(); }, 2600); } catch(e) {}
 }
 
 function updateAccountUI() {
@@ -24616,7 +24746,7 @@ if (document.readyState === 'loading') {
   let _lastBackAttemptAt = 0;
   let _allowExit = false;
 
-  const OVERLAY_SELECTORS = '.modal.show, .sheet.show, .ctype-sheet.show, #fab-menu.show, #whatsnew-modal.show, .tf-sheet.show, .quickstart-modal.show, .pxy-bottom-sheet.show';
+  const OVERLAY_SELECTORS = '.modal.show, .sheet.show, .ctype-sheet.show, #fab-menu.show, .wn-modal.show, .tf-sheet.show, .quickstart-modal.show, .pxy-bottom-sheet.show';
 
   // Init: push BUFFER + HOME so there are 2 entries minimum (1st Back ≠ exit)
   try {
