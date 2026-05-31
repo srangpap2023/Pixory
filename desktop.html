@@ -2890,12 +2890,21 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.43';
+const PIXORY_DESKTOP_VERSION = '1.0.44';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.44': {
+    date: '2026-05-31',
+    title: '📅 สรุปเดือนนี้ + ฟิลเตอร์ "รอจัดทีม"',
+    subtitle: 'แถวสรุปเดือนนี้บนแดชบอร์ด · กรองงานที่ทีมยังไม่ครบ',
+    items: [
+      { icon: '📅', title: 'แถวสรุปเดือนนี้ (จองเข้ามา)', desc: 'เคส · ยอดขาย (ตามวันจอง) · เก็บเข้ามาแล้ว · ค้างเก็บรวม — ดูง่ายบนสุดแดชบอร์ด' },
+      { icon: '👥', title: 'แท็บ "รอจัดทีม" ในหน้างาน', desc: 'กรองเฉพาะงานที่ทีมยังไม่ครบ + ตัวเลขนับ' }
+    ]
+  },
   '1.0.43': {
     date: '2026-05-31',
     title: '🧾 แก้ค่าเดินทาง/ค่าใช้จ่ายที่เก็บลูกค้า หายจากราคางาน',
@@ -3006,6 +3015,16 @@ function jobInvExtra(j) {
   return e + a;
 }
 function jobRevenue(j) { return (Number(j && j.sell) || 0) + jobInvExtra(j); }
+// v1.0.44 · "booking date" = วันที่จอง/สร้างงานเข้ามา · for เคส/ยอดขายเดือนนี้ · fallback covers old jobs
+function jobBookingDate(j) {
+  if (!j) return '';
+  return String(j._createdAt || j.dateDeposit || j.depositPaidDate || j.date || '').slice(0, 10);
+}
+function _isSameMonthD(dateStr, y, mo) {
+  if (!dateStr) return false;
+  var d = new Date(dateStr);
+  return !isNaN(d.getTime()) && d.getFullYear() === y && d.getMonth() === mo;
+}
 // v1.0.41 · A2 · outstanding incl unpaid OT/add-on · base (sell−deposit) + invExtra · 0 once invoice balance paid
 function jobOutstanding(j) {
   if (!j) return 0;
@@ -4110,6 +4129,9 @@ function renderDashboard(root) {
   const monthClosed = monthJobs.filter(j => getStageFromJobStatus(j.jobStatus) === 'closed').length;
   const avgPerJob = monthJobs.length > 0 ? monthIncome / monthJobs.length : 0;
   const monthOutstanding = monthJobs.reduce((s,j) => s + jobOutstanding(j), 0);
+  // v1.0.44 · booking-based "this month" · เคส/ยอดขายที่จองเข้ามาเดือนนี้ (ตรงกับมือถือ + ที่ Joe เลือก)
+  let bookedCount = 0, bookedSales = 0;
+  JOBS.forEach(j => { if (_isSameMonthD(jobBookingDate(j), yr, m)) { bookedCount++; bookedSales += jobRevenue(j); } });
 
   // Active jobs
   const activeJobs = JOBS.filter(j => getStageFromJobStatus(j.jobStatus) !== 'closed');
@@ -4248,6 +4270,29 @@ function renderDashboard(root) {
     </div>
 
     ${vatThresholdBanner}
+
+    <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-mute);margin-bottom:10px;">📅 สรุปเดือนนี้ · จองเข้ามาเดือน ${escapeHtml(thMonths[m])}</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+      <div style="background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
+        <div style="font-size:12px;color:var(--ink-mute);">📸 เคสเดือนนี้</div>
+        <div style="font-size:24px;font-weight:700;color:var(--ink);margin-top:6px;">${bookedCount} <span style="font-size:13px;color:var(--ink-mute);font-weight:400;">งาน</span></div>
+      </div>
+      <div style="background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
+        <div style="font-size:12px;color:var(--ink-mute);">💰 ยอดขาย</div>
+        <div style="font-size:24px;font-weight:700;color:var(--ink);margin-top:6px;">${fmtTHB(bookedSales)}</div>
+      </div>
+      <div style="background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
+        <div style="font-size:12px;color:var(--ink-mute);">👛 เก็บเข้ามาแล้ว</div>
+        <div style="font-size:24px;font-weight:700;color:var(--green);margin-top:6px;">${fmtTHB(monthCashIn)}</div>
+        <div style="font-size:11px;color:var(--ink-mute);margin-top:2px;">มัดจำ + เก็บยอดคงเหลือ</div>
+      </div>
+      <div style="background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
+        <div style="font-size:12px;color:var(--ink-mute);">⏳ ค้างเก็บ (รวม)</div>
+        <div style="font-size:24px;font-weight:700;color:var(--red);margin-top:6px;">${fmtTHB(pendingTotal)}</div>
+        <div style="font-size:11px;color:var(--ink-mute);margin-top:2px;">${pendingCustomers} ราย</div>
+      </div>
+    </div>
+
     <div style="display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:minmax(140px, auto);gap:16px;">
 
       <!-- BIG INCOME 6x2 -->
@@ -4769,7 +4814,8 @@ function renderJobs(root) {
     wait_shoot: JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_shoot').length,
     wait_deliver: JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_deliver').length,
     unpaid: JOBS.filter(isUnpaid).length,
-    closed: JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'closed').length
+    closed: JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'closed').length,
+    team_incomplete: JOBS.filter(j => j.teamStatus === 'incomplete' && getStageFromJobStatus(j.jobStatus) !== 'closed').length
   };
   // Total ค้างชำระ (ยอด)
   const totalUnpaid = JOBS.filter(isUnpaid).reduce((s, j) => s + jobOutstanding(j), 0);
@@ -4787,6 +4833,7 @@ function renderJobs(root) {
         <button class="tab-btn ${JOBS_TAB === 'wait_deliver' ? 'active' : ''}" onclick="setJobsTab('wait_deliver')">รอส่งงาน <span class="count">${counts.wait_deliver}</span></button>
         <button class="tab-btn ${JOBS_TAB === 'unpaid' ? 'active' : ''}" onclick="setJobsTab('unpaid')" ${counts.unpaid > 0 ? 'style="color:#b91c1c;"' : ''}>💸 ค้างชำระ <span class="count">${counts.unpaid}</span></button>
         <button class="tab-btn ${JOBS_TAB === 'closed' ? 'active' : ''}" onclick="setJobsTab('closed')">ปิดงาน <span class="count">${counts.closed}</span></button>
+        <button class="tab-btn ${JOBS_TAB === 'team_incomplete' ? 'active' : ''}" onclick="setJobsTab('team_incomplete')" ${counts.team_incomplete > 0 ? 'style="color:#b45309;"' : ''}>👥 รอจัดทีม <span class="count">${counts.team_incomplete}</span></button>
       </div>
       <div class="view-toggle">
         <button class="v-btn ${JOBS_VIEW === 'list' ? 'active' : ''}" onclick="setJobsView('list')">☰ รายการ</button>
@@ -4817,6 +4864,10 @@ function _filteredJobs() {
       if (remA !== remB) return remB - remA;
       return (a.date || '').localeCompare(b.date || '');
     });
+  }
+  if (JOBS_TAB === 'team_incomplete') {
+    return JOBS.filter(j => j.teamStatus === 'incomplete' && getStageFromJobStatus(j.jobStatus) !== 'closed')
+      .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
   }
   return JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === JOBS_TAB)
     .sort((a, b) => isClosed
