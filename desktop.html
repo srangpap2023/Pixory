@@ -2890,7 +2890,59 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.38';
+const PIXORY_DESKTOP_VERSION = '1.0.42';
+
+// ========== WHAT'S NEW (desktop · mirrors mobile) ==========
+// ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
+const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
+const RELEASE_NOTES = {
+  '1.0.42': {
+    date: '2026-05-31',
+    title: '🐛 แก้สมัคร/เข้าระบบ · ข้อความแจ้งไม่ขึ้น',
+    subtitle: 'เดิมกดสมัครแล้วเหมือนไม่มีอะไรเกิด · ตอนนี้เห็นข้อความชัด',
+    items: [
+      { icon: '✅', title: 'ข้อความแจ้งหน้า login/สมัคร แสดงแล้ว', desc: 'เดิมข้อความ (เช่น "ตรวจอีเมล" / แจ้งเตือน) ถูกซ่อนโดยไม่ตั้งใจ ทำให้กดสมัครแล้วเหมือนค้าง ไม่ไปไหน · ตอนนี้แสดงผลถูกต้องทั้งสมัคร/เข้าระบบ/ลืมรหัส' }
+    ]
+  },
+  '1.0.41': {
+    date: '2026-05-31',
+    title: '📈 รายรับ OT / Add-on หลังถ่าย เข้าสรุปแล้ว',
+    subtitle: 'รายได้ที่เก็บเพิ่มจากใบเรียกเก็บฯ นับในแดชบอร์ด/รายงาน/ภาษี',
+    items: [
+      { icon: '📈', title: 'OT + Add-on หลังถ่าย นับเป็นรายได้', desc: 'นับเข้าสรุปรายได้ · ชาร์ท · PIT · เกณฑ์ VAT · และยอดค้างชำระของงาน · ตรงกับเงินจริงที่เก็บได้' },
+      { icon: '💸', title: 'การ์ดต้นทุนงานชัดขึ้น', desc: 'ป้าย 🔒 เฉพาะเราเห็น · แยก "เราจ่ายจริง (ต้นทุน)" จากฝั่งลูกค้า' },
+      { icon: '📝', title: 'เตือนเมื่อแก้ใบเสนอที่แปลงเป็นงานแล้ว', desc: 'งานที่แปลงไปแล้วจะไม่อัปเดตตามใบเสนอ · เตือนกันราคาเพี้ยน' }
+    ]
+  },
+  '1.0.40': {
+    date: '2026-05-31',
+    title: '🆕 มีหน้า "มีอะไรใหม่" บนเดสก์ทอปแล้ว',
+    subtitle: 'เห็นรายการพัฒนาทุกครั้งที่อัปเดต · เหมือนฝั่งมือถือ',
+    items: [
+      { icon: '📋', title: 'สรุปอัปเดตทุกเวอร์ชัน', desc: 'เปิดแอปแล้วเห็นว่าอะไรใหม่ · กดดูย้อนหลังได้จากเมนูตั้งค่า/เกี่ยวกับ' },
+      { icon: '🔒', title: 'กันข้อมูลชนกันตอนใช้หลายเครื่อง', desc: 'เพิ่มการตรวจเวอร์ชันก่อนบันทึกขึ้นคลาวด์ · ลดโอกาสข้อมูลทับกันเมื่อเปิดมือถือ+เดสก์ทอปพร้อมกัน' },
+      { icon: '👥', title: 'แก้บั๊ก: แปลงใบเสนอเป็นงานแล้วทีมขึ้น "ครบแล้ว"', desc: 'งานที่แปลงจากใบเสนอจะขึ้น "ทีมยังไม่ครบ" ถูกต้อง แทนการติ๊กครบเองทั้งที่ยังไม่เลือกทีม' }
+    ]
+  },
+  '1.0.39': {
+    date: '2026-05-31',
+    title: '🛡️ ซิงค์หลายเครื่องนิ่งขึ้น',
+    subtitle: 'แก้การรีเฟรชหน้าจอตัวเองโดยไม่จำเป็น + กันเขียนทับตอนเริ่มแอป',
+    items: [
+      { icon: '🔄', title: 'ลดการรีเฟรชหน้าจอซ้ำ', desc: 'เมื่อก่อนบันทึกทีหน้าจ้ออาจกระพริบรีเฟรชเอง · ตอนนี้ตรวจเครื่องที่เขียนได้แม่นขึ้น' },
+      { icon: '✅', title: 'กันข้อมูลเก่าทับใหม่', desc: 'การเลื่อนสถานะงานอัตโนมัติจะบันทึกขึ้นคลาวด์เฉพาะตอนข้อมูลพร้อมจริง' }
+    ]
+  },
+  '1.0.38': {
+    date: '2026-05-30',
+    title: '🧮 หน้าภาษีครบเท่ามือถือ',
+    subtitle: 'ลดหย่อน 5 หมวด + เตือนเกณฑ์ VAT',
+    items: [
+      { icon: '🧾', title: 'ลดหย่อนภาษีละเอียด 5 หมวด', desc: 'ประกันชีวิต/สุขภาพ · RMF/SSF · ดอกเบี้ยบ้าน · บริจาค · คำนวณ PIT ตรงกับมือถือ' },
+      { icon: '⚠️', title: 'เตือนเกณฑ์จด VAT', desc: 'รายได้ใกล้ ฿1.5M (เหลือง) / ถึง ฿1.8M (แดง) · เตือนก่อนต้องจดทะเบียน' }
+    ]
+  }
+};
 
 // ===== Supabase config (must match mobile) =====
 const SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
@@ -2937,6 +2989,22 @@ const PKG_PB = [];
 const PKG_VIDEO = [];
 const PKG_PRE = [];
 const EQUIPMENT_CATEGORIES = [];
+// v1.0.41 · A2 · additional-billing invoice extras (OT + post-shoot add-ons) = real job income
+// Counted in revenue (dashboard · reports · by-customer · donut) + PIT base + VAT threshold (parity w/ mobile).
+function jobInvExtra(j) {
+  if (!j || !j.invoice) return 0;
+  var e = Number(j.invoice.extraTime) || 0;
+  var a = Array.isArray(j.invoice.addOns) ? j.invoice.addOns.reduce(function (s, x) { return s + (Number(x && x.price) || 0); }, 0) : 0;
+  return e + a;
+}
+function jobRevenue(j) { return (Number(j && j.sell) || 0) + jobInvExtra(j); }
+// v1.0.41 · A2 · outstanding incl unpaid OT/add-on · base (sell−deposit) + invExtra · 0 once invoice balance paid
+function jobOutstanding(j) {
+  if (!j) return 0;
+  if (j.invoice && j.invoice.balancePaid) return 0;
+  return Math.max(0, (Number(j.sell) || 0) - (Number(j.deposit) || 0)) + jobInvExtra(j);
+}
+function jobPaid(j) { return jobRevenue(j) - jobOutstanding(j); }
 let JOB_TYPES = ['Wedding','Pre-wedding','Engagement','Portrait','Family','Event','Corporate','Product','อื่นๆ'];
 let SOURCES = ['Facebook','Instagram','Instagram DM','LINE','Website','เว็บไซต์','Referral','เพื่อนแนะนำ','ลูกค้าเก่ากลับมา','Walk-in','อื่นๆ'];
 let EXPENSE_CATS = ['เดินทาง','ที่พัก','อุปกรณ์ถ่าย','เช่าอุปกรณ์','ค่ากินทีม','Software/Subscription','Marketing/โฆษณา','ค่าตัดต่อจ้างนอก','อื่นๆ'];
@@ -2953,6 +3021,9 @@ let ADDONS = [
 // ===== UI state =====
 let CURRENT_PAGE = 'dashboard';
 let DATA_VERSION = 0; // bumped on local change · used for conflict detection
+// v1.0.39 · true once cloud has responded (data or confirmed-empty) · gate autoAdvance push
+// so a future raw-boot/applyDataBlob path can never push stale state over newer cloud (mirrors mobile Guard B)
+let _cloudConfirmed = false;
 
 // ===== Constants =====
 const TODAY_ISO = () => new Date().toISOString().slice(0, 10);
@@ -3160,7 +3231,7 @@ function switchAuthPane(pane) {
     if (tabRow) tabRow.style.display = 'none';
   }
   // Clear all auth messages on switch
-  document.querySelectorAll('.auth-msg').forEach(el => { el.textContent = ''; el.className = 'auth-msg'; });
+  document.querySelectorAll('.auth-msg').forEach(el => { el.textContent = ''; el.className = 'auth-msg'; el.style.display = 'none'; });
 }
 
 function setAuthMsg(pane, type, text) {
@@ -3168,7 +3239,9 @@ function setAuthMsg(pane, type, text) {
   if (!el) return;
   el.className = 'auth-msg ' + (type || '');
   el.textContent = text || '';
-  if (!text) el.style.display = 'none';
+  // v1.0.42 · set inline display explicitly · was: only set 'none', so a stale inline display:none
+  // overrode the CSS .error/.success {display:block} → auth messages were invisible (signup "เด้งๆ ไม่ไป")
+  el.style.display = text ? 'block' : 'none';
 }
 
 async function doLogin() {
@@ -3447,6 +3520,8 @@ async function finishAuthAndStart() {
   navigate('dashboard');
   // Start realtime sync (Sprint 2E)
   startRealtimeSync();
+  // v1.0.40 · show What's New if version changed since last seen
+  try { checkVersionUpdate(); } catch(e) { console.warn('checkVersionUpdate:', e); }
 }
 
 // ===================================================================
@@ -3573,6 +3648,8 @@ async function pullFromCloudAndMerge() {
       toast('โหลดข้อมูลล้มเหลว · ' + (error.message || ''), 'error');
       return;
     }
+    // Cloud responded without error (data present OR confirmed-empty) · safe to push from here on
+    _cloudConfirmed = true;
     if (data && data.data) {
       applyDataBlob(data.data);
       // Cache locally
@@ -3611,6 +3688,16 @@ function getLocalDataObj() {
 
 // FIX C2 · Conflict-check version · ก่อน push เช็คว่ามีใครแก้ใน cloud ใหม่กว่าเรามั้ย
 // opts.force = true → ข้าม check (ใช้หลัง user confirm)
+// v1.0.40 · detect "RPC not deployed yet" so we can fall back to legacy upsert safely
+function _isMissingFnError(err) {
+  if (!err) return false;
+  const code = err.code || '';
+  const msg = ((err.message || '') + ' ' + (err.details || '') + ' ' + (err.hint || '')).toLowerCase();
+  // v1.0.40 · ONLY match PostgREST "function not in schema cache" signals · NOT bare "does not exist"
+  // (a deployed RPC throwing a real error containing "does not exist" must NOT trigger a clobbering fallback)
+  return code === 'PGRST202' || msg.indexOf('could not find the function') >= 0 || msg.indexOf('schema cache') >= 0;
+}
+
 async function pushToCloud(opts) {
   opts = opts || {};
   if (!CURRENT_USER || !SUPABASE) return false;
@@ -3663,19 +3750,50 @@ async function pushToCloud(opts) {
 
     DATA_VERSION = blob._meta.version;
     try { localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(blob)); } catch(e) {}
-    const { error } = await SUPABASE
-      .from('user_data')
-      .upsert({
-        user_id: CURRENT_USER.id,
-        data: blob,
-        device_id: DEVICE_ID,
-        updated_at: blob._meta.updated_at
-      }, { onConflict: 'user_id' });
-    if (error) {
-      console.warn('Push failed:', error);
-      setSyncState('error', error.message);
-      toast('บันทึกขึ้นคลาวด์ล้มเหลว · ' + (error.message || ''), 'error');
-      return false;
+    const newVersion = blob._meta.version;
+    // v1.0.40 · TOCTOU-safe atomic compare-and-swap · _applied: true=ok · false=stale · null=RPC unavailable→fallback
+    let _applied = null;
+    try {
+      const { data: rpcRes, error: rpcErr } = await SUPABASE.rpc('push_user_data', {
+        p_user_id: CURRENT_USER.id,
+        p_data: blob,
+        p_device: DEVICE_ID,
+        p_new_version: newVersion
+      });
+      if (rpcErr) {
+        if (_isMissingFnError(rpcErr)) { _applied = null; } // not deployed → legacy fallback
+        else { console.warn('push RPC error:', rpcErr); setSyncState('error', rpcErr.message); toast('บันทึกขึ้นคลาวด์ล้มเหลว · ' + (rpcErr.message || ''), 'error'); return false; }
+      } else {
+        const row = Array.isArray(rpcRes) ? rpcRes[0] : rpcRes;
+        _applied = !!(row && row.applied);
+      }
+    } catch(rpcEx) { console.warn('push RPC threw · fallback:', rpcEx); _applied = null; }
+
+    if (_applied === false) {
+      if (!opts.force) {
+        setSyncState('error', 'มีข้อมูลใหม่กว่าจากอีกเครื่อง · รีเฟรชเพื่อ pull');
+        toast('☁️ มีข้อมูลใหม่กว่าในคลาวด์ · กดรีเฟรชเพื่อดึงข้อมูลล่าสุด', 'warn');
+        return false;
+      }
+      _applied = null; // force + rejected (rare) → legacy upsert below
+    }
+
+    if (_applied === null) {
+      // Legacy path · RPC not deployed (or fell back) · identical to pre-v1.0.40 behavior
+      const { error } = await SUPABASE
+        .from('user_data')
+        .upsert({
+          user_id: CURRENT_USER.id,
+          data: blob,
+          device_id: DEVICE_ID,
+          updated_at: blob._meta.updated_at
+        }, { onConflict: 'user_id' });
+      if (error) {
+        console.warn('Push failed:', error);
+        setSyncState('error', error.message);
+        toast('บันทึกขึ้นคลาวด์ล้มเหลว · ' + (error.message || ''), 'error');
+        return false;
+      }
     }
     setSyncState('synced');
     return true;
@@ -3744,7 +3862,7 @@ function _daysBetween(iso1, iso2) {
 
 // Income for given month (0-indexed)
 function _monthJobs(yr, m) { return JOBS.filter(j => j.date && new Date(j.date).getFullYear() === yr && new Date(j.date).getMonth() === m); }
-function _monthIncome(yr, m) { return _monthJobs(yr, m).reduce((s,j) => s + (Number(j.sell) || 0), 0); }
+function _monthIncome(yr, m) { return _monthJobs(yr, m).reduce((s,j) => s + jobRevenue(j), 0); }
 
 // Next upcoming shoot
 function _nextShoot() {
@@ -3810,7 +3928,7 @@ function _deriveTodos() {
 
   // Overdue invoice (balance not paid past dateDue + 7 days)
   JOBS.forEach(j => {
-    const remain = Math.max(0, (j.sell || 0) - (j.deposit || 0));
+    const remain = jobOutstanding(j);
     if (remain <= 0) return;
     if (!j.invoice || !j.invoice.dateDue || j.invoice.balancePaid) return;
     const overdue = _daysBetween(j.invoice.dateDue, today);
@@ -3876,7 +3994,7 @@ function _deriveTodos() {
 
   // event passed but remain > 0 (not yet overdue · dateDue check above)
   JOBS.forEach(j => {
-    const remain = Math.max(0, (j.sell || 0) - (j.deposit || 0));
+    const remain = jobOutstanding(j);
     if (remain <= 0) return;
     if (!j.date) return;
     const days = _daysBetween(j.date, today);
@@ -3983,7 +4101,7 @@ function renderDashboard(root) {
   const monthVsLast = prevMonthIncome > 0 ? ((monthIncome - prevMonthIncome) / prevMonthIncome * 100) : 0;
   const monthClosed = monthJobs.filter(j => getStageFromJobStatus(j.jobStatus) === 'closed').length;
   const avgPerJob = monthJobs.length > 0 ? monthIncome / monthJobs.length : 0;
-  const monthOutstanding = monthJobs.reduce((s,j) => s + Math.max(0, (j.sell||0) - (j.deposit||0)), 0);
+  const monthOutstanding = monthJobs.reduce((s,j) => s + jobOutstanding(j), 0);
 
   // Active jobs
   const activeJobs = JOBS.filter(j => getStageFromJobStatus(j.jobStatus) !== 'closed');
@@ -3991,8 +4109,8 @@ function renderDashboard(root) {
   const waitDeliverCount = activeJobs.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_deliver').length;
 
   // Pending payments
-  const allPending = JOBS.filter(j => Math.max(0, (j.sell||0) - (j.deposit||0)) > 0);
-  const pendingTotal = allPending.reduce((s,j) => s + Math.max(0, (j.sell||0) - (j.deposit||0)), 0);
+  const allPending = JOBS.filter(j => jobOutstanding(j) > 0);
+  const pendingTotal = allPending.reduce((s,j) => s + jobOutstanding(j), 0);
   const pendingCustomers = new Set(allPending.map(j => j.customer)).size;
 
   // v1.0.34 · Cash inflow this month vs last month (replaces confusing "ปิดสัปดาห์นี้")
@@ -4019,7 +4137,7 @@ function renderDashboard(root) {
 
   // YTD income + margin
   const yearJobs = JOBS.filter(j => j.date && new Date(j.date).getFullYear() === yr);
-  const ytdIncome = yearJobs.reduce((s,j) => s + (Number(j.sell)||0), 0);
+  const ytdIncome = yearJobs.reduce((s,j) => s + jobRevenue(j), 0);
   const yearExp = EXPENSES.filter(e => e.date && new Date(e.date).getFullYear() === yr);
   const ytdExpense = yearExp.reduce((s,e) => s + (Number(e.amount)||0), 0)
     + yearJobs.reduce((s,j) => s + (Number(j.teamCost)||0) + (Number(j.travelCost)||0) + (Number(j.otherCost)||0)
@@ -4441,7 +4559,7 @@ function renderCalendar(root) {
       const totalRemain = monthEntries.reduce((s, e) => {
         if (seenJobsForTotal.has(e.job.code)) return s;
         seenJobsForTotal.add(e.job.code);
-        return s + Math.max(0, (e.job.sell || 0) - (e.job.deposit || 0));
+        return s + jobOutstanding(e.job);
       }, 0);
       // เก็บแยกสำหรับ count ใน stage pills (count unique jobs ไม่ใช่ session)
       const uniqueMonthJobs = Array.from(new Map(monthEntries.map(e => [e.job.code, e.job])).values());
@@ -4483,7 +4601,7 @@ function renderCalendar(root) {
               const j = entry.job;
               const sess = entry.session;
               const stage = getStageFromJobStatus(j.jobStatus);
-              const remain = Math.max(0, (j.sell || 0) - (j.deposit || 0));
+              const remain = jobOutstanding(j);
               const timeStr = sess ? ((sess.start || '?') + ' - ' + (sess.end || '?')) : '-';
               const meta = getCustomerTypeMeta(j.customerType);
               const stageColor = stage === 'wait_shoot' ? 'var(--blue)' : stage === 'wait_deliver' ? 'var(--yellow)' : 'var(--green)';
@@ -4594,7 +4712,7 @@ function openDayDetail(iso) {
                 const j = entry.job;
                 const sess = entry.session;
                 const timeStr = sess ? ((sess.start || '?') + ' - ' + (sess.end || '?')) : '-';
-                const remain = Math.max(0, (j.sell || 0) - (j.deposit || 0));
+                const remain = jobOutstanding(j);
                 const totalSess = Array.isArray(j.sessions) ? j.sessions.length : 0;
                 const sessIdx = (sess && totalSess > 0) ? j.sessions.indexOf(sess) : -1;
                 const sessLabel = (sess && sess.label) ? sess.label : (sessIdx >= 0 ? ('Session ' + (sessIdx + 1)) : '-');
@@ -4636,7 +4754,7 @@ let JOBS_VIEW = 'list';  // 'list' | 'card'
 function renderJobs(root) {
   // FIX H7 · เพิ่ม tab "ค้างชำระ" · นับเฉพาะงานที่ยังเหลือเก็บ + ไม่ใช่ปิดงาน
   const isUnpaid = j => {
-    const remain = Math.max(0, (j.sell || 0) - (j.deposit || 0));
+    const remain = jobOutstanding(j);
     return remain > 0 && getStageFromJobStatus(j.jobStatus) !== 'closed';
   };
   const counts = {
@@ -4646,7 +4764,7 @@ function renderJobs(root) {
     closed: JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'closed').length
   };
   // Total ค้างชำระ (ยอด)
-  const totalUnpaid = JOBS.filter(isUnpaid).reduce((s, j) => s + Math.max(0, (j.sell || 0) - (j.deposit || 0)), 0);
+  const totalUnpaid = JOBS.filter(isUnpaid).reduce((s, j) => s + jobOutstanding(j), 0);
   root.innerHTML = `
     <div class="page-header-row">
       <div>
@@ -4682,12 +4800,12 @@ function _filteredJobs() {
   // FIX H7 · รองรับ tab "unpaid"
   if (JOBS_TAB === 'unpaid') {
     return JOBS.filter(j => {
-      const remain = Math.max(0, (j.sell || 0) - (j.deposit || 0));
+      const remain = jobOutstanding(j);
       return remain > 0 && getStageFromJobStatus(j.jobStatus) !== 'closed';
     }).sort((a, b) => {
       // เรียงตามค้างมากก่อน + วันงานเร่งสุดก่อน
-      const remA = Math.max(0, (a.sell || 0) - (a.deposit || 0));
-      const remB = Math.max(0, (b.sell || 0) - (b.deposit || 0));
+      const remA = jobOutstanding(a);
+      const remB = jobOutstanding(b);
       if (remA !== remB) return remB - remA;
       return (a.date || '').localeCompare(b.date || '');
     });
@@ -4715,7 +4833,7 @@ function renderJobsTable() {
       </tr></thead>
       <tbody>
         ${filtered.map(j => {
-          const remain = Math.max(0, (j.sell || 0) - (j.deposit || 0));
+          const remain = jobOutstanding(j);
           const dateChips = _renderJobDateChips(j);
           const tooltip = _jobSessionsTooltip(j);
           return `
@@ -4746,7 +4864,7 @@ function renderJobsCards() {
   return `<div class="item-card-grid">
     ${filtered.map(j => {
       const stage = getStageFromJobStatus(j.jobStatus);
-      const remain = Math.max(0, (j.sell || 0) - (j.deposit || 0));
+      const remain = jobOutstanding(j);
       const meta = getCustomerTypeMeta(j.customerType);
       const occs = _getJobOccurrences(j);
       const firstSess = occs.length && occs[0].session;
@@ -4841,8 +4959,10 @@ function autoAdvanceWaitShootJobs() {
     console.log('[Pixory desktop v1.0.36] autoAdvance skipped ' + skippedUnknown + ' unknown-label job(s) · safe · awaiting fresh PROFILE');
   }
   if (advancedCount > 0) {
-    if (typeof saveData === 'function') saveData();
-    console.log('[Pixory desktop v1.0.36] Auto-advanced ' + advancedCount + ' job(s) to ' + defaultDeliver.label);
+    // v1.0.39 · only push to cloud once cloud is confirmed · never clobber newer cloud from a stale boot
+    if (_cloudConfirmed && typeof saveData === 'function') saveData();
+    else if (!_cloudConfirmed) console.warn('[Pixory desktop] autoAdvance applied in-memory but skipped push (cloud not confirmed)');
+    console.log('[Pixory desktop v1.0.39] Auto-advanced ' + advancedCount + ' job(s) to ' + defaultDeliver.label);
     setTimeout(() => {
       try {
         const more = advancedCount > 3 ? ' +' + (advancedCount - 3) + ' อื่น' : '';
@@ -5229,7 +5349,7 @@ function renderReportsOverview() {
   const yJobs = _reportYearJobs();
   const yQuotes = _reportYearQuotes();
   const yExp = _reportYearExpenses();
-  const income = yJobs.reduce((s, j) => s + (Number(j.sell) || 0), 0);
+  const income = yJobs.reduce((s, j) => s + jobRevenue(j), 0);
   const cashIn = _reportYearCashIn();
   const teamCost = yJobs.reduce((s, j) => s + (Number(j.teamCost) || 0), 0);
   const travelCost = yJobs.reduce((s, j) => s + (Number(j.travelCost) || 0), 0);
@@ -5240,7 +5360,7 @@ function renderReportsOverview() {
   const profit = income - totalExpense;
   const margin = income > 0 ? (profit / income * 100) : 0;
   const avgJob = yJobs.length > 0 ? income / yJobs.length : 0;
-  const outstanding = yJobs.reduce((s, j) => s + Math.max(0, (j.sell || 0) - (j.deposit || 0)), 0);
+  const outstanding = yJobs.reduce((s, j) => s + jobOutstanding(j), 0);
 
   // Quote funnel
   // FIX C6 · closeRate = approved+converted / sent (match mobile) · เดิม Desktop ใช้แค่ converted/sent ทำให้ตัวเลข Desktop กับ Mobile ไม่ตรง
@@ -5290,6 +5410,9 @@ function renderReportsOverview() {
     } else {
       svcMap[fallback] = (svcMap[fallback] || 0) + sell;
     }
+    // v1.0.41 · A2 · additional-invoice extras (OT + add-on) → fallback · keeps donut total = income
+    const _ie = jobInvExtra(j);
+    if (_ie > 0) svcMap[fallback] = (svcMap[fallback] || 0) + _ie;
   });
   const svcColors = ['#D97757', '#1D9E75', '#5e7ce4', '#fbbf24', '#a855f7', '#ec4899', '#888780'];
   const svcEntries = Object.entries(svcMap).sort((a, b) => b[1] - a[1]).map((e, i) => ({ name: e[0], val: e[1], color: svcColors[i % svcColors.length] }));
@@ -5350,7 +5473,7 @@ function renderReportsOverview() {
   yJobs.forEach(j => {
     const n = j.customer || '-';
     if (!custRev[n]) custRev[n] = { revenue: 0, jobs: 0, type: j.customerType || 'B2C' };
-    custRev[n].revenue += Number(j.sell) || 0;
+    custRev[n].revenue += jobRevenue(j);
     custRev[n].jobs += 1;
   });
   const topCust = Object.entries(custRev).sort((a, b) => b[1].revenue - a[1].revenue).slice(0, 5);
@@ -5359,7 +5482,7 @@ function renderReportsOverview() {
   // Monthly bars
   const monthlyIn = new Array(12).fill(0);
   const monthlyOut = new Array(12).fill(0);
-  yJobs.forEach(j => { monthlyIn[new Date(j.date).getMonth()] += (Number(j.sell) || 0); });
+  yJobs.forEach(j => { monthlyIn[new Date(j.date).getMonth()] += jobRevenue(j); });
   yJobs.forEach(j => {
     const m = new Date(j.date).getMonth();
     const ci = (j.costItems || []).reduce((s, c) => s + (parseFloat(c.price) || 0), 0);
@@ -5583,7 +5706,7 @@ function renderReportsOverview() {
 function _renderReportsOverview_legacy() {
   const yJobs = _reportYearJobs();
   const yExp = _reportYearExpenses();
-  const income = yJobs.reduce((s, j) => s + (Number(j.sell) || 0), 0);
+  const income = yJobs.reduce((s, j) => s + jobRevenue(j), 0);
   const cashIn = _reportYearCashIn();
   const teamCost = yJobs.reduce((s, j) => s + (Number(j.teamCost) || 0), 0);
   const travelCost = yJobs.reduce((s, j) => s + (Number(j.travelCost) || 0), 0);
@@ -5640,6 +5763,9 @@ function _renderReportsOverview_legacy() {
     } else {
       svc[fallback] = (svc[fallback] || 0) + sell;
     }
+    // v1.0.41 · A2 · additional-invoice extras (OT + add-on) → fallback category · keeps donut total = revenue
+    const _ie = jobInvExtra(j);
+    if (_ie > 0) svc[fallback] = (svc[fallback] || 0) + _ie;
   });
   const svcEntries = Object.entries(svc).sort((a, b) => b[1] - a[1]);
   const svcTotal = svcEntries.reduce((s, [_, v]) => s + v, 0);
@@ -5817,7 +5943,7 @@ function _computePIT(year, opts) {
     if (isNaN(d.getTime())) return;
     if (d > today) return; // skip future
     if (d < period.start || d > period.end) return;
-    revenue += (j.sell || 0);
+    revenue += jobRevenue(j);
     // actual expenses · team + travel + other + costItems
     let teamCost = 0;
     Object.values(j.teamWages || {}).forEach(w => teamCost += (Number(w) || 0));
@@ -6036,7 +6162,7 @@ function renderReportsCustomers() {
   const typeBreakdown = { B2C: 0, B2B: 0, Gov: 0, VIP: 0 };
   yJobs.forEach(j => {
     const t = j.customerType || 'B2C';
-    typeBreakdown[t] = (typeBreakdown[t] || 0) + (Number(j.sell) || 0);
+    typeBreakdown[t] = (typeBreakdown[t] || 0) + jobRevenue(j);
   });
   const totalRev = Object.values(typeBreakdown).reduce((s, v) => s + v, 0);
   // Customer ranking (year)
@@ -6044,7 +6170,7 @@ function renderReportsCustomers() {
   yJobs.forEach(j => {
     const n = j.customer || '-';
     if (!custRev[n]) custRev[n] = { revenue: 0, jobs: 0, type: j.customerType || 'B2C' };
-    custRev[n].revenue += Number(j.sell) || 0;
+    custRev[n].revenue += jobRevenue(j);
     custRev[n].jobs += 1;
   });
   const ranking = Object.entries(custRev).sort((a, b) => b[1].revenue - a[1].revenue);
@@ -6182,7 +6308,7 @@ function exportJobsCsv() {
       j.code, j.date, j.customer, j.customerType || 'B2C',
       j.customerTaxId || '',
       j.type,
-      j.sell || 0, j.deposit || 0, Math.max(0, (j.sell||0)-(j.deposit||0)),
+      j.sell || 0, j.deposit || 0, jobOutstanding(j),
       j.payStatus || '', j.jobStatus || '',
       j.taxEnabled && tb.vatAmount ? tb.vatAmount : '',
       j.taxEnabled && tb.whtAmount ? tb.whtAmount : '',
@@ -6273,7 +6399,7 @@ function _renderCustomerTable() {
     return {
       name: n, info,
       jobCount: custJobs.length,
-      totalRev: custJobs.reduce((s, j) => s + (Number(j.sell) || 0), 0)
+      totalRev: custJobs.reduce((s, j) => s + jobRevenue(j), 0)
     };
   });
   // Filter
@@ -6571,11 +6697,11 @@ function renderCustomerDetailHtml(name) {
     .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   const custQuotes = QUOTES.filter(q => q.customer === name)
     .sort((a, b) => (b.dateSent || '').localeCompare(a.dateSent || ''));
-  const totalRev = custJobs.reduce((s, j) => s + (Number(j.sell) || 0), 0);
+  const totalRev = custJobs.reduce((s, j) => s + jobRevenue(j), 0);
   const totalCashIn = custJobs.reduce((s, j) =>
     s + ((j.payments || []).reduce((ss, p) => ss + (Number(p.amount) || 0), 0)), 0);
   const totalRemain = custJobs.reduce((s, j) =>
-    s + Math.max(0, (j.sell || 0) - (j.deposit || 0)), 0);
+    s + jobOutstanding(j), 0);
   const isBiz = (info.type === 'B2B' || info.type === 'Gov');
 
   return `
@@ -6671,7 +6797,7 @@ function renderCustomerDetailHtml(name) {
               </tr></thead>
               <tbody>
                 ${custJobs.map(j => {
-                  const remain = Math.max(0, (j.sell || 0) - (j.deposit || 0));
+                  const remain = jobOutstanding(j);
                   return `
                     <tr onclick="closeModal(); setTimeout(()=>openJobDetail('${escapeHtml(j.code)}'),50);">
                       <td class="code-cell">${escapeHtml(j.code || '-')}</td>
@@ -8271,7 +8397,7 @@ function renderSettingsAbout() {
     <div class="glass-card">
       <div class="form-section-title">ℹ️ ข้อมูลระบบ</div>
       <div class="form-row">
-        <div class="form-field"><label>Pixory Desktop</label><div class="text-mono">${PIXORY_DESKTOP_VERSION}</div></div>
+        <div class="form-field"><label>Pixory Desktop</label><div class="text-mono">${PIXORY_DESKTOP_VERSION} · <a href="javascript:void(0)" onclick="showCurrentVersionNotes()" style="color:var(--brand); text-decoration:none;">ดูอัปเดตล่าสุด</a></div></div>
         <div class="form-field"><label>Device ID</label><div class="text-mono text-sm">${escapeHtml(DEVICE_ID)}</div></div>
       </div>
       <div class="form-row">
@@ -9555,6 +9681,54 @@ function openModalWithHtml(html) {
   document.getElementById('modal-overlay').classList.add('show');
 }
 
+// ========== WHAT'S NEW (desktop · mirrors mobile) ==========
+function showWhatsNewModal(versionKey) {
+  const notes = RELEASE_NOTES[versionKey];
+  if (!notes) return;
+  const items = (notes.items || []).map(it => `
+    <div style="display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--border);">
+      <div style="font-size:22px; line-height:1; flex-shrink:0;">${it.icon || '•'}</div>
+      <div style="flex:1; min-width:0;">
+        <div style="font-weight:600; color:var(--ink); margin-bottom:2px;">${escapeHtml(it.title || '')}</div>
+        <div style="font-size:13px; color:var(--ink-mute); line-height:1.5;">${escapeHtml(it.desc || '')}</div>
+      </div>
+    </div>`).join('');
+  openModalWithHtml(`
+    <div class="modal-header">
+      <div class="modal-title">✨ มีอะไรใหม่</div>
+      <button class="modal-close" onclick="dismissWhatsNew()" aria-label="ปิด">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px 24px;">
+      <div style="display:inline-block; font-size:12px; font-weight:600; color:var(--brand); background:var(--brand-bg, rgba(217,119,87,0.12)); padding:3px 10px; border-radius:999px; margin-bottom:10px;">เวอร์ชัน ${escapeHtml(versionKey)}</div>
+      <div style="font-family:var(--font-display); font-size:18px; font-weight:600; color:var(--ink); margin-bottom:4px;">${escapeHtml(notes.title || 'อัปเดต Pixory')}</div>
+      <div style="font-size:13px; color:var(--ink-mute); margin-bottom:8px;">${escapeHtml(notes.subtitle || '')}</div>
+      ${items}
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="dismissWhatsNew()">รับทราบ</button>
+    </div>`);
+}
+
+function dismissWhatsNew() {
+  closeModal();
+  try { localStorage.setItem(DESKTOP_LAST_SEEN_VERSION_KEY, PIXORY_DESKTOP_VERSION); } catch(e) {}
+}
+
+// Manual replay from Settings/About
+function showCurrentVersionNotes() { showWhatsNewModal(PIXORY_DESKTOP_VERSION); }
+
+// Auto-check after login · delayed so it doesn't fight the dashboard render
+function checkVersionUpdate() {
+  let lastSeen = '';
+  try { lastSeen = localStorage.getItem(DESKTOP_LAST_SEEN_VERSION_KEY) || ''; } catch(e) {}
+  if (lastSeen === PIXORY_DESKTOP_VERSION) return;
+  setTimeout(() => {
+    // don't stack on top of an open modal (e.g. job/quote editor)
+    if (document.getElementById('modal-overlay').classList.contains('show')) return;
+    showWhatsNewModal(PIXORY_DESKTOP_VERSION);
+  }, 1500);
+}
+
 // ===================================================================
 // QUOTE/JOB · shared helpers (state, calc, render)
 // ===================================================================
@@ -9858,6 +10032,11 @@ function openQuoteModal(code) {
   if (code) {
     q = QUOTES.find(x => x.code === code);
     if (!q) { toast('ไม่พบใบเสนอ ' + code, 'error'); return; }
+    // v1.0.41 · warn: edits to an already-converted quote do NOT flow to the linked job
+    if (q.status === 'converted' && q.convertedJobCode) {
+      const _msg = 'ใบเสนอนี้แปลงเป็นงาน ' + q.convertedJobCode + ' ไปแล้ว\nการแก้ตรงนี้จะ "ไม่" อัปเดตงานนั้น (ราคา/ทีม/ต้นทุน)\nถ้าจะแก้งาน ให้เปิดงานนั้นโดยตรง\n\nต้องการแก้ใบเสนอต่อไหม?';
+      if (!confirm(_msg)) return;
+    }
     st.editing = code;
     // Restore state from saved quote
     if (q.selectedServices) st.selected = JSON.parse(JSON.stringify(q.selectedServices));
@@ -10063,7 +10242,7 @@ function renderFormBody(ctx, item) {
 
     <!-- 💸 ต้นทุนงาน · cost items (AFTER pricing · match mobile pattern) -->
     <div class="form-section">
-      <div class="form-section-title">${isJob ? '💸 ต้นทุนงาน' : '💸 ค่าใช้จ่ายอื่นๆ (บิลลูกค้า)'}${isJob ? '<span style="margin-left:auto;font-size:10.5px;color:#a89a8c;font-weight:500;text-transform:none;letter-spacing:0;">หักจากกำไรอัตโนมัติ · ไม่บิลลูกค้า</span>' : ''}</div>
+      <div class="form-section-title">${isJob ? '💸 ต้นทุนงาน' : '💸 ค่าใช้จ่ายอื่นๆ (บิลลูกค้า)'}${isJob ? '<span style="margin-left:auto;font-size:10px;font-weight:600;text-transform:none;letter-spacing:0;color:#a89a8c;background:rgba(124,112,102,0.12);padding:2px 7px;border-radius:999px;">🔒 เฉพาะเราเห็น</span><span style="margin-left:6px;font-size:10.5px;color:#a89a8c;font-weight:500;text-transform:none;letter-spacing:0;">เราจ่ายจริง · หักจากกำไร</span>' : ''}</div>
 
       ${isJob ? `
         <!-- Preset row 1: ค่าแรงทีม (readonly · auto-sum) -->
@@ -11387,7 +11566,7 @@ async function changeJobStatusInline(jobCode, newLabel) {
 }
 
 function renderJobDetailHtml(j) {
-  const remain = Math.max(0, (j.sell || 0) - (j.deposit || 0));
+  const remain = jobOutstanding(j);
   const payments = j.payments || [];
   const stage = getStageFromJobStatus(j.jobStatus);
 
@@ -12202,6 +12381,8 @@ async function convertQuoteToJob(code) {
     source: sourceFallback,         // FIX v2.5.19: don't pollute with 'Quote ' + code
     fromQuote: q.code,               // traceability
     team: [],
+    // v1.0.40 fix · converted job has no team yet → mark incomplete (was undefined → wrongly showed "ทีมครบแล้ว")
+    teamStatus: 'incomplete',
     teamWages: {},
     teamCost: 0,
     travelCost: 0,
@@ -12245,7 +12426,8 @@ async function convertQuoteToJob(code) {
 function openPaymentModal(jobCode) {
   const j = JOBS.find(x => x.code === jobCode);
   if (!j) return;
-  const remain = Math.max(0, (j.sell || 0) - (j.deposit || 0));
+  // v1.0.41 · base pay modal collects BASE balance only · invExtra (OT/add-on) clears via invoice balancePaid
+  const remain = Math.max(0, (Number(j.sell) || 0) - (Number(j.deposit) || 0));
   openModalWithHtml(`
     <div class="modal-header">
       <div>
@@ -13701,7 +13883,9 @@ function onRealtimeUpdate(payload) {
   const newRow = payload && payload.new;
   if (!newRow || !newRow.data) return;
   // Skip if it's our own write (same device)
-  if (newRow.device_id === DEVICE_ID) return;
+  // v1.0.39 · read device_id from blob _meta (always present · robust vs REPLICA IDENTITY) · column as fallback
+  const writerDevice = (newRow.data._meta && newRow.data._meta.device_id) || newRow.device_id;
+  if (writerDevice === DEVICE_ID) return;
   const remoteVersion = (newRow.data._meta && newRow.data._meta.version) || 0;
   // Skip if we already have this version (or newer)
   if (remoteVersion <= REALTIME_LAST_VERSION) return;
