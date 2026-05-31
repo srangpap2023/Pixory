@@ -1181,18 +1181,20 @@
 
   /* Tabs */
   .tab-row {
-    display: flex; gap: 6px;
+    display: flex; gap: 8px;
     background: var(--glass);
-    padding: 6px;
+    padding: 7px;
     border-radius: var(--r-md);
     margin-bottom: var(--gap-4);
     width: fit-content;
+    /* v1.0.45 · ชิดซ้ายเสมอ — override .main>* { margin:auto } ที่จัดกึ่งกลาง */
+    margin-left: 0; margin-right: auto;
     border: 1px solid var(--border);
   }
   .tab-btn {
-    padding: 11px 22px;
-    border-radius: 10px;
-    font-size: 15px;
+    padding: 14px 30px;
+    border-radius: 11px;
+    font-size: 17px;
     color: var(--ink-soft);
     font-weight: 700;
     transition: all 0.12s;
@@ -2906,7 +2908,9 @@ const RELEASE_NOTES = {
     subtitle: 'ประกาศเด้งให้อ่านในแอป กดอ่านซ้ำได้ ไม่ตกหล่น',
     items: [
       { icon: '📣', title: 'กล่องประกาศในแอป', desc: 'มีประกาศใหม่ แอปเด้งข้อความเต็มให้อ่าน · ไม่โดนตัดหรือหายเหมือนการแจ้งเตือนหน้าจอ · กดปุ่ม 📣 บนแถบบนเพื่ออ่านย้อนหลัง' },
-      { icon: '🔔', title: 'แจ้งเตือนค้างจนกว่าจะกด', desc: 'การแจ้งเตือนแบบเด้ง (push) ไม่หายเอง · ค้างไว้จนกดอ่าน' }
+      { icon: '🔔', title: 'แจ้งเตือนค้างจนกว่าจะกด', desc: 'การแจ้งเตือนแบบเด้ง (push) ไม่หายเอง · ค้างไว้จนกดอ่าน' },
+      { icon: '💾', title: 'สำรอง/กู้ข้อมูล ครบขึ้นมาก', desc: 'Backup/Restore JSON ครอบคลุมทุกข้อมูล (โน้ต · ตั้งค่าแจ้งเตือน · เทมเพลตใบเสนอ · แพคเกจ · อุปกรณ์) — เดิมตกหล่นหลายอย่าง' },
+      { icon: '🎛', title: 'แท็บรายงานใหญ่-ชิดซ้าย + ป้ายยอดขายชัดขึ้น', desc: 'แท็บ ภาพรวม/ภาษี/ลูกค้า/CSV ขยายให้เห็นชัดและชิดซ้าย · การ์ด "ยอดขาย" บนแดชบอร์ดระบุ "(จองเดือนนี้)" กันสับสนกับรายรับรวมทั้งปี' }
     ]
   },
   '1.0.44': {
@@ -4294,7 +4298,7 @@ function renderDashboard(root) {
         <div style="font-size:24px;font-weight:700;color:var(--ink);margin-top:6px;">${bookedCount} <span style="font-size:13px;color:var(--ink-mute);font-weight:400;">งาน</span></div>
       </div>
       <div style="background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
-        <div style="font-size:12px;color:var(--ink-mute);">💰 ยอดขาย</div>
+        <div style="font-size:12px;color:var(--ink-mute);">💰 ยอดขาย (จองเดือนนี้)</div>
         <div style="font-size:24px;font-weight:700;color:var(--ink);margin-top:6px;">${fmtTHB(bookedSales)}</div>
       </div>
       <div style="background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
@@ -6441,12 +6445,11 @@ function exportPaymentsCsv() {
 }
 
 function exportFullBackupJson() {
-  const blob = {
-    _exported_at: new Date().toISOString(),
-    _version: PIXORY_DESKTOP_VERSION,
-    PROFILE, JOBS, QUOTES, EXPENSES, CUSTOMER_INFO, BANKS, TEAM,
-    JOB_TYPES, SOURCES, EXPENSE_CATS, EQUIPMENT, SERVICES, ADDONS
-  };
+  // v1.0.45 · Use the canonical cloud blob so export NEVER drifts from what we actually store.
+  // (Old hand-listed blob dropped NOTES, NOTIF_SETTINGS, QUOTE_TEMPLATE, PKG_*, EQUIPMENT_CATEGORIES.)
+  const blob = buildDataBlob();
+  blob._exported_at = new Date().toISOString();
+  blob._version = PIXORY_DESKTOP_VERSION;
   const content = JSON.stringify(blob, null, 2);
   _downloadFile(`pixory_backup_${TODAY_ISO()}.json`, content, 'application/json');
   toast('✓ Backup JSON · ' + Math.round(content.length / 1024) + ' KB', 'success');
@@ -9278,6 +9281,8 @@ async function importBackupFromFile(event) {
     if (data.EXPENSE_CATS)   EXPENSE_CATS = data.EXPENSE_CATS;
     if (data.SERVICES)       SERVICES = data.SERVICES;
     if (data.ADDONS)         ADDONS = data.ADDONS;
+    if (data.NOTES)          NOTES = data.NOTES;        // v1.0.45 · was missing from restore
+    if (data.EQUIPMENT)      EQUIPMENT = data.EQUIPMENT; // v1.0.45 · was missing from restore
     // Preserve mobile-only fields if present in backup
     if (data.QUOTE_TEMPLATE)  Object.assign(QUOTE_TEMPLATE, data.QUOTE_TEMPLATE);
     if (data.NOTIF_SETTINGS)  Object.assign(NOTIF_SETTINGS, data.NOTIF_SETTINGS);
