@@ -2890,12 +2890,20 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.42';
+const PIXORY_DESKTOP_VERSION = '1.0.43';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.43': {
+    date: '2026-05-31',
+    title: '🧾 แก้ค่าเดินทาง/ค่าใช้จ่ายที่เก็บลูกค้า หายจากราคางาน',
+    subtitle: 'งานที่แปลงจากใบเสนอ · เปิดแก้แล้วเซฟ ตัวเลขไม่หล่น',
+    items: [
+      { icon: '🧾', title: 'ค่าที่เก็บลูกค้าจากใบเสนอ นับเข้าราคางานครบ', desc: 'เดิมเปิดแก้งานที่แปลงจากใบเสนอแล้วบันทึก · ค่าเดินทาง/ค่าใช้จ่ายที่เก็บลูกค้าหายจากราคาขาย · ตอนนี้รวมครบทั้งตอนแก้และบันทึก' }
+    ]
+  },
   '1.0.42': {
     date: '2026-05-31',
     title: '🐛 แก้สมัคร/เข้าระบบ · ข้อความแจ้งไม่ขึ้น',
@@ -9777,7 +9785,7 @@ function resetFormState(ctx) {
   } else {
     FORM_STATE.add = {
       selected: {}, addons: {}, sessions: [], custom: [], costs: [],
-      team: new Set(), teamWages: {}, teamFinal: false,
+      team: new Set(), teamWages: {}, teamFinal: false, billable: [],
       editing: null, custCounter: 0, costCounter: 0,
       customerType: 'B2C', taxOn: false, taxTouched: false,
       taxOpts: { includeVat: false, vatRate: 7, includeWht: false, whtRate: 3, whtBasis: 'base' }
@@ -9976,15 +9984,18 @@ function calcFormTotal(ctx) {
   const other = Number(st.addons.profile) || 0;
   const customTotal = st.custom.reduce((s, c) => s + (Number(c.price) || 0), 0);
   const costsTotal = st.costs.reduce((s, c) => s + (Number(c.price) || 0), 0);
+  // v1.0.43 · billable costs carried from a converted quote (revenue · e.g. ค่าเดินทางที่เก็บลูกค้า) · Job only
+  const billableTotal = (isJob && Array.isArray(st.billable)) ? st.billable.reduce((s, c) => s + (Number(c.price) || 0), 0) : 0;
   const extraTime = Number(document.getElementById(ctx + '-extratime')?.value) || 0;
   const discount = Number(document.getElementById(ctx + '-discount')?.value) || 0;
 
   // === CRITICAL: Job vs Quote คำนวณต่างกัน ===
   // Quote (ctx='nq'): ค่าใช้จ่ายอื่นๆ = บิลลูกค้า → รวมใน sell
   // Job   (ctx='add'): ค่าใช้จ่ายอื่นๆ = ต้นทุนภายใน · ไม่บิลลูกค้า → ไม่รวมใน sell
+  //   แต่ billable (ค่าที่ยกมาจากใบเสนอ) = รายรับ → ต้องรวมใน sell
   let total, sell;
   if (isJob) {
-    total = svcTotal + addonsTotal + customTotal + extraTime;
+    total = svcTotal + addonsTotal + customTotal + extraTime + billableTotal;
     sell = Math.max(0, total - discount);
   } else {
     total = svcTotal + addonsTotal + customTotal + costsTotal + extraTime;
@@ -11205,6 +11216,8 @@ function openJobModal(code) {
     }
     if (Array.isArray(j.team)) st.team = new Set(j.team);
     if (j.teamWages) st.teamWages = JSON.parse(JSON.stringify(j.teamWages));
+    // v1.0.43 · carry billable costs (revenue from converted quote) so they stay in sell on edit→save
+    st.billable = Array.isArray(j.billableCosts) ? JSON.parse(JSON.stringify(j.billableCosts)) : [];
     // v1.0.35 · Restore team finalization · legacy jobs (undefined) treated as finalized · no warning flood
     st.teamFinal = (j.teamStatus === 'incomplete') ? false : true;
     // === MIGRATION · ดึง j.loc (legacy/top-level) เข้า sessions[0].loc ถ้าว่าง ===
