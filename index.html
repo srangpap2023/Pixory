@@ -5516,7 +5516,8 @@
       <div class="settings-section">
         <div class="sec-title">
           <span data-i18n="cost.title">💸 ต้นทุนงาน</span>
-          <span style="color:#a89a8c; font-weight:400; font-size:10.5px; margin-left:6px; text-transform:none; letter-spacing:0;" data-i18n="cost.notShown">· ค่าใช้จ่ายของเรา · หักจากกำไรอัตโนมัติ</span>
+          <span style="font-weight:600; font-size:10px; margin-left:6px; text-transform:none; letter-spacing:0; color:#a89a8c; background:rgba(124,112,102,0.12); padding:2px 7px; border-radius:999px;" data-i18n="cost.privateChip">🔒 เฉพาะเราเห็น</span>
+          <span style="color:#a89a8c; font-weight:400; font-size:10.5px; margin-left:6px; text-transform:none; letter-spacing:0;" data-i18n="cost.notShown">· เราจ่ายจริง · หักจากกำไร</span>
         </div>
 
         <!-- v1.9.30 · Billable banner — shown when job has billableCosts from a converted quote -->
@@ -7971,9 +7972,10 @@ function jobShootDatePassed(j) {
 // v2.5.0 · Returns one of 4 money status levels for a job
 // v2.5.12 M2 · Free jobs (sell=0) get their own 'free' state · not flagged as unpaid
 function getMoneyStatus(j) {
-  const sell = j.sell || 0;
-  const paid = sell - (j.remain || 0);
-  if (sell === 0 && (j.deposit || 0) === 0) return 'free'; // 🟢 ฟรี · งาน PR/comp
+  // v2.5.64 · A2 · include unpaid OT/add-on (jobRevenue/jobPaid) so pill reflects full balance
+  const sell = jobRevenue(j);
+  const paid = jobPaid(j);
+  if ((j.sell || 0) === 0 && (j.deposit || 0) === 0 && jobInvExtra(j) === 0) return 'free'; // 🟢 ฟรี · งาน PR/comp
   if (paid >= sell && sell > 0) return 'paid';              // 🟢 ชำระครบ
   if (paid > 0) return 'partial';                           // 🟡 มีมัดจำ · ค้าง ฿X
   return 'none';                                            // 🔴 ยังไม่ได้รับเงิน
@@ -8016,6 +8018,24 @@ function escapeHtml(s) {
     return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]);
   });
 }
+
+// v2.5.64 · A2 · additional-billing invoice extras (OT + post-shoot add-ons) = real job income
+// Counted in revenue (KPI · dashboard · by-type donut · by-customer · reports) + PIT base + VAT threshold.
+// (Outstanding balance handled separately · invoice already tracks its own balanceDue.)
+function jobInvExtra(j) {
+  if (!j || !j.invoice) return 0;
+  var e = Number(j.invoice.extraTime) || 0;
+  var a = Array.isArray(j.invoice.addOns) ? j.invoice.addOns.reduce(function (s, x) { return s + (Number(x && x.price) || 0); }, 0) : 0;
+  return e + a;
+}
+function jobRevenue(j) { return (Number(j && j.sell) || 0) + jobInvExtra(j); }
+// v2.5.64 · A2 · outstanding incl unpaid OT/add-on · = invoice balanceDue (remain + invExtra) · 0 once invoice balance paid
+function jobOutstanding(j) {
+  if (!j) return 0;
+  if (j.invoice && j.invoice.balancePaid) return 0;
+  return (Number(j.remain) || 0) + jobInvExtra(j);
+}
+function jobPaid(j) { return jobRevenue(j) - jobOutstanding(j); }
 // Smart K formatter — 24000→"24K", 8500→"8.5K", 8900→"8.9K"
 function fmtPkgK(n) {
   if (n == null) return '';
@@ -8153,9 +8173,13 @@ function goTo(name) {
 
 // v2.5.12 · clear previous hide-timer so chained toast() calls each get the full duration
 let _toastHideTimer = null;
-function toast(msg) {
+function toast(msg, type) {
   const t = document.getElementById('toast');
   t.textContent = msg;
+  // v2.5.62 · apply type so errors/warnings don't look like green success
+  t.classList.remove('toast-error', 'toast-info');
+  if (type === 'error' || type === 'warn') t.classList.add('toast-error');
+  else if (type === 'info') t.classList.add('toast-info');
   t.classList.add('show');
   if (_toastHideTimer) clearTimeout(_toastHideTimer);
   _toastHideTimer = setTimeout(() => { t.classList.remove('show'); _toastHideTimer = null; }, 1800);
@@ -8167,7 +8191,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.61';
+const PIXORY_VERSION = '2.5.64';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8178,6 +8202,74 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.64': {
+    date: '2026-05-31',
+    title: '📈 รายรับ OT / Add-on หลังถ่าย เข้าสรุปแล้ว',
+    subtitle: 'รายได้ที่เก็บเพิ่มจากใบเรียกเก็บฯ จะนับในแดชบอร์ด/รายงาน/ภาษีด้วย',
+    items: [
+      {
+        icon: '📈',
+        title: 'OT + Add-on หลังถ่าย นับเป็นรายได้',
+        desc: 'เมื่อก่อนค่าโอที/บริการเสริมที่เก็บเพิ่มผ่านใบเรียกเก็บฯ ไม่ขึ้นในสรุป · ตอนนี้นับครบ: รายได้รวม · ชาร์ท · ภาษี · และยอดค้างชำระของงาน · ตรงกับเงินจริงที่เก็บได้'
+      },
+      {
+        icon: '💸',
+        title: 'การ์ดต้นทุนงานชัดขึ้น',
+        desc: 'เพิ่มป้าย 🔒 "เฉพาะเราเห็น" · แยกชัดว่า "ลูกค้าจ่ายให้ (รายรับ)" กับ "เราจ่ายจริง (ต้นทุน)" คนละส่วน · ลูกค้าไม่เห็นต้นทุนของเรา'
+      },
+      {
+        icon: '📝',
+        title: 'เตือนเมื่อแก้ใบเสนอที่แปลงเป็นงานแล้ว',
+        desc: 'ถ้าแก้ใบเสนอที่สร้างงานไปแล้ว · ระบบเตือนว่างานนั้นจะไม่อัปเดตตาม · กันราคา/ทีมในงานเพี้ยนโดยไม่รู้ตัว'
+      }
+    ]
+  },
+  '2.5.63': {
+    date: '2026-05-31',
+    title: '🔒 กันข้อมูลชนกันตอนใช้หลายเครื่อง',
+    subtitle: 'เปิดมือถือ+เดสก์ทอปพร้อมกันแล้วเซฟ · ลดโอกาสข้อมูลทับกันเงียบๆ',
+    items: [
+      {
+        icon: '🔒',
+        title: 'ตรวจเวอร์ชันก่อนบันทึกขึ้นคลาวด์',
+        desc: 'ถ้าอีกเครื่องเพิ่งเซฟข้อมูลใหม่กว่า · เครื่องนี้จะเตือนให้รีเฟรชดึงของล่าสุดก่อน แทนที่จะเขียนทับ · ปลอดภัยกับงานที่เพิ่งลง'
+      },
+      {
+        icon: '👥',
+        title: 'แก้บั๊ก: แปลงใบเสนอเป็นงานแล้วทีมขึ้น "ครบแล้ว"',
+        desc: 'เมื่อก่อนงานที่แปลงจากใบเสนอจะติ๊ก "ทีมครบแล้ว" เองทั้งที่ยังไม่ได้เลือกทีม · ตอนนี้ขึ้น "ทีมยังไม่ครบ" ถูกต้อง · เตือนให้จัดทีมก่อนถ่าย'
+      }
+    ]
+  },
+  '2.5.62': {
+    date: '2026-05-31',
+    title: '🛡️ เนี๊ยบขึ้น · ปลอดภัยขึ้น · เบื้องหลัง',
+    subtitle: 'แจ้งเตือนสีถูกต้อง · ชื่อลูกค้า/ทีม/อุปกรณ์แสดงปลอดภัยขึ้น',
+    items: [
+      {
+        icon: '🔔',
+        title: 'แจ้งเตือนแยกสีตามสถานะ',
+        desc: 'เมื่อก่อน toast ขึ้นเครื่องหมายถูกสีเขียวทุกครั้ง แม้ตอน "ซิงค์ไม่สำเร็จ" · ตอนนี้ถ้าเป็นคำเตือน/ผิดพลาดจะขึ้นสีแดง · เห็นชัดว่าอันไหนสำเร็จ อันไหนต้องระวัง'
+      },
+      {
+        icon: '🔒',
+        title: 'แสดงชื่อที่พิมพ์เองได้ปลอดภัยขึ้น',
+        desc: 'ชื่อลูกค้า · ชื่อทีม · ชื่ออุปกรณ์ · สถานที่ ที่มีอักขระพิเศษ จะแสดงผลถูกต้องและปลอดภัย ไม่กระทบหน้าจอ'
+      }
+    ]
+  },
+  '2.5.61': {
+    date: '2026-05-31',
+    title: '✨ หน้าลดหย่อนภาษี เห็นชัดทุกธีม',
+    subtitle: 'สรุป "ลดหย่อนเพิ่มเติม" ปรับเป็นปุ่ม อ่านง่ายขึ้นทั้งสว่าง/มืด/Luxe',
+    items: [
+      {
+        icon: '🎨',
+        title: 'สรุปลดหย่อนแบบปุ่ม',
+        desc: 'ส่วนสรุป "ลดหย่อนเพิ่มเติม" ในหน้าตั้งค่า/ภาษี ปรับดีไซน์ให้เป็นปุ่มที่กดได้ · contrast ชัดทุกธีม · ไม่จมหายในธีมมืด'
+      }
+    ]
+  },
   '2.5.60': {
     date: '2026-05-31',
     title: '📋 รวมหน้าภาษีให้เหมือนเดสก์ทอป · 1 หน้าจบ',
@@ -11415,6 +11507,16 @@ function getLocalUpdatedAt() {
   return new Date(d._meta.updated_at).getTime() || 0;
 }
 
+// v2.5.63 · detect "RPC not deployed yet" so we can fall back to legacy upsert safely
+function _isMissingFnError(err) {
+  if (!err) return false;
+  const code = err.code || '';
+  const msg = ((err.message || '') + ' ' + (err.details || '') + ' ' + (err.hint || '')).toLowerCase();
+  // v2.5.63 · ONLY match PostgREST "function not in schema cache" signals · NOT bare "does not exist"
+  // (a deployed RPC throwing a real error containing "does not exist" must NOT trigger a clobbering fallback)
+  return code === 'PGRST202' || msg.indexOf('could not find the function') >= 0 || msg.indexOf('schema cache') >= 0;
+}
+
 async function pushToCloud(opts) {
   // v1.9.11 · C4 fix — opts.force = true skips the version check (used after explicit user confirm)
   opts = opts || {};
@@ -11472,18 +11574,50 @@ async function pushToCloud(opts) {
     };
     // Save stamped back to localStorage
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(blob)); } catch(e) {}
-    const { error } = await SUPABASE
-      .from('user_data')
-      .upsert({
-        user_id: CURRENT_USER.id,
-        data: blob,
-        device_id: DEVICE_ID,
-        updated_at: now
-      }, { onConflict: 'user_id' });
-    if (error) {
-      console.warn('Cloud push failed:', error);
-      setSyncState('error', error.message);
-      return false;
+    const newVersion = blob._meta.version;
+    // v2.5.63 · TOCTOU-safe atomic compare-and-swap · _applied: true=ok · false=stale(rejected) · null=RPC unavailable→fallback
+    let _applied = null;
+    try {
+      const { data: rpcRes, error: rpcErr } = await SUPABASE.rpc('push_user_data', {
+        p_user_id: CURRENT_USER.id,
+        p_data: blob,
+        p_device: DEVICE_ID,
+        p_new_version: newVersion
+      });
+      if (rpcErr) {
+        if (_isMissingFnError(rpcErr)) { _applied = null; } // not deployed → legacy fallback
+        else { console.warn('push RPC error:', rpcErr); setSyncState('error', rpcErr.message); return false; }
+      } else {
+        const row = Array.isArray(rpcRes) ? rpcRes[0] : rpcRes;
+        _applied = !!(row && row.applied);
+      }
+    } catch(rpcEx) { console.warn('push RPC threw · fallback:', rpcEx); _applied = null; }
+
+    if (_applied === false) {
+      // Cloud already holds a newer/equal version from another device
+      if (!opts.force) {
+        setSyncState('error', 'มีข้อมูลใหม่กว่าจากอีกเครื่อง · รีเฟรชเพื่อ pull');
+        toast('☁️ มีข้อมูลใหม่กว่าในคลาวด์ · กดรีเฟรชเพื่อดึงข้อมูลล่าสุด', 'warn');
+        return false;
+      }
+      _applied = null; // force + rejected (rare · version jumped) → legacy upsert below
+    }
+
+    if (_applied === null) {
+      // Legacy path · RPC not deployed (or fell back) · identical to pre-v2.5.63 behavior
+      const { error } = await SUPABASE
+        .from('user_data')
+        .upsert({
+          user_id: CURRENT_USER.id,
+          data: blob,
+          device_id: DEVICE_ID,
+          updated_at: now
+        }, { onConflict: 'user_id' });
+      if (error) {
+        console.warn('Cloud push failed:', error);
+        setSyncState('error', error.message);
+        return false;
+      }
     }
     _cloudLastSyncAt = now;
     setSyncState('synced');
@@ -12379,13 +12513,14 @@ const I18N = {
   // v2.5.46 · removed 2 duplicate keys (custom.empty and custom.pricePh) — canonical defs at lines above
   'custom.descPh':       { th: 'รายละเอียด (ไม่บังคับ · เช่น ถ่าย full HD · 2 ชม.)', en: 'Details (optional · e.g. full HD · 2 hrs)' },
   'cost.title':          { th: '💸 ต้นทุนงาน', en: '💸 Job Cost' },
-  'cost.notShown':       { th: '· ค่าใช้จ่ายของเรา · หักจากกำไรอัตโนมัติ', en: '· our expenses · auto-deducted from profit' },
+  'cost.notShown':       { th: '· เราจ่ายจริง · หักจากกำไร', en: '· what we actually pay · auto-deducted' },
+  'cost.privateChip':    { th: '🔒 เฉพาะเราเห็น', en: '🔒 Private' },
   'cost.namePh':         { th: 'ชื่อรายการ (เช่น ค่าเดินทาง)', en: 'Item name (e.g. Travel)' },
   'cost.descPh':         { th: 'รายละเอียด (ไม่บังคับ · เช่น กรุงเทพ-เชียงใหม่)', en: 'Details (optional · e.g. BKK-CNX)' },
   'cost.subtotal':       { th: 'รวมต้นทุนงาน', en: 'Total job cost' },
   'cost.empty':          { th: 'ค่าใช้จ่ายเกี่ยวกับงานนี้ · เช่น ค่าที่พัก / ค่าน้ำมัน / ค่าอาหารทีม', en: 'Job-related expenses · e.g. lodging / fuel / team meals' },
   'cost.chipsLabel':     { th: 'รายการที่ใช้บ่อย', en: 'Recently used' },
-  'cost.billableBanner': { th: 'ลูกค้าจะจ่าย', en: 'Customer pays' },
+  'cost.billableBanner': { th: 'ลูกค้าจ่ายให้ (รายรับ)', en: 'Customer pays (revenue)' },
   'cost.billableHint':   { th: 'กรอกที่พี่จ่ายจริงด้านล่าง · ส่วนต่าง = กำไร', en: 'Enter your actual cost below · difference = profit' },
   'cost.lodging':        { th: '🛏 ค่าที่พัก', en: '🛏 Lodging' },
   'cost.travel':         { th: '⛽ ค่าเดินทาง', en: '⛽ Travel/Fuel' },
@@ -13823,7 +13958,7 @@ function jobsForFilter(f) {
   }
   if (f === 'debt') {
     // Money outstanding · regardless of stage
-    return JOBS.filter(j => j.remain > 0);
+    return JOBS.filter(j => jobOutstanding(j) > 0);
   }
   if (f === 'closed') {
     return JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'closed');
@@ -14221,7 +14356,7 @@ function renderJobs(list, container) {
     const q = searchEl ? (searchEl.value || '').trim() : '';
     if (container === 'jobs-list') {
       if (q) {
-        c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">🔍</div><div class="pxy-empty-title">ไม่พบงานที่ตรงกับ "' + q + '"</div><div class="pxy-empty-sub">ลองค้นด้วยชื่อลูกค้า · เลขงาน · หรือสถานที่</div></div>';
+        c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">🔍</div><div class="pxy-empty-title">ไม่พบงานที่ตรงกับ "' + escapeHtml(q) + '"</div><div class="pxy-empty-sub">ลองค้นด้วยชื่อลูกค้า · เลขงาน · หรือสถานที่</div></div>';
       } else if (JOBS.length === 0) {
         c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">📸</div><div class="pxy-empty-title">ยังไม่มีงานในระบบ</div><div class="pxy-empty-sub">สร้างงานแรกเพื่อเริ่มจัดการลูกค้า · ตารางถ่าย · ติดตามเงิน</div><button class="pxy-empty-cta" onclick="openNewJob()">+ สร้างงานแรก</button></div>';
       } else {
@@ -14230,7 +14365,7 @@ function renderJobs(list, container) {
     } else {
       // Quotes list
       if (q) {
-        c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">🔍</div><div class="pxy-empty-title">ไม่พบใบเสนอราคา "' + q + '"</div><div class="pxy-empty-sub">ลองค้นด้วยชื่อลูกค้าหรือเลขเอกสาร</div></div>';
+        c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">🔍</div><div class="pxy-empty-title">ไม่พบใบเสนอราคา "' + escapeHtml(q) + '"</div><div class="pxy-empty-sub">ลองค้นด้วยชื่อลูกค้าหรือเลขเอกสาร</div></div>';
       } else {
         c.innerHTML = '<div class="pxy-empty"><div class="pxy-empty-icon">📄</div><div class="pxy-empty-title">ยังไม่มีใบเสนอราคา</div><div class="pxy-empty-sub">เสนอราคาให้ลูกค้าได้สวยๆ ผ่าน PDF · ส่ง LINE ได้ทันที</div><button class="pxy-empty-cta" onclick="openNewQuote()">+ สร้างใบเสนอราคา</button></div>';
       }
@@ -14278,7 +14413,7 @@ function renderJobs(list, container) {
     let cls = 'date-block';
     // Date-block color cue (only for non-closed upcoming jobs)
     if (stage !== 'closed' && daysAway >= 0 && daysAway <= 30) cls += ' upcoming';
-    if (j.remain > 0 && daysAway < 7 && daysAway >= 0) cls += ' warn';
+    if (jobOutstanding(j) > 0 && daysAway < 7 && daysAway >= 0) cls += ' warn';
     // v2.5.12 · Money pill — 4 levels · free/paid/partial/none
     const moneyLvl = getMoneyStatus(j); // 'free' | 'paid' | 'partial' | 'none'
     let pill = '';
@@ -14307,7 +14442,7 @@ function renderJobs(list, container) {
     // Remaining balance — only shown if partial / none (NOT free)
     let remainHtml = '';
     if (moneyLvl === 'partial') {
-      remainHtml = `<span style="color:#dc2626; font-size:11px;">· ค้าง ${fmt(j.remain)}</span>`;
+      remainHtml = `<span style="color:#dc2626; font-size:11px;">· ค้าง ${fmt(jobOutstanding(j))}</span>`;
     } else if (moneyLvl === 'none' && (j.sell || 0) > 0) {
       remainHtml = `<span style="color:#dc2626; font-size:11px;">· ยังไม่รับเงิน</span>`;
     }
@@ -14353,8 +14488,8 @@ function renderJobs(list, container) {
     row.innerHTML = `
       <div class="${cls}${rangeCls}"><div class="day">${dayHtml}</div><div class="month">${monthHtml}</div></div>
       <div class="info">
-        <p class="customer">${j.customer}</p>
-        <p class="meta">${j.type} · ${escapeHtml(locLabel || '—')}</p>
+        <p class="customer">${escapeHtml(j.customer)}</p>
+        <p class="meta">${escapeHtml(j.type)} · ${escapeHtml(locLabel || '—')}</p>
         ${countdown}
         <div class="price">${fmt(j.sell)} ${remainHtml}</div>
       </div>
@@ -14482,8 +14617,8 @@ function openJob(code) {
   document.getElementById('job-total').textContent = fmt(j.total);
   document.getElementById('job-discount').textContent = j.discount > 0 ? '-' + fmt(j.discount) : '฿0';
   document.getElementById('job-sell').innerHTML = '<strong>' + fmt(j.sell) + '</strong>';
-  document.getElementById('job-remaining').textContent = fmt(j.remain);
-  document.getElementById('job-paid-text').textContent = t('job.paidShort') + ' ' + fmt(j.sell - j.remain);
+  document.getElementById('job-remaining').textContent = fmt(jobOutstanding(j));
+  document.getElementById('job-paid-text').textContent = t('job.paidShort') + ' ' + fmt(jobPaid(j));
   document.getElementById('job-income').textContent = '+' + fmt(j.sell || 0);
   document.getElementById('job-team-cost').textContent = '-' + fmt(j.teamCost || 0);
   // v1.9.30 · prefer cost items breakdown over legacy travelCost/otherCost rows
@@ -14536,8 +14671,9 @@ function openJob(code) {
   let sp = document.getElementById('job-status-pill');
   sp.className = 'pill ' + (getStageFromJobStatus(j.jobStatus) === 'closed' ? 'closed' : 'booked');
   sp.textContent = statusLabel(j.jobStatus);
-  const paid = j.sell - j.remain;
-  const pct = j.sell > 0 ? (paid / j.sell * 100) : 0;
+  const paid = jobPaid(j);
+  const _rev = jobRevenue(j);
+  const pct = _rev > 0 ? (paid / _rev * 100) : 0;
   document.getElementById('job-pay-fill').style.width = pct + '%';
   const sv = document.getElementById('job-services');
   sv.innerHTML = '';
@@ -16249,7 +16385,7 @@ function computeNotifications() {
     }
 
     // Outstanding payment — fire X days AFTER job date as configured
-    if (NS.paymentAfterOn && j.remain > 0) {
+    if (NS.paymentAfterOn && jobOutstanding(j) > 0) {
       // daysAway is days until job (positive) or negative if past
       // we want: now is >= paymentAfter days after job date
       // daysAfterJob = -daysAway
@@ -16259,7 +16395,7 @@ function computeNotifications() {
           level: daysAfterJob > 14 ? 'urgent' : 'warn',
           ico: '💰',
           title: 'ทวงยอดคงเหลือ — ' + j.customer,
-          desc: fmt(j.remain) + ' ยังไม่เก็บ · ผ่านวันงาน ' + daysAfterJob + ' วัน',
+          desc: fmt(jobOutstanding(j)) + ' ยังไม่เก็บ · ผ่านวันงาน ' + daysAfterJob + ' วัน',
           time: daysAfterJob + ' วันหลังงาน', sort: -100 + daysAfterJob, jobCode: j.code
         });
       } else if (daysAway >= 0 && daysAway <= 7) {
@@ -16268,7 +16404,7 @@ function computeNotifications() {
           level: daysAway <= 3 ? 'urgent' : 'warn',
           ico: '💰',
           title: 'ทวงยอดคงเหลือ — ' + j.customer,
-          desc: fmt(j.remain) + ' ยังไม่เก็บ · เหลือ ' + daysAway + ' วันก่อนงาน',
+          desc: fmt(jobOutstanding(j)) + ' ยังไม่เก็บ · เหลือ ' + daysAway + ' วันก่อนงาน',
           time: t('time.inXDays').replace('{x}', daysAway), sort: -100 + daysAway, jobCode: j.code
         });
       }
@@ -16381,7 +16517,7 @@ function updateCounts() {
 function updateHomeKPIs() {
   const yr = new Date().getFullYear();
   const yearJobs = JOBS.filter(j => new Date(j.date).getFullYear() === yr);
-  const totalRev = yearJobs.reduce((s,j) => s + (j.sell || 0), 0);
+  const totalRev = yearJobs.reduce((s,j) => s + jobRevenue(j), 0);
   const teamCost = yearJobs.reduce((s,j) => s + (j.teamCost || 0), 0);
   const travelCost = yearJobs.reduce((s,j) => s + (j.travelCost || 0), 0);
   const otherCost = yearJobs.reduce((s,j) => s + (j.otherCost || 0), 0);
@@ -16394,8 +16530,8 @@ function updateHomeKPIs() {
   const totalCost = teamCost + travelCost + otherCost + costItemsTotal + expense;
   const profit = totalRev - totalCost;
   const margin = totalRev > 0 ? Math.round(profit / totalRev * 100) : 0;
-  const debt = yearJobs.reduce((s,j) => s + (j.remain || 0), 0);
-  const debtCount = yearJobs.filter(j => (j.remain || 0) > 0).length;
+  const debt = yearJobs.reduce((s,j) => s + jobOutstanding(j), 0);
+  const debtCount = yearJobs.filter(j => jobOutstanding(j) > 0).length;
   const openJobs = yearJobs.filter(j => getStageFromJobStatus(j.jobStatus) !== 'closed').length;
 
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
@@ -16498,8 +16634,8 @@ function renderHomeHero() {
     if (!j.date) return;
     const d = new Date(j.date);
     if (d.getFullYear() === selYear) {
-      months[d.getMonth()] += (j.sell || 0);
-      totalRev += (j.sell || 0);
+      months[d.getMonth()] += jobRevenue(j);
+      totalRev += jobRevenue(j);
     }
   });
   // Prev year revenue for delta
@@ -16507,7 +16643,7 @@ function renderHomeHero() {
   JOBS.forEach(j => {
     if (!j.date) return;
     const d = new Date(j.date);
-    if (d.getFullYear() === selYear - 1) prevRev += (j.sell || 0);
+    if (d.getFullYear() === selYear - 1) prevRev += jobRevenue(j);
   });
 
   // Labels
@@ -17690,9 +17826,9 @@ function renderQuotesList(list) {
         <div class="month" style="color:#92400e;">${MONTHS_TH_SHORT[dp.m]}</div>
       </div>
       <div class="info">
-        <p class="customer">${q.customer}</p>
-        <p class="meta">${q.type} · งาน ${evt.full} · ${q.loc}</p>
-        <div class="price">${fmt(q.sell)} ${q.line ? `<span style="color:#7c7066; font-size:11px;">· LINE ${q.line}</span>` : ''}</div>
+        <p class="customer">${escapeHtml(q.customer)}</p>
+        <p class="meta">${escapeHtml(q.type)} · งาน ${evt.full} · ${escapeHtml(q.loc)}</p>
+        <div class="price">${fmt(q.sell)} ${q.line ? `<span style="color:#7c7066; font-size:11px;">· LINE ${escapeHtml(q.line)}</span>` : ''}</div>
       </div>
       <div style="display:flex; align-items:flex-start;"><span class="pill ${st.cls}">${st.label}</span></div>
     `;
@@ -18182,6 +18318,8 @@ function convertQuoteToJob(code) {
     // Traceability preserved via fromQuote + note
     source: (Array.isArray(SOURCES) && SOURCES.length > 0) ? SOURCES[SOURCES.length - 1] : 'อื่นๆ',
     fromQuote: q.code,
+    // v2.5.63 fix · converted job has no team yet → mark incomplete (was undefined → wrongly showed "ทีมครบแล้ว")
+    teamStatus: 'incomplete',
     teamCost: 0, otherCost: 0, travelCost: 0, profit: q.sell,
     note: 'มาจากใบเสนอ ' + q.code,
     payments: [],
@@ -18312,6 +18450,13 @@ function openNewQuote() {
 function editCurrentQuote() {
   if (!_quoteCtx || _quoteCtx.source !== 'quote' || !_quoteCtx.data) return;
   const q = _quoteCtx.data;
+  // v2.5.64 · warn: edits to an already-converted quote do NOT flow to the linked job
+  if (q.status === 'converted' && q.convertedJobCode) {
+    const _msg = (LANG === 'en')
+      ? 'This quote is already converted to job ' + q.convertedJobCode + '.\nEditing here will NOT update that job (price/team/costs).\nTo change the job, open the job directly.\n\nContinue editing the quote anyway?'
+      : 'ใบเสนอนี้แปลงเป็นงาน ' + q.convertedJobCode + ' ไปแล้ว\nการแก้ตรงนี้จะ "ไม่" อัปเดตงานนั้น (ราคา/ทีม/ต้นทุน)\nถ้าจะแก้งาน ให้เปิดงานนั้นโดยตรง\n\nต้องการแก้ใบเสนอต่อไหม?';
+    if (!confirm(_msg)) return;
+  }
   _editingQuoteCode = q.code;
   _setQuoteFormMode('edit');
   // Restore selections
@@ -19041,7 +19186,7 @@ function renderNQPackages() {
   ADDONS.forEach(a => {
     const chip = document.createElement('div');
     chip.className = 'chip' + (NQ_ADDONS[a.key] ? ' active' : '');
-    chip.innerHTML = `${a.name} <span class="price">฿${a.price.toLocaleString()}</span>`;
+    chip.innerHTML = `${escapeHtml(a.name)} <span class="price">฿${a.price.toLocaleString()}</span>`;
     chip.onclick = () => {
       if (NQ_ADDONS[a.key]) delete NQ_ADDONS[a.key]; else NQ_ADDONS[a.key] = a.price;
       renderNQPackages();
@@ -20665,7 +20810,7 @@ function renderCalLegend() {
   const l = document.getElementById('cal-legend');
   l.innerHTML = '';
   TEAM.slice(0, 8).forEach(t => {
-    l.innerHTML += `<span><span class="lg-dot" style="background:${t.color}"></span>${t.name}</span>`;
+    l.innerHTML += `<span><span class="lg-dot" style="background:${t.color}"></span>${escapeHtml(t.name)}</span>`;
   });
 }
 function renderCalendar() {
@@ -20852,7 +20997,7 @@ function computeCustomers() {
     if (!j.customer) return;
     if (!map[j.customer]) map[j.customer] = { name: j.customer, jobs: 0, total: 0 };
     map[j.customer].jobs++;
-    map[j.customer].total += (j.sell || 0);
+    map[j.customer].total += jobRevenue(j);
   });
   return Object.values(map);
 }
@@ -20866,7 +21011,7 @@ function openCustomerDetail(name) {
   const info = CUSTOMER_INFO[name];
   // Compute stats
   const jobs = JOBS.filter(j => j.customer === name);
-  const total = jobs.reduce((s,j) => s + (j.sell || 0), 0);
+  const total = jobs.reduce((s,j) => s + jobRevenue(j), 0);
   // Header
   const initials = name.replace(/[^a-zA-Zก-๙ ]/g,'').split(/\s+/).map(s => s[0]).filter(Boolean).slice(0,2).join('').toUpperCase() || '?';
   document.getElementById('cust-avatar').textContent = initials;
@@ -20916,9 +21061,9 @@ function openCustomerDetail(name) {
       row.innerHTML = `
         <div class="date-block"><div class="day">${dp.d}</div><div class="month">${MONTHS_TH_SHORT[dp.m]}</div></div>
         <div class="info">
-          <p class="customer">${j.code}</p>
-          <p class="meta">${j.type} · ${j.loc}</p>
-          <div class="price">${fmt(j.sell)}${j.remain > 0 ? ` <span style="color:#dc2626; font-size:11px;">เหลือ ${fmt(j.remain)}</span>` : ''}</div>
+          <p class="customer">${escapeHtml(j.code)}</p>
+          <p class="meta">${escapeHtml(j.type)} · ${escapeHtml(j.loc)}</p>
+          <div class="price">${fmt(j.sell)}${jobOutstanding(j) > 0 ? ` <span style="color:#dc2626; font-size:11px;">เหลือ ${fmt(jobOutstanding(j))}</span>` : ''}</div>
         </div>
         <span class="pill ${pillCls}">${pillTxt}</span>`;
       hist.appendChild(row);
@@ -21558,7 +21703,7 @@ function computePIT(year, opts) {
       if (period.start && d < period.start) return;
       if (period.end && d > period.end) return;
     }
-    revenue += (j.sell || 0);
+    revenue += jobRevenue(j);
     // Actual expenses from job: team wages + travel + other + costItems (v1.9.40)
     let teamCost = 0;
     Object.values(j.teamWages || {}).forEach(w => teamCost += (Number(w) || 0));
@@ -22460,7 +22605,7 @@ function exportTaxExcel() {
     if (d > today) return false;
     return d >= period.start && d <= period.end;
   }).sort((a, b) => new Date(a.date) - new Date(b.date));
-  const totalRevenueAll = allJobs.reduce((s, j) => s + (j.sell || 0), 0);
+  const totalRevenueAll = allJobs.reduce((s, j) => s + jobRevenue(j), 0);
 
   const wb = XLSX.utils.book_new();
 
@@ -22646,8 +22791,8 @@ function renderEquipmentList() {
         <div class="left">
           <div class="ico-wrap" style="background:${cat.color}22; color:${cat.color}; font-size:16px;">${condIcon}</div>
           <div>
-            <div class="row-title">${e.name} ${e.qty > 1 ? '<span style="color:#7c7066; font-weight:400;">× ' + e.qty + '</span>' : ''}</div>
-            ${e.note ? '<div class="row-sub">' + e.note + '</div>' : ''}
+            <div class="row-title">${escapeHtml(e.name)} ${e.qty > 1 ? '<span style="color:#7c7066; font-weight:400;">× ' + e.qty + '</span>' : ''}</div>
+            ${e.note ? '<div class="row-sub">' + escapeHtml(e.note) + '</div>' : ''}
           </div>
         </div>
         <div class="right">›</div>
@@ -22748,7 +22893,7 @@ function renderCustomers() {
   if (homeAvatar) homeAvatar.textContent = dynCustomers.length;
   if (homeTitle) homeTitle.textContent = 'ลูกค้าทั้งหมด ' + dynCustomers.length + ' ราย';
   if (homeSub) {
-    const totalRev = JOBS.reduce((s,j) => s + (j.sell || 0), 0);
+    const totalRev = JOBS.reduce((s,j) => s + jobRevenue(j), 0);
     homeSub.textContent = dynCustomers.length > 0
       ? 'รวม ' + JOBS.length + ' งาน · ยอดรวม ' + fmt(totalRev)
       : 'ยังไม่มีงานในระบบ';
@@ -23016,7 +23161,7 @@ function renderAddJobScreen() {
   ADDONS.forEach(a => {
     const chip = document.createElement('div');
     chip.className = 'chip' + (ADD_ADDONS[a.key] ? ' active' : '');
-    chip.innerHTML = `${a.name} <span class="price">฿${a.price.toLocaleString()}</span>`;
+    chip.innerHTML = `${escapeHtml(a.name)} <span class="price">฿${a.price.toLocaleString()}</span>`;
     chip.onclick = () => {
       if (ADD_ADDONS[a.key]) delete ADD_ADDONS[a.key]; else ADD_ADDONS[a.key] = a.price;
       renderAddJobScreen();
@@ -23032,7 +23177,7 @@ function renderAddJobScreen() {
     chip.className = 'chip team-chip' + (isOn ? ' active' : '');
     chip.style.background = isOn ? t.color : '';
     chip.style.borderColor = isOn ? t.color : '';
-    chip.innerHTML = `<span class="team-dot" style="background:${isOn ? 'rgba(255,255,255,.6)' : t.color}"></span>${t.name}`;
+    chip.innerHTML = `<span class="team-dot" style="background:${isOn ? 'rgba(255,255,255,.6)' : t.color}"></span>${escapeHtml(t.name)}`;
     chip.onclick = () => {
       if (ADD_TEAM.has(t.name)) ADD_TEAM.delete(t.name); else ADD_TEAM.add(t.name);
       renderAddJobScreen();
@@ -23066,9 +23211,9 @@ function renderTeamWages() {
     row.className = 'wage-row';
     row.innerHTML = `
       <span class="wage-dot" style="background:${t.color}"></span>
-      <span class="wage-name">${t.name}</span>
+      <span class="wage-name">${escapeHtml(t.name)}</span>
       <span class="wage-currency">฿</span>
-      <input type="number" value="${wage}" placeholder="${defaultRate}" data-wage-name="${t.name}">
+      <input type="number" value="${wage}" placeholder="${defaultRate}" data-wage-name="${escapeHtml(t.name)}">
     `;
     wrap.appendChild(row);
   });
@@ -23288,8 +23433,8 @@ function renderDashboard() {
   const prevYearJobs = JOBS.filter(j => j.date && new Date(j.date).getFullYear() === yr - 1);
 
   // Core KPIs
-  const income = yearJobs.reduce((s,j) => s + (j.sell || 0), 0);
-  const prevIncome = prevYearJobs.reduce((s,j) => s + (j.sell || 0), 0);
+  const income = yearJobs.reduce((s,j) => s + jobRevenue(j), 0);
+  const prevIncome = prevYearJobs.reduce((s,j) => s + jobRevenue(j), 0);
   const incomeDelta = prevIncome > 0 ? Math.round((income - prevIncome) / prevIncome * 100) : (income > 0 ? 100 : 0);
   // Cash-in (cross-year safe)
   const totalCashIn = JOBS.reduce((s, j) => {
@@ -23363,6 +23508,9 @@ function renderDashboard() {
     } else {
       svc[fallback] = (svc[fallback] || 0) + sell;
     }
+    // v2.5.64 · A2 · additional-invoice extras (OT + add-on) → fallback category · keeps donut total = revenue
+    const _ie = jobInvExtra(j);
+    if (_ie > 0) svc[fallback] = (svc[fallback] || 0) + _ie;
   });
   const SVC_COLORS = ['#D97757','#fbbf24','#1e40af','#1D9E75','#a78bfa','#ec4899','#888780'];
   const svcEntriesRaw = Object.entries(svc).filter(([k,v]) => v > 0).sort((a,b) => b[1] - a[1]).map((e, i) => ({ name: e[0], val: e[1], color: SVC_COLORS[i % SVC_COLORS.length] }));
@@ -23384,7 +23532,7 @@ function renderDashboard() {
   // -- Monthly
   const monthlyIn = new Array(12).fill(0);
   const monthlyOut = new Array(12).fill(0);
-  yearJobs.forEach(j => { monthlyIn[new Date(j.date).getMonth()] += (j.sell || 0); });
+  yearJobs.forEach(j => { monthlyIn[new Date(j.date).getMonth()] += jobRevenue(j); });
   yearJobs.forEach(j => {
     const m = new Date(j.date).getMonth();
     const ciSum = Array.isArray(j.costItems) ? j.costItems.reduce((ss, c) => ss + (parseFloat(c && c.price) || 0), 0) : 0;
@@ -23415,7 +23563,7 @@ function renderDashboard() {
   yearJobs.forEach(j => {
     const n = j.customer || '-';
     if (!custTotal[n]) custTotal[n] = { revenue: 0, jobs: 0, types: new Set() };
-    custTotal[n].revenue += (j.sell || 0);
+    custTotal[n].revenue += jobRevenue(j);
     custTotal[n].jobs += 1;
     const t = (j.type || '').trim();
     if (t) custTotal[n].types.add(t);
@@ -23879,16 +24027,16 @@ function renderHomeActive() {
     else countdown = '<span style="color:#7c7066; font-size:11px;">' + t('time.inXDays').replace('{x}', daysAway) + '</span>';
     let cls = 'date-block';
     if (daysAway >= 0 && daysAway <= 30) cls += ' upcoming';
-    if (j.remain > 0 && daysAway < 7) cls += ' warn';
+    if (jobOutstanding(j) > 0 && daysAway < 7) cls += ' warn';
     const row = document.createElement('div');
     row.className = 'job-row';
     row.onclick = () => openJob(j.code);
     row.innerHTML = `
       <div class="${cls}"><div class="day">${dp.d}</div><div class="month">${MONTHS_TH_SHORT[dp.m]}</div></div>
       <div class="info">
-        <p class="customer">${j.customer}</p>
-        <p class="meta">${j.type} · ${j.loc}</p>
-        <div class="price">${fmt(j.sell)} ${j.remain > 0 ? `<span style="color:#dc2626; font-size:11px;">· เหลือ ${fmt(j.remain)}</span>` : ''} ${countdown}</div>
+        <p class="customer">${escapeHtml(j.customer)}</p>
+        <p class="meta">${escapeHtml(j.type)} · ${escapeHtml(j.loc)}</p>
+        <div class="price">${fmt(j.sell)} ${jobOutstanding(j) > 0 ? `<span style="color:#dc2626; font-size:11px;">· เหลือ ${fmt(jobOutstanding(j))}</span>` : ''} ${countdown}</div>
       </div>
       <div style="display:flex; align-items:flex-start;">${pill}</div>
     `;
@@ -24077,7 +24225,7 @@ function renderSettingsLists() {
 
   html = '';
   ADDONS.forEach((a, i) => {
-    html += `<div class="item-row" onclick="openEdit('addon',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${a.name}</div><div class="item-sub">${fmt(a.price)}</div></div><button onclick="event.stopPropagation(); quickDeleteItem('addon',${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;">🗑</button></div>`;
+    html += `<div class="item-row" onclick="openEdit('addon',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${escapeHtml(a.name)}</div><div class="item-sub">${fmt(a.price)}</div></div><button onclick="event.stopPropagation(); quickDeleteItem('addon',${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;">🗑</button></div>`;
   });
   document.getElementById('list-addons').innerHTML = html;
 
@@ -24092,8 +24240,8 @@ function renderSettingsLists() {
     html += `<div class="item-row" onclick="openEdit('team',${i})">
       <div style="width:32px;height:32px;border-radius:50%;background:${t.color};flex-shrink:0;"></div>
       <div style="flex:1; min-width:0;">
-        <div class="item-name">${t.name}</div>
-        <div class="item-sub">${t.role || ''} · ${t.rate > 0 ? 'อัตรา ฿'+t.rate.toLocaleString()+'/งาน' : 'ไม่ระบุ'}</div>
+        <div class="item-name">${escapeHtml(t.name)}</div>
+        <div class="item-sub">${escapeHtml(t.role || '')} · ${t.rate > 0 ? 'อัตรา ฿'+t.rate.toLocaleString()+'/งาน' : 'ไม่ระบุ'}</div>
       </div>
       <button onclick="event.stopPropagation(); quickDeleteTeam(${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;" title="ลบ">🗑</button>
     </div>`;
