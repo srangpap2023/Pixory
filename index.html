@@ -8364,7 +8364,9 @@ const RELEASE_NOTES = {
     subtitle: 'อ่านง่ายขึ้น สวยขึ้น · เริ่มต้นใช้งานลื่นไหลกว่าเดิม',
     items: [
       { icon: '🖤', title: 'Onboarding ดีไซน์ใหม่ ดำ-ทอง พรีเมียม', desc: 'หน้าตั้งค่าครั้งแรกและหน้ายอมรับเงื่อนไข ปรับเป็นโทนดำ-แชมเปญโกลด์ คอนทราสต์สูง อ่านชัดทุกธีม (แก้ปัญหาตัวหนังสือมืดบนพื้นมืดที่อ่านไม่ออก)' },
-      { icon: '🚀', title: 'ตั้งค่าเสร็จ → สร้างใบเสนอราคาแรกได้เลย', desc: 'จบขั้นตอนตั้งค่ามีปุ่มลัด "สร้างใบเสนอราคาแรก" พาเริ่มงานจริงทันที ไม่ต้องหาเอง' }
+      { icon: '🚀', title: 'ตั้งค่าเสร็จ → สร้างใบเสนอราคาแรกได้เลย', desc: 'จบขั้นตอนตั้งค่ามีปุ่มลัด "สร้างใบเสนอราคาแรก" พาเริ่มงานจริงทันที ไม่ต้องหาเอง' },
+      { icon: '💾', title: 'สำรอง/กู้ข้อมูล ครบทุกอย่าง', desc: 'Export/Import ไฟล์ JSON เก็บข้อมูลครบทุกฟิลด์อัตโนมัติ (รวมโน้ต) — ไม่ตกหล่นแม้มีฟีเจอร์ใหม่ในอนาคต' },
+      { icon: '🌙', title: 'แก้ตัวเลขกลางวงโดนัทมองไม่เห็นบนธีมมืด', desc: 'ข้อความสรุปกลางกราฟโดนัทในหน้าสรุป ปรับสีตามธีม อ่านชัดทั้งธีมสว่าง/Luxe/มืด · การ์ดสรุปเดือนระบุชัดว่า "จองเข้ามา"' }
     ]
   },
   '2.5.68': {
@@ -12911,7 +12913,7 @@ const I18N = {
   'home.greetEvening':  { th: 'สวัสดีตอนเย็น',  en: 'Good evening' },
   'home.totalRevenue':  { th: 'รายได้รวม',         en: 'Total Revenue' },
   'home.kpiRevenue':    { th: 'ยอดขาย',           en: 'Revenue' },
-  'msum.title':         { th: 'เดือนนี้',          en: 'This month' },
+  'msum.title':         { th: 'เดือนนี้ (จองเข้ามา)', en: 'This month (booked)' },
   'msum.cases':         { th: 'เคส',               en: 'Cases' },
   'msum.sales':         { th: 'ยอดขาย',           en: 'Sales' },
   'msum.collected':     { th: 'เก็บแล้ว',          en: 'Collected' },
@@ -15425,33 +15427,15 @@ function updateHomeExpenseSum() {
 function exportBackup() {
   // CRITICAL: must include EVERYTHING that saveData() saves — otherwise restore loses data
   // Keep this list in sync with saveData() forever.
-  const data = {
-    exportedAt: new Date().toISOString(),
-    pixoryVersion: '1.7.4',
-    // Master / config
-    PKG_PHOTO, PKG_PB, PKG_VIDEO, PKG_PRE, ADDONS,
-    JOB_TYPES, SOURCES, EXPENSE_CATS, TEAM,
-    // Transactional
-    JOBS, QUOTES, EXPENSES,
-    // Settings + brand
-    PROFILE, BANKS, QUOTE_TEMPLATE,
-    NOTIF_SETTINGS,
-    // Newer fields — previously MISSING (cause of v1.7.4 bug fix)
-    SERVICES, CUSTOMER_INFO, EQUIPMENT,
-  };
-
-  // Self-check: warn if any key from saveData is missing
-  try {
-    const savedRaw = localStorage.getItem(STORAGE_KEY);
-    if (savedRaw) {
-      const saved = JSON.parse(savedRaw);
-      const missing = Object.keys(saved).filter(k => !(k in data) && k !== '_meta');
-      if (missing.length > 0) {
-        console.warn('[Pixory export] ⚠ Fields in localStorage but NOT in export:', missing);
-        if (!confirm('⚠ Export พบ field ที่อาจขาด: ' + missing.join(', ') + '\n\nดำเนินการต่อหรือยกเลิก?')) return;
-      }
-    }
-  } catch(e) { console.warn('export self-check failed', e); }
+  // v2.5.69 · Future-proof: export EXACTLY what is persisted. saveData() writes the FULL blob
+  // (all keys incl NOTES + any future field), so we read it back instead of a hand-listed key set
+  // that silently drifts and drops new fields (the old bug — NOTES was missing).
+  try { if (typeof saveData === 'function') saveData(); } catch(e) {}
+  let data = {};
+  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {}; } catch(e) { data = {}; }
+  delete data._meta;  // device/sync metadata — not user content
+  data.exportedAt = new Date().toISOString();
+  data.pixoryVersion = (typeof PIXORY_VERSION !== 'undefined') ? PIXORY_VERSION : '?';
 
   const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], {type: 'application/json'});
@@ -15522,11 +15506,11 @@ function importBackup(ev) {
     // Write directly to localStorage in the schema saveData() uses
     (async () => {
       try {
+        // v2.5.69 · Future-proof: restore EVERY data key present in the backup (skip export-only
+        // metadata). loadData() handles known keys on reload; this never drops a new field again.
+        const SKIP = { exportedAt: 1, pixoryVersion: 1, _meta: 1 };
         const toStore = {};
-        const keys = ['PKG_PHOTO','PKG_PB','PKG_VIDEO','PKG_PRE','ADDONS','JOB_TYPES','SOURCES',
-                      'EXPENSE_CATS','TEAM','EXPENSES','JOBS','QUOTES','PROFILE','BANKS',
-                      'QUOTE_TEMPLATE','NOTIF_SETTINGS','SERVICES','CUSTOMER_INFO','EQUIPMENT'];
-        keys.forEach(k => { if (k in data) toStore[k] = data[k]; });
+        Object.keys(data).forEach(k => { if (!SKIP[k]) toStore[k] = data[k]; });
 
         // CRITICAL: stamp _meta with current timestamp so Cloud Sync won't override imported data
         const now = new Date().toISOString();
@@ -23785,9 +23769,14 @@ function _pdbCapTopN(entries, max, label) {
 }
 function _pdbDonut(slices, totalLabel, subLabel) {
   const r = 35, c = 2 * Math.PI * r;
+  // v2.5.69 · theme-aware center text (was hardcoded #2A1F18 → มืดบนพื้นเข้มในธีม Luxe/Dark)
+  const _dk = document.body.classList.contains('luxe-theme') || document.body.classList.contains('dark-theme');
+  const _cMain = _dk ? '#F4F4F5' : '#2A1F18';
+  const _cSub  = _dk ? '#A1A1AA' : '#7c6856';
+  const _cTrack = _dk ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.06)';
   const total = slices.reduce((s, x) => s + x.value, 0);
   if (total <= 0) {
-    return '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="22"/><text x="50" y="54" text-anchor="middle" font-size="9" fill="#a89a8c">ไม่มีข้อมูล</text></svg>';
+    return '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" fill="none" stroke="' + _cTrack + '" stroke-width="22"/><text x="50" y="54" text-anchor="middle" font-size="9" fill="' + _cSub + '">ไม่มีข้อมูล</text></svg>';
   }
   let offset = 0;
   const arcs = slices.map(s => {
@@ -23797,8 +23786,8 @@ function _pdbDonut(slices, totalLabel, subLabel) {
     return arc;
   }).join('');
   return '<svg viewBox="0 0 100 100">' + arcs +
-    '<text x="50" y="46" text-anchor="middle" font-size="8.5" fill="#7c6856">' + escapeHtml(subLabel || '') + '</text>' +
-    '<text x="50" y="56" text-anchor="middle" font-size="10.5" font-weight="800" fill="#2A1F18">' + escapeHtml(totalLabel) + '</text>' +
+    '<text x="50" y="46" text-anchor="middle" font-size="8.5" fill="' + _cSub + '">' + escapeHtml(subLabel || '') + '</text>' +
+    '<text x="50" y="56" text-anchor="middle" font-size="10.5" font-weight="800" fill="' + _cMain + '">' + escapeHtml(totalLabel) + '</text>' +
   '</svg>';
 }
 function _pdbMonthlyBars(monthlyIn, monthlyOut, currMonth) {
