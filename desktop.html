@@ -2902,7 +2902,8 @@ const RELEASE_NOTES = {
     subtitle: 'แถวสรุปเดือนนี้บนแดชบอร์ด · กรองงานที่ทีมยังไม่ครบ',
     items: [
       { icon: '📅', title: 'แถวสรุปเดือนนี้ (จองเข้ามา)', desc: 'เคส · ยอดขาย (ตามวันจอง) · เก็บเข้ามาแล้ว · ค้างเก็บรวม — ดูง่ายบนสุดแดชบอร์ด' },
-      { icon: '👥', title: 'แท็บ "รอจัดทีม" ในหน้างาน', desc: 'กรองเฉพาะงานที่ทีมยังไม่ครบ + ตัวเลขนับ' }
+      { icon: '👥', title: 'แท็บ "รอจัดทีม" ในหน้างาน', desc: 'กรองเฉพาะงานที่ทีมยังไม่ครบ + ตัวเลขนับ' },
+      { icon: '🎨', title: 'จัดปุ่มในหน้ารายละเอียดงานให้คุมโทน', desc: 'เอาปุ่ม "ใบเสนอราคา" ออก (ใบเสนอจริงดูจากแท็บใบเสนอ/ลูกค้า) · เหลือ 3 ปุ่มเต็มแถว · สีปุ่มปรับให้เข้ากับธีม (รวมถึง Luxe)' }
     ]
   },
   '1.0.43': {
@@ -11738,18 +11739,15 @@ function renderJobDetailHtml(j) {
         }).join('')}
       </div>
 
-      <!-- 🎬 ACTION GRID · 4 quick actions (match mobile) -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
-        <button onclick="${j.fromQuote ? `openQuoteDetail('${escapeHtml(j.fromQuote)}')` : `toast('งานนี้สร้างตรง · ไม่มีใบเสนอ','info')`}" style="padding:14px 8px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fbbf24;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:#7c2d12;font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-          <span style="font-size:22px;">📋</span><span>ใบเสนอราคา</span>
-        </button>
-        <button onclick="closeModal();setTimeout(()=>openJobModal('${escapeHtml(j.code)}'),50)" style="padding:14px 8px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:1px solid #3b82f6;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:#1e40af;font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+      <!-- 🎬 ACTION GRID · v1.0.44 · removed ใบเสนอราคา · 3 ปุ่มเต็มแถว · สีตามธีม (CSS vars · คุมโทนทุกธีม) -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+        <button onclick="closeModal();setTimeout(()=>openJobModal('${escapeHtml(j.code)}'),50)" style="padding:14px 8px;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink);font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
           <span style="font-size:22px;">✏️</span><span>แก้ไขงาน</span>
         </button>
-        <button onclick="closeModal();setTimeout(()=>openExpenseModalForJob('${escapeHtml(j.code)}'),50)" style="padding:14px 8px;background:linear-gradient(135deg,#fee2e2,#fecaca);border:1px solid #f87171;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:#b91c1c;font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-          <span style="font-size:22px;">💸</span><span>บันทึกค่าใช้</span>
+        <button onclick="closeModal();setTimeout(()=>openExpenseModalForJob('${escapeHtml(j.code)}'),50)" style="padding:14px 8px;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--red);font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+          <span style="font-size:22px;">💸</span><span>บันทึกค่าใช้จ่าย</span>
         </button>
-        <button onclick="closeModal();setTimeout(()=>openPaymentModal('${escapeHtml(j.code)}'),50)" style="padding:14px 8px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);border:1px solid #15803d;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:#15803d;font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+        <button onclick="closeModal();setTimeout(()=>openPaymentModal('${escapeHtml(j.code)}'),50)" style="padding:14px 8px;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--green);font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
           <span style="font-size:22px;">💰</span><span>รับเงิน</span>
         </button>
       </div>
