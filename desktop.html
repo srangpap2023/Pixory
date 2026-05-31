@@ -2890,12 +2890,21 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.44';
+const PIXORY_DESKTOP_VERSION = '1.0.45';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.45': {
+    date: '2026-05-31',
+    title: '📣 ประกาศจากแอป · อ่านเต็มได้ ไม่หาย',
+    subtitle: 'ประกาศเด้งให้อ่านในแอป กดอ่านซ้ำได้ ไม่ตกหล่น',
+    items: [
+      { icon: '📣', title: 'กล่องประกาศในแอป', desc: 'มีประกาศใหม่ แอปเด้งข้อความเต็มให้อ่าน · ไม่โดนตัดหรือหายเหมือนการแจ้งเตือนหน้าจอ · ยังไม่อ่าน เปิดแอปครั้งหน้าก็ยังเห็น' },
+      { icon: '🔔', title: 'แจ้งเตือนค้างจนกว่าจะกด', desc: 'การแจ้งเตือนแบบเด้ง (push) ไม่หายเอง · ค้างไว้จนกดอ่าน' }
+    ]
+  },
   '1.0.44': {
     date: '2026-05-31',
     title: '📅 สรุปเดือนนี้ + ฟิลเตอร์ "รอจัดทีม"',
@@ -3550,6 +3559,8 @@ async function finishAuthAndStart() {
   startRealtimeSync();
   // v1.0.40 · show What's New if version changed since last seen
   try { checkVersionUpdate(); } catch(e) { console.warn('checkVersionUpdate:', e); }
+  // v1.0.45 · then check for unread announcements (delayed so it doesn't fight What's New)
+  try { setTimeout(() => { checkAnnouncements(); }, 2600); } catch(e) {}
 }
 
 // ===================================================================
@@ -9772,10 +9783,104 @@ function showWhatsNewModal(versionKey) {
 function dismissWhatsNew() {
   closeModal();
   try { localStorage.setItem(DESKTOP_LAST_SEEN_VERSION_KEY, PIXORY_DESKTOP_VERSION); } catch(e) {}
+  // v1.0.45 · หลังปิด What's New แล้ว ค่อยโชว์ประกาศที่ยังไม่อ่าน (ใช้ overlay เดียวกัน · ไม่ชนกัน)
+  setTimeout(() => { try { _showNextAnnounce(); } catch(e) {} }, 250);
 }
 
 // Manual replay from Settings/About
 function showCurrentVersionNotes() { showWhatsNewModal(PIXORY_DESKTOP_VERSION); }
+
+// ========== v1.0.45 · ANNOUNCEMENTS (desktop · mirrors mobile) ==========
+// push = แค่กระดิ่งเรียก · ข้อความจริงเก็บใน table announcements → เปิดแอปอ่านเต็มได้ ไม่หาย
+const ANNOUNCE_SEEN_KEY = 'pixory.announcements.seen';
+let _announceQueue = [];
+let _currentAnnounce = null;
+
+function _getSeenAnnounce() {
+  try { return JSON.parse(localStorage.getItem(ANNOUNCE_SEEN_KEY) || '[]') || []; } catch(e) { return []; }
+}
+function _markAnnounceSeen(id) {
+  if (id == null) return;
+  try {
+    const s = _getSeenAnnounce();
+    if (!s.includes(id)) { s.push(id); localStorage.setItem(ANNOUNCE_SEEN_KEY, JSON.stringify(s.slice(-300))); }
+  } catch(e) {}
+}
+function _fmtAnnounceDate(iso) {
+  try { return new Date(iso).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  catch(e) { return ''; }
+}
+function _announceHasUrl(ann) {
+  return !!(ann && ann.url && ann.url !== './' && ann.url !== '/' && ann.url !== './desktop.html');
+}
+
+function showAnnounceModal(ann) {
+  if (!ann) return;
+  _currentAnnounce = ann;
+  const hasUrl = _announceHasUrl(ann);
+  // escapeHtml ทุกค่า · กัน XSS · white-space:pre-wrap คง newline
+  openModalWithHtml(`
+    <div class="modal-header">
+      <div class="modal-title">📣 ประกาศ</div>
+      <button class="modal-close" onclick="dismissAnnounce()" aria-label="ปิด">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px 24px;">
+      <div style="font-size:12px; color:var(--ink-mute); margin-bottom:8px;">${escapeHtml(_fmtAnnounceDate(ann.created_at))}</div>
+      <div style="font-family:var(--font-display); font-size:18px; font-weight:600; color:var(--ink); margin-bottom:10px;">${escapeHtml(ann.title || 'ประกาศจาก Pixory')}</div>
+      <div style="font-size:14px; color:var(--ink); line-height:1.65; white-space:pre-wrap;">${escapeHtml(ann.body || '')}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="announceAction()">${hasUrl ? 'เปิดดู' : 'รับทราบ'}</button>
+    </div>`);
+}
+
+function dismissAnnounce() {
+  if (_currentAnnounce) _markAnnounceSeen(_currentAnnounce.id);
+  _currentAnnounce = null;
+  closeModal();
+  setTimeout(() => { try { _showNextAnnounce(); } catch(e) {} }, 250);
+}
+
+function announceAction() {
+  const ann = _currentAnnounce;
+  if (_announceHasUrl(ann)) {
+    _markAnnounceSeen(ann.id);
+    const u = ann.url;
+    _currentAnnounce = null;
+    closeModal();
+    try {
+      if (/^https?:\/\//i.test(u)) window.location.href = u;
+      else window.location.hash = u.replace(/^[#./]+/, '');
+    } catch(e) {}
+  } else {
+    dismissAnnounce();
+  }
+}
+
+function _showNextAnnounce() {
+  if (!_announceQueue || !_announceQueue.length) return;
+  // ใช้ overlay เดียวกับ modal อื่น · ถ้ามีอันเปิดอยู่ (job/quote editor / what's new) → รอ
+  if (document.getElementById('modal-overlay').classList.contains('show')) return;
+  const ann = _announceQueue.shift();
+  showAnnounceModal(ann);
+}
+
+async function checkAnnouncements() {
+  if (!SUPABASE || !CURRENT_USER) return;
+  try {
+    const since = new Date(Date.now() - 60 * 24 * 3600 * 1000).toISOString();
+    const { data, error } = await SUPABASE
+      .from('announcements')
+      .select('id,title,body,url,created_at')
+      .gte('created_at', since)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (error || !data) return;
+    const seen = _getSeenAnnounce();
+    _announceQueue = data.filter(a => !seen.includes(a.id));
+    _showNextAnnounce();
+  } catch(e) { console.warn('checkAnnouncements failed', e); }
+}
 
 // Auto-check after login · delayed so it doesn't fight the dashboard render
 function checkVersionUpdate() {
