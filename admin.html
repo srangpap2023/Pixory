@@ -965,7 +965,9 @@ async function sendBroadcast() {
   const btn = document.getElementById('bc-send');
   btn.disabled = true; btn.textContent = 'กำลังส่ง...';
   try {
-    const { data, error } = await SUPABASE.functions.invoke('admin_broadcast', { body: { title, body, url } });
+    const _invoke = SUPABASE.functions.invoke('admin_broadcast', { body: { title, body, url } });
+    const _timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout · ฟังก์ชันไม่ตอบใน 45 วิ')), 45000));
+    const { data, error } = await Promise.race([_invoke, _timeout]);
     if (error) throw error;
     if (data && data.error) throw new Error(data.error);
     const s = data && data.summary;
@@ -973,7 +975,8 @@ async function sendBroadcast() {
     document.getElementById('bc-body').value = '';
     document.getElementById('bc-url').value = '';
   } catch (e) {
-    alert('ส่งไม่สำเร็จ: ' + (e.message || e) + '\n\n(ถ้ายังไม่ได้ deploy Edge Function "admin_broadcast" ใน Supabase จะส่งไม่ได้)');
+    const msg = (e && e.message) || String(e);
+    alert('ส่งไม่สำเร็จ: ' + msg + '\n\nเช็ค:\n1) Edge Function ชื่อ "admin_broadcast" deploy แล้ว\n2) ⚠️ ปิด "Verify JWT" ของฟังก์ชันนี้ (สาเหตุที่พบบ่อยสุดของ error นี้)\n3) env VAPID_* ครบ (ใช้ร่วมกับ send_balance_due)');
   } finally {
     btn.disabled = false; btn.textContent = '📣 ส่งประกาศ';
   }
