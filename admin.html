@@ -598,6 +598,10 @@
     </div>
     <!-- v2.0 · Priority sections (only shown when filter = 'all') -->
     <div id="priority-sections"></div>
+    <!-- v2.6 · user search -->
+    <div style="padding:0 16px 10px;">
+      <input type="text" id="user-search" placeholder="🔍 ค้นหา · email · ชื่อร้าน · เบอร์" oninput="onUserSearch(this.value)" autocomplete="off" style="width:100%;padding:9px 12px;background:#241b15;border:1px solid #3a2e24;border-radius:10px;color:#F2E0BA;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;" />
+    </div>
     <div class="filter-chips" id="filter-chips">
       <button class="filter-chip active" data-filter="all">ทั้งหมด</button>
       <button class="filter-chip" data-filter="champion">🚀 Champions</button>
@@ -674,6 +678,34 @@
         <div class="stat-value" id="metric-collectavg">—</div>
         <div class="stat-sub" id="metric-collectavg-sub">% เก็บได้ต่อใบ</div>
       </div>
+    </div>
+
+    <!-- v2.6 · DAU/WAU/MAU + stickiness -->
+    <div class="stats-grid" style="padding: 0 16px 4px;">
+      <div class="stat">
+        <div class="stat-icon">🟢</div>
+        <div class="stat-label">DAU / WAU / MAU</div>
+        <div class="stat-value" id="metric-dwm" style="font-size:18px;">—</div>
+        <div class="stat-sub">active วันนี้ / 7 / 30 วัน</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">🧲</div>
+        <div class="stat-label">Stickiness</div>
+        <div class="stat-value" id="metric-sticky">—</div>
+        <div class="stat-sub" id="metric-sticky-sub">DAU ÷ MAU</div>
+      </div>
+    </div>
+
+    <!-- v2.6 · Version distribution -->
+    <div class="panel">
+      <div class="panel-title">🔢 เวอร์ชันที่ใช้อยู่ <span style="font-size:11px;color:var(--muted);font-weight:400;">· หลัง deploy ดูว่าคนอัพถึงไหน</span></div>
+      <div id="version-dist"></div>
+    </div>
+
+    <!-- v2.6 · Feature adoption -->
+    <div class="panel">
+      <div class="panel-title">🧩 การใช้ฟีเจอร์</div>
+      <div id="feature-adoption"></div>
     </div>
 
     <!-- Smart Insights -->
@@ -909,6 +941,8 @@ let _isFirstRender = true;
 let _audioCtx = null;
 let _currentTab = 'home';
 let _currentUserFilter = 'all';
+let _userSearch = '';  // v2.6 · text search in Users view
+function onUserSearch(v) { _userSearch = String(v || '').trim().toLowerCase(); renderUsersView(_lastUsers || []); }
 
 // ============ NOTIF PREFS ============
 function loadNotifPrefs() {
@@ -1402,7 +1436,7 @@ function renderUsersView(users) {
   // Render priority sections (only when no filter)
   const prio = document.getElementById('priority-sections');
   if (prio) {
-    if (_currentUserFilter === 'all') {
+    if (_currentUserFilter === 'all' && !_userSearch) {
       prio.style.display = '';
       renderPrioritySections(users);
     } else {
@@ -1413,6 +1447,13 @@ function renderUsersView(users) {
   let filtered = users;
   if (_currentUserFilter === 'online') filtered = users.filter(u => u.isOnline);
   else if (_currentUserFilter !== 'all') filtered = users.filter(u => u.stage === _currentUserFilter);
+  // v2.6 · text search (email · shop · phone · line)
+  if (_userSearch) {
+    filtered = filtered.filter(u => {
+      const hay = [u.email, u.shop, u.phone, u.line].filter(Boolean).join(' ').toLowerCase();
+      return hay.indexOf(_userSearch) > -1;
+    });
+  }
   // Sort by importance
   filtered = sortByImportance(filtered);
   // Header text
@@ -1576,6 +1617,10 @@ function renderInsights(users) {
   try { renderLeadSource(users); } catch (e) { console.warn('LeadSource:', e); }
   try { renderEngagementPareto(users); } catch (e) { console.warn('Engagement:', e); }
   try { renderPaymentHealth(users); } catch (e) { console.warn('PayHealth:', e); }
+  // v2.6 · new panels
+  try { renderUsageActivity(users); } catch (e) { console.warn('UsageActivity:', e); }
+  try { renderVersionDist(users); } catch (e) { console.warn('VersionDist:', e); }
+  try { renderFeatureAdoption(users); } catch (e) { console.warn('FeatureAdoption:', e); }
 
   // Funnel
   const funnelData = [
@@ -1782,6 +1827,56 @@ function renderLeadSource(users) {
       <div class="src-bar-wrap"><div class="src-bar-fill" style="width:${wPct}%;">${n}</div></div>
       <div class="src-bar-pct">${pct}%</div>
     </div>`;
+  }).join('');
+}
+
+// v2.6 · DAU/WAU/MAU + stickiness (จาก updatedAt)
+function renderUsageActivity(users) {
+  const now = Date.now();
+  const dau = users.filter(u => (now - u.updatedAt) < 86400000).length;
+  const wau = users.filter(u => (now - u.updatedAt) < 7 * 86400000).length;
+  const mau = users.filter(u => (now - u.updatedAt) < 30 * 86400000).length;
+  const sticky = mau > 0 ? Math.round(dau / mau * 100) : 0;
+  const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  set('metric-dwm', dau + ' / ' + wau + ' / ' + mau);
+  set('metric-sticky', sticky + '%');
+  set('metric-sticky-sub', mau > 0 ? ('~' + Math.round(sticky / 100 * 30) + ' วัน/เดือน') : 'DAU ÷ MAU');
+  // v2.6 · log today's DAU to localStorage so an active-trend can build up over time (no history stored server-side)
+  try {
+    const key = 'pixory.admin.dauLog';
+    const today = new Date().toISOString().slice(0, 10);
+    const log = JSON.parse(localStorage.getItem(key) || '{}');
+    log[today] = Math.max(log[today] || 0, dau);
+    const ks = Object.keys(log).sort(); while (ks.length > 90) delete log[ks.shift()];
+    localStorage.setItem(key, JSON.stringify(log));
+  } catch (e) {}
+}
+
+// v2.6 · Version distribution (จาก _meta.app_version)
+function renderVersionDist(users) {
+  const el = document.getElementById('version-dist'); if (!el) return;
+  const map = {};
+  users.forEach(u => { const v = u.appVersion || '—'; map[v] = (map[v] || 0) + 1; });
+  const entries = Object.entries(map).sort((a, b) => b[1] - a[1]);
+  const total = users.length || 1;
+  el.innerHTML = entries.map(([v, c]) => {
+    const pct = Math.round(c / total * 100);
+    return '<div style="margin-bottom:9px;"><div style="display:flex;justify-content:space-between;font-size:12px;color:#cdbba8;margin-bottom:3px;"><span>' + escapeHtml(v) + '</span><span>' + c + ' (' + pct + '%)</span></div><div style="height:7px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;"><div style="width:' + Math.max(pct, 2) + '%;height:100%;background:#D4A056;"></div></div></div>';
+  }).join('') || '<div style="color:var(--muted);font-size:12px;">ยังไม่มีข้อมูล</div>';
+}
+
+// v2.6 · Feature adoption (tax/PDF/push/payment · จากข้อมูลที่มี)
+function renderFeatureAdoption(users) {
+  const el = document.getElementById('feature-adoption'); if (!el) return;
+  const n = users.length || 1;
+  const tax = users.filter(u => (u.jobs || []).some(j => j && j.taxEnabled)).length;
+  const pdf = users.filter(u => u.pdfGenerated).length;
+  const push = users.filter(u => u.pushEnabled).length;
+  const pay = users.filter(u => u.hasPayment).length;
+  const rows = [['ใช้ภาษี (VAT/WHT)', tax], ['ออก PDF', pdf], ['เปิด push', push], ['มีการรับเงิน', pay]];
+  el.innerHTML = rows.map(function (r) {
+    const pct = Math.round(r[1] / n * 100);
+    return '<div style="margin-bottom:9px;"><div style="display:flex;justify-content:space-between;font-size:12px;color:#cdbba8;margin-bottom:3px;"><span>' + r[0] + '</span><span>' + r[1] + '/' + users.length + ' (' + pct + '%)</span></div><div style="height:7px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;"><div style="width:' + Math.max(pct, 2) + '%;height:100%;background:#D97757;"></div></div></div>';
   }).join('');
 }
 
