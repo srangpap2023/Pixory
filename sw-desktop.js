@@ -6,9 +6,10 @@
 //   - Supabase API calls: never cache (live data only)
 // NOTE: bump CACHE_NAME on every release so old caches are evicted on activate
 
-const CACHE_NAME = 'pixory-desktop-v1.0.45';
+const CACHE_NAME = 'pixory-desktop-v1.0.47';
 const PRECACHE_URLS = [
   './desktop.html',
+  './pixory-helpers.js',
   './manifest-desktop.json',
   './icon-192.png',
   './icon-512.png',
