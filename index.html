@@ -8229,7 +8229,7 @@ function goTo(name) {
   if (name === 'settings-quote-template') populateTemplateForm();
   if (name === 'settings-notif') { populateNotifSettings(); if (typeof renderPushUI === 'function') renderPushUI(); }
   if (name === 'settings-wallpaper') loadWallpaper();
-  if (name === 'notifications') renderAllNotifs();
+  if (name === 'notifications') { renderAllNotifs(); if (!(_announceAll && _announceAll.length)) { try { _fetchAnnouncements().then(() => { try { renderAllNotifs(); } catch(e) {} }); } catch(e) {} } }
   if (name === 'home') { renderHomeNotifs(); renderHomeHero(); if (typeof renderHomeBirthdays === 'function') renderHomeBirthdays(); }
   if (name === 'calendar') {
     CAL_YEAR = new Date().getFullYear(); CAL_MONTH = new Date().getMonth();
@@ -8301,7 +8301,7 @@ const RELEASE_NOTES = {
     title: '📣 ประกาศจากแอป · อ่านเต็มได้ ไม่หาย',
     subtitle: 'ประกาศจะเด้งให้อ่านในแอป กดอ่านซ้ำได้ ไม่ตกหล่นเหมือนแจ้งเตือนเด้ง',
     items: [
-      { icon: '📣', title: 'กล่องประกาศในแอป', desc: 'เมื่อมีประกาศใหม่ แอปจะเด้งข้อความเต็มๆ ให้อ่าน · ไม่โดนตัดครึ่งหรือหายไปเหมือนการแจ้งเตือนหน้าจอ · ถ้ายังไม่ได้อ่าน เปิดแอปครั้งหน้าก็ยังเห็น' },
+      { icon: '📣', title: 'กล่องประกาศในแอป', desc: 'เมื่อมีประกาศใหม่ แอปจะเด้งข้อความเต็มๆ ให้อ่าน · ไม่โดนตัดครึ่งหรือหายไปเหมือนการแจ้งเตือนหน้าจอ · เปิดอ่านย้อนหลังได้ที่กระดิ่ง 🔔 บนหน้าหลัก' },
       { icon: '🔔', title: 'แจ้งเตือนค้างจนกว่าจะกด', desc: 'การแจ้งเตือนแบบเด้ง (push) จะไม่หายเอง · ค้างไว้จนกดอ่าน เพื่อไม่ให้พลาดเรื่องสำคัญ' }
     ]
   },
@@ -10714,8 +10714,10 @@ function showCurrentVersionNotes() {
 // ========== v2.5.68 · ANNOUNCEMENTS (กล่องประกาศในแอป) ==========
 // push = แค่กระดิ่งเรียก · ข้อความจริงเก็บใน table announcements → เปิดแอปแล้วอ่านเต็มได้ ไม่หาย
 const ANNOUNCE_SEEN_KEY = 'pixory.announcements.seen';
-let _announceQueue = [];
+let _announceQueue = [];      // unseen · สำหรับเด้ง popup
+let _announceAll = [];        // ทั้งหมดที่ดึงมา · สำหรับโชว์ถาวรในหน้ากระดิ่ง 🔔
 let _currentAnnounce = null;
+let _announceInboxMode = false; // true = เปิดจากหน้ากระดิ่ง (ปิดแล้วไม่ต้องเด้งอันถัดไป)
 
 function _getSeenAnnounce() {
   try { return JSON.parse(localStorage.getItem(ANNOUNCE_SEEN_KEY) || '[]') || []; } catch(e) { return []; }
@@ -10750,19 +10752,25 @@ function showAnnounceModal(ann) {
 }
 
 function dismissAnnounce() {
+  const inbox = _announceInboxMode; _announceInboxMode = false;
   if (_currentAnnounce) _markAnnounceSeen(_currentAnnounce.id);
   document.getElementById('announce-modal').classList.remove('show');
   _currentAnnounce = null;
-  setTimeout(() => { try { _showNextAnnounce(); } catch(e) {} }, 220);  // โชว์ประกาศถัดไปถ้ามี
+  try { renderHomeNotifs(); } catch(e) {}   // อัปเดต badge + รายการในกระดิ่ง
+  try { renderAllNotifs(); } catch(e) {}
+  // เปิดจากกระดิ่ง = ไม่ต้องเด้งอันถัดไป · เด้งจาก popup = โชว์อันถัดไปถ้ามี
+  if (!inbox) setTimeout(() => { try { _showNextAnnounce(); } catch(e) {} }, 220);
 }
 
 function announceAction() {
   const ann = _currentAnnounce;
   if (_announceHasUrl(ann)) {
+    _announceInboxMode = false;
     _markAnnounceSeen(ann.id);
     const u = ann.url;
     document.getElementById('announce-modal').classList.remove('show');
     _currentAnnounce = null;
+    try { renderHomeNotifs(); } catch(e) {}
     try {
       if (/^https?:\/\//i.test(u)) window.location.href = u;
       else window.location.hash = u.replace(/^[#./]+/, '');   // hash route ในแอป
@@ -10770,6 +10778,40 @@ function announceAction() {
   } else {
     dismissAnnounce();
   }
+}
+
+// เปิดประกาศจากหน้ากระดิ่ง 🔔 (อ่านย้อนหลัง)
+function openAnnouncementById(id) {
+  const ann = (_announceAll || []).find(a => a.id === id);
+  if (!ann) return;
+  _announceInboxMode = true;
+  showAnnounceModal(ann);
+}
+
+function _unreadAnnounceCount() {
+  try { const seen = _getSeenAnnounce(); return (_announceAll || []).filter(a => !seen.includes(a.id)).length; }
+  catch(e) { return 0; }
+}
+
+// section ประกาศ สำหรับหน้ากระดิ่ง (ถาวร · กดอ่านซ้ำได้)
+function _renderAnnounceSection() {
+  if (!_announceAll || !_announceAll.length) return '';
+  const seen = _getSeenAnnounce();
+  let h = '<div class="section-title"><h2>📣 ประกาศจาก Pixory</h2></div>';
+  _announceAll.forEach(a => {
+    const unread = !seen.includes(a.id);
+    const raw = (a.body || '').replace(/\s+/g, ' ').trim();
+    const preview = raw.slice(0, 80) + (raw.length > 80 ? '…' : '');
+    h += `<div class="notif info" onclick="openAnnouncementById(${a.id})">
+      <div class="ico">📣</div>
+      <div class="body">
+        <p class="title">${escapeHtml(a.title || 'ประกาศ')}${unread ? ' 🆕' : ''}</p>
+        <p class="desc">${escapeHtml(preview)}</p>
+        <p class="time">${escapeHtml(_fmtAnnounceDate(a.created_at))}</p>
+      </div>
+    </div>`;
+  });
+  return h;
 }
 
 function _showNextAnnounce() {
@@ -10787,8 +10829,9 @@ function _showNextAnnounce() {
   showAnnounceModal(ann);
 }
 
-async function checkAnnouncements() {
-  if (!SUPABASE || !CURRENT_USER) return;
+// ดึงประกาศจาก cloud → เก็บใน _announceAll (ไม่เด้ง popup) · ใช้ทั้งตอน boot และเปิดหน้ากระดิ่ง
+async function _fetchAnnouncements() {
+  if (!SUPABASE || !CURRENT_USER) return [];
   try {
     const since = new Date(Date.now() - 60 * 24 * 3600 * 1000).toISOString(); // 60 วันล่าสุด
     const { data, error } = await SUPABASE
@@ -10797,11 +10840,19 @@ async function checkAnnouncements() {
       .gte('created_at', since)
       .order('created_at', { ascending: false })
       .limit(20);
-    if (error || !data) return;   // ตารางยังไม่มี/ดึงไม่ได้ → เงียบ ไม่รบกวนผู้ใช้
-    const seen = _getSeenAnnounce();
-    _announceQueue = data.filter(a => !seen.includes(a.id));  // ใหม่สุดก่อน (data เรียง desc แล้ว)
-    _showNextAnnounce();
-  } catch(e) { console.warn('checkAnnouncements failed', e); }
+    if (error || !data) return _announceAll;   // ตารางยังไม่มี/ดึงไม่ได้ → เงียบ
+    _announceAll = data;
+    return data;
+  } catch(e) { console.warn('_fetchAnnouncements failed', e); return _announceAll; }
+}
+
+async function checkAnnouncements() {
+  const data = await _fetchAnnouncements();
+  try { renderHomeNotifs(); } catch(e) {}      // อัปเดต badge กระดิ่ง
+  if (!data || !data.length) return;
+  const seen = _getSeenAnnounce();
+  _announceQueue = data.filter(a => !seen.includes(a.id));  // ใหม่สุดก่อน (data เรียง desc แล้ว)
+  _showNextAnnounce();
 }
 
 // v1.9.41 · Legal screens (Privacy Policy + Terms of Service)
@@ -16692,12 +16743,13 @@ function renderHomeNotifs() {
       </div>
     `).join('');
   }
-  // Bell badge
+  // Bell badge · v2.5.68 · รวมประกาศที่ยังไม่อ่านด้วย
   const badge = document.querySelector('.bell-badge');
   if (badge) {
-    if (all.length > 0) {
+    const total = all.length + _unreadAnnounceCount();
+    if (total > 0) {
       badge.style.display = '';
-      badge.textContent = all.length;
+      badge.textContent = total;
     } else {
       badge.style.display = 'none';
     }
@@ -16708,13 +16760,14 @@ function renderAllNotifs() {
   const all = computeNotifications();
   const el = document.getElementById('all-notifs');
   if (!el) return;
-  if (all.length === 0) {
+  // v2.5.68 · ประกาศจากแอป อยู่บนสุด (ถาวร · กดอ่านซ้ำได้)
+  let html = _renderAnnounceSection();
+  if (all.length === 0 && !html) {
     el.innerHTML = '<div style="text-align:center; padding:60px 20px; color:#a89a8c; font-size:14px;">🎉 ไม่มีรายการต้องทำตอนนี้<br><span style="font-size:12px;">ระบบจะเตือนเมื่อมีงานใกล้ถึง / ยอดที่ต้องเก็บ / งานต้องส่ง</span></div>';
     return;
   }
   const groups = { urgent: [], warn: [], info: [] };
   all.forEach(n => groups[n.level].push(n));
-  let html = '';
   if (groups.urgent.length) {
     html += '<div class="section-title"><h2>🚨 ด่วน</h2></div>';
     groups.urgent.forEach(n => html += renderNotifItem(n));
