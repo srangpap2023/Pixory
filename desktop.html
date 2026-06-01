@@ -391,6 +391,12 @@
   html[data-theme="luxe"] [style*="color: #a89a8c"] { color: var(--ink-mute) !important; }
   /* Luxe · Backup danger zone keep red but bg dark */
   html[data-theme="luxe"] [style*="background:#fff5f0"] { background: rgba(220,38,38,0.06) !important; }
+  /* Luxe/Dark · pending-quote rows (dashboard) · hardcoded cream row bg → subtle on-dark (Joe report 1 มิ.ย. · คุมโทน) */
+  html[data-theme="luxe"] [style*="background:rgba(247,244,239,0.5)"],
+  html[data-theme="dark"] [style*="background:rgba(247,244,239,0.5)"] {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
   /* Luxe · Top bar (sticky header in app) */
   html[data-theme="luxe"] .topbar {
     background: rgba(10,10,14,0.7);
@@ -2898,12 +2904,28 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.47';
+const PIXORY_DESKTOP_VERSION = '1.0.49';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.49': {
+    date: '2026-06-01',
+    title: '🎨 คุมโทนการ์ดใบเสนอ',
+    subtitle: 'แถว "ใบเสนอ รอตอบ/ใกล้หมดอายุ" เข้ากับธีมมืด',
+    items: [
+      { icon: '🎨', title: 'แถวใบเสนอเข้าธีมมืด อ่านง่ายขึ้น', desc: 'การ์ด "ใบเสนอ · รอตอบ + ใกล้หมดอายุ" ในหน้าภาพรวม เคยมีแถวพื้นสีครีมอ่อนตัดกับธีม Luxury/มืด ตอนนี้ปรับเป็นโทนมืดสม่ำเสมอทุกแถว' }
+    ]
+  },
+  '1.0.48': {
+    date: '2026-06-01',
+    title: '🕐 เวลาแบบ 24 ชั่วโมง',
+    subtitle: 'ช่องกรอกเวลาแสดง 24 ชม. ไม่มี AM/PM',
+    items: [
+      { icon: '🕐', title: 'เวลาแสดงแบบ 24 ชั่วโมง', desc: 'ช่องกรอกเวลาช่วงงาน (เริ่ม-สิ้นสุด) แสดงเป็น 24 ชม. เช่น 14:00 แทน 2:00 PM' }
+    ]
+  },
   '1.0.47': {
     date: '2026-06-01',
     title: '✨ อัปเดตใหญ่ · แม่นขึ้น สวยขึ้น',
@@ -10831,8 +10853,8 @@ function renderSessionsUI(ctx) {
       </div>
       <div class="form-row three">
         <div class="form-field"><label>วันที่</label><input type="date" value="${escapeHtml(s.date || '')}" oninput="updateSession('${ctx}', ${i}, 'date', this.value)" /></div>
-        <div class="form-field"><label>เริ่ม</label><input type="time" value="${escapeHtml(s.start || '')}" oninput="updateSession('${ctx}', ${i}, 'start', this.value)" /></div>
-        <div class="form-field"><label>สิ้นสุด</label><input type="time" value="${escapeHtml(s.end || '')}" oninput="updateSession('${ctx}', ${i}, 'end', this.value)" /></div>
+        <div class="form-field"><label>เริ่ม</label><input type="time" lang="en-GB" value="${escapeHtml(s.start || '')}" oninput="updateSession('${ctx}', ${i}, 'start', this.value)" /></div>
+        <div class="form-field"><label>สิ้นสุด</label><input type="time" lang="en-GB" value="${escapeHtml(s.end || '')}" oninput="updateSession('${ctx}', ${i}, 'end', this.value)" /></div>
       </div>
       <div class="form-row">
         <div class="form-field"><label>สถานที่</label><input type="text" value="${escapeHtml(s.loc || '')}" placeholder="เช่น โรงแรม Hilton" oninput="updateSession('${ctx}', ${i}, 'loc', this.value)" /></div>
