@@ -8351,7 +8351,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.75';
+const PIXORY_VERSION = '2.5.76';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8362,6 +8362,14 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.76': {
+    date: '2026-06-03',
+    title: '🧾 แก้ใบเรียกเก็บขึ้นยอด ฿0',
+    subtitle: 'งานที่มี QR / ของแถม / ค่าเวลาเกิน แสดงยอดถูกต้องแล้ว',
+    items: [
+      { icon: '💰', title: 'ยอดรวม/คงเหลือไม่ขึ้น ฿0 อีกแล้ว', desc: 'งานที่มี QR Backdrop, ของแถม หรือค่าเวลาเกิน (OT) เคยทำให้ใบเรียกเก็บแสดง ราคารวม/ยอดคงเหลือ เป็น ฿0 (หน้าหยุดคำนวณกลางคัน) · ตอนนี้แก้แล้ว แสดงยอดครบถูกต้องทุกงาน' }
+    ]
+  },
   '2.5.75': {
     date: '2026-06-03',
     title: '🧾 แก้ใบเรียกเก็บยอดชำระเพิ่มเติม',
@@ -21079,15 +21087,18 @@ function renderInvoicePDF(job) {
     if (a.name || a.price) addItem(a.name || t('inv.addOnDefault'), '', a.price || 0);
   });
   // Totals
-  const t = calcInvoiceTotals(job);
-  document.querySelector('#inv-sub .v').textContent = fmt(t.subtotal);
-  document.querySelector('#inv-disc .v').textContent = t.discount > 0 ? '-' + fmt(t.discount) : '฿0';
-  document.getElementById('inv-net-v').textContent = fmt(t.netTotal);
+  // v2.5.76 · FIX: ตัวแปรนี้เคยชื่อ 't' ซึ่งชนกับฟังก์ชันแปลภาษา t() ที่เรียกข้างบน (qr/addon/extraTime)
+  // → ทำให้ TDZ error "Cannot access 't' before initialization" → render crash → ราคารวม/คงเหลือ ค้างที่ ฿0
+  // (เกิดเฉพาะงานที่มี QR/ของแถม/OT) · เปลี่ยนชื่อเป็น 'tot' แก้ขาด
+  const tot = calcInvoiceTotals(job);
+  document.querySelector('#inv-sub .v').textContent = fmt(tot.subtotal);
+  document.querySelector('#inv-disc .v').textContent = tot.discount > 0 ? '-' + fmt(tot.discount) : '฿0';
+  document.getElementById('inv-net-v').textContent = fmt(tot.netTotal);
   // Deposit block
   const depBlock = document.getElementById('inv-deposit-block');
-  if (t.amountPaid > 0) {
+  if (tot.amountPaid > 0) {
     depBlock.style.display = '';
-    document.getElementById('inv-deposit-v').textContent = '-' + fmt(t.amountPaid);
+    document.getElementById('inv-deposit-v').textContent = '-' + fmt(tot.amountPaid);
     const _ms = monthsShortArray();
     const dateLabel = job.depositPaidDate
       ? (typeof window.t === 'function' ? window.t('inv.depositPaidOn') : 'เมื่อ') + ' ' + (function(){ const x = new Date(job.depositPaidDate); return x.getDate()+' '+_ms[x.getMonth()]+' '+displayYear(x.getFullYear()); })()
@@ -21111,7 +21122,7 @@ function renderInvoicePDF(job) {
     balLabel.textContent = window.t('inv.balanceDue');
     document.getElementById('inv-balance-due-text').textContent = window.t('inv.balancePleasePay') + ' ' + dd.getDate() + ' ' + _msb[dd.getMonth()] + ' ' + displayYear(dd.getFullYear());
   }
-  document.getElementById('inv-balance-v').textContent = fmt(t.balanceDue);
+  document.getElementById('inv-balance-v').textContent = fmt(tot.balanceDue);
   // Bank
   const bankBlock = document.getElementById('inv-bank-block');
   if (job.bankIdx != null && job.bankIdx !== '' && BANKS[job.bankIdx]) {
