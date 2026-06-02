@@ -2916,7 +2916,8 @@ const RELEASE_NOTES = {
     subtitle: 'แก้ที่มือถือ เดสก์ท็อปอัปเดตตามเอง ไม่ต้องรีโหลด',
     items: [
       { icon: '🔄', title: 'ข้อมูลอัปเดตเองข้ามเครื่อง', desc: 'แก้งานบนมือถือแล้ว เดสก์ท็อปจะดึงข้อมูลล่าสุดมาแสดงให้เองภายในไม่กี่วินาที ไม่ต้องกดรีเฟรชหน้าเอง · มีตัวเช็กคลาวด์อัตโนมัติเป็นตาข่ายกันพลาด' },
-      { icon: '🛡️', title: 'กันข้อมูลหาย', desc: 'ก่อนดึงข้อมูลใหม่ทับ ระบบสำรอง (snapshot) ของเดิมไว้เสมอ · ถ้ากำลังเปิดหน้าต่างแก้ไขอยู่ จะรอจนปิดก่อนค่อยอัปเดต' }
+      { icon: '🛡️', title: 'กันข้อมูลหาย', desc: 'ก่อนดึงข้อมูลใหม่ทับ ระบบสำรอง (snapshot) ของเดิมไว้เสมอ · ถ้ากำลังเปิดหน้าต่างแก้ไขอยู่ จะรอจนปิดก่อนค่อยอัปเดต' },
+      { icon: '📊', title: 'ตัวเลข Funnel/อัตราปิดดีล ตรงกันขึ้น', desc: 'การ์ด "อัตราการปิดดีล" และ Funnel ใบเสนอ→งาน ในหน้ารายงาน ปรับให้ % ตรงกับจำนวนในแต่ละขั้น (อ่านไม่สับสน)' }
     ]
   },
   '1.0.49': {
@@ -5710,7 +5711,7 @@ function renderReportsOverview() {
         { icon: '💰', lbl: 'มูลค่าต่องาน (เฉลี่ย)', val: fmtTHB(avgJob), sub: yJobs.length > 0 ? 'จาก ' + yJobs.length + ' งาน' : 'ยังไม่มีงาน', cl: 's2' },
         { icon: '📝', lbl: 'ใบเสนอที่ส่ง', val: quotesSent, sub: pendingQuotes + ' รอตอบ · ' + (quotesSent - quotesApproved - (yQuotes.filter(q=>q.status==='rejected').length)) + ' ยังเปิดอยู่', cl: 's3' },
         { icon: '✅', lbl: 'ปิดดีลได้', val: quotesConverted, sub: 'จาก ' + quotesSent + ' ใบเสนอ', cl: 's4' },
-        { icon: '🎯', lbl: 'อัตราการปิดดีล', val: closeRate + '%', sub: quotesSent + ' → ' + quotesConverted + ' งาน', cl: 's5' },
+        { icon: '🎯', lbl: 'อัตราการปิดดีล', val: closeRate + '%', sub: quotesSent + ' ใบ → ' + quotesApproved + ' ปิด', cl: 's5' },
         { icon: '👥', lbl: 'ลูกค้า Active', val: activeCust.size, sub: 'รวม ' + Object.keys(CUSTOMER_INFO).length + ' ราย', cl: 's6' }
       ].map(s => `
         <div style="background:white;border-radius:18px;padding:22px 24px;box-shadow:0 4px 16px rgba(217,119,87,0.08);position:relative;">
@@ -5742,7 +5743,7 @@ function renderReportsOverview() {
         <div style="padding:20px 22px;border-radius:14px;background:linear-gradient(135deg,#dcfce7,#f0fdf4);border:1px solid #86efac;">
           <div style="font-size:11px;font-weight:700;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.08em;">💼 ปิดดีล (= สร้างงาน)</div>
           <div style="font-size:clamp(22px, 1.95vw, 36px);font-weight:800;margin-top:4px;line-height:1;color:var(--ink);">${quotesConverted}</div>
-          <div style="display:inline-block;padding:3px 10px;border-radius:999px;background:white;font-size:11px;font-weight:700;color:#15803d;margin-top:8px;">${closeRate}% close rate</div>
+          <div style="display:inline-block;padding:3px 10px;border-radius:999px;background:white;font-size:11px;font-weight:700;color:#15803d;margin-top:8px;">${convertRate}% convert</div>
         </div>
       </div>
     </div>
