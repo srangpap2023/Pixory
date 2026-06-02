@@ -2904,12 +2904,21 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.49';
+const PIXORY_DESKTOP_VERSION = '1.0.50';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.50': {
+    date: '2026-06-02',
+    title: '🔄 ซิงค์เองอัตโนมัติ',
+    subtitle: 'แก้ที่มือถือ เดสก์ท็อปอัปเดตตามเอง ไม่ต้องรีโหลด',
+    items: [
+      { icon: '🔄', title: 'ข้อมูลอัปเดตเองข้ามเครื่อง', desc: 'แก้งานบนมือถือแล้ว เดสก์ท็อปจะดึงข้อมูลล่าสุดมาแสดงให้เองภายในไม่กี่วินาที ไม่ต้องกดรีเฟรชหน้าเอง · มีตัวเช็กคลาวด์อัตโนมัติเป็นตาข่ายกันพลาด' },
+      { icon: '🛡️', title: 'กันข้อมูลหาย', desc: 'ก่อนดึงข้อมูลใหม่ทับ ระบบสำรอง (snapshot) ของเดิมไว้เสมอ · ถ้ากำลังเปิดหน้าต่างแก้ไขอยู่ จะรอจนปิดก่อนค่อยอัปเดต' }
+    ]
+  },
   '1.0.49': {
     date: '2026-06-01',
     title: '🎨 คุมโทนการ์ดใบเสนอ',
@@ -3595,6 +3604,8 @@ async function finishAuthAndStart() {
   navigate('dashboard');
   // Start realtime sync (Sprint 2E)
   startRealtimeSync();
+  // v1.0.50 · auto-sync poll · refreshes data by itself if realtime misses an event
+  startAutoSyncPoll();
   // v1.0.40 · show What's New if version changed since last seen
   try { checkVersionUpdate(); } catch(e) { console.warn('checkVersionUpdate:', e); }
   // v1.0.45 · then check for unread announcements (delayed so it doesn't fight What's New)
@@ -3731,6 +3742,11 @@ async function pullFromCloudAndMerge() {
       applyDataBlob(data.data);
       // Cache locally
       try { localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(data.data)); } catch(e) {}
+      // v1.0.50 · seed auto-sync baseline so the poll only fires on genuinely newer writes
+      try {
+        LAST_SYNC_UPDATED_AT = data.updated_at || LAST_SYNC_UPDATED_AT;
+        REALTIME_LAST_VERSION = (data.data._meta && data.data._meta.version) || REALTIME_LAST_VERSION || 0;
+      } catch(e) {}
     } else {
       // First-time desktop login · no remote data yet
       try {
@@ -3848,8 +3864,9 @@ async function pushToCloud(opts) {
 
     if (_applied === false) {
       if (!opts.force) {
-        setSyncState('error', 'มีข้อมูลใหม่กว่าจากอีกเครื่อง · รีเฟรชเพื่อ pull');
-        toast('☁️ มีข้อมูลใหม่กว่าในคลาวด์ · กดรีเฟรชเพื่อดึงข้อมูลล่าสุด', 'warn');
+        // v1.0.50 · cloud has newer data from another device → pull it automatically (no manual reload)
+        setSyncState('syncing', 'มีข้อมูลใหม่กว่า · กำลังดึงอัตโนมัติ...');
+        try { await applyRemoteIfNewer(); } catch(e) {}
         return false;
       }
       _applied = null; // force + rejected (rare) → legacy upsert below
@@ -14161,6 +14178,75 @@ function stopRealtimeSync() {
   }
 }
 
+// ===================================================================
+// AUTO-SYNC POLL (v1.0.50) · safety net so data refreshes itself even
+// if the realtime websocket misses an event · no manual page reload needed
+// ===================================================================
+let AUTO_SYNC_TIMER = null;
+let LAST_SYNC_UPDATED_AT = null;
+
+function _modalIsOpen() {
+  try {
+    const m = document.getElementById('modal-overlay');
+    return !!(m && m.classList.contains('show'));
+  } catch(e) { return false; }
+}
+
+// Pull cloud and apply ONLY if it's newer AND written by another device.
+// Snapshots current local first (recoverable) · re-renders current page.
+async function applyRemoteIfNewer() {
+  if (!CURRENT_USER || !SUPABASE) return false;
+  try {
+    const { data, error } = await SUPABASE
+      .from('user_data')
+      .select('device_id, updated_at, data')
+      .eq('user_id', CURRENT_USER.id)
+      .maybeSingle();
+    if (error || !data || !data.data) return false;
+    const meta = data.data._meta || {};
+    const remoteVer = meta.version || 0;
+    const remoteDev = meta.device_id || data.device_id;
+    if (remoteDev === DEVICE_ID) { LAST_SYNC_UPDATED_AT = data.updated_at; return false; } // our own write
+    const localVer = (typeof DATA_VERSION !== 'undefined' ? DATA_VERSION : 0) || 0;
+    if (remoteVer <= localVer) { LAST_SYNC_UPDATED_AT = data.updated_at; return false; }
+    if (_modalIsOpen()) { toast('📲 มีข้อมูลใหม่จากอีกเครื่อง · ปิดหน้าต่างที่เปิดอยู่ เดี๋ยวอัปเดตให้', 'warn'); return false; }
+    // Snapshot current local before overwrite (recoverable safety net · FIX C2 pattern)
+    try { localStorage.setItem(DATA_STORAGE_KEY + '_snapshot_' + Date.now(), localStorage.getItem(DATA_STORAGE_KEY) || ''); } catch(e) {}
+    applyDataBlob(data.data);
+    try { localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(data.data)); } catch(e) {}
+    DATA_VERSION = remoteVer;
+    REALTIME_LAST_VERSION = remoteVer;
+    LAST_SYNC_UPDATED_AT = data.updated_at;
+    try { navigate(CURRENT_PAGE); } catch(e) {}
+    setSyncState('synced');
+    toast('📲 อัปเดตข้อมูลล่าสุดจากอีกเครื่องแล้ว', 'success');
+    return true;
+  } catch(e) { console.warn('applyRemoteIfNewer:', e); return false; }
+}
+
+function startAutoSyncPoll() {
+  stopAutoSyncPoll();
+  AUTO_SYNC_TIMER = setInterval(async () => {
+    if (!CURRENT_USER || !SUPABASE) return;
+    if (document.hidden) return;       // skip when tab not visible
+    if (_modalIsOpen()) return;        // don't interrupt active editing
+    try {
+      // Cheap check first · only columns, not the big data blob
+      const { data, error } = await SUPABASE
+        .from('user_data')
+        .select('device_id, updated_at')
+        .eq('user_id', CURRENT_USER.id)
+        .maybeSingle();
+      if (error || !data) return;
+      if (data.device_id === DEVICE_ID) { LAST_SYNC_UPDATED_AT = data.updated_at; return; }
+      if (LAST_SYNC_UPDATED_AT && data.updated_at && data.updated_at <= LAST_SYNC_UPDATED_AT) return;
+      // Newer write from another device → pull full blob & apply
+      await applyRemoteIfNewer();
+    } catch(e) { /* network blip · try again next tick */ }
+  }, 20000);
+}
+function stopAutoSyncPoll() { if (AUTO_SYNC_TIMER) { clearInterval(AUTO_SYNC_TIMER); AUTO_SYNC_TIMER = null; } }
+
 function onRealtimeUpdate(payload) {
   const newRow = payload && payload.new;
   if (!newRow || !newRow.data) return;
@@ -14180,6 +14266,8 @@ function onRealtimeUpdate(payload) {
   }
   // Apply
   applyDataBlob(newRow.data);
+  try { DATA_VERSION = remoteVersion; } catch(e) {}
+  LAST_SYNC_UPDATED_AT = newRow.updated_at || LAST_SYNC_UPDATED_AT; // keep poll in sync · avoid double-apply
   navigate(CURRENT_PAGE);
   toast('📲 sync จากมือถือแล้ว', 'success');
 }
