@@ -2904,12 +2904,20 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.52';
+const PIXORY_DESKTOP_VERSION = '1.0.53';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.53': {
+    date: '2026-06-03',
+    title: '🧾 แก้ใบเรียกเก็บยอดชำระเพิ่มเติม',
+    subtitle: 'ยอดคงเหลือถูกต้องเสมอ · ตรงกับมือถือ',
+    items: [
+      { icon: '💰', title: 'ยอดคงเหลือไม่เพี้ยนเป็น 0 อีกแล้ว', desc: 'บางงาน (โดยเฉพาะงานเก่า) เคยแสดง "ยอดคงเหลือ 0" ทั้งที่ยังเก็บเงินไม่ครบ · ตอนนี้ผูกกับยอดค้างจริงของงานเสมอ · ตรงกับหน้ารายละเอียดงานและฝั่งมือถือ 100%' }
+    ]
+  },
   '1.0.50': {
     date: '2026-06-02',
     title: '🔄 ซิงค์เองอัตโนมัติ',
@@ -12988,14 +12996,19 @@ function ensureJobInvoice(j) {
 
 function calcInvoiceTotals(j) {
   const inv = j.invoice || {};
-  const original = Number(j.total) || 0;
+  // v1.0.53 · ROBUST (parity กับมือถือ v2.5.75): ถ้า j.total หาย/0 (งานเก่า/sync blob เก่า)
+  // สร้างใหม่จาก sell + discount · กัน Bug 1 (balance ยุบเป็น 0 ทั้งที่ยังค้าง)
+  let original = Number(j.total) || 0;
+  if (!original) original = Math.max(0, (Number(j.sell) || 0) + (Number(j.discount) || 0));
   const invExtra = (Number(inv.extraTime) || 0) + ((inv.addOns || []).reduce((s, a) => s + (Number(a.price) || 0), 0));
   const subtotal = original + invExtra;
   const discount = Number(j.discount) || 0;
   const netTotal = Math.max(0, subtotal - discount);
-  const sell = Number(j.sell) || 0;
-  const amountPaid = Math.max(0, sell - (j.remain != null ? Number(j.remain) : sell));
-  const balanceDue = Math.max(0, netTotal - amountPaid);
+  // v1.0.53 · balance ผูกกับตัวกลาง jobOutstanding() · amountPaid อนุมานจาก net − balance ให้กระทบกัน
+  const balanceDue = (typeof window.jobOutstanding === 'function')
+    ? window.jobOutstanding(j)
+    : Math.max(0, netTotal - Math.max(0, (Number(j.sell) || 0) - (j.remain != null ? Number(j.remain) : (Number(j.sell) || 0))));
+  const amountPaid = Math.max(0, netTotal - balanceDue);
   return { original, invExtra, subtotal, discount, netTotal, amountPaid, balanceDue };
 }
 

@@ -8351,7 +8351,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.74';
+const PIXORY_VERSION = '2.5.75';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8362,6 +8362,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.75': {
+    date: '2026-06-03',
+    title: '🧾 แก้ใบเรียกเก็บยอดชำระเพิ่มเติม',
+    subtitle: 'ยอดคงเหลือถูกต้อง + แสดงค่าเดินทาง/ที่พักครบทุกบรรทัด',
+    items: [
+      { icon: '💰', title: 'ยอดคงเหลือไม่เพี้ยนเป็น 0 อีกแล้ว', desc: 'บางงาน (โดยเฉพาะงานเก่า) เคยแสดง "ยอดคงเหลือ 0" ทั้งที่ยังเก็บเงินไม่ครบ · ตอนนี้ผูกกับยอดค้างจริงของงานเสมอ · ตรงกับหน้ารายละเอียดงาน 100%' },
+      { icon: '🧳', title: 'มีบรรทัดค่าเดินทาง/ที่พักที่เก็บลูกค้า', desc: 'ใบเรียกเก็บเคยไม่ขึ้นรายการค่าเดินทาง/ที่พักที่ตกทอดมาจากใบเสนอ (แม้ยอดรวมจะถูก) · ตอนนี้แสดงครบทุกบรรทัด ลูกค้าเห็นรายละเอียดชัดเจน' }
+    ]
+  },
   '2.5.74': {
     date: '2026-06-02',
     title: '📅 เพิ่มงานลงปฏิทินมือถือได้แล้ว',
@@ -20980,18 +20989,22 @@ function backFromInvoice() {
 
 function calcInvoiceTotals(job) {
   const inv = job.invoice || {};
-  // Original from job
-  let original = job.total || 0;  // total before discount
+  // v2.5.75 · Original (gross · ก่อนส่วนลด) · ROBUST: ถ้า job.total หาย/0 (งานเก่า หรือ sync จาก blob เก่า)
+  // ให้สร้างใหม่จาก sell + discount (เพราะ sell = total − discount · และ sell รวม billableCosts แล้ว)
+  // กัน Bug 1: balance ยุบเป็น 0 เวลา total หาย
+  let original = Number(job.total) || 0;
+  if (!original) original = Math.max(0, (Number(job.sell) || 0) + (Number(job.discount) || 0));
   // Add invoice-level extras
-  const invExtra = (inv.extraTime || 0) + (inv.addOns || []).reduce((s, a) => s + (a.price || 0), 0);
+  const invExtra = (Number(inv.extraTime) || 0) + (inv.addOns || []).reduce((s, a) => s + (Number(a.price) || 0), 0);
   const subtotal = original + invExtra;
-  const discount = job.discount || 0;
+  const discount = Number(job.discount) || 0;
   const netTotal = Math.max(0, subtotal - discount);
-  // Amount paid: derived from j.remain (sell-remain). But sell does not include invoice extras.
-  // We track separately: deposit considered "paid" if depositPaid flag OR remain < sell
-  const sell = job.sell || 0;
-  const amountPaid = Math.max(0, sell - (job.remain != null ? job.remain : sell));
-  const balanceDue = Math.max(0, netTotal - amountPaid);
+  // v2.5.75 · balance ผูกกับตัวกลาง jobOutstanding() (ตัวเดียวกับที่หน้ารายละเอียดงานใช้)
+  // → ไม่พึ่ง job.total · ไม่มีทางยุบเป็น 0 ผิดๆ · amountPaid อนุมานจาก net − balance ให้ตัวเลขกระทบกันเสมอ
+  const balanceDue = (typeof jobOutstanding === 'function')
+    ? jobOutstanding(job)
+    : Math.max(0, netTotal - Math.max(0, (Number(job.sell) || 0) - (job.remain != null ? Number(job.remain) : (Number(job.sell) || 0))));
+  const amountPaid = Math.max(0, netTotal - balanceDue);
   return { original, invExtra, subtotal, discount, netTotal, amountPaid, balanceDue };
 }
 
@@ -21046,6 +21059,16 @@ function renderInvoicePDF(job) {
     job.customItems.forEach(ci => {
       if (!ci || (parseFloat(ci.price) || 0) <= 0) return;
       addItem(ci.name || 'งานพิเศษ', ci.desc || '', parseFloat(ci.price) || 0);
+    });
+  }
+  // v2.5.75 · billableCosts (ค่าเดินทาง/ที่พัก ที่เก็บจากลูกค้า · ตกทอดจากใบเสนอที่แปลงเป็นงาน)
+  // เคยตกหล่น → ใบเรียกเก็บไม่มีบรรทัด แต่ยอดรวมถูก (เพราะ job.total รวมไว้แล้ว) · Bug 2 fix · ตรงกับเส้นพิมพ์ buildPrintDocHtml
+  if (Array.isArray(job.billableCosts)) {
+    job.billableCosts.forEach(ci => {
+      if (!ci) return;
+      const p = parseFloat(ci.price) || 0;
+      if (p <= 0 && !(ci.name || '').trim()) return;
+      addItem(ci.name || 'ค่าใช้จ่ายเพิ่มเติม', ci.desc || '', p);
     });
   }
   if (job.qr) addItem(t('addon.qrBackdrop'), t('addon.qrBackdropDesc'), job.qr);
