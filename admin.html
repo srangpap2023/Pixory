@@ -2071,10 +2071,16 @@ function sendDm(channel) {
   const u = _dmCurrentUser; if (!u) return;
   const text = document.getElementById('dm-text').value;
   if (channel === 'line' && u.line) {
-    const id = u.line.replace(/^@/, '');
-    window.open('https://line.me/R/ti/p/@' + encodeURIComponent(id), '_blank');
-    navigator.clipboard.writeText(text);
-    alert('💬 เปิด LINE · ข้อความ copy เข้า clipboard แล้ว');
+    const raw = (u.line || '').trim();
+    const isOfficial = raw.charAt(0) === '@';           // @id = บัญชีทางการ
+    const id = raw.replace(/^[@~]/, '');
+    // ~id = แอดเพื่อน LINE ID ส่วนตัว · @id = บัญชีทางการ (ใช้รูปแบบให้ตรงชนิด)
+    const url = isOfficial
+      ? 'https://line.me/R/ti/p/@' + encodeURIComponent(id)
+      : 'https://line.me/ti/p/~' + encodeURIComponent(id);
+    window.open(url, '_blank');
+    navigator.clipboard && navigator.clipboard.writeText(text);
+    alert('💬 เปิด LINE แล้ว · ถ้าแอปไม่เปิด ค้นหา LINE ID นี้ได้เลย: ' + raw + '\n(ข้อความ copy ไว้ให้แล้ว)');
   } else if (channel === 'email' && u.email) {
     window.location.href = `mailto:${u.email}?subject=${encodeURIComponent('Pixory · มีอะไรงงมั้ยครับ')}&body=${encodeURIComponent(text)}`;
   } else if (channel === 'sms' && u.phone) {
