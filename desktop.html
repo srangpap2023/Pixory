@@ -2904,12 +2904,20 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.50';
+const PIXORY_DESKTOP_VERSION = '1.0.51';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.51': {
+    date: '2026-06-02',
+    title: '📅 เพิ่มงานลงปฏิทินได้แล้ว',
+    subtitle: 'กดปุ่มเดียว เพิ่มงานเข้า Google / ปฏิทิน / Apple',
+    items: [
+      { icon: '📅', title: 'ปุ่ม "เพิ่มลงปฏิทิน" ในหน้ารายละเอียดงาน', desc: 'กดแล้วได้ไฟล์ปฏิทิน (.ics) เปิดเพื่อเพิ่มงานเข้า Google Calendar / ปฏิทิน / Apple ได้ทันที · รองรับงานหลายวัน · เตือนล่วงหน้า 1 วันอัตโนมัติ (ตรงกับฝั่งมือถือ)' }
+    ]
+  },
   '1.0.50': {
     date: '2026-06-02',
     title: '🔄 ซิงค์เองอัตโนมัติ',
@@ -11842,6 +11850,73 @@ async function saveJob() {
 // JOB DETAIL · view + actions (Payment, Edit, Delete)
 // ===================================================================
 
+// ===== v1.0.51 · เพิ่มงานลงปฏิทิน (.ics) → Google / ปฏิทินมือถือ / Apple =====
+function _icsEsc(s) { return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/([,;])/g, '\\$1').replace(/\r?\n/g, '\\n'); }
+function _icsTime(dateStr, timeStr) {
+  const d = String(dateStr || '').replace(/-/g, '');
+  if (!/^\d{8}$/.test(d)) return null;
+  const t = String(timeStr || '').trim();
+  if (!t) return { allDay: true, date: d };
+  let hh, mm;
+  if (t.indexOf(':') > -1) { const p = t.split(':'); hh = p[0]; mm = p[1] || '0'; } else { hh = t; mm = '0'; }
+  hh = ('0' + (parseInt(hh, 10) || 0)).slice(-2);
+  mm = ('0' + (parseInt(mm, 10) || 0)).slice(-2);
+  return { allDay: false, dt: d + 'T' + hh + mm + '00' };
+}
+function _icsNextDay(d8) {
+  const y = +d8.slice(0, 4), m = +d8.slice(4, 6), da = +d8.slice(6, 8);
+  return new Date(Date.UTC(y, m - 1, da + 1)).toISOString().slice(0, 10).replace(/-/g, '');
+}
+function buildJobICS(j) {
+  if (!j) return '';
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const cust = j.custNick ? (j.customer + ' (' + j.custNick + ')') : (j.customer || 'ลูกค้า');
+  const typeLabel = j.type || 'งานถ่ายภาพ';
+  const sessions = (Array.isArray(j.sessions) && j.sessions.length) ? j.sessions
+    : [{ date: j.date, start: j.start, end: j.end, loc: j.loc, label: '' }];
+  let ev = '';
+  sessions.forEach((s, i) => {
+    const st = _icsTime(s.date, s.start);
+    if (!st) return;
+    const en = _icsTime(s.date, s.end);
+    const loc = s.loc || j.loc || '';
+    const summary = '📸 ' + cust + ' · ' + typeLabel + (s.label ? ' · ' + s.label : '');
+    const desc = 'งาน Pixory · ' + typeLabel + (j.sell ? ' · ฿' + Number(j.sell).toLocaleString() : '') + (j.code ? ' · ' + j.code : '');
+    ev += 'BEGIN:VEVENT\r\n';
+    ev += 'UID:' + (j.code || 'job') + '-' + i + '@pixory.pro\r\n';
+    ev += 'DTSTAMP:' + stamp + '\r\n';
+    if (st.allDay) {
+      ev += 'DTSTART;VALUE=DATE:' + st.date + '\r\n';
+      ev += 'DTEND;VALUE=DATE:' + _icsNextDay(st.date) + '\r\n';
+    } else {
+      ev += 'DTSTART:' + st.dt + '\r\n';
+      ev += 'DTEND:' + ((en && !en.allDay) ? en.dt : st.dt) + '\r\n';
+    }
+    ev += 'SUMMARY:' + _icsEsc(summary) + '\r\n';
+    if (loc) ev += 'LOCATION:' + _icsEsc(loc) + '\r\n';
+    ev += 'DESCRIPTION:' + _icsEsc(desc) + '\r\n';
+    ev += 'BEGIN:VALARM\r\nTRIGGER:-P1D\r\nACTION:DISPLAY\r\nDESCRIPTION:' + _icsEsc('พรุ่งนี้มีงาน · ' + cust) + '\r\nEND:VALARM\r\n';
+    ev += 'END:VEVENT\r\n';
+  });
+  if (!ev) return '';
+  return 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Pixory//Studio//TH\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\n' + ev + 'END:VCALENDAR\r\n';
+}
+function addJobToCalendar(code) {
+  const j = JOBS.find(x => x.code === code) || window._currentJob;
+  if (!j) { toast('ไม่พบงาน', 'error'); return; }
+  const ics = buildJobICS(j);
+  if (!ics) { toast('งานนี้ยังไม่มีวันที่ · ใส่วันงานก่อนนะครับ', 'error'); return; }
+  try {
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = (j.code || 'pixory-job') + '.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 5000);
+    toast('📅 ดาวน์โหลดไฟล์ปฏิทินแล้ว · เปิดไฟล์เพื่อเพิ่มลงปฏิทิน', 'success');
+  } catch (e) { toast('สร้างไฟล์ปฏิทินไม่ได้ · ลองใหม่อีกครั้ง', 'error'); }
+}
+
 function openJobDetail(code) {
   const j = JOBS.find(x => x.code === code);
   if (!j) { toast('ไม่พบงาน ' + code, 'error'); return; }
@@ -11989,6 +12064,9 @@ function renderJobDetailHtml(j) {
           <span style="font-size:22px;">💰</span><span>รับเงิน</span>
         </button>
       </div>
+
+      <!-- 📅 v1.0.51 · เพิ่มลงปฏิทิน (.ics) → Google / ปฏิทินมือถือ / Apple -->
+      <button onclick="addJobToCalendar('${escapeHtml(j.code)}')" style="width:100%;padding:12px 14px;margin-bottom:14px;background:linear-gradient(135deg,#4a90d9,#3570b8);color:#fff;border:none;border-radius:14px;cursor:pointer;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:7px;">📅 เพิ่มลงปฏิทิน (Google / มือถือ)</button>
 
       <!-- 💰 การชำระเงิน · progress bar (mobile-style) -->
       <div class="form-section">
