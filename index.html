@@ -2074,6 +2074,11 @@
     border-radius: 16px !important;
   }
 
+  /* v2.5.74 · ตัวหนังสือหัวข้อ/คำอธิบายในหน้าแจ้งเตือน · ให้อ่านออกบนธีม Luxe + Dark */
+  body.luxe-theme .notif-other-title { color: #F4F4F5 !important; }
+  body.luxe-theme .notif-other-meta  { color: #A1A1AA !important; }
+  body.dark-theme .notif-other-meta  { color: #b8a99a !important; }
+
   /* Settings · stacked rows inside ONE rounded section card */
   body.luxe-theme .settings-section {
     background: rgba(28,28,34,0.85) !important;
@@ -5372,6 +5377,13 @@
         <div class="act" onclick="openReceivePayment()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-rep)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="22" fill="#fff"/><text x="44" y="55" fill="#1a9d6a" font-size="32" font-weight="800" text-anchor="middle" font-family="-apple-system,Inter,sans-serif">฿</text></svg></span><span class="lbl" data-i18n="job.receivePayment">รับเงิน</span></div>
       </div>
 
+      <!-- v2.5.74 · เพิ่มลงปฏิทิน (.ics) → Google / ปฏิทินมือถือ / Apple -->
+      <div style="padding: 0 16px 14px;">
+        <button class="btn" onclick="addJobToCalendar()" style="width:100%; padding:11px 14px; font-size:13px; background:linear-gradient(135deg,#4a90d9,#3570b8); display:flex; align-items:center; justify-content:center; gap:7px;">
+          <span>📅 เพิ่มลงปฏิทิน (Google / มือถือ)</span>
+        </button>
+      </div>
+
       <div class="detail-block">
         <h3 data-i18n="job.payment">การชำระเงิน</h3>
         <div class="progress"><div class="fill" id="job-pay-fill" style="width:18%"></div></div>
@@ -7746,7 +7758,7 @@
           </div>
           <div class="pref-row">
             <span class="pref-label">เวลาส่ง</span>
-            <input type="time" id="push-briefing-time" class="pref-time-input" onchange="updatePushTime(this.value)">
+            <input type="time" id="push-briefing-time" class="pref-time-input" lang="en-GB" onchange="updatePushTime(this.value)">
             <div class="notif-toggle-mini" id="push-briefing-sw" onclick="togglePushOption('pushDailyBriefing')"></div>
           </div>
         </div>
@@ -8339,7 +8351,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.72';
+const PIXORY_VERSION = '2.5.74';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8350,6 +8362,23 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.74': {
+    date: '2026-06-02',
+    title: '📅 เพิ่มงานลงปฏิทินมือถือได้แล้ว',
+    subtitle: 'กดปุ่มเดียว เพิ่มงานเข้า Google / ปฏิทินมือถือ / Apple',
+    items: [
+      { icon: '📅', title: 'ปุ่ม "เพิ่มลงปฏิทิน" ในหน้ารายละเอียดงาน', desc: 'กดแล้วเพิ่มงานเข้าปฏิทินในมือถือ (Google Calendar / ปฏิทิน iPhone / Apple) ได้ทันที · รองรับงานหลายวัน (multi-session) · มีเตือนล่วงหน้า 1 วันให้อัตโนมัติ' },
+      { icon: '🎨', title: 'แก้ตัวหนังสือหน้าแจ้งเตือนอ่านไม่ออก (ธีมมืด)', desc: 'หัวข้อ/คำอธิบายในหน้าตั้งค่าการแจ้งเตือน เคยเป็นสีเข้มอ่านยากบนธีม Luxury/มืด · ปรับให้สว่างอ่านชัดแล้ว' }
+    ]
+  },
+  '2.5.73': {
+    date: '2026-06-01',
+    title: '🕐 เวลาแบบ 24 ชั่วโมง',
+    subtitle: 'ช่องกรอกเวลาแสดง 24 ชม. ไม่มี AM/PM',
+    items: [
+      { icon: '🕐', title: 'เวลาแสดงแบบ 24 ชั่วโมงทุกช่อง', desc: 'ช่องกรอกเวลา (ช่วงงาน เริ่ม-สิ้นสุด · เวลาแจ้งเตือน) แสดงเป็นแบบ 24 ชม. เช่น 14:00 ไม่ใช่ 2:00 PM' }
+    ]
+  },
   '2.5.72': {
     date: '2026-06-01',
     title: '✨ อัปเดตใหญ่ · แม่นขึ้น สวยขึ้น ปลอดภัยขึ้น',
@@ -17709,6 +17738,76 @@ function generateTaxInvoiceNumber(year) {
   return 'TI-' + yr + '-' + String(next).padStart(4, '0');
 }
 
+// ===== v2.5.74 · เพิ่มงานลงปฏิทิน (.ics) → Google / ปฏิทินมือถือ / Apple =====
+function _icsEsc(s) { return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/([,;])/g, '\\$1').replace(/\r?\n/g, '\\n'); }
+function _icsTime(dateStr, timeStr) {
+  // dateStr 'YYYY-MM-DD' · timeStr '09' | '09:00' | '' → all-day if no time
+  const d = String(dateStr || '').replace(/-/g, '');
+  if (!/^\d{8}$/.test(d)) return null;
+  const t = String(timeStr || '').trim();
+  if (!t) return { allDay: true, date: d };
+  let hh, mm;
+  if (t.indexOf(':') > -1) { const p = t.split(':'); hh = p[0]; mm = p[1] || '0'; } else { hh = t; mm = '0'; }
+  hh = ('0' + (parseInt(hh, 10) || 0)).slice(-2);
+  mm = ('0' + (parseInt(mm, 10) || 0)).slice(-2);
+  return { allDay: false, dt: d + 'T' + hh + mm + '00' };
+}
+function _icsNextDay(d8) {
+  const y = +d8.slice(0, 4), m = +d8.slice(4, 6), da = +d8.slice(6, 8);
+  const dt = new Date(Date.UTC(y, m - 1, da + 1));
+  return dt.toISOString().slice(0, 10).replace(/-/g, '');
+}
+function buildJobICS(j) {
+  if (!j) return '';
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const cust = j.custNick ? (j.customer + ' (' + j.custNick + ')') : (j.customer || 'ลูกค้า');
+  const typeLabel = j.type || 'งานถ่ายภาพ';
+  const sessions = (Array.isArray(j.sessions) && j.sessions.length) ? j.sessions
+    : [{ date: j.date, start: j.start, end: j.end, loc: j.loc, label: '' }];
+  let ev = '';
+  sessions.forEach((s, i) => {
+    const st = _icsTime(s.date, s.start);
+    if (!st) return;
+    const en = _icsTime(s.date, s.end);
+    const loc = s.loc || j.loc || '';
+    const summary = '📸 ' + cust + ' · ' + typeLabel + (s.label ? ' · ' + s.label : '');
+    const desc = 'งาน Pixory · ' + typeLabel + (j.sell ? ' · ฿' + Number(j.sell).toLocaleString() : '') + (j.code ? ' · ' + j.code : '');
+    ev += 'BEGIN:VEVENT\r\n';
+    ev += 'UID:' + (j.code || 'job') + '-' + i + '@pixory.pro\r\n';
+    ev += 'DTSTAMP:' + stamp + '\r\n';
+    if (st.allDay) {
+      ev += 'DTSTART;VALUE=DATE:' + st.date + '\r\n';
+      ev += 'DTEND;VALUE=DATE:' + _icsNextDay(st.date) + '\r\n';
+    } else {
+      ev += 'DTSTART:' + st.dt + '\r\n';
+      ev += 'DTEND:' + ((en && !en.allDay) ? en.dt : st.dt) + '\r\n';
+    }
+    ev += 'SUMMARY:' + _icsEsc(summary) + '\r\n';
+    if (loc) ev += 'LOCATION:' + _icsEsc(loc) + '\r\n';
+    ev += 'DESCRIPTION:' + _icsEsc(desc) + '\r\n';
+    ev += 'BEGIN:VALARM\r\nTRIGGER:-P1D\r\nACTION:DISPLAY\r\nDESCRIPTION:' + _icsEsc('พรุ่งนี้มีงาน · ' + cust) + '\r\nEND:VALARM\r\n';
+    ev += 'END:VEVENT\r\n';
+  });
+  if (!ev) return '';
+  return 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Pixory//Studio//TH\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\n' + ev + 'END:VCALENDAR\r\n';
+}
+function addJobToCalendar() {
+  const j = window._currentJob;
+  if (!j) { toast('ไม่พบงาน', 'error'); return; }
+  const ics = buildJobICS(j);
+  if (!ics) { toast('งานนี้ยังไม่มีวันที่ · ใส่วันงานก่อนนะครับ', 'error'); return; }
+  try {
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (j.code || 'pixory-job') + '.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 5000);
+    toast('📅 เปิดไฟล์ปฏิทินแล้ว · เลือก "เพิ่มลงปฏิทิน"', 'success');
+  } catch (e) { toast('สร้างไฟล์ปฏิทินไม่ได้ · ลองใหม่อีกครั้ง', 'error'); }
+}
+
 function editCurrentJob() {
   const j = window._currentJob;
   if (!j) return;
@@ -23407,8 +23506,8 @@ function renderSessions(prefix) {
       </div>
       <div class="session-block-fields">
         <input type="date" value="${s.date || ''}" onchange="updateSession('${prefix}', ${idx}, 'date', this.value)">
-        <input type="time" value="${s.start || ''}" onchange="updateSession('${prefix}', ${idx}, 'start', this.value)">
-        <input type="time" value="${s.end || ''}" onchange="updateSession('${prefix}', ${idx}, 'end', this.value)">
+        <input type="time" lang="en-GB" value="${s.start || ''}" onchange="updateSession('${prefix}', ${idx}, 'start', this.value)">
+        <input type="time" lang="en-GB" value="${s.end || ''}" onchange="updateSession('${prefix}', ${idx}, 'end', this.value)">
       </div>
       <input type="text" class="session-block-note" placeholder="${getSessionLabelPlaceholder(idx)}" value="${escapeHtml(s.label || '')}" onchange="updateSession('${prefix}', ${idx}, 'label', this.value)">
       <input type="text" class="session-block-loc" placeholder="${idx === 0 ? locPh : locPhAlt}" value="${escapeHtml(s.loc || '')}" onchange="updateSession('${prefix}', ${idx}, 'loc', this.value)" style="margin-top:6px;">
