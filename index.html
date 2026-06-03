@@ -199,7 +199,8 @@
   .section-title h2 { font-size: 14px; font-weight: 600; margin: 0; }
   .section-title a { color: #2563eb; font-size: 12px; text-decoration: none; cursor: pointer; }
 
-  .job-row { background: white; border-radius: 14px; padding: 12px 14px; margin: 0 16px 8px; box-shadow: 0 1px 3px rgba(0,0,0,.04); display: flex; gap: 12px; cursor: pointer; transition: transform .1s; }
+  /* v2.5.85 · การ์ดกระชับ (Joe: การ์ดใหญ่ไป) · ตัวการคือ p.meta ไม่ reset margin-bottom (12px/บรรทัด) */
+  .job-row { background: white; border-radius: 14px; padding: 10px 13px; margin: 0 16px 8px; box-shadow: 0 1px 3px rgba(0,0,0,.04); display: flex; gap: 12px; cursor: pointer; transition: transform .1s; }
   .job-row:active { transform: scale(0.98); }
   .job-row .date-block { background: #f3f4f6; border-radius: 10px; min-width: 50px; padding: 6px 8px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
   .job-row .date-block.upcoming { background: #e1f5ee; }
@@ -210,14 +211,14 @@
   .job-row .date-block.warn .month { color: #b91c1c; }
   .job-row .info { flex: 1; min-width: 0; }
   .job-row .customer { font-size: 14px; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .job-row .meta { font-size: 12px; color: #7c7066; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .job-row .price { font-size: 13px; color: #3a2f25; margin-top: 4px; font-weight: 500; }
+  .job-row .meta { font-size: 12px; color: #7c7066; margin: 1px 0 0; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .job-row .price { font-size: 13px; color: #3a2f25; margin-top: 3px; font-weight: 500; }
   /* v2.5.10 · Multi-day · show date range in .date-block */
   .job-row .date-block.range { min-width: 64px; padding: 6px 6px; }
   .job-row .date-block.range .day { font-size: 14px; letter-spacing: -0.3px; white-space: nowrap; }
   .job-row .date-block.range .month { margin-top: 3px; }
   /* v2.5.0 · Countdown hint under meta */
-  .job-row .job-countdown { font-size: 11px; margin-top: 3px; font-weight: 500; display: inline-block; }
+  .job-row .job-countdown { font-size: 11px; margin-top: 2px; font-weight: 500; display: inline-block; }
   .job-row .job-countdown.today  { color: #b91c1c; font-weight: 600; }
   .job-row .job-countdown.soon   { color: #c2410c; font-weight: 600; }
   .job-row .job-countdown.future { color: #7c7066; }
@@ -273,6 +274,9 @@
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   /* v1.9.20 · row-gap 8px so wrapped chip rows breathe; column-gap 6px stays compact */
   .chip-row { display: flex; flex-wrap: wrap; gap: 8px 6px; align-items: flex-start; }
+  /* v2.5.85 · ตัวกรองหน้างาน · 2 แถว × 3 ปุ่ม (เดิม scroll แนวนอน ปุ่มขาดๆ) */
+  #jobs-filter-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0 16px 12px; }
+  #jobs-filter-row .chip { text-align: center; white-space: nowrap; }
   .chip { padding: 7px 12px; border-radius: 16px; background: white; border: 0.5px solid #d1d5db; font-size: 12px; cursor: pointer; user-select: none; transition: all .1s; }
   .chip.active { background: #3a2f25; color: white; border-color: #3a2f25; }
   /* v2.5.67 · "รอจัดทีม" warn chip + count badge · 3-theme */
@@ -5352,7 +5356,8 @@
       </div>
 
       <!-- Jobs filters · v2.5.0 · 5-tab structure -->
-      <div id="jobs-filter-row" style="display: flex; gap: 6px; padding: 0 16px 12px; overflow-x: auto;">
+      <!-- v2.5.85 · Joe ขอ 2 แถว × 3 ปุ่ม แทน scroll แนวนอน -->
+      <div id="jobs-filter-row">
         <div class="chip active" onclick="filterJobs('all', this)" data-i18n="filter.all">ทั้งหมด</div>
         <div class="chip" onclick="filterJobs('upcoming', this)" data-i18n="filter.upcoming">กำลังจะถึง</div>
         <div class="chip" onclick="filterJobs('wait_deliver', this)" data-i18n="filter.waitDeliver">รอส่งงาน</div>
@@ -8398,7 +8403,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.84';
+const PIXORY_VERSION = '2.5.85';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8409,6 +8414,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.85': {
+    date: '2026-06-03',
+    title: '🎨 การ์ดงานกระชับขึ้น',
+    subtitle: 'เห็นงานต่อหน้าจอมากขึ้น ไม่ต้องไถยาว',
+    items: [
+      { icon: '📐', title: 'การ์ดงานเตี้ยลง อ่านง่ายเท่าเดิม', desc: 'บีบช่องว่างระหว่างบรรทัดในการ์ดงานและการ์ดใบเสนอ · หน้าจอเดียวเห็นงานเพิ่มขึ้น' },
+      { icon: '📍', title: 'สถานที่แยกบรรทัด (จาก 2.5.84)', desc: 'การ์ดแสดงสถานที่เป็นบรรทัดของตัวเองใต้ประเภทงาน + เมนูปุ่มบวกตัวหนังสือใหญ่ขึ้น' }
+    ]
+  },
   '2.5.84': {
     date: '2026-06-03',
     title: '🎨 การ์ดงานอ่านง่ายขึ้น + ปรับธีมให้เนียน',
