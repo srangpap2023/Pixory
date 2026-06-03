@@ -5391,8 +5391,8 @@
         <button class="back" onclick="goTo('jobs')">‹</button>
         <h1 data-i18n="job.detailTitle">รายละเอียดงาน</h1>
         <div style="display:flex; gap:14px; align-items:center;">
-          <button class="icon-btn" onclick="editCurrentJob()" style="color:#2563eb;" data-i18n-attr="title" data-i18n="btn.edit" title="แก้ไข">✏</button>
-          <button class="icon-btn" onclick="deleteCurrentJob()" style="color:#dc2626;" data-i18n-attr="title" data-i18n="btn.delete" title="ลบ">🗑</button>
+          <button class="icon-btn" onclick="editCurrentJob()" style="color:#C9954F;" data-i18n-attr="title" data-i18n="btn.edit" title="แก้ไข"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
+          <button class="icon-btn" onclick="deleteCurrentJob()" style="color:#dc2626;" data-i18n-attr="title" data-i18n="btn.delete" title="ลบ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
       </div>
 
@@ -5928,9 +5928,9 @@
         <button class="back" onclick="backFromQuote()">‹</button>
         <h1 data-i18n="header.quote">ใบเสนอราคา</h1>
         <div style="display:flex; gap:14px; align-items:center;">
-          <button class="icon-btn" onclick="editCurrentQuote()" title="แก้ไข" id="quote-edit-btn">✏️</button>
+          <button class="icon-btn" onclick="editCurrentQuote()" title="แก้ไข" id="quote-edit-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
           <button class="icon-btn" onclick="openQuoteNewPdf()" title="บันทึก PDF">⬇️</button>
-          <button class="icon-btn" onclick="deleteCurrentQuote()" style="color:#dc2626;" title="ลบ" id="quote-delete-btn">🗑️</button>
+          <button class="icon-btn" onclick="deleteCurrentQuote()" style="color:#dc2626;" title="ลบ" id="quote-delete-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
       </div>
 
@@ -6101,7 +6101,7 @@
         <h1 data-i18n="header.invoice">ใบเรียกเก็บยอดชำระเพิ่มเติม</h1>
         <div style="display:flex; gap:14px; align-items:center;">
           <button class="icon-btn" onclick="openInvoiceNewPdf()" title="PDF">⬇</button>
-          <button class="icon-btn" onclick="deleteCurrentInvoice()" style="color:#dc2626;" title="Delete">🗑</button>
+          <button class="icon-btn" onclick="deleteCurrentInvoice()" style="color:#dc2626;" title="Delete"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
       </div>
 
@@ -6600,7 +6600,7 @@
             <div style="display:flex; align-items:center; gap:6px;">
               <div style="font-size:22px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" id="cust-name">—</div>
               <!-- v1.9.11 C3 fix: rename button -->
-              <button onclick="renameCurrentCustomer()" aria-label="เปลี่ยนชื่อลูกค้า" title="เปลี่ยนชื่อลูกค้า" style="background:transparent; border:0; color:#7c7066; font-size:14px; cursor:pointer; padding:4px 6px; border-radius:6px; flex-shrink:0;">✏️</button>
+              <button onclick="renameCurrentCustomer()" aria-label="เปลี่ยนชื่อลูกค้า" title="เปลี่ยนชื่อลูกค้า" style="background:transparent; border:0; color:#7c7066; font-size:14px; cursor:pointer; padding:4px 6px; border-radius:6px; flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
             </div>
             <div style="font-size:13px; color:#7c7066; margin-top:2px;" id="cust-stats">0 งาน · ฿0</div>
           </div>
@@ -6704,7 +6704,7 @@
       <div class="header">
         <button class="back" onclick="goTo('equipment')">‹</button>
         <h1 id="eq-edit-title">เพิ่มอุปกรณ์</h1>
-        <button class="icon-btn" id="eq-edit-delete-btn" onclick="deleteEquipmentInEdit()" style="color:#dc2626; display:none;">🗑</button>
+        <button class="icon-btn" id="eq-edit-delete-btn" onclick="deleteEquipmentInEdit()" style="color:#dc2626; display:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
       </div>
       <div class="form-group" style="margin: 0 16px 10px;">
         <label>หมวด <span class="req">*</span></label>
@@ -6765,7 +6765,7 @@
         <button class="back" onclick="cancelNoteEdit()">‹</button>
         <h1 id="note-edit-title">บันทึกใหม่</h1>
         <div style="display:flex; gap:10px; align-items:center;">
-          <button class="icon-btn" onclick="deleteNoteFromEdit()" style="color:#dc2626;" title="ลบ" id="note-delete-btn">🗑</button>
+          <button class="icon-btn" onclick="deleteNoteFromEdit()" style="color:#dc2626;" title="ลบ" id="note-delete-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
       </div>
       <div style="padding: 16px 16px 80px;">
@@ -7326,8 +7326,9 @@
         <button class="back" onclick="goTo('settings-hub-packages')">‹</button>
         <h1 id="svc-detail-title">บริการ</h1>
         <div style="display:flex; gap:14px;">
-          <button class="icon-btn" onclick="editCurrentService()" style="color:#2563eb">✏</button>
-          <button class="icon-btn" onclick="deleteCurrentService()" style="color:#dc2626">🗑</button>
+          <!-- v2.5.85 · Joe: emoji ✏ มืดมองยาก + 🗑 เป็นถังสีขาว → เปลี่ยนเป็น SVG เส้น ไม่มีกรอบ -->
+          <button class="icon-btn" onclick="editCurrentService()" style="color:#C9954F" aria-label="แก้ไข"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
+          <button class="icon-btn" onclick="deleteCurrentService()" style="color:#ef4444" aria-label="ลบ"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
       </div>
       <div style="padding: 0 16px 12px;">
@@ -7344,7 +7345,7 @@
       <div class="header">
         <button class="back" onclick="cancelServiceEdit()">‹</button>
         <h1 id="edit-svc-title">บริการ</h1>
-        <button class="icon-btn" id="edit-svc-delete-btn" onclick="deleteServiceInEdit()" style="color:#dc2626; display:none;">🗑</button>
+        <button class="icon-btn" id="edit-svc-delete-btn" onclick="deleteServiceInEdit()" style="color:#dc2626; display:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
       </div>
       <div class="form-group" style="margin: 0 16px 10px;">
         <label>ชื่อบริการ <span class="req">*</span></label>
@@ -7359,12 +7360,13 @@
         <div class="chip-row" id="svc-color-row"></div>
       </div>
       <!-- v2.5.4 · ประเภทงานของบริการนี้ · ใช้จัดประเภทงานในหน้าสรุป donut chart -->
-      <div class="form-group" style="margin: 0 16px 10px;">
-        <label>ประเภทงานของบริการนี้ <span style="color:#dc2626;">*</span></label>
+      <!-- v2.5.85 · Joe: ตัวหนังสือเล็กไป + ขอเว้นระยะแยกจากหมวดเลือกสี -->
+      <div class="form-group" style="margin: 26px 16px 10px; padding-top: 18px; border-top: 0.5px solid rgba(128,128,128,0.18);">
+        <label style="font-size:15px; font-weight:600;">ประเภทงานของบริการนี้ <span style="color:#dc2626;">*</span></label>
         <select id="svc-default-jobtype">
           <option value="">— เลือกประเภท —</option>
         </select>
-        <div style="font-size:11px; color:#7c7066; margin-top:5px;">งานที่เลือกแพคเกจของบริการนี้จะถูกจัดเข้าประเภทนี้ในหน้าสรุปอัตโนมัติ</div>
+        <div style="font-size:13px; color:#a89a8c; margin-top:7px; line-height:1.5;">งานที่เลือกแพคเกจของบริการนี้จะถูกจัดเข้าประเภทนี้ในหน้าสรุปอัตโนมัติ</div>
       </div>
       <button class="btn" onclick="saveServiceEdit()">บันทึก</button>
       <button class="btn secondary" onclick="cancelServiceEdit()">ยกเลิก</button>
@@ -7375,7 +7377,7 @@
       <div class="header">
         <button class="back" onclick="cancelPackageEdit()">‹</button>
         <h1 id="edit-pkg-title">แพคเกจ</h1>
-        <button class="icon-btn" id="edit-pkg-delete-btn" onclick="deletePackageInEdit()" style="color:#dc2626; display:none;">🗑</button>
+        <button class="icon-btn" id="edit-pkg-delete-btn" onclick="deletePackageInEdit()" style="color:#dc2626; display:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
       </div>
       <div class="form-group" style="margin: 0 16px 10px;">
         <label>ชื่อแพคเกจ <span class="req">*</span></label>
@@ -7701,7 +7703,7 @@
       <div class="header">
         <button class="back" onclick="cancelEdit()">‹</button>
         <h1 id="edit-title">แก้ไข</h1>
-        <button class="icon-btn" id="edit-delete-btn" onclick="deleteEditItem()" style="color:#dc2626; display:none;">🗑</button>
+        <button class="icon-btn" id="edit-delete-btn" onclick="deleteEditItem()" style="color:#dc2626; display:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
       </div>
       <div id="edit-form-fields"></div>
       <button class="btn" onclick="saveEditItem()">บันทึก</button>
@@ -8136,7 +8138,8 @@ const PKG_PRE = [
 // ===== NEW: Flexible SERVICES (CRUD-able by user) =====
 function uid() { return 'id_' + Math.random().toString(36).slice(2, 11); }
 const SERVICE_COLORS = ['#BA7517','#1D9E75','#534AB7','#D4537E','#378ADD','#E24B4A','#EF9F27','#7F77DD','#D85A30','#888780'];
-const SERVICE_ICONS = ['📸','🎬','📷','💍','✨','🎨','📦','💎','🌟','🎁'];
+// v2.5.85 · Joe ขอเพิ่ม 8 ไอคอนสายงานถ่ายภาพ ให้เต็ม 3 แถว (วิดีโอ·บูธ·คอม·ปริ้นท์·โดรน·เวดดิ้ง·รับปริญญา)
+const SERVICE_ICONS = ['📸','🎬','📷','💍','✨','🎨','📦','💎','🌟','🎁','🎥','📹','🤳','💻','🖨️','🚁','👰','🎓','🤰','👶','👨‍👩‍👧','🛍️'];
 const SERVICES = [];  // populated on init or by user
 const ADDONS = [
   {key:'qr', name:'QR หน้า Backdrop', price:3000},
@@ -15587,7 +15590,7 @@ function renderExpenseList() {
         <div class="price" style="color:#dc2626;">-${fmt(e.amount)}</div>
       </div>
       <div style="display:flex; align-items:flex-start; gap:6px;">
-        <button onclick="event.stopPropagation(); deleteExpense(${e._idx})" style="background:none; border:none; color:#dc2626; font-size:16px; cursor:pointer; padding:0;">🗑</button>
+        <button onclick="event.stopPropagation(); deleteExpense(${e._idx})" style="background:none; border:none; color:#dc2626; font-size:16px; cursor:pointer; padding:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
       </div>
     `;
     c.appendChild(row);
@@ -16172,7 +16175,7 @@ function renderServiceDetail() {
         <div class="item-name">${p.name} <span style="color:#7c7066; font-size:13px; font-weight:400; margin-left:8px;">${fmt(p.price)}</span></div>
         <div class="item-sub">${p.desc || ''}</div>
       </div>
-      <button onclick="event.stopPropagation(); quickDeletePackage('${p.id}')" style="background:none; border:none; color:#dc2626; font-size:16px; cursor:pointer; padding:6px;">🗑</button>
+      <button onclick="event.stopPropagation(); quickDeletePackage('${p.id}')" style="background:none; border:none; color:#dc2626; font-size:16px; cursor:pointer; padding:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
     `;
     c.appendChild(row);
   });
@@ -16231,9 +16234,10 @@ function renderServiceColorPicker() {
   SERVICE_COLORS.forEach(c => {
     const chip = document.createElement('div');
     chip.className = 'chip' + (c === _editServiceTempColor ? ' active' : '');
-    chip.style.background = c === _editServiceTempColor ? c : c + '33';
-    chip.style.color = c === _editServiceTempColor ? 'white' : c;
-    chip.style.borderColor = c;
+    // v2.5.85 · ใช้ setProperty('important') — กฎ luxe .chip ใช้ !important ทับ inline ปกติ ทำให้จุดสีกลายเป็นเทาหมด (Joe report)
+    chip.style.setProperty('background', c === _editServiceTempColor ? c : c + '33', 'important');
+    chip.style.setProperty('color', c === _editServiceTempColor ? 'white' : c, 'important');
+    chip.style.setProperty('border-color', c, 'important');
     chip.style.minWidth = '40px';
     chip.style.textAlign = 'center';
     chip.textContent = '●';
@@ -21357,7 +21361,7 @@ function renderInvoiceAddOnsList(job) {
     row.innerHTML = `
       <input type="text" placeholder="${namePh}" value="${(a.name||'').replace(/"/g,'&quot;')}" style="flex:2; padding:8px 10px; border-radius:8px; border:0.5px solid #d1d5db; font-size:13px;" oninput="updateInvoiceAddOn(${i}, 'name', this.value)">
       <input type="number" placeholder="0" value="${a.price||0}" style="flex:1; padding:8px 10px; border-radius:8px; border:0.5px solid #d1d5db; font-size:13px;" oninput="updateInvoiceAddOn(${i}, 'price', parseFloat(this.value)||0)">
-      <button onclick="removeInvoiceAddOn(${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;">🗑</button>
+      <button onclick="removeInvoiceAddOn(${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
     `;
     list.appendChild(row);
   });
@@ -23920,8 +23924,15 @@ function renderAddJobScreen() {
     const chip = document.createElement('div');
     const isOn = ADD_TEAM.has(t.name);
     chip.className = 'chip team-chip' + (isOn ? ' active' : '');
-    chip.style.background = isOn ? t.color : '';
-    chip.style.borderColor = isOn ? t.color : '';
+    // v2.5.85 · เคสเดียวกับ color picker — luxe .chip !important ทับสีทีมตอนเลือก
+    if (isOn) {
+      chip.style.setProperty('background', t.color, 'important');
+      chip.style.setProperty('border-color', t.color, 'important');
+      chip.style.setProperty('color', '#fff', 'important');
+    } else {
+      chip.style.background = '';
+      chip.style.borderColor = '';
+    }
     chip.innerHTML = `<span class="team-dot" style="background:${isOn ? 'rgba(255,255,255,.6)' : t.color}"></span>${escapeHtml(t.name)}`;
     chip.onclick = () => {
       if (ADD_TEAM.has(t.name)) ADD_TEAM.delete(t.name); else ADD_TEAM.add(t.name);
@@ -24843,7 +24854,7 @@ function renderJobStatusesSettings() {
             <div class="item-name">${escapeHtml(s.label)}</div>
             <div class="item-sub" style="margin-top:3px;">${stageBadge}</div>
           </div>
-          <button onclick="event.stopPropagation(); deleteJobStatusByIndex(${realIdx})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;">🗑</button>
+          <button onclick="event.stopPropagation(); deleteJobStatusByIndex(${realIdx})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
           <div class="item-action">›</div>
         </div>`;
       }).join('');
@@ -24983,13 +24994,13 @@ function renderSettingsLists() {
 
   html = '';
   ADDONS.forEach((a, i) => {
-    html += `<div class="item-row" onclick="openEdit('addon',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${escapeHtml(a.name)}</div><div class="item-sub">${fmt(a.price)}</div></div><button onclick="event.stopPropagation(); quickDeleteItem('addon',${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;">🗑</button></div>`;
+    html += `<div class="item-row" onclick="openEdit('addon',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${escapeHtml(a.name)}</div><div class="item-sub">${fmt(a.price)}</div></div><button onclick="event.stopPropagation(); quickDeleteItem('addon',${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>`;
   });
   document.getElementById('list-addons').innerHTML = html;
 
   html = '';
   JOB_TYPES.forEach((t, i) => {
-    html += `<div class="item-row" onclick="openEdit('jobtype',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${t}</div></div><button onclick="event.stopPropagation(); quickDeleteItem('jobtype',${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;">🗑</button></div>`;
+    html += `<div class="item-row" onclick="openEdit('jobtype',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${t}</div></div><button onclick="event.stopPropagation(); quickDeleteItem('jobtype',${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>`;
   });
   document.getElementById('list-jobtypes').innerHTML = html;
 
@@ -25001,20 +25012,20 @@ function renderSettingsLists() {
         <div class="item-name">${escapeHtml(t.name)}</div>
         <div class="item-sub">${escapeHtml(t.role || '')} · ${t.rate > 0 ? 'อัตรา ฿'+t.rate.toLocaleString()+'/งาน' : 'ไม่ระบุ'}</div>
       </div>
-      <button onclick="event.stopPropagation(); quickDeleteTeam(${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;" title="ลบ">🗑</button>
+      <button onclick="event.stopPropagation(); quickDeleteTeam(${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;" title="ลบ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
     </div>`;
   });
   document.getElementById('list-team').innerHTML = html;
 
   html = '';
   EXPENSE_CATS.forEach((c, i) => {
-    html += `<div class="item-row" onclick="openEdit('expcat',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${c}</div></div><button onclick="event.stopPropagation(); quickDeleteItem('expcat',${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;">🗑</button></div>`;
+    html += `<div class="item-row" onclick="openEdit('expcat',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${c}</div></div><button onclick="event.stopPropagation(); quickDeleteItem('expcat',${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>`;
   });
   document.getElementById('list-expense-cat').innerHTML = html;
 
   html = '';
   SOURCES.forEach((s, i) => {
-    html += `<div class="item-row" onclick="openEdit('source',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${s}</div></div><button onclick="event.stopPropagation(); quickDeleteItem('source',${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;">🗑</button></div>`;
+    html += `<div class="item-row" onclick="openEdit('source',${i})"><div style="flex:1; min-width:0;"><div class="item-name">${s}</div></div><button onclick="event.stopPropagation(); quickDeleteItem('source',${i})" style="background:none; border:none; color:#dc2626; font-size:18px; cursor:pointer; padding:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>`;
   });
   document.getElementById('list-source').innerHTML = html;
 
