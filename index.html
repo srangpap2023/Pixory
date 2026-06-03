@@ -11,13 +11,11 @@
 <meta name="theme-color" content="#d8704a">
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- v2.5.77 · PERF · html2canvas / jspdf / xlsx (~1.4MB) ย้ายไป lazy-load เฉพาะตอนกด export (ดู ensureExportLibs) · ไม่ถ่วงการเปิดแอป -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <!-- v2.5.72 · shared money/date helpers (single source · ต้อง push ไฟล์นี้ด้วยเสมอ) -->
-<script src="./pixory-helpers.js"></script>
+<script src="./pixory-helpers.js" defer></script>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   /* App font size — uses zoom on screen content for clean proportional scaling */
@@ -4655,6 +4653,30 @@
 </head>
 <body>
 
+<!-- v2.5.77 · PERF · หน้า loading ระหว่างบูต (กันจอขาว) · ซ่อนตัวเองเมื่อแอปพร้อม + failsafe 8 วิ -->
+<div id="boot-splash" style="position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#1a1410;color:#ECDAA6;font-family:'Inter','IBM Plex Sans Thai',sans-serif;transition:opacity .35s ease;">
+  <div style="font-size:26px;font-weight:800;letter-spacing:1px;color:#D4BC82;">Pixory</div>
+  <div style="width:38px;height:38px;border:3px solid rgba(212,188,130,.25);border-top-color:#D4BC82;border-radius:50%;animation:_bspin .8s linear infinite;"></div>
+  <div style="font-size:12.5px;color:#a89a82;">กำลังเปิดสตูดิโอของคุณ…</div>
+</div>
+<style>@keyframes _bspin{to{transform:rotate(360deg)}}</style>
+<script>
+  (function () {
+    var _hidden = false;
+    window.hideBootSplash = function () {
+      if (_hidden) return; _hidden = true;
+      var s = document.getElementById('boot-splash');
+      if (!s) return;
+      s.style.opacity = '0';
+      setTimeout(function () { if (s && s.parentNode) s.parentNode.removeChild(s); }, 400);
+    };
+    // ซ่อนเมื่อโหลดเสร็จ (หลัง parse + deferred scripts + paint แรก)
+    window.addEventListener('load', function () { setTimeout(window.hideBootSplash, 250); });
+    // FAILSAFE · ไม่ว่าอะไรจะเกิด ต้องไม่ค้างจอ loading เกิน 8 วิ
+    setTimeout(window.hideBootSplash, 8000);
+  })();
+</script>
+
 <div class="proto-tag">PROTOTYPE · Pixory</div>
 
 <!-- ====== PWA INSTALL BANNER ====== -->
@@ -8351,7 +8373,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.76';
+const PIXORY_VERSION = '2.5.77';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8362,6 +8384,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.77': {
+    date: '2026-06-03',
+    title: '⚡ เปิดแอปเร็วขึ้น',
+    subtitle: 'ลดของที่ต้องโหลดตอนเปิด ~1.4MB + มีหน้า loading',
+    items: [
+      { icon: '⚡', title: 'เปิดแอปไวขึ้น', desc: 'เครื่องมือทำ PDF / รูป / Excel (~1.4MB) เคยโหลดทุกครั้งที่เปิดแอป ทำให้เปิดช้า · ตอนนี้โหลดเฉพาะตอนกดใช้จริง · การเปิดแอปเลยเบาและเร็วขึ้นมาก' },
+      { icon: '⏳', title: 'มีหน้า loading ระหว่างเปิด', desc: 'ไม่เจอจอขาวๆ ระหว่างรอ · มีสัญลักษณ์กำลังโหลดให้เห็นว่าแอปกำลังเปิดอยู่' }
+    ]
+  },
   '2.5.76': {
     date: '2026-06-03',
     title: '🧾 แก้ใบเรียกเก็บขึ้นยอด ฿0',
@@ -19943,13 +19974,47 @@ function saveNewQuote(status) {
   }
 }
 
+// v2.5.77 · LAZY-LOAD export libraries (xlsx ~861KB · jspdf ~356KB · html2canvas ~194KB)
+// เดิมโหลดทั้ง 3 ตัวใน <head> ทุกครั้งที่เปิดแอป (ถ่วง ~1.4MB) · ตอนนี้โหลดเฉพาะตอนกด export จริง
+const _EXPORT_LIB_URLS = {
+  html2canvas: 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+  jspdf: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+  xlsx: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
+};
+const _EXPORT_LIB_READY = {
+  html2canvas: function () { return typeof html2canvas !== 'undefined'; },
+  jspdf: function () { return !!window.jspdf; },
+  xlsx: function () { return typeof XLSX !== 'undefined'; }
+};
+const _exportLibPromises = {};
+function _loadExportScript(name) {
+  if (_EXPORT_LIB_READY[name] && _EXPORT_LIB_READY[name]()) return Promise.resolve();
+  if (_exportLibPromises[name]) return _exportLibPromises[name];
+  _exportLibPromises[name] = new Promise(function (resolve, reject) {
+    var s = document.createElement('script');
+    s.src = _EXPORT_LIB_URLS[name];
+    s.async = true;
+    s.onload = function () { resolve(); };
+    s.onerror = function () { _exportLibPromises[name] = null; reject(new Error('load failed: ' + name)); };
+    document.head.appendChild(s);
+  });
+  return _exportLibPromises[name];
+}
+// คืน Promise · resolve เมื่อไลบรารีที่ต้องการพร้อมใช้แล้ว
+function ensureExportLibs(names) {
+  return Promise.all((names || []).map(_loadExportScript));
+}
+
 function downloadPDF() {
   const node = document.getElementById('pdf-content');
   if (!node) { toast('ไม่พบใบเสนอราคา'); return; }
   if (typeof html2canvas === 'undefined' || !window.jspdf) {
-    // Fallback to browser print if libraries failed to load
-    toast('โหลด library ไม่สำเร็จ — ใช้การพิมพ์แทน');
-    setTimeout(() => window.print(), 500);
+    // v2.5.77 · lazy-load แล้วเรียกตัวเองซ้ำ · ถ้าโหลดไม่ได้ค่อย fallback ไปพิมพ์
+    toast('กำลังเตรียมเครื่องมือ PDF…');
+    ensureExportLibs(['html2canvas', 'jspdf']).then(downloadPDF).catch(function () {
+      toast('โหลดเครื่องมือ PDF ไม่สำเร็จ — ใช้การพิมพ์แทน');
+      setTimeout(function () { window.print(); }, 500);
+    });
     return;
   }
   toast('กำลังสร้าง PDF...');
@@ -20014,7 +20079,8 @@ function downloadJPEG() {
   const node = document.getElementById('pdf-content');
   if (!node) { toast('ไม่พบใบเสนอราคา'); return; }
   if (typeof html2canvas === 'undefined') {
-    toast('โหลด library ไม่สำเร็จ — ลองรีเฟรชหน้า');
+    toast('กำลังเตรียมเครื่องมือรูปภาพ…');
+    ensureExportLibs(['html2canvas']).then(downloadJPEG).catch(function () { toast('โหลดเครื่องมือไม่สำเร็จ — ลองใหม่อีกครั้ง'); });
     return;
   }
   toast('กำลังสร้างรูป JPEG...');
@@ -21264,8 +21330,11 @@ function downloadInvoicePDF() {
   const node = document.getElementById('invoice-content');
   if (!node) { toast('ไม่พบใบเรียกเก็บ'); return; }
   if (typeof html2canvas === 'undefined' || !window.jspdf) {
-    toast('โหลด library ไม่สำเร็จ — ใช้การพิมพ์แทน');
-    setTimeout(() => window.print(), 500);
+    toast('กำลังเตรียมเครื่องมือ PDF…');
+    ensureExportLibs(['html2canvas', 'jspdf']).then(downloadInvoicePDF).catch(function () {
+      toast('โหลดเครื่องมือ PDF ไม่สำเร็จ — ใช้การพิมพ์แทน');
+      setTimeout(function () { window.print(); }, 500);
+    });
     return;
   }
   toast('กำลังสร้าง PDF...');
@@ -21326,7 +21395,8 @@ function downloadInvoiceJPEG() {
   const node = document.getElementById('invoice-content');
   if (!node) { toast('ไม่พบใบเรียกเก็บ'); return; }
   if (typeof html2canvas === 'undefined') {
-    toast('โหลด library ไม่สำเร็จ — ลองรีเฟรชหน้า');
+    toast('กำลังเตรียมเครื่องมือรูปภาพ…');
+    ensureExportLibs(['html2canvas']).then(downloadInvoiceJPEG).catch(function () { toast('โหลดเครื่องมือไม่สำเร็จ — ลองใหม่อีกครั้ง'); });
     return;
   }
   toast('กำลังสร้างรูป JPEG...');
@@ -22512,7 +22582,8 @@ function exportPITExcel() {
   const year = yearEl ? parseInt(yearEl.value, 10) : new Date().getFullYear();
   const r = computePIT(year, PROFILE.pit);
   if (typeof XLSX === 'undefined') {
-    toast('SheetJS ยังโหลดไม่เสร็จ · ลองอีกครั้ง');
+    toast('กำลังเตรียมเครื่องมือ Excel…');
+    ensureExportLibs(['xlsx']).then(exportPITExcel).catch(function () { toast('โหลดเครื่องมือ Excel ไม่สำเร็จ — ลองใหม่อีกครั้ง'); });
     return;
   }
   const wb = XLSX.utils.book_new();
@@ -23140,7 +23211,8 @@ function renderTaxReport() {
 // === Excel Export ============================================================
 function exportTaxExcel() {
   if (typeof XLSX === 'undefined') {
-    toast(LANG === 'en' ? 'Excel library not loaded — please refresh' : 'ยังโหลด Excel library ไม่เสร็จ — รีโหลดหน้าก่อน');
+    toast('กำลังเตรียมเครื่องมือ Excel…');
+    ensureExportLibs(['xlsx']).then(exportTaxExcel).catch(function () { toast(LANG === 'en' ? 'Excel tool failed to load — try again' : 'โหลดเครื่องมือ Excel ไม่สำเร็จ — ลองใหม่อีกครั้ง'); });
     return;
   }
   const yr = _taxReportYear || new Date().getFullYear();
