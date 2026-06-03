@@ -2917,12 +2917,20 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.56';
+const PIXORY_DESKTOP_VERSION = '1.0.57';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.57': {
+    date: '2026-06-04',
+    title: '🔧 แก้ปุ่มบันทึกหน้าแก้ไขบริการ',
+    subtitle: 'กดบันทึกตอนแก้ไขบริการหลักได้แล้ว',
+    items: [
+      { icon: '💾', title: 'บันทึกการแก้ไขบริการหลักได้ปกติ', desc: 'เดิมกดบันทึกในหน้าต่างแก้ไขบริการแล้วไม่เกิดอะไรขึ้น (เฉพาะตอนแก้ของเดิม · สร้างใหม่ไม่เป็น) · แก้แล้ว' }
+    ]
+  },
   '1.0.56': {
     date: '2026-06-03',
     title: '🏪 หน้า "ตั้งร้านของคุณ" โฉมใหม่',
@@ -8390,7 +8398,8 @@ function renderServiceEditHtml(s, isEdit) {
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveServiceEdit(${isEdit ? '"' + s.id + '"' : 'null'})">บันทึก</button>
+      <!-- v1.0.57 · FIX: เดิมใช้ " ซ้อนใน attribute ที่ครอบด้วย " → onclick ถูกตัด กดบันทึกตอนแก้ไขบริการไม่ได้ (Joe report) -->
+      <button class="btn btn-primary" onclick="saveServiceEdit(${isEdit ? "'" + s.id + "'" : 'null'})">บันทึก</button>
     </div>
   `;
 }

@@ -5654,7 +5654,13 @@
       <!-- Tab: งาน -->
       <div class="settings-section">
         <div class="sec-title">📅 รายละเอียดงาน</div>
-        <!-- v2.5.4 · ประเภทงาน chip removed · auto-derived from selected packages (each service has its own category in Settings) -->
+        <!-- v2.5.4 · ประเภทงาน chip removed · auto-derived from selected packages -->
+        <!-- v2.5.85 · เพิ่ม dropdown กลับมา (Joe + ลูกค้าจริง: ตั้งประเภทผิดแล้วแก้ย้อนหลังไม่ได้) · ค่าเริ่มต้น = อัตโนมัติเหมือนเดิม -->
+        <div class="form-group" style="margin: 0 0 12px;">
+          <label>ประเภทงาน</label>
+          <select id="add-jobtype-select"><option value="">🪄 อัตโนมัติ · ตามแพคเกจที่เลือก</option></select>
+          <div style="font-size:12px; color:#a89a8c; margin-top:4px;">ใช้จัดหมวดรายได้ในหน้าสรุป · เลือกเองได้ถ้าระบบจัดให้ไม่ตรง</div>
+        </div>
         <div id="add-type-row" style="display:none;"></div>
         <div class="form-group" style="margin: 0 0 8px;">
           <label><span data-i18n="lbl.workSchedule">⏱ เวลาทำงาน</span> <span class="req">*</span></label>
@@ -7324,7 +7330,8 @@
     <div class="screen" id="screen-service-detail">
       <div class="header">
         <button class="back" onclick="goTo('settings-hub-packages')">‹</button>
-        <h1 id="svc-detail-title">บริการ</h1>
+        <!-- v2.5.86 · ชื่อบริการยาวดันปุ่ม ✏/🗑 ตกขอบจอ (Joe report) → ตัดด้วย ellipsis -->
+        <h1 id="svc-detail-title" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">บริการ</h1>
         <div style="display:flex; gap:14px;">
           <!-- v2.5.85 · Joe: emoji ✏ มืดมองยาก + 🗑 เป็นถังสีขาว → เปลี่ยนเป็น SVG เส้น ไม่มีกรอบ -->
           <button class="icon-btn" onclick="editCurrentService()" style="color:#C9954F" aria-label="แก้ไข"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
@@ -8412,7 +8419,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.85';
+const PIXORY_VERSION = '2.5.86';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8423,13 +8430,23 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.86': {
+    date: '2026-06-04',
+    title: '🔧 เก็บงานหน้าบริการ',
+    subtitle: 'ชื่อบริการยาวไม่ดันปุ่มตกขอบจอแล้ว',
+    items: [
+      { icon: '✂️', title: 'ชื่อบริการยาวถูกตัดพอดีจอ', desc: 'ปุ่มแก้ไขและลบบนหัวหน้าบริการอยู่ในจอเสมอ ไม่ว่าชื่อบริการจะยาวแค่ไหน' },
+      { icon: '🏷', title: 'แก้ประเภทงานเองได้ (จาก 2.5.85)', desc: 'ฟอร์มงานมีช่อง "ประเภทงาน" · เปิดงานเก่ามาเปลี่ยนประเภทได้ รายได้ย้ายหมวดในหน้าสรุปทันที' }
+    ]
+  },
   '2.5.85': {
     date: '2026-06-03',
-    title: '🎨 การ์ดงานกระชับขึ้น',
-    subtitle: 'เห็นงานต่อหน้าจอมากขึ้น ไม่ต้องไถยาว',
+    title: '🏷 แก้ประเภทงานเองได้แล้ว + หน้าตาอ่านง่ายขึ้น',
+    subtitle: 'เปลี่ยนประเภทงานย้อนหลังได้ · การ์ดกระชับ · ปุ่มชัดขึ้น',
     items: [
-      { icon: '📐', title: 'การ์ดงานเตี้ยลง อ่านง่ายเท่าเดิม', desc: 'บีบช่องว่างระหว่างบรรทัดในการ์ดงานและการ์ดใบเสนอ · หน้าจอเดียวเห็นงานเพิ่มขึ้น' },
-      { icon: '📍', title: 'สถานที่แยกบรรทัด (จาก 2.5.84)', desc: 'การ์ดแสดงสถานที่เป็นบรรทัดของตัวเองใต้ประเภทงาน + เมนูปุ่มบวกตัวหนังสือใหญ่ขึ้น' }
+      { icon: '🏷', title: 'เลือก/แก้ประเภทงานได้ในหน้าแก้ไขงาน', desc: 'มีช่อง "ประเภทงาน" ในฟอร์มงานแล้ว · ค่าเริ่มต้นยังเป็นอัตโนมัติตามแพคเกจ แต่ถ้าจัดให้ไม่ตรง เปิดงานมาแก้เองได้เลย · รายได้ในหน้าสรุปจะย้ายหมวดตามทันที' },
+      { icon: '📐', title: 'การ์ดงานเตี้ยลง เห็นงานต่อจอมากขึ้น', desc: 'บีบช่องว่างในการ์ดงาน/ใบเสนอ + ตัวกรองจัดเป็น 2 แถวไม่ต้องเลื่อนข้าง + สถานที่แยกบรรทัดของตัวเอง' },
+      { icon: '✨', title: 'ปุ่มและไอคอนชัดขึ้นทั้งแอป', desc: 'ปุ่ม + สีทองใหม่ · ไอคอนแก้ไข/ลบเป็นแบบเส้นสะอาดตา · ป้ายปุ่มในหน้างานตัวใหญ่อ่านง่าย · จุดเลือกสีบริการกลับมาแสดงสีถูกต้อง · ไอคอนบริการเพิ่มเป็น 22 แบบ' }
     ]
   },
   '2.5.84': {
@@ -17826,6 +17843,17 @@ function populateJobTypeChips(containerId, currentType) {
     chip.onclick = () => selectOne(chip, 'job-type');
     el.appendChild(chip);
   });
+  // v2.5.85 · เติม dropdown ประเภทงานด้วย · null = งานใหม่ → "อัตโนมัติ" · แก้งานเก่า → ประเภทปัจจุบันของงาน
+  const sel = document.getElementById('add-jobtype-select');
+  if (sel) {
+    let opts = '<option value="">🪄 อัตโนมัติ · ตามแพคเกจที่เลือก</option>';
+    JOB_TYPES.forEach(t => { opts += '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>'; });
+    if (currentType && !JOB_TYPES.includes(currentType)) {
+      opts += '<option value="' + escapeHtml(currentType) + '">' + escapeHtml(currentType) + ' (ประเภทเดิม)</option>';
+    }
+    sel.innerHTML = opts;
+    sel.value = currentType || '';
+  }
 }
 
 function generateJobCode(year) {
@@ -18164,13 +18192,15 @@ function collectAddFormData() {
   const eventDate = firstSess.date;
 
   // v2.5.4 · type chip removed · derive from services + customItems
+  // v2.5.85 · ถ้าผู้ใช้เลือกประเภทเองใน dropdown → ใช้ค่านั้นก่อนเสมอ · "อัตโนมัติ" ('') → derive เหมือนเดิม
+  const _manualType = (document.getElementById('add-jobtype-select') || {}).value || '';
   // Build a temporary job-like object for deriveJobType()
   const _tmpJobForType = {
     selectedServices: ADD_SELECTED || {},
     customItems: (typeof _customGetState === 'function' ? _customGetState('add') : []) || [],
     type: (window._currentJob && window._currentJob.type) || ''
   };
-  const type = (typeof deriveJobType === 'function') ? deriveJobType(_tmpJobForType) : ((window._currentJob && window._currentJob.type) || 'Wedding');
+  const type = _manualType || ((typeof deriveJobType === 'function') ? deriveJobType(_tmpJobForType) : ((window._currentJob && window._currentJob.type) || 'Wedding'));
 
   let payStatus = 'รอมัดจำ';
   if (deposit > 0 && remain > 0) payStatus = 'มัดจำแล้ว';
