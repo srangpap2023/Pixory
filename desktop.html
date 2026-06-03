@@ -2907,12 +2907,21 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.55';
+const PIXORY_DESKTOP_VERSION = '1.0.56';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.56': {
+    date: '2026-06-03',
+    title: '🏪 หน้า "ตั้งร้านของคุณ" โฉมใหม่',
+    subtitle: 'มือใหม่เปิดมารู้เลยว่าต้องเริ่มตรงไหน',
+    items: [
+      { icon: '🏪', title: 'ตั้งค่าร้านของคุณ (ชื่อใหม่ของภาพรวมตั้งค่า)', desc: 'อธิบายชัดว่าหน้านี้คือ "หลังร้าน" — ตั้งครั้งเดียว ระบบนำไปใช้กับใบเสนอ ใบเรียกเก็บ และสรุปการเงินอัตโนมัติ · ผู้ใช้ใหม่เปิดแอปครั้งแรกจะเจอหน้านี้ก่อนเลย' },
+      { icon: '✅', title: 'เช็กลิสต์มีลำดับ + คำอธิบายทุกข้อ', desc: 'ขั้นตอน 1-7 พร้อมเหตุผลว่าแต่ละข้อตั้งแล้วได้อะไร · ข้อถัดไปมีปุ่ม "เริ่มข้อนี้" ชัดเจน' }
+    ]
+  },
   '1.0.55': {
     date: '2026-06-03',
     title: '🎒 คลังอุปกรณ์ + ปฏิทินแบบรายการ',
@@ -3621,8 +3630,19 @@ async function finishAuthAndStart() {
     }
   } catch(e) { console.warn('signup auto-fill failed', e); }
   setSyncState('synced');
+  // v1.0.56 · ผู้ใช้ใหม่จริงๆ (ยังไม่มีงาน/ใบเสนอ/ชื่อร้าน) → พาไปหน้า "ตั้งค่าร้านของคุณ" ก่อน · ครั้งเดียวต่อเครื่อง
+  let _landedSetup = false;
+  try {
+    const _isFreshUser = (JOBS||[]).length === 0 && (QUOTES||[]).length === 0 && !(PROFILE && PROFILE.shop && PROFILE.shop.trim());
+    if (_isFreshUser && !localStorage.getItem('pixory.desktop.setupWelcomed')) {
+      localStorage.setItem('pixory.desktop.setupWelcomed', '1');
+      SETTINGS_TAB = 'overview';
+      navigate('settings');
+      _landedSetup = true;
+    }
+  } catch(e) {}
   // Show dashboard
-  navigate('dashboard');
+  if (!_landedSetup) navigate('dashboard');
   // Start realtime sync (Sprint 2E)
   startRealtimeSync();
   // v1.0.50 · auto-sync poll · refreshes data by itself if realtime misses an event
@@ -7436,7 +7456,7 @@ const I18N = {
 
     // Settings groups
     'set.group.overview':    'เริ่มต้น',
-    'set.overview':          '🏪 ภาพรวมตั้งค่า',
+    'set.overview':          '🏪 ตั้งค่าร้านของคุณ',
     'set.group.business':    'ธุรกิจ',
     'set.group.finance':     'การเงิน',
     'set.group.system':      'ระบบ',
@@ -7603,7 +7623,7 @@ const I18N = {
     'page.settings':         '⚙️ Settings',
 
     'set.group.overview':    'Start here',
-    'set.overview':          '🏪 Setup Overview',
+    'set.overview':          '🏪 Set Up Your Studio',
     'set.group.business':    'Business',
     'set.group.finance':     'Finance',
     'set.group.system':      'System',
@@ -7840,7 +7860,9 @@ function renderSettings(root) {
   renderSettingsPane();
 }
 
-function setSettingsTab(tab) {
+let SETTINGS_FROM_OVERVIEW = false;  // v1.0.56 · true เมื่อเข้าหน้าย่อยจากเช็กลิสต์ตั้งร้าน → โชว์ปุ่มกลับ
+function setSettingsTab(tab, fromOverview) {
+  SETTINGS_FROM_OVERVIEW = (fromOverview === true);
   SETTINGS_TAB = tab;
   renderSettings(document.getElementById('main'));
 }
@@ -7903,6 +7925,10 @@ function renderSettingsPane() {
     LISTS_TAGS_TAB = SETTINGS_TAB;
     SETTINGS_TAB = 'lists-tags';
   }
+  // v1.0.56 · ปุ่มกลับ เมื่อเข้าหน้าย่อยจากเช็กลิสต์ "ตั้งร้านของคุณ" (Joe: กดเข้าไปแล้วไม่มีทางกลับ)
+  const _backBar = (SETTINGS_FROM_OVERVIEW && SETTINGS_TAB !== 'overview')
+    ? `<div onclick="setSettingsTab('overview')" style="display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;padding:8px 16px;border:1px solid var(--border);border-radius:999px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--brand-light, #D4A056);background:rgba(184,133,74,0.08);" onmouseover="this.style.background='rgba(184,133,74,0.16)'" onmouseout="this.style.background='rgba(184,133,74,0.08)'">‹ กลับไปหน้าตั้งค่าร้าน</div>`
+    : '';
   switch (SETTINGS_TAB) {
     case 'overview':      pane.innerHTML = renderSettingsOverview(); break;
     case 'profile':       pane.innerHTML = renderSettingsProfile(); break;
@@ -7923,6 +7949,7 @@ function renderSettingsPane() {
     case 'about':         pane.innerHTML = renderSettingsAbout(); break;
     default:              pane.innerHTML = renderSettingsProfile();
   }
+  if (_backBar) pane.innerHTML = _backBar + pane.innerHTML;
 }
 
 // ===== v1.0.24 · A2 Refined · Shop Setup Overview =====
@@ -7951,56 +7978,68 @@ function _computeDtShopSetup() {
 }
 
 function renderSettingsOverview() {
+  // v1.0.56 · redesign "ตั้งร้านของคุณ" — Joe อนุมัติจากเดโม่ 3 มิ.ย. · อธิบายชัดสำหรับคนใหม่ + เช็กลิสต์มีลำดับ+คำอธิบาย
   const { items, doneCount, total, pct, next } = _computeDtShopSetup();
   const allDone = doneCount === total;
+  const STEP_DESC = {
+    'profile':        'ชื่อร้าน โลโก้ ที่อยู่ เบอร์ติดต่อ — จะขึ้นบนหัวใบเสนอราคาและใบเสร็จทุกใบ',
+    'services':       'แพ็คเกจและราคาที่ขาย — เวลาทำใบเสนอแค่เลือก ไม่ต้องพิมพ์ใหม่ทุกครั้ง',
+    'team':           'รายชื่อช่างภาพ/ผู้ช่วย — ใช้จัดทีมลงงานแต่ละวัน',
+    'banks':          'เลขบัญชีรับเงิน — โชว์ในใบเรียกเก็บให้ลูกค้าโอนถูกบัญชี',
+    'tax':            'เลขผู้เสียภาษี VAT หัก ณ ที่จ่าย — ใช้ออกใบกำกับ และประมาณภาษีสิ้นปีให้',
+    'quote-template': 'ข้อความท้ายใบ/เงื่อนไขรับงาน — ระบบใส่ให้อัตโนมัติทุกเอกสาร',
+    'lists':          'ประเภทงาน ช่องทางลูกค้า หมวดรายจ่าย — ระบบใช้จำแนกรายรับรายจ่าย เพื่อสรุปการเงินให้แม่น'
+  };
 
-  const heroHtml = allDone
-    ? `<div class="dt-shop-hero dt-shop-hero--done">
-         <div class="dt-shop-kicker"><span class="dot"></span> ตั้งค่าครบแล้ว</div>
-         <div class="dt-shop-title">🎉 พร้อมใช้ Pixory เต็มที่</div>
-         <div class="dt-shop-sub">ปรับแต่งเพิ่มได้ทุกเมนู · หรือเริ่มสร้างงานเลย</div>
-         <div class="dt-shop-bottom">
-           <div class="dt-shop-progress">
-             <div class="dt-shop-bar"><div class="dt-shop-fill" style="width:100%"></div></div>
-             <div class="dt-shop-num">${doneCount}/${total}</div>
-           </div>
-           <button class="dt-shop-cta" onclick="navigate('dashboard')">เริ่มงาน →</button>
-         </div>
-       </div>`
-    : `<div class="dt-shop-hero">
-         <div class="dt-shop-kicker"><span class="dot"></span> ขั้นถัดไป</div>
-         <div class="dt-shop-title">เพิ่ม <span class="accent">${escapeHtml(next.label)}</span><br>ของสตูดิโอคุณ</div>
-         <div class="dt-shop-sub">ตั้งอีก ${total - doneCount} อย่างเพื่อใช้แอพเต็มที่</div>
-         <div class="dt-shop-bottom">
-           <div class="dt-shop-progress">
-             <div class="dt-shop-bar"><div class="dt-shop-fill" style="width:${pct}%"></div></div>
-             <div class="dt-shop-num">${doneCount}/${total}</div>
-           </div>
-           <button class="dt-shop-cta" onclick="setSettingsTab('${next.goTo}')">ทำเลย <span class="arrow">→</span></button>
-         </div>
-       </div>`;
-
-  const gridHtml = items.map(it => `
-    <div class="dt-shop-card ${it.done ? 'is-done' : ''} ${(!allDone && next && next.key === it.key) ? 'is-next' : ''}"
-         onclick="setSettingsTab('${it.goTo}')">
-      <div class="dt-shop-card-icon">${it.icon}</div>
-      <div class="dt-shop-card-body">
-        <div class="dt-shop-card-title">${escapeHtml(it.label)}</div>
+  const rows = items.map((it, i) => `
+    <div onclick="setSettingsTab('${it.goTo}', true)" style="display:flex;align-items:flex-start;gap:14px;padding:14px 16px;margin-bottom:10px;background:rgba(255,255,255,0.03);border:1px solid ${(!it.done && next && next.key === it.key) ? 'rgba(184,133,74,0.45)' : 'var(--border)'};border-radius:12px;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(184,133,74,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
+      <div style="width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;margin-top:1px;${it.done ? 'background:rgba(16,185,129,0.14);color:var(--green);' : 'background:rgba(184,133,74,0.14);color:var(--brand-light, #D4A056);'}">${it.done ? '✓' : (i + 1)}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13.5px;font-weight:600;color:${it.done ? 'var(--ink-soft)' : 'var(--ink)'};">${it.icon} ${escapeHtml(it.label)}</div>
+        <div style="font-size:11.5px;color:var(--ink-mute);margin-top:2px;line-height:1.45;">${STEP_DESC[it.key] || ''}</div>
       </div>
-      <div class="dt-shop-card-status">
-        ${it.done
-          ? '<span class="dt-shop-badge-done">✓</span>'
-          : (next && next.key === it.key
-              ? '<span class="dt-shop-badge-next">ทำเลย →</span>'
-              : '<span class="dt-shop-badge-todo">!</span>')}
-      </div>
+      ${it.done
+        ? '<span style="font-size:11px;color:var(--green);font-weight:600;flex-shrink:0;margin-top:6px;">ตั้งค่าแล้ว</span>'
+        : (next && next.key === it.key
+            ? '<span style="font-size:11.5px;font-weight:700;color:#0A0A0E;background:linear-gradient(135deg,#E8B870,#B8854A);padding:6px 16px;border-radius:999px;flex-shrink:0;margin-top:3px;">เริ่มข้อนี้ →</span>'
+            : '<span style="font-size:11px;color:var(--ink-mute);flex-shrink:0;margin-top:6px;">รอตั้งค่า</span>')}
     </div>
   `).join('');
 
+  const heroSub = allDone
+    ? 'ตั้งค่าครบทุกข้อแล้ว 🎉 ระบบพร้อมใช้งานเต็มรูปแบบ · ปรับแต่งเพิ่มได้ทุกเมนูด้านซ้าย'
+    : 'แนะนำตั้งค่าตามลำดับด้านล่าง — ครบทุกข้อเมื่อไร ระบบพร้อมใช้งานเต็มรูปแบบทันที';
+
   return `
-    ${heroHtml}
-    <div class="dt-shop-grid">
-      ${gridHtml}
+    <div class="glass-card" style="padding:22px 26px;margin-bottom:16px;border-left:3px solid var(--brand-light, #D4A056);">
+      <div style="font-size:18px;font-weight:700;margin-bottom:6px;">🏪 หน้านี้คือ "หลังร้าน" ของคุณ — ตั้งครั้งเดียว ใช้ได้ตลอด</div>
+      <div style="font-size:13.5px;color:var(--ink-mute);margin-bottom:14px;">ทุกอย่างที่ตั้งในหน้านี้ แอปจะนำไปใช้ต่อให้อัตโนมัติ</div>
+      <div style="display:flex;flex-direction:column;gap:9px;font-size:14px;color:var(--ink-soft);line-height:1.6;">
+        <div style="display:flex;gap:10px;"><span style="flex-shrink:0;">📄</span><span><b>ชื่อร้านและบัญชีรับเงิน</b> → ขึ้นบนใบเสนอราคาและใบเรียกเก็บทุกใบ</span></div>
+        <div style="display:flex;gap:10px;"><span style="flex-shrink:0;">📦</span><span><b>แพ็คเกจและราคา</b> → ออกใบเสนอได้ในไม่กี่คลิก ไม่ต้องพิมพ์ใหม่</span></div>
+        <div style="display:flex;gap:10px;"><span style="flex-shrink:0;">📊</span><span><b>หมวดรายรับรายจ่ายและภาษี</b> → สรุปกำไรและภาษีสิ้นปีถูกต้องโดยไม่ต้องคำนวณเอง</span></div>
+      </div>
+      <div style="font-size:13.5px;font-weight:600;color:var(--brand-light, #D4A056);margin-top:14px;">${heroSub}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:16px;align-items:start;">
+      <div class="glass-card" style="padding:20px 22px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div style="font-size:14.5px;font-weight:700;">เช็กลิสต์ตั้งร้าน · ทำตามลำดับ</div>
+          <span class="text-mono" style="font-size:12px;font-weight:700;color:var(--brand-light, #D4A056);">${doneCount}/${total}</span>
+        </div>
+        <div style="height:6px;border-radius:6px;background:rgba(255,255,255,0.08);overflow:hidden;margin-bottom:10px;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#B8854A,#E8B870);border-radius:6px;"></div></div>
+        ${rows}
+        ${allDone ? '<div style="text-align:right;margin-top:14px;"><button class="btn btn-primary" onclick="navigate(\'dashboard\')">เริ่มงาน →</button></div>' : ''}
+      </div>
+      <div class="glass-card" style="padding:16px 18px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">💡 ทำไมต้องตั้งให้ครบ</div>
+        <div style="font-size:12px;color:var(--ink-soft);line-height:1.7;">
+          ตั้งค่าครบ = ระบบทำงานแทนคุณได้เต็มที่ — เอกสารทุกใบและรายงานการเงินจะถูกต้องตรงกันอัตโนมัติ ไม่ต้องกรอกซ้ำ ไม่ต้องคำนวณเอง<br><br>
+          ✅ ใบเสนอ/ใบเสร็จดูโปร ข้อมูลร้านครบทุกใบ<br>
+          ✅ ลูกค้าโอนเงินถูกบัญชี ไม่ต้องพิมพ์เลขส่งเอง<br>
+          ✅ รายรับรายจ่ายถูกจำแนกให้ — สิ้นปีรู้กำไรจริง ภาษีประมาณการพร้อม
+        </div>
+      </div>
     </div>
   `;
 }
@@ -8860,11 +8899,16 @@ function setListsTagsTab(tab) {
 
 function renderSettingsListsTags() {
   // v1.0.29 · i18n · labels from dict (lists.tab.*) · hints kept hardcoded (examples · OK in either lang)
+  // v1.0.56 · เพิ่ม desc บอกว่าแต่ละลิสต์ไปโชว์ตรงไหน/ทำงานยังไง (Joe ขอ · คนใหม่ไม่รู้ว่าตั้งแล้วได้อะไร)
   const tabs = [
-    { id: 'jobtypes',     icon: '🎯', label: t('lists.tab.jobtypes'),    count: (JOB_TYPES||[]).length,    hint: 'Wedding · Pre-wed · Cinematography ฯลฯ' },
-    { id: 'jobstatuses',  icon: '🏷', label: t('lists.tab.jobstatuses'), count: (getJobStatusList()||[]).length, hint: 'รอถ่าย · รอส่งงาน · ปิดงาน + ของคุณเอง' },
-    { id: 'sources',      icon: '📡', label: t('lists.tab.sources'),     count: (SOURCES||[]).length,      hint: 'Facebook · IG · เพื่อนแนะนำ ฯลฯ' },
-    { id: 'expense-cats', icon: '💸', label: t('lists.tab.expenseCats'), count: (EXPENSE_CATS||[]).length, hint: 'เดินทาง · Software · Marketing ฯลฯ' }
+    { id: 'jobtypes',     icon: '🎯', label: t('lists.tab.jobtypes'),    count: (JOB_TYPES||[]).length,    hint: 'Wedding · Pre-wed · Cinematography ฯลฯ',
+      desc: 'ใช้เลือกตอนสร้างงานและใบเสนอ → ไปโชว์บนการ์ดงาน ปฏิทิน และกราฟ "รายได้แยกประเภทงาน" ในหน้ารายงาน · ตั้งให้ตรงกับบริการที่รับจริง รายงานจะอ่านง่าย' },
+    { id: 'jobstatuses',  icon: '🏷', label: t('lists.tab.jobstatuses'), count: (getJobStatusList()||[]).length, hint: 'รอถ่าย · รอส่งงาน · ปิดงาน + ของคุณเอง',
+      desc: 'ป้ายบอกว่างานอยู่ขั้นไหน → โชว์บนการ์ดงาน และใช้แบ่งแท็บในหน้างาน · 3 สถานะหลัก (รอถ่าย/รอส่งงาน/ปิดงาน) ระบบเลื่อนให้อัตโนมัติหลังวันถ่าย · เพิ่มของคุณเองได้ เช่น "รอคัดรูป"' },
+    { id: 'sources',      icon: '📡', label: t('lists.tab.sources'),     count: (SOURCES||[]).length,      hint: 'Facebook · IG · เพื่อนแนะนำ ฯลฯ',
+      desc: 'บันทึกว่าลูกค้าแต่ละรายมาจากช่องทางไหน → สรุปเป็นกราฟในหน้ารายงาน · ดูปุ๊บรู้เลยช่องทางไหนพาลูกค้ามาเยอะสุด คุ้มที่จะลงแรงต่อ' },
+    { id: 'expense-cats', icon: '💸', label: t('lists.tab.expenseCats'), count: (EXPENSE_CATS||[]).length, hint: 'เดินทาง · Software · Marketing ฯลฯ',
+      desc: 'ใช้เลือกตอนบันทึกค่าใช้จ่าย → ระบบรวมยอดตามหมวดในหน้าค่าใช้จ่ายและคำนวณกำไรในรายงาน · แยกหมวดดี สิ้นปีเห็นชัดว่าเงินไปกับอะไร' }
   ];
   const active = tabs.find(t => t.id === LISTS_TAGS_TAB) || tabs[0];
 
@@ -8891,7 +8935,10 @@ function renderSettingsListsTags() {
         <div class="lt-intro-sub">${escapeHtml(t('lists.subtitle'))}</div>
       </div>
       <div class="lt-tabs" role="tablist">${tabPills}</div>
-      <div class="lt-hint">${escapeHtml(active.hint)}</div>
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:12px 16px;margin:10px 0 4px;background:rgba(184,133,74,0.07);border:1px solid rgba(184,133,74,0.20);border-radius:12px;">
+        <span style="font-size:15px;flex-shrink:0;">💡</span>
+        <div style="font-size:12.5px;line-height:1.65;color:var(--ink-soft);">${active.desc}<br><span style="color:var(--ink-mute);font-size:11.5px;">ตัวอย่าง: ${escapeHtml(active.hint)}</span></div>
+      </div>
       <div class="lt-pane">${body}</div>
     </div>
   `;
