@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <!-- v2.5.77 · PERF · html2canvas / jspdf / xlsx (~1.4MB) ย้ายไป lazy-load เฉพาะตอนกด export (ดู ensureExportLibs) · ไม่ถ่วงการเปิดแอป -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" defer></script>
+<!-- v2.5.82 · ลบ Chart.js (~200KB) — ไม่มีโค้ดส่วนไหนใช้ (กราฟทั้งหมดวาดเองด้วย canvas 2D) · เคยถ่วง bootstrap ตอน CDN ช้า -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <!-- v2.5.72 · shared money/date helpers (single source · ต้อง push ไฟล์นี้ด้วยเสมอ) -->
 <script src="./pixory-helpers.js" defer></script>
@@ -8391,7 +8391,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.81';
+const PIXORY_VERSION = '2.5.82';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8402,6 +8402,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.82': {
+    date: '2026-06-03',
+    title: '⚡ เปิดแอปเร็วและทนขึ้น',
+    subtitle: 'ตัดของที่ไม่ได้ใช้ออก + ปุ่มปฏิทินกลับเป็นแบบเรียบง่าย',
+    items: [
+      { icon: '⚡', title: 'เปิดแอปเร็วขึ้นอีกขั้น', desc: 'ตัดไฟล์ส่วนที่แอปไม่ได้ใช้งานออก (~200KB) · แอปโหลดเบาลง และเปิดได้เสถียรขึ้นแม้เน็ตช้า' },
+      { icon: '📅', title: 'ปุ่ม "เพิ่มลงปฏิทินมือถือ" ใช้ง่ายเหมือนเดิม', desc: 'กดแล้วได้ไฟล์ปฏิทินทันที ไม่ต้องผ่านหน้าแชร์หลายขั้นตอน · เปิดไฟล์เพื่อเพิ่มลง Google/ปฏิทินมือถือได้เลย' }
+    ]
+  },
   '2.5.79': {
     date: '2026-06-03',
     title: '📅 ซิงก์ทุกงานลงปฏิทินทีเดียว',
@@ -25136,9 +25145,9 @@ function updateAccountUI() {
   }
 }
 
-// Wait for Chart.js + Supabase to load
+// Wait for Supabase to load (v2.5.82: ตัดเงื่อนไข Chart.js ออก — lib ถูกลบแล้ว ไม่มีใครใช้)
 function bootstrap() {
-  if (typeof Chart === 'undefined' || typeof window.supabase === 'undefined') {
+  if (typeof window.supabase === 'undefined') {
     // Give libs another chance
     setTimeout(bootstrap, 100);
     return;
