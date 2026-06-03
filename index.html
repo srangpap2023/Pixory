@@ -8391,7 +8391,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.80';
+const PIXORY_VERSION = '2.5.81';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8402,14 +8402,6 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
-  '2.5.80': {
-    date: '2026-06-03',
-    title: '📅 เพิ่มลงปฏิทินบน iPhone ได้แล้ว',
-    subtitle: 'แก้ปุ่มปฏิทินที่กดแล้วไม่บันทึกบน iPhone',
-    items: [
-      { icon: '📅', title: 'ปุ่มเพิ่มลงปฏิทินใช้ได้บน iPhone', desc: 'เดิมบน iPhone กดแล้วไฟล์ไม่บันทึกเข้าปฏิทิน · ตอนนี้จะเด้ง "เมนูแชร์" ให้เลือกปลายทาง — เลือก "ปฏิทิน" เพื่อเพิ่มงาน หรือ "บันทึกไปยังไฟล์" แล้วเปิดไฟล์ก็ได้ · ฝั่ง Android/คอมยังดาวน์โหลดไฟล์ตามปกติ' }
-    ]
-  },
   '2.5.79': {
     date: '2026-06-03',
     title: '📅 ซิงก์ทุกงานลงปฏิทินทีเดียว',
@@ -17892,25 +17884,10 @@ function buildAllJobsICS(jobs) {
   });
   return { ics: ev ? _wrapICS(ev) : '', count: count };
 }
-// v2.5.80 · ส่งไฟล์ปฏิทินให้ผู้ใช้
-// iPhone/PWA: การ auto-download (.ics) ไม่ทำงาน → ใช้ Web Share (เมนูแชร์) ให้เลือกปฏิทิน/บันทึกไฟล์เอง
-// Android/เดสก์ท็อป: ดาวน์โหลดไฟล์ตามปกติ
-async function _deliverICS(ics, filename, okMsg) {
+// v2.5.81 · กลับไปแบบเดิม · ดาวน์โหลดไฟล์ .ics ตรงๆ (ไม่ผ่านเมนูแชร์)
+function _deliverICS(ics, filename, okMsg) {
   try {
     const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-    if (typeof File !== 'undefined' && navigator.canShare) {
-      const file = new File([blob], filename, { type: 'text/calendar' });
-      if (navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], title: 'Pixory · ปฏิทินงาน' });
-          toast(okMsg, 'success');
-          return;
-        } catch (err) {
-          if (err && err.name === 'AbortError') return; // ผู้ใช้กดยกเลิกเมนูแชร์
-          // เหตุอื่น → ตกไปใช้ดาวน์โหลดแทน
-        }
-      }
-    }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = filename; a.rel = 'noopener';
@@ -17924,7 +17901,7 @@ function addJobToCalendar() {
   if (!j) { toast('ไม่พบงาน', 'error'); return; }
   const ics = buildJobICS(j);
   if (!ics) { toast('งานนี้ยังไม่มีวันที่ · ใส่วันงานก่อนนะครับ', 'error'); return; }
-  _deliverICS(ics, (j.code || 'pixory-job') + '.ics', '📅 เลือก "ปฏิทิน" ในเมนู เพื่อเพิ่มงาน');
+  _deliverICS(ics, (j.code || 'pixory-job') + '.ics', '📅 เปิดไฟล์ปฏิทินแล้ว · เลือก "เพิ่มลงปฏิทิน"');
 }
 
 // v2.5.79 · เพิ่ม "ทุกงานที่ยังไม่ผ่าน" (รอถ่าย + รอส่งงาน) ลงปฏิทินทีเดียว
@@ -17935,7 +17912,7 @@ function addAllJobsToCalendar() {
   if (!upcoming.length) { toast('ไม่มีงานที่ยังไม่ผ่าน', 'error'); return; }
   const res = buildAllJobsICS(upcoming);
   if (!res.ics || !res.count) { toast('งานที่ยังไม่ผ่านยังไม่มีวันที่ · ใส่วันงานก่อนนะครับ', 'error'); return; }
-  _deliverICS(res.ics, 'pixory-jobs.ics', '📅 ' + res.count + ' งาน · เลือก "ปฏิทิน" ในเมนู เพื่อเพิ่ม');
+  _deliverICS(res.ics, 'pixory-jobs.ics', '📅 เปิดไฟล์ปฏิทินแล้ว · ' + res.count + ' งาน');
 }
 
 function editCurrentJob() {
