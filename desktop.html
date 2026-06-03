@@ -1041,6 +1041,16 @@
   .data-table thead th.text-right { text-align: right; }
   .data-table thead th.text-center { text-align: center; }
 
+  /* v1.0.56 · หน้างาน · โหมดรายการ → แต่ละแถวเป็นการ์ดแยก (Joe: ตารางติดกันมองยาก) */
+  #jobs-table-card { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+  #jobs-table-card .data-table { border-collapse: separate !important; border-spacing: 0 10px !important; }
+  #jobs-table-card .data-table thead th { background: transparent !important; border-bottom: none !important; }
+  #jobs-table-card .data-table tbody tr { background: var(--card) !important; }
+  #jobs-table-card .data-table tbody td { border-top: 1px solid var(--border) !important; border-bottom: 1px solid var(--border) !important; padding-top: 14px !important; padding-bottom: 14px !important; }
+  #jobs-table-card .data-table tbody td:first-child { border-left: 1px solid var(--border) !important; border-radius: 12px 0 0 12px !important; }
+  #jobs-table-card .data-table tbody td:last-child { border-right: 1px solid var(--border) !important; border-radius: 0 12px 12px 0 !important; }
+  #jobs-table-card .data-table tbody tr:hover { background: rgba(184,133,74,0.08) !important; }
+
   /* View toggle (list/card) */
   .view-toggle {
     display: inline-flex;
@@ -2888,7 +2898,7 @@
     <button onclick="closeFabMenu();openJobModal()" style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1e40af;border:1.5px solid #3b82f6;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.10);">💼 งานใหม่</button>
   </div>
   <button id="fab-btn" onclick="toggleFabMenu()" title="สร้างใหม่"
-    style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#D97757,#B85A3D);color:white;border:none;cursor:pointer;font-size:32px;font-weight:300;box-shadow:0 8px 24px rgba(217,119,87,0.40),0 4px 12px rgba(184,90,61,0.30);transition:transform 0.2s;display:flex;align-items:center;justify-content:center;line-height:1;">
+    style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#D4A056,#B8854A);color:white;border:none;cursor:pointer;font-size:32px;font-weight:300;box-shadow:0 0 0 4px rgba(184,133,74,0.22),0 8px 22px rgba(212,160,86,0.4);transition:transform 0.2s;display:flex;align-items:center;justify-content:center;line-height:1;">
     <span id="fab-icon" style="transition:transform 0.2s;">+</span>
   </button>
 </div>

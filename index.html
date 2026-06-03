@@ -244,7 +244,8 @@
   .bottom-nav .tab.active .icon svg { filter: drop-shadow(0 3px 5px rgba(0,0,0,0.18)); }
   .bottom-nav .tab:not(.active):not(.fab) .icon svg { opacity: 0.78; }
   .bottom-nav .tab .label { font-size: 10px; margin-top: 3px; }
-  .bottom-nav .tab.fab { background: #3a2f25; color: white !important; width: 54px; height: 54px; border-radius: 27px; flex: 0 0 54px; justify-content: center; align-self: center; margin: 0 10px; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+  /* v2.5.85 · FAB แบบ 3 "ทอง+วงแหวน" (Joe เลือกจากเดโม่ 5 แบบ) · ใช้ทุกธีม */
+  .bottom-nav .tab.fab { background: linear-gradient(135deg, #D4A056, #B8854A); color: white !important; width: 54px; height: 54px; border-radius: 27px; flex: 0 0 54px; justify-content: center; align-self: center; margin: 0 10px; box-shadow: 0 0 0 4px rgba(184,133,74,0.22), 0 8px 22px rgba(212,160,86,0.4); }
   .bottom-nav .tab.fab .icon { font-size: 26px; width: 30px; height: 30px; }
   .bottom-nav .tab.fab .icon svg { filter: none; }
   .bottom-nav .tab.fab .label { display: none; }
@@ -795,7 +796,8 @@
   .action-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; padding: 0 16px 14px; }
   .action-grid .act { background: white; border-radius: 12px; padding: 12px 4px; text-align: center; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
   .action-grid .act .ico { font-size: 22px; display: block; margin-bottom: 4px; }
-  .action-grid .act .lbl { font-size: 10px; color: #4b5563; }
+  /* v2.5.85 · Joe: ตัวหนังสือปุ่ม action เล็ก+มืด อ่านยาก → 10px→12px + เพิ่ม override luxe (เดิมมีแค่ dark) */
+  .action-grid .act .lbl { font-size: 12px; font-weight: 500; color: #4b5563; }
 
   .toast {
     position: fixed; bottom: 100px; left: 50%;
@@ -1596,7 +1598,7 @@
   body.dark-theme .bottom-nav { background: #1c1c1c; border-top-color: #262626; }
   body.dark-theme .bottom-nav .tab { color: #7c7066; }
   body.dark-theme .bottom-nav .tab.active { color: #f5f5f5; }
-  body.dark-theme .bottom-nav .tab.fab { background: #f5f5f5; color: #3a2f25 !important; }
+  body.dark-theme .bottom-nav .tab.fab { background: linear-gradient(135deg, #D4A056, #B8854A); color: white !important; box-shadow: 0 0 0 4px rgba(212,160,86,0.18), 0 8px 22px rgba(212,160,86,0.4); }
 
   body.dark-theme .action-grid .act { background: #1c1c1c; }
   body.dark-theme .action-grid .act .lbl { color: #d1d5db; }
@@ -1759,8 +1761,8 @@
   body.luxe-theme .bottom-nav .tab.active { color: #D4A056; }
   body.luxe-theme .bottom-nav .tab.fab {
     background: linear-gradient(135deg, #D4A056, #B8854A) !important;
-    color: #0A0A0E !important;
-    box-shadow: 0 8px 24px rgba(184,133,74,0.4) !important;
+    color: #fff !important;
+    box-shadow: 0 0 0 4px rgba(212,160,86,0.18), 0 8px 22px rgba(212,160,86,0.4) !important;
   }
   /* Luxe · chips */
   body.luxe-theme .chip {
@@ -2124,6 +2126,10 @@
     color: #F4F4F5 !important;
     border: 1px solid rgba(255,255,255,0.08);
   }
+  body.luxe-theme .action-grid .act .lbl { color: #EDE3D0 !important; }
+  /* v2.5.85 · การ์ดทีมงาน&สถานที่ · ชื่อทีม (#3a2f25) กับ label (#7c7066) เป็นสีธีมสว่าง · luxe ไม่มี override (dark มี) */
+  body.luxe-theme .team-row .tr-left { color: #EDE3D0 !important; }
+  body.luxe-theme .detail-row .k { color: #B8A990 !important; }
 
   /* Calendar · month grid */
   body.luxe-theme .cal-day {
@@ -5493,7 +5499,7 @@
       <div class="detail-block">
         <h3 data-i18n="job.pnl">กำไรขาดทุน</h3>
         <div class="detail-row"><span class="k" data-i18n="job.income">รายได้</span><span class="v" id="job-income">+฿0</span></div>
-        <div class="detail-row"><span class="k" data-i18n="job.teamCost">ค่าแรงทีม</span><span class="v" style="color:#dc2626" id="job-team-cost">-฿0</span></div>
+        <div class="detail-row" id="job-team-cost-row"><span class="k" data-i18n="job.teamCost">ค่าแรงทีม</span><span class="v" style="color:#dc2626" id="job-team-cost">-฿0</span></div>
         <!-- v1.9.30 · Job cost items breakdown (replaces legacy travelCost/otherCost rows) -->
         <div id="job-cost-items-block" style="display:none; margin: 2px 0 0;">
           <div style="font-size:11px; color:#a89a8c; margin: 8px 0 4px; font-weight:600;">💸 <span data-i18n="cost.title">💸 ต้นทุนงาน</span></div>
@@ -15168,10 +15174,19 @@ function openJob(code) {
   const _costsSum = document.getElementById('job-cost-items-sum');
   const _travelRow = document.getElementById('job-travel-cost-row');
   const _otherRow = document.getElementById('job-other-cost-row');
-  if (_costItems.length > 0) {
-    // Render itemized list · hide legacy rows
+  // v2.5.85 · Joe: "รวมต้นทุนงาน" ควรรวมค่าแรงทีมด้วย → ย้ายค่าแรงทีมเข้ากลุ่มต้นทุน (กำไรสุทธิสูตรเดิม ไม่เปลี่ยน)
+  const _teamCostRow = document.getElementById('job-team-cost-row');
+  if (_costItems.length > 0 || (j.teamCost || 0) > 0) {
+    // Render itemized list (ค่าแรงทีมเป็นรายการแรกถ้ามี) · hide legacy + standalone team rows
     if (_costsList) {
-      _costsList.innerHTML = _costItems.map(function (c) {
+      let rowsHtml = '';
+      if ((j.teamCost || 0) > 0) {
+        rowsHtml += '<div class="detail-row" style="padding: 3px 0; font-size:13px;">'
+          + '<span class="k" style="color:#7c7066; padding-left:8px;">' + t('job.teamCost') + '</span>'
+          + '<span class="v" style="color:#dc2626;">-' + fmt(j.teamCost) + '</span>'
+          + '</div>';
+      }
+      rowsHtml += _costItems.map(function (c) {
         const nm = String(c.name || 'ค่าใช้จ่าย');
         const price = parseFloat(c.price) || 0;
         return '<div class="detail-row" style="padding: 3px 0; font-size:13px;">'
@@ -15179,14 +15194,17 @@ function openJob(code) {
           + '<span class="v" style="color:#dc2626;">-' + fmt(price) + '</span>'
           + '</div>';
       }).join('');
+      _costsList.innerHTML = rowsHtml;
     }
-    const total = _costItems.reduce(function (s, c) { return s + (parseFloat(c.price) || 0); }, 0);
+    const total = (j.teamCost || 0) + _costItems.reduce(function (s, c) { return s + (parseFloat(c.price) || 0); }, 0);
     if (_costsSum) _costsSum.textContent = '-' + fmt(total);
     if (_costsBlock) _costsBlock.style.display = '';
     if (_travelRow) _travelRow.style.display = 'none';
     if (_otherRow) _otherRow.style.display = 'none';
+    if (_teamCostRow) _teamCostRow.style.display = 'none';
   } else {
     // No cost items · fall back to legacy rows (for old jobs · migration path)
+    if (_teamCostRow) _teamCostRow.style.display = '';
     if (_costsBlock) _costsBlock.style.display = 'none';
     if (_travelRow) _travelRow.style.display = '';
     if (_otherRow) _otherRow.style.display = '';
