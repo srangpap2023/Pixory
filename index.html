@@ -7396,7 +7396,8 @@
       </div>
       <div class="form-group" style="margin: 0 16px 10px;">
         <label>รายละเอียด</label>
-        <textarea id="pkg-desc-input" rows="3" placeholder="เช่น 5 ชม / 500+ ภาพ / online gallery"></textarea>
+        <!-- v2.5.86 · ขยายช่อง + บอกผู้ใช้ว่าเคาะบรรทัดได้ (แสดงในใบเสนอตามบรรทัดที่เขียน) -->
+        <textarea id="pkg-desc-input" rows="5" placeholder="เช่น ถ่าย 5 ชม / 2 ช่างภาพ&#10;ส่งภาพ 500+ ภาพ&#10;online gallery 1 ปี&#10;(เคาะบรรทัดได้ · แสดงในใบเสนอตามนี้)"></textarea>
       </div>
       <button class="btn" onclick="savePackageEdit()">บันทึก</button>
       <button class="btn secondary" onclick="cancelPackageEdit()">ยกเลิก</button>

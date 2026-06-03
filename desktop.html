@@ -8307,7 +8307,8 @@ async function deleteTeam(idx) {
 // ===== Services + Packages · nested CRUD =====
 
 const SERVICE_COLORS = ['#BA7517','#1D9E75','#534AB7','#D4537E','#378ADD','#E24B4A','#EF9F27','#7F77DD','#D85A30','#888780'];
-const SERVICE_ICONS = ['📸','🎬','📷','💍','✨','🎨','📦','💎','🌟','🎁'];
+// v1.0.57 · sync ชุดไอคอนให้เท่ามือถือ 22 ตัว (v2.5.85)
+const SERVICE_ICONS = ['📸','🎬','📷','💍','✨','🎨','📦','💎','🌟','🎁','🎥','📹','🤳','💻','🖨️','🚁','👰','🎓','🤰','👶','👨‍👩‍👧','🛍️'];
 
 function renderSettingsServices() {
   return `
@@ -8438,7 +8439,8 @@ function refreshServicePkgList() {
         <div class="form-field"><label>ราคา (บาท)</label><input type="number" min="0" value="${p.price || 0}" oninput="updateServicePkg(${i}, 'price', Number(this.value)||0)" /></div>
       </div>
       <div class="form-row">
-        <div class="form-field"><label>รายละเอียด (optional)</label><input type="text" value="${escapeHtml(p.desc || '')}" oninput="updateServicePkg(${i}, 'desc', this.value)" /></div>
+        <!-- v1.0.57 · Joe: รายละเอียดแพคเกจขอช่องใหญ่ + เคาะบรรทัดได้ · ใบเสนอ/PDF รองรับ pre-line อยู่แล้ว -->
+        <div class="form-field"><label>รายละเอียด (optional) · เคาะบรรทัดได้ จะแสดงในใบเสนอตามที่เขียน</label><textarea rows="3" oninput="updateServicePkg(${i}, 'desc', this.value)" placeholder="เช่น ถ่าย 5 ชม / 2 ช่างภาพ&#10;ส่งภาพ 500+ ภาพ&#10;online gallery 1 ปี">${escapeHtml(p.desc || '')}</textarea></div>
         <div class="form-field" style="display:flex;align-items:flex-end;">
           <button class="btn btn-ghost btn-sm" onclick="removeServicePkg(${i})" style="color:var(--red);">ลบ</button>
         </div>
@@ -8532,7 +8534,8 @@ function renderSettingsAddons() {
             </tbody>
           </table>`
       }
-      <div class="text-mute text-sm" style="margin-top:8px;">💡 key 'qr' / 'profile' = legacy · sync ตรงกับ mobile · key อื่นๆ desktop เพิ่มเองได้</div>
+      <!-- v1.0.57 · ลบ dev note ที่หลุดไปโชว์ผู้ใช้ (Joe report) -->
+      <div class="text-mute text-sm" style="margin-top:8px;">💡 บริการเสริมจะมีให้เลือกตอนสร้างใบเสนอและงาน เช่น QR หน้างาน ของแถม ชั่วโมงเพิ่ม</div>
     </div>
   `;
 }
@@ -12473,7 +12476,7 @@ function renderJobDetailHtml(j) {
                 </div>
               </div>
             ` : ''}
-            ${legacyOther > 0 ? `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span>📌 ค่าใช้จ่ายอื่น (legacy)</span><span class="text-mono" style="color:var(--red);">−${fmtTHB(legacyOther)}</span></div>` : ''}
+            ${legacyOther > 0 ? `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span>📌 ค่าใช้จ่ายอื่น (บันทึกจากระบบเดิม)</span><span class="text-mono" style="color:var(--red);">−${fmtTHB(legacyOther)}</span></div>` : ''}
             <div style="display:flex;justify-content:space-between;padding:12px 0 0;margin-top:8px;border-top:1.5px solid var(--border);font-size:16px;font-weight:700;color:${profit > 0 ? 'var(--green)' : 'var(--red)'};">
               <span>กำไรสุทธิ</span>
               <span style="text-align:right;">
