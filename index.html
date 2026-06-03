@@ -1036,8 +1036,9 @@
   .fab-option:last-of-type { border-bottom: none; }
   .fab-option:active { background: #f9fafb; }
   .fab-option .fo-ico { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-  .fab-option .fo-title { font-size: 15px; font-weight: 500; }
-  .fab-option .fo-sub { font-size: 12px; color: #7c7066; margin-top: 1px; }
+  /* v2.5.84 · Joe ขอข้อความเมนู + ใหญ่ขึ้น (อ่านง่ายบนมือถือ) */
+  .fab-option .fo-title { font-size: 18px; font-weight: 600; }
+  .fab-option .fo-sub { font-size: 13.5px; color: #7c7066; margin-top: 2px; }
   .fab-cancel { padding: 14px; text-align: center; font-size: 15px; font-weight: 500; color: #dc2626; cursor: pointer; }
   body.dark-theme .fab-options { background: #1c1c1c; }
   body.dark-theme .fab-option { border-bottom-color: #262626; }
@@ -2584,6 +2585,12 @@
   body.dark-theme .seg-tabs {
     background: rgba(40,40,45,.55) !important;
     border-color: rgba(255,255,255,.08);
+  }
+  /* v2.5.83 · §17 fix · luxe override เคยหาย → กล่องขาว 45% โดดออกจากธีมดำหรู (Joe report)
+     ใช้โทนเดียวกับ filter chips (ขาว 6% + ขอบขาว 10%) · active tab ใช้ gold tint จาก rule luxe เดิม */
+  body.luxe-theme .seg-tabs {
+    background: rgba(255,255,255,.06) !important;
+    border-color: rgba(255,255,255,.10);
   }
   .seg-tab.active {
     background: rgba(255,255,255,.95) !important;
@@ -8391,7 +8398,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.82';
+const PIXORY_VERSION = '2.5.84';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8402,6 +8409,17 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.84': {
+    date: '2026-06-03',
+    title: '🎨 การ์ดงานอ่านง่ายขึ้น + ปรับธีมให้เนียน',
+    subtitle: 'สถานที่แยกบรรทัดชัดๆ · เมนูปุ่ม + ตัวใหญ่ขึ้น · เปิดแอปเร็วขึ้น',
+    items: [
+      { icon: '📍', title: 'สถานที่แยกบรรทัดของตัวเอง', desc: 'การ์ดงานและการ์ดใบเสนอ แสดงสถานที่เป็นบรรทัดใหม่ใต้ประเภทงาน · ไม่ถูกตัดท้ายอีกแล้ว' },
+      { icon: '➕', title: 'เมนูปุ่มบวก ตัวหนังสือใหญ่ขึ้น', desc: 'งานใหม่ / ใบเสนอราคา / ค่าใช้จ่าย / บันทึก อ่านง่ายขึ้นบนมือถือ' },
+      { icon: '🎨', title: 'แถบสลับ งาน/ใบเสนอ คุมโทนแล้ว', desc: 'ในธีมดำหรู แถบเคยเป็นสีขาวสว่างโดดออกมา · ตอนนี้กลืนเข้าธีมเดียวกับปุ่มตัวกรองด้านล่าง' },
+      { icon: '⚡', title: 'เปิดแอปเร็วขึ้นอีกขั้น', desc: 'ตัดไฟล์ส่วนที่แอปไม่ได้ใช้งานออก (~200KB) · แอปโหลดเบาลงและเสถียรขึ้นแม้เน็ตช้า' }
+    ]
+  },
   '2.5.82': {
     date: '2026-06-03',
     title: '⚡ เปิดแอปเร็วและทนขึ้น',
@@ -14996,7 +15014,8 @@ function renderJobs(list, container) {
       <div class="${cls}${rangeCls}"><div class="day">${dayHtml}</div><div class="month">${monthHtml}</div></div>
       <div class="info">
         <p class="customer">${escapeHtml(j.customer)}</p>
-        <p class="meta">${escapeHtml(j.type)} · ${escapeHtml(locLabel || '—')}</p>
+        <p class="meta">${escapeHtml(j.type)}</p>
+        ${locLabel ? `<p class="meta meta-loc">📍 ${escapeHtml(locLabel)}</p>` : ''}
         ${countdown}
         <div class="price">${fmt(j.sell)} ${remainHtml}</div>
       </div>
@@ -18456,7 +18475,8 @@ function renderQuotesList(list) {
       </div>
       <div class="info">
         <p class="customer">${escapeHtml(q.customer)}</p>
-        <p class="meta">${escapeHtml(q.type)} · งาน ${evt.full} · ${escapeHtml(q.loc)}</p>
+        <p class="meta">${escapeHtml(q.type)} · งาน ${evt.full}</p>
+        ${q.loc ? `<p class="meta meta-loc">📍 ${escapeHtml(q.loc)}</p>` : ''}
         <div class="price">${fmt(q.sell)} ${q.line ? `<span style="color:#7c7066; font-size:11px;">· LINE ${escapeHtml(q.line)}</span>` : ''}</div>
       </div>
       <div style="display:flex; align-items:flex-start;"><span class="pill ${st.cls}">${st.label}</span></div>

@@ -2866,6 +2866,9 @@
     <button class="nav-item" data-nav="notes" onclick="navigate('notes')">
       <span class="icon">📝</span><span>บันทึก</span>
     </button>
+    <button class="nav-item" data-nav="equipment" onclick="navigate('equipment')">
+      <span class="icon">🎒</span><span>คลังอุปกรณ์</span>
+    </button>
     <button class="nav-item" data-nav="settings" onclick="navigate('settings')">
       <span class="icon">⚙️</span><span data-i18n="nav.settings">ตั้งค่า</span>
     </button>
@@ -2904,12 +2907,21 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.53';
+const PIXORY_DESKTOP_VERSION = '1.0.55';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.55': {
+    date: '2026-06-03',
+    title: '🎒 คลังอุปกรณ์ + ปฏิทินแบบรายการ',
+    subtitle: 'เมนูใหม่ + ดูงานทั้งเดือนแบบกะทัดรัด',
+    items: [
+      { icon: '🎒', title: 'คลังอุปกรณ์มาแล้ว', desc: 'เมนูใหม่ใต้หมวดฐานข้อมูล · ดูอุปกรณ์ทั้งหมดเป็นตาราง แยกตามหมวด (กล้อง/แสง/พลังงาน/วิดีโอ/เสริม/บูธ) · เพิ่ม แก้ไข ลบ ได้เลย ข้อมูลตรงกับมือถือทันที' },
+      { icon: '☰', title: 'งานในเดือน · ดูแบบรายการ', desc: 'หน้าปฏิทินโชว์งานทั้งเดือนเป็นแถวกะทัดรัด เห็น 30 งานไม่ต้องไถยาว · วันเดียวกันรวมกลุ่ม · กดสลับกลับเป็นการ์ดได้ที่ปุ่ม ☰/▦ มุมขวา · ระบบจำแบบที่เลือกไว้' }
+    ]
+  },
   '1.0.53': {
     date: '2026-06-03',
     title: '🧾 แก้ใบเรียกเก็บยอดชำระเพิ่มเติม',
@@ -3940,6 +3952,7 @@ function navigate(page) {
     case 'reports': renderReports(main); break;
     case 'customers': renderCustomers(main); break;
     case 'notes': renderNotes(main); break;
+    case 'equipment': renderEquipment(main); break;
     case 'settings': renderSettings(main); break;
     default: main.innerHTML = '<div class="glass-card">ไม่พบหน้านี้</div>';
   }
@@ -4553,6 +4566,57 @@ function _getJobOccurrences(j) {
   return occs;
 }
 
+// v1.0.55 · มุมมองรายการ "งานในเดือน" (Joe เลือกแบบไทม์ไลน์รายวัน · default = list · จำค่าที่เลือก)
+let CAL_MONTH_VIEW = (function(){ try { return localStorage.getItem('pixory.desktop.calMonthView') || 'list'; } catch(e) { return 'list'; } })();
+function setCalMonthView(v) {
+  CAL_MONTH_VIEW = v;
+  try { localStorage.setItem('pixory.desktop.calMonthView', v); } catch(e) {}
+  renderCalendar(document.getElementById('main'));
+}
+function _calMonthListHtml(entries) {
+  const byDay = {};
+  entries.forEach(e => { (byDay[e.iso] = byDay[e.iso] || []).push(e); });
+  const TH_M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const TH_D = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+  const COLS = '96px 1.2fr 1.4fr 110px 95px 110px';
+  const head = `<div style="display:grid;grid-template-columns:64px ${COLS};align-items:center;gap:12px;padding:6px 12px;font-size:10.5px;color:var(--ink-mute);border-bottom:1px solid var(--border);margin-top:4px;">
+    <span>วันที่</span><span>เวลา</span><span>ลูกค้า</span><span>สถานที่</span><span>สถานะ</span><span style="text-align:right;">ราคา</span><span style="text-align:right;">ค้างชำระ</span>
+  </div>`;
+  const days = Object.keys(byDay).sort().map(iso => {
+    const d = new Date(iso);
+    const rows = byDay[iso].map(e => {
+      const j = e.job, s = e.session;
+      const stage = getStageFromJobStatus(j.jobStatus);
+      const remain = jobOutstanding(j);
+      const sc = stage === 'wait_shoot' ? 'var(--blue)' : stage === 'wait_deliver' ? 'var(--yellow)' : 'var(--green)';
+      const sb = stage === 'wait_shoot' ? 'var(--blue-bg)' : stage === 'wait_deliver' ? 'var(--yellow-bg)' : 'var(--green-bg)';
+      const timeStr = s ? ((s.start || '?') + '-' + (s.end || '?')) : '-';
+      const loc = _effectiveLoc(j, s) || '';
+      const totalSess = Array.isArray(j.sessions) ? j.sessions.length : 0;
+      const sessIdx = (s && totalSess > 0) ? j.sessions.indexOf(s) : -1;
+      const sessTag = (totalSess > 1 && sessIdx >= 0)
+        ? ` <span style="font-size:10px;color:var(--ink-mute);font-weight:500;">· ${escapeHtml(s.label || ('ช่วงที่ ' + (sessIdx + 1)))} ${sessIdx + 1}/${totalSess}</span>`
+        : '';
+      return `<div onclick="openJobDetail('${escapeHtml(j.code)}')" style="display:grid;grid-template-columns:${COLS};align-items:center;gap:12px;padding:7px 4px;font-size:12.5px;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''">
+        <span class="text-mono text-mute">${escapeHtml(timeStr)}</span>
+        <span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(j.customer || '-')}${sessTag}</span>
+        <span class="text-mute" style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${loc ? '📍 ' + escapeHtml(loc) : ''}</span>
+        <span class="pill" style="background:${sb};color:${sc};font-size:10px;justify-self:start;">${escapeHtml(j.jobStatus || '')}</span>
+        <span class="text-mono" style="font-weight:700;text-align:right;">${fmtTHB(j.sell)}</span>
+        <span class="text-mono" style="font-size:10.5px;text-align:right;color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};">${remain > 0 ? 'เหลือ ' + fmtTHB(remain) : '✓ จ่ายครบ'}</span>
+      </div>`;
+    }).join('');
+    return `<div style="display:flex;gap:12px;padding:10px 12px;border-bottom:1px solid var(--border);">
+      <div style="min-width:64px;text-align:center;flex-shrink:0;padding-top:4px;">
+        <div class="text-mono" style="font-weight:800;font-size:18px;color:var(--brand-dark);">${d.getDate()}</div>
+        <div class="text-mute" style="font-size:10px;">${TH_D[d.getDay()]} · ${TH_M[d.getMonth()]}</div>
+      </div>
+      <div style="flex:1;min-width:0;">${rows}</div>
+    </div>`;
+  }).join('');
+  return head + days;
+}
+
 function renderCalendar(root) {
   const today = new Date();
   const todayY = today.getFullYear();
@@ -4719,13 +4783,17 @@ function renderCalendar(root) {
               <div class="form-section-title" style="border:none;padding:0;margin:0;">📋 งานใน ${escapeHtml(monthName)} · ${uniqJobsCount} งาน${multiSessNote}</div>
               <div class="text-mute text-sm" style="margin-top:4px;">รวม ${fmtTHB(totalSell)} · คงเหลือ ${fmtTHB(totalRemain)}</div>
             </div>
-            <div style="display:flex;gap:6px;font-size:11px;">
+            <div style="display:flex;gap:6px;font-size:11px;align-items:center;">
               <span class="pill pill-wait_shoot">รอถ่าย ${uniqueMonthJobs.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_shoot').length}</span>
               <span class="pill pill-wait_deliver">รอส่ง ${uniqueMonthJobs.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_deliver').length}</span>
               <span class="pill pill-closed">ปิด ${uniqueMonthJobs.filter(j => getStageFromJobStatus(j.jobStatus) === 'closed').length}</span>
+              <span style="display:flex;gap:4px;margin-left:8px;">
+                <button class="tab-btn ${CAL_MONTH_VIEW !== 'cards' ? 'active' : ''}" style="font-size:11px;" onclick="setCalMonthView('list')">☰ รายการ</button>
+                <button class="tab-btn ${CAL_MONTH_VIEW === 'cards' ? 'active' : ''}" style="font-size:11px;" onclick="setCalMonthView('cards')">▦ การ์ด</button>
+              </span>
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:14px;">
+          ${CAL_MONTH_VIEW !== 'cards' ? _calMonthListHtml(monthEntries) : `<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:14px;">
             ${monthEntries.map(entry => {
               const j = entry.job;
               const sess = entry.session;
@@ -4765,7 +4833,7 @@ function renderCalendar(root) {
                 </div>
               `;
             }).join('')}
-          </div>
+          </div>`}
         </div>
       `;
     })()}
@@ -6793,6 +6861,157 @@ async function toggleNoteDone(id) {
   n.updatedAt = new Date().toISOString();
   await saveData();
   renderNotes(document.getElementById('main'));
+}
+
+// ===================================================================
+// PAGE · EQUIPMENT (v1.0.54 · parity กับมือถือ · schema { id, category, name, qty, condition, note })
+// ===================================================================
+let EQUIPMENT_FILTER = 'all';
+let _editingEquipId = null;
+const _EQ_DEFAULT_CATS = [
+  { id:'cam', name:'กล้อง & เลนส์', icon:'📷', color:'#BA7517' },
+  { id:'light', name:'แสง / Flash', icon:'💡', color:'#EF9F27' },
+  { id:'power', name:'พลังงาน & การ์ด', icon:'🔋', color:'#1D9E75' },
+  { id:'video', name:'Video gear', icon:'🎬', color:'#7F77DD' },
+  { id:'accessory', name:'อุปกรณ์เสริม', icon:'📦', color:'#888780' },
+  { id:'booth', name:'Photobooth & Print', icon:'🎉', color:'#D4537E' },
+];
+function _eqCats() { return (EQUIPMENT_CATEGORIES && EQUIPMENT_CATEGORIES.length) ? EQUIPMENT_CATEGORIES : _EQ_DEFAULT_CATS; }
+const _EQ_COND = {
+  good:    { label:'✅ สภาพดี',  color:'#10b981' },
+  repair:  { label:'🔧 ต้องซ่อม', color:'#f59e0b' },
+  missing: { label:'❓ หาย',     color:'#ef4444' },
+};
+function renderEquipment(root) {
+  const cats = _eqCats();
+  const total = EQUIPMENT.length;
+  const issues = EQUIPMENT.filter(e => e.condition !== 'good').length;
+  let list = (EQUIPMENT_FILTER === 'all') ? EQUIPMENT.slice() : EQUIPMENT.filter(e => e.category === EQUIPMENT_FILTER);
+  list.sort((a, b) => (a.category || '').localeCompare(b.category || '') || (a.name || '').localeCompare(b.name || ''));
+  const chips = [{ k:'all', label:'ทั้งหมด (' + total + ')' }]
+    .concat(cats.filter(c => EQUIPMENT.some(e => e.category === c.id))
+    .map(c => ({ k:c.id, label:c.icon + ' ' + c.name + ' (' + EQUIPMENT.filter(e => e.category === c.id).length + ')' })));
+  root.innerHTML = `
+    <div class="page-header-row">
+      <div>
+        <div class="page-title">🎒 คลังอุปกรณ์</div>
+        <div class="page-subtitle">${total} รายการ${issues > 0 ? ' · ⚠ ต้องซ่อม/หาย ' + issues : ''} · sync กับมือถือทันที</div>
+      </div>
+      <button class="btn btn-primary" onclick="openEquipmentModal()">+ เพิ่มอุปกรณ์</button>
+    </div>
+    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px;">
+      ${chips.map(c => '<button class="tab-btn ' + (EQUIPMENT_FILTER === c.k ? 'active' : '') + '" onclick="setEquipmentFilter(\'' + c.k + '\')">' + escapeHtml(c.label) + '</button>').join('')}
+    </div>
+    ${list.length === 0
+      ? '<div class="glass-card" style="text-align:center; padding:40px; color:var(--ink-mute, #7c7066);">ยังไม่มีอุปกรณ์' + (EQUIPMENT_FILTER !== 'all' ? 'ในหมวดนี้' : '') + ' — กด "+ เพิ่มอุปกรณ์" เพื่อเริ่ม</div>'
+      : `<div class="glass-card" style="padding:0; overflow-x:auto;">
+        <table class="data-table">
+          <thead><tr><th>หมวด</th><th>ชื่ออุปกรณ์</th><th style="text-align:center;">จำนวน</th><th>สภาพ</th><th>หมายเหตุ</th></tr></thead>
+          <tbody>
+            ${list.map(e => {
+              const cat = cats.find(c => c.id === e.category);
+              const cond = _EQ_COND[e.condition] || _EQ_COND.good;
+              return '<tr style="cursor:pointer;" onclick="openEquipmentModal(\'' + e.id + '\')">' +
+                '<td>' + (cat ? cat.icon + ' ' + escapeHtml(cat.name) : '—') + '</td>' +
+                '<td style="font-weight:600;">' + escapeHtml(e.name || '') + '</td>' +
+                '<td style="text-align:center;">' + (e.qty || 1) + '</td>' +
+                '<td><span style="color:' + cond.color + '; font-weight:600;">' + cond.label + '</span></td>' +
+                '<td style="color:var(--ink-mute, #7c7066); max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + escapeHtml(e.note || '') + '</td>' +
+              '</tr>';
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`}
+  `;
+}
+function setEquipmentFilter(f) { EQUIPMENT_FILTER = f; renderEquipment(document.getElementById('main')); }
+function openEquipmentModal(id) {
+  const isEdit = !!id;
+  const e = isEdit ? EQUIPMENT.find(x => x.id === id) : null;
+  if (isEdit && !e) return;
+  _editingEquipId = id || null;
+  const cats = _eqCats();
+  const overlay = document.createElement('div');
+  overlay.id = 'equip-modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.onclick = (ev) => { if (ev.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `
+    <div class="glass-card" style="background:white;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <h2 style="font-size:18px;font-weight:700;">${isEdit ? '✏ แก้ไขอุปกรณ์' : '+ เพิ่มอุปกรณ์'}</h2>
+        <button onclick="document.getElementById('equip-modal-overlay').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#7c6856;">×</button>
+      </div>
+      <div class="form-field">
+        <label>ชื่ออุปกรณ์ *</label>
+        <input id="eqm-name" type="text" placeholder="เช่น Sony A7IV · Godox AD200" maxlength="120" value="${e ? escapeHtml(e.name || '') : ''}" />
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>หมวด</label>
+          <select id="eqm-cat">
+            ${cats.map(c => '<option value="' + c.id + '"' + (e && e.category === c.id ? ' selected' : '') + '>' + c.icon + ' ' + escapeHtml(c.name) + '</option>').join('')}
+          </select>
+        </div>
+        <div class="form-field">
+          <label>จำนวน</label>
+          <input id="eqm-qty" type="number" min="1" value="${e ? (e.qty || 1) : 1}" />
+        </div>
+      </div>
+      <div class="form-field">
+        <label>สภาพ</label>
+        <select id="eqm-cond">
+          ${Object.entries(_EQ_COND).map(([k, v]) => '<option value="' + k + '"' + (e && e.condition === k ? ' selected' : '') + '>' + v.label + '</option>').join('')}
+        </select>
+      </div>
+      <div class="form-field">
+        <label>หมายเหตุ</label>
+        <input id="eqm-note" type="text" placeholder="เช่น เลนส์ติดกล้อง · ฝากไว้ที่สตูดิโอ" maxlength="200" value="${e ? escapeHtml(e.note || '') : ''}" />
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
+        <div>${isEdit ? '<button class="btn" style="color:#ef4444;" onclick="deleteEquipmentFromModal()">🗑 ลบ</button>' : ''}</div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn" onclick="document.getElementById('equip-modal-overlay').remove()">ยกเลิก</button>
+          <button class="btn btn-primary" onclick="saveEquipmentFromModal()">บันทึก</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  setTimeout(() => document.getElementById('eqm-name')?.focus(), 50);
+}
+async function saveEquipmentFromModal() {
+  const name = document.getElementById('eqm-name').value.trim();
+  if (!name) { toast('⚠ ใส่ชื่ออุปกรณ์ก่อน', 'error'); return; }
+  const data = {
+    category: document.getElementById('eqm-cat').value,
+    name,
+    qty: parseInt(document.getElementById('eqm-qty').value, 10) || 1,
+    condition: document.getElementById('eqm-cond').value,
+    note: document.getElementById('eqm-note').value
+  };
+  if (_editingEquipId) {
+    const idx = EQUIPMENT.findIndex(x => x.id === _editingEquipId);
+    if (idx >= 0) EQUIPMENT[idx] = { id: _editingEquipId, ...data };
+  } else {
+    EQUIPMENT.push({ id: uid(), ...data });
+  }
+  await saveData();
+  document.getElementById('equip-modal-overlay')?.remove();
+  _editingEquipId = null;
+  renderEquipment(document.getElementById('main'));
+  toast('✓ บันทึกเรียบร้อย', 'success');
+}
+async function deleteEquipmentFromModal() {
+  if (!_editingEquipId) return;
+  const e = EQUIPMENT.find(x => x.id === _editingEquipId);
+  if (!e) return;
+  if (!confirm('🗑 ลบ "' + e.name + '"?')) return;
+  const idx = EQUIPMENT.findIndex(x => x.id === _editingEquipId);
+  if (idx >= 0) EQUIPMENT.splice(idx, 1);
+  await saveData();
+  document.getElementById('equip-modal-overlay')?.remove();
+  _editingEquipId = null;
+  renderEquipment(document.getElementById('main'));
+  toast('✓ ลบแล้ว', 'success');
 }
 
 function renderCustomers(root) {
