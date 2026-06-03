@@ -5528,6 +5528,14 @@
         </div>
         <div class="cal-grid" id="cal-days"></div>
         <div class="day-detail" id="day-detail"></div>
+
+        <!-- v2.5.79 · ซิงก์ทุกงานที่ยังไม่ผ่านลงปฏิทินมือถือทีเดียว -->
+        <div style="padding: 6px 16px 20px;">
+          <button class="btn secondary" onclick="addAllJobsToCalendar()" style="margin:0; width:100%; display:flex; align-items:center; justify-content:center; gap:8px; font-size:14px; font-weight:600; padding:12px; border-radius:12px;">
+            <span style="font-size:16px; line-height:1;">📅</span><span>ซิงก์ทุกงานลงปฏิทินมือถือ</span>
+          </button>
+          <div style="text-align:center; font-size:11.5px; color:#9a8f7e; margin-top:7px;">เฉพาะงานที่ยังไม่ผ่าน (รอถ่าย + รอส่งงาน)</div>
+        </div>
       </div>
     </div>
 
@@ -8394,6 +8402,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.79': {
+    date: '2026-06-03',
+    title: '📅 ซิงก์ทุกงานลงปฏิทินทีเดียว',
+    subtitle: 'หน้าปฏิทิน · กดเดียวเพิ่มงานที่ยังไม่ผ่านทั้งหมด',
+    items: [
+      { icon: '📅', title: 'ปุ่ม "ซิงก์ทุกงานลงปฏิทินมือถือ"', desc: 'อยู่ล่างสุดของหน้าปฏิทิน · กดครั้งเดียวได้ไฟล์ปฏิทินรวมทุกงานที่ยังไม่ผ่าน (รอถ่าย + รอส่งงาน) · เปิดไฟล์เพิ่มเข้า Google/ปฏิทินมือถือได้ครบในทีเดียว · รองรับงานหลายวัน + เตือนล่วงหน้า 1 วัน' },
+      { icon: '✨', title: 'หน้าตาสวยขึ้น', desc: 'หน้า loading ตอนเปิดแอปออกแบบใหม่ · ปุ่มเพิ่มลงปฏิทินเข้าธีม · รายละเอียดงานใต้ชื่อลูกค้า (ประเภท/สถานที่/วันงาน) เด่นอ่านง่ายขึ้น' }
+    ]
+  },
   '2.5.77': {
     date: '2026-06-03',
     title: '⚡ เปิดแอปเร็วขึ้น',
@@ -17815,9 +17832,10 @@ function _icsNextDay(d8) {
   const dt = new Date(Date.UTC(y, m - 1, da + 1));
   return dt.toISOString().slice(0, 10).replace(/-/g, '');
 }
-function buildJobICS(j) {
+// v2.5.79 · สร้างเฉพาะบล็อก VEVENT ของงานเดียว (ใช้ร่วมทั้งงานเดี่ยว + รวมทุกงาน)
+function _jobVEVENTs(j, stamp) {
   if (!j) return '';
-  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  stamp = stamp || (new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z');
   const cust = j.custNick ? (j.customer + ' (' + j.custNick + ')') : (j.customer || 'ลูกค้า');
   const typeLabel = j.type || 'งานถ่ายภาพ';
   const sessions = (Array.isArray(j.sessions) && j.sessions.length) ? j.sessions
@@ -17846,8 +17864,25 @@ function buildJobICS(j) {
     ev += 'BEGIN:VALARM\r\nTRIGGER:-P1D\r\nACTION:DISPLAY\r\nDESCRIPTION:' + _icsEsc('พรุ่งนี้มีงาน · ' + cust) + '\r\nEND:VALARM\r\n';
     ev += 'END:VEVENT\r\n';
   });
-  if (!ev) return '';
+  return ev;
+}
+function _wrapICS(ev) {
   return 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Pixory//Studio//TH\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\n' + ev + 'END:VCALENDAR\r\n';
+}
+function buildJobICS(j) {
+  const ev = _jobVEVENTs(j);
+  if (!ev) return '';
+  return _wrapICS(ev);
+}
+// v2.5.79 · รวมหลายงานเป็นไฟล์ปฏิทินเดียว · คืน {ics, count} (count = งานที่มีวันที่จริง)
+function buildAllJobsICS(jobs) {
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  let ev = '', count = 0;
+  (jobs || []).forEach(function (j) {
+    const e = _jobVEVENTs(j, stamp);
+    if (e) { ev += e; count++; }
+  });
+  return { ics: ev ? _wrapICS(ev) : '', count: count };
 }
 function addJobToCalendar() {
   const j = window._currentJob;
@@ -17863,6 +17898,26 @@ function addJobToCalendar() {
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 5000);
     toast('📅 เปิดไฟล์ปฏิทินแล้ว · เลือก "เพิ่มลงปฏิทิน"', 'success');
+  } catch (e) { toast('สร้างไฟล์ปฏิทินไม่ได้ · ลองใหม่อีกครั้ง', 'error'); }
+}
+
+// v2.5.79 · เพิ่ม "ทุกงานที่ยังไม่ผ่าน" (รอถ่าย + รอส่งงาน) ลงปฏิทินทีเดียว
+function addAllJobsToCalendar() {
+  const upcoming = (Array.isArray(JOBS) ? JOBS : []).filter(function (j) {
+    return j && getStageFromJobStatus(j.jobStatus) !== 'closed';
+  });
+  if (!upcoming.length) { toast('ไม่มีงานที่ยังไม่ผ่าน', 'error'); return; }
+  const res = buildAllJobsICS(upcoming);
+  if (!res.ics || !res.count) { toast('งานที่ยังไม่ผ่านยังไม่มีวันที่ · ใส่วันงานก่อนนะครับ', 'error'); return; }
+  try {
+    const blob = new Blob([res.ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pixory-งานทั้งหมด.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 5000);
+    toast('📅 เปิดไฟล์ปฏิทินแล้ว · ' + res.count + ' งาน · เลือก "เพิ่มลงปฏิทิน"', 'success');
   } catch (e) { toast('สร้างไฟล์ปฏิทินไม่ได้ · ลองใหม่อีกครั้ง', 'error'); }
 }
 
