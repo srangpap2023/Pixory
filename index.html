@@ -4654,12 +4654,17 @@
 <body>
 
 <!-- v2.5.77 · PERF · หน้า loading ระหว่างบูต (กันจอขาว) · ซ่อนตัวเองเมื่อแอปพร้อม + failsafe 8 วิ -->
-<div id="boot-splash" style="position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#1a1410;color:#ECDAA6;font-family:'Inter','IBM Plex Sans Thai',sans-serif;transition:opacity .35s ease;">
-  <div style="font-size:26px;font-weight:800;letter-spacing:1px;color:#D4BC82;">Pixory</div>
-  <div style="width:38px;height:38px;border:3px solid rgba(212,188,130,.25);border-top-color:#D4BC82;border-radius:50%;animation:_bspin .8s linear infinite;"></div>
-  <div style="font-size:12.5px;color:#a89a82;">กำลังเปิดสตูดิโอของคุณ…</div>
+<div id="boot-splash" style="position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#0A0A0E;font-family:'Inter','IBM Plex Sans Thai',sans-serif;transition:opacity .35s ease;">
+  <div style="width:74px;height:74px;border-radius:22px;background:rgba(212,188,130,.08);border:1px solid #6f5a34;display:flex;align-items:center;justify-content:center;">
+    <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#ECDAA6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h2l1.5-2h7L17 7h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+  </div>
+  <div style="font-size:26px;font-weight:700;letter-spacing:2px;color:#ECDAA6;">Pixory</div>
+  <div style="position:relative;width:150px;height:4px;border-radius:99px;background:rgba(212,188,130,.14);overflow:hidden;">
+    <div style="position:absolute;top:0;height:100%;width:40%;border-radius:99px;background:linear-gradient(90deg,#B8854A,#ECDAA6);animation:_bslide 1.2s ease-in-out infinite;"></div>
+  </div>
+  <div style="font-size:12.5px;letter-spacing:.3px;color:#8a7d63;">กำลังโหลดข้อมูลงานของคุณ…</div>
 </div>
-<style>@keyframes _bspin{to{transform:rotate(360deg)}}</style>
+<style>@keyframes _bslide{0%{left:-40%}100%{left:100%}}</style>
 <script>
   (function () {
     var _hidden = false;
@@ -5376,10 +5381,15 @@
       <div style="padding: 0 20px 12px;">
         <div style="font-size: 13px; color: #7c7066;" id="job-code">JOB-2026-012</div>
         <div style="font-size: 24px; font-weight: 600; margin-top: 4px;" id="job-customer">Nam Thanya</div>
-        <div style="font-size: 15px; color: #4b5563; margin-top: 6px; line-height: 1.5;" id="job-meta">Wedding · ปากคาด · 26 มิ.ย. 2026</div>
+        <!-- v2.5.79 · job-meta (ประเภท · สถานที่ · วันงาน) · ทำให้เด่น+อ่านง่ายขึ้น · สำคัญ -->
+        <div style="font-size: 16px; color: #2f2a24; font-weight: 600; margin-top: 8px; line-height: 1.55;" id="job-meta">Wedding · ปากคาด · 26 มิ.ย. 2026</div>
         <div id="job-contact-row" style="margin-top: 8px; display:flex; gap:8px; flex-wrap:wrap;"></div>
         <div style="margin-top: 10px;"><span class="pill deposit" id="job-pay-pill"></span> <span class="pill booked" id="job-status-pill"></span></div>
       </div>
+      <style>
+        body.dark-theme #job-meta { color: #e5e7eb !important; }
+        body.luxe-theme #job-meta { color: #E0CFA6 !important; }
+      </style>
 
       <!-- v2.5.54 · Team finalization banner · only shows when j.teamStatus === 'incomplete' -->
       <div id="job-team-warn-banner" class="team-warn-banner" style="display:none;">
@@ -5399,10 +5409,10 @@
         <div class="act" onclick="openReceivePayment()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-rep)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="22" fill="#fff"/><text x="44" y="55" fill="#1a9d6a" font-size="32" font-weight="800" text-anchor="middle" font-family="-apple-system,Inter,sans-serif">฿</text></svg></span><span class="lbl" data-i18n="job.receivePayment">รับเงิน</span></div>
       </div>
 
-      <!-- v2.5.74 · เพิ่มลงปฏิทิน (.ics) → Google / ปฏิทินมือถือ / Apple -->
-      <div style="padding: 0 16px 14px;">
-        <button class="btn" onclick="addJobToCalendar()" style="width:100%; padding:11px 14px; font-size:13px; background:linear-gradient(135deg,#4a90d9,#3570b8); display:flex; align-items:center; justify-content:center; gap:7px;">
-          <span>📅 เพิ่มลงปฏิทิน (Google / มือถือ)</span>
+      <!-- v2.5.78 · เพิ่มลงปฏิทิน (.ics) → Google / ปฏิทินมือถือ / Apple · ใช้สไตล์ secondary (เข้าธีม · ไม่ hardcode สี) -->
+      <div style="padding: 0 16px 16px;">
+        <button class="btn secondary" onclick="addJobToCalendar()" style="margin:0; width:100%; display:flex; align-items:center; justify-content:center; gap:8px; font-size:14px; font-weight:600; padding:12px; border-radius:12px;">
+          <span style="font-size:16px; line-height:1;">📅</span><span>เพิ่มลงปฏิทินมือถือ</span>
         </button>
       </div>
 
@@ -8373,7 +8383,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.77';
+const PIXORY_VERSION = '2.5.79';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
