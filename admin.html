@@ -18,10 +18,11 @@
     --ink: #f5f5f5;
     --muted: #b8a994;
     --muted-2: #6b7280;
-    --accent: #d8704a;
-    --accent-2: #f4a36a;
+    /* v3.0 · brand: champagne gold (เดิมส้ม Crail = แบรนด์เก่า) */
+    --accent: #B8854A;
+    --accent-2: #D4A056;
     --line: rgba(255,255,255,0.06);
-    --line-2: rgba(216,112,74,0.15);
+    --line-2: rgba(212,160,86,0.15);
     --green: #6ee0a7;
     --yellow: #fbbf24;
     --red: #ef4444;
@@ -36,7 +37,7 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
   body::before { content:''; position: fixed; inset: 0;
-    background: radial-gradient(ellipse at top, rgba(216,112,74,.06), transparent 60%);
+    background: radial-gradient(ellipse at top, rgba(212,160,86,.06), transparent 60%);
     z-index: -1; pointer-events: none;
   }
 
@@ -59,13 +60,26 @@
     max-width: 480px;
     margin: 0 auto;
     min-height: 100vh; min-height: 100dvh;
-    padding-bottom: 100px;
-    padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    padding-top: calc(52px + env(safe-area-inset-top));
+    padding-bottom: 40px;
+    padding-bottom: calc(40px + env(safe-area-inset-bottom));
     position: relative;
   }
-  /* Wider for desktop · still feels mobile-first */
-  @media (min-width: 768px) {
-    .app { max-width: 540px; }
+  /* v3.0 · single-page · ทุก section ต่อกัน (เดิม 4 แท็บสลับ) · แท็บบาร์กลายเป็น nav เลื่อนไป section */
+  .view { display: block; }
+  .view + .view { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 6px; }
+  /* v3.0 · desktop = ใช้จอกว้างจริง */
+  @media (min-width: 900px) {
+    .app { max-width: 1160px; }
+    .stats-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+    #view-insights { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; align-items: start; }
+    #view-insights > div:first-child { grid-column: 1 / -1; }
+    #view-insights .stats-grid { grid-column: 1 / -1; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    #view-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; align-items: start; }
+    #view-settings > div:first-child { grid-column: 1 / -1; }
+    .desk-2col { display: grid; grid-template-columns: 1.35fr 1fr; gap: 0 16px; align-items: start; }
+    .stages-scroll { flex-wrap: wrap; }
+    .stage-pill { flex: 1; min-width: 150px; }
   }
 
   /* === Header === */
@@ -91,20 +105,21 @@
   }
 
   /* === Hero · North Star === */
+  /* v3.0 · North Star → แบนเนอร์ทองสลิม ไม่กินครึ่งจอ */
   .hero {
-    margin: 0 16px 18px;
-    background: linear-gradient(135deg, var(--accent) 0%, #b85534 100%);
-    border-radius: 24px; padding: 22px 22px 20px;
+    margin: 0 16px 14px;
+    background: linear-gradient(135deg, rgba(212,160,86,0.16), rgba(28,22,16,0.9));
+    border: 1px solid rgba(212,160,86,0.35);
+    border-radius: 16px; padding: 14px 18px;
     color: white; position: relative; overflow: hidden;
-    box-shadow: 0 12px 30px rgba(216,112,74,.3);
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
   }
-  .hero::after { content: '⭐'; position: absolute; right: 18px; top: 18px; font-size: 36px; opacity: .25; }
-  .hero-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; opacity: .9; }
-  .hero-title { font-size: 13px; margin-top: 4px; opacity: .85; }
-  .hero-value { font-size: 56px; font-weight: 800; letter-spacing: -2px; line-height: 1; margin-top: 12px; }
-  .hero-unit { font-size: 16px; opacity: .8; margin-left: 4px; }
-  .hero-trend { font-size: 13px; margin-top: 10px; opacity: .95; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; background: rgba(0,0,0,.18); padding: 4px 10px; border-radius: 50px; }
-  .hero-trend.down { color: #fca5a5; }
+  .hero-label { font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 700; color: var(--accent-2); }
+  .hero-title { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .hero-value { font-size: 34px; font-weight: 800; letter-spacing: -1px; line-height: 1; color: var(--accent-2); }
+  .hero-unit { font-size: 13px; color: var(--muted); margin-left: 4px; }
+  .hero-trend { font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; background: rgba(212,160,86,0.12); color: var(--accent-2); padding: 4px 10px; border-radius: 50px; }
+  .hero-trend.down { color: #fca5a5; background: rgba(239,68,68,0.10); }
 
   /* === Section heading === */
   .section-h {
@@ -418,29 +433,29 @@
   .empty .icon { font-size: 42px; margin-bottom: 8px; opacity: 0.5; }
   .empty .title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
 
-  /* === Bottom Tab Bar === */
+  /* === v3.0 · Nav bar (เดิม bottom tab) → sticky บนจอ · กดแล้วเลื่อนไป section === */
   .tab-bar {
-    position: fixed; bottom: 0; left: 0; right: 0;
+    position: fixed; top: 0; left: 0; right: 0;
     background: rgba(14,10,8,.92); backdrop-filter: blur(24px);
-    border-top: 0.5px solid var(--line-2);
+    border-bottom: 0.5px solid var(--line-2);
     display: flex;
-    padding: 8px 6px;
-    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    padding: 6px;
+    padding-top: calc(6px + env(safe-area-inset-top));
     z-index: 50;
   }
-  .tab-bar-inner { max-width: 480px; margin: 0 auto; display: flex; width: 100%; }
-  @media (min-width: 768px) { .tab-bar-inner { max-width: 540px; } }
+  .tab-bar-inner { max-width: 480px; margin: 0 auto; display: flex; width: 100%; gap: 4px; }
+  @media (min-width: 900px) { .tab-bar-inner { max-width: 1160px; justify-content: center; } }
   .tab-item {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 8px 4px; color: var(--muted-2); cursor: pointer;
+    flex: 1; max-width: 160px; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px;
+    padding: 8px 10px; color: var(--muted-2); cursor: pointer; border-radius: 10px;
     background: none; border: none; font-family: inherit;
   }
-  .tab-item.active { color: var(--accent-2); }
-  .tab-item .ic { font-size: 22px; line-height: 1; }
-  .tab-item .lbl { font-size: 10px; font-weight: 600; }
+  .tab-item.active { color: var(--accent-2); background: rgba(212,160,86,0.10); }
+  .tab-item .ic { font-size: 16px; line-height: 1; }
+  .tab-item .lbl { font-size: 12px; font-weight: 600; }
 
-  /* === Tab views (show/hide) === */
-  .view { display: none; }
+  /* v3.0 · ทุก section โชว์พร้อมกัน (single page) */
+  .view { display: block; }
   .view.active { display: block; }
 
   /* === Toast === */
@@ -533,8 +548,10 @@
   <div class="view active" id="view-home">
     <!-- Hero · North Star -->
     <div class="hero">
-      <div class="hero-label">🌟 NORTH STAR</div>
-      <div class="hero-title">ใบเสนอที่ออกใน 7 วันล่าสุด</div>
+      <div style="flex:1;min-width:170px;">
+        <div class="hero-label">🌟 NORTH STAR</div>
+        <div class="hero-title">ใบเสนอที่ออกใน 7 วันล่าสุด</div>
+      </div>
       <div>
         <span class="hero-value" id="ns-value">—</span>
         <span class="hero-unit">ใบเสนอ</span>
@@ -569,25 +586,57 @@
         <div class="stat-value" id="kpi-risk">—</div>
         <div class="stat-sub bad" id="kpi-risk-sub">—</div>
       </div>
+      <!-- v3.0 · KPI ใหม่: GMV + % เวอร์ชันล่าสุด -->
+      <div class="stat">
+        <div class="stat-icon">💸</div>
+        <div class="stat-label">GMV รวม</div>
+        <div class="stat-value" id="kpi-gmv-mini">—</div>
+        <div class="stat-sub" id="kpi-gmv-mini-sub">ทุกผู้ใช้รวมกัน</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">🔢</div>
+        <div class="stat-label">เวอร์ชันล่าสุด</div>
+        <div class="stat-value" id="kpi-version">—</div>
+        <div class="stat-sub" id="kpi-version-sub">หลัง deploy คนอัพถึงไหน</div>
+      </div>
     </div>
 
-    <!-- Stages scroll -->
+    <!-- v3.0 · NEW: สมัครรายสัปดาห์ + Funnel การใช้งาน -->
+    <div class="desk-2col">
+      <div>
+        <div class="section-h">📈 สมัครใหม่รายสัปดาห์ <span class="badge">8 สัปดาห์</span></div>
+        <div class="panel" style="margin-top:0;"><div id="weekly-signups" style="min-height:90px;"></div></div>
+      </div>
+      <div>
+        <div class="section-h">🪜 Funnel การใช้งาน <span class="badge">สมัคร→เงินเข้า</span></div>
+        <div class="panel" style="margin-top:0;"><div id="activation-funnel"></div></div>
+      </div>
+    </div>
+
+    <!-- Stages -->
     <div class="section-h">User Stage <button class="see-all" onclick="switchTab('users')">ดูทั้งหมด ›</button></div>
     <div class="stages-scroll" id="stages-scroll"></div>
 
-    <!-- Live activity -->
-    <div class="section-h">🔴 LIVE ACTIVITY <span class="badge" id="activity-count">—</span></div>
-    <div class="activity-feed" id="activity-feed"><div class="empty"><div class="icon">⏳</div><div class="title">กำลังโหลด...</div></div></div>
+    <!-- v3.0 · NEW: ต้องทำวันนี้ + Live activity แบ่ง 2 คอลัมน์บนจอใหญ่ -->
+    <div class="desk-2col">
+      <div>
+        <div class="section-h">✅ ต้องทำวันนี้ <span class="badge" id="todo-count">—</span></div>
+        <div class="panel" style="margin-top:0;"><div id="todo-list"></div></div>
 
-    <!-- Champions -->
-    <div class="section-h">🚀 Champions <span class="badge" id="champion-count">0</span></div>
-    <div class="user-list" id="champions-list"><div class="empty" style="padding:20px;"><div class="title" style="font-size:12px;">ยังไม่มี Champion</div></div></div>
+        <!-- Champions -->
+        <div class="section-h">🚀 Champions <span class="badge" id="champion-count">0</span></div>
+        <div class="user-list" id="champions-list"><div class="empty" style="padding:20px;"><div class="title" style="font-size:12px;">ยังไม่มี Champion</div></div></div>
 
-    <!-- At-Risk -->
-    <div class="section-h">⚠️ At-Risk <span class="badge" id="risk-count">0</span></div>
-    <div class="user-list" id="risk-list"><div class="empty" style="padding:20px;"><div class="title" style="font-size:12px;">ไม่มี user ใกล้ churn 🎉</div></div></div>
-
-    <div style="padding: 30px 0 0; text-align: center; color: #4a3a30; font-size: 11px;">— จบรายการ —</div>
+        <!-- At-Risk -->
+        <div class="section-h">⚠️ At-Risk <span class="badge" id="risk-count">0</span></div>
+        <div class="user-list" id="risk-list"><div class="empty" style="padding:20px;"><div class="title" style="font-size:12px;">ไม่มี user ใกล้ churn 🎉</div></div></div>
+      </div>
+      <div>
+        <!-- Live activity -->
+        <div class="section-h">🔴 LIVE ACTIVITY <span class="badge" id="activity-count">—</span></div>
+        <div class="activity-feed" id="activity-feed"><div class="empty"><div class="icon">⏳</div><div class="title">กำลังโหลด...</div></div></div>
+      </div>
+    </div>
   </div>
 
   <!-- ============ VIEW: USERS ============ -->
@@ -831,8 +880,8 @@
     <div class="panel">
       <div class="panel-title">ℹ เกี่ยวกับ</div>
       <div style="font-size:12px; color: var(--muted); line-height:1.6;">
-        Pixory Admin Monitor · v2.5<br>
-        Mobile-first · Apple Health Style<br><br>
+        Pixory Admin Monitor · v3.0<br>
+        Single-page dashboard · champagne gold<br><br>
         • Realtime sync + polling 10s<br>
         • Live notification toast + sound<br>
         • 4 user stages · engagement score<br>
@@ -1171,11 +1220,14 @@ function subscribeToRealtime() {
 
 // ============ TAB SWITCHING ============
 function switchTab(tab) {
+  // v3.0 · single page · nav = เลื่อนไป section (ทุก view โชว์พร้อมกัน)
   _currentTab = tab;
-  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + tab));
   document.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  // Scroll to top
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const el = document.getElementById('view-' + tab);
+  if (el) {
+    const y = el.getBoundingClientRect().top + window.scrollY - 64;
+    window.scrollTo({ top: tab === 'home' ? 0 : y, behavior: 'smooth' });
+  }
 }
 
 // ============ DATA LOADING / PROCESSING ============
@@ -1308,7 +1360,82 @@ function renderAll(users) {
   renderHome(users);
   renderUsersView(users);
   renderInsights(users);
+  renderGrowth(users);   // v3.0 · weekly signups + funnel + version KPI + todo
   detectAndNotify(users);
+}
+
+// ============ v3.0 · GROWTH MONITORS (ใหม่) ============
+function renderGrowth(users) {
+  const now = Date.now();
+  const WEEK = 7 * 86400000;
+  // --- สมัครใหม่รายสัปดาห์ (8 สัปดาห์ · ใช้วันสมัครจริง consentedAt ก่อน · fallback signupAt) ---
+  const buckets = new Array(8).fill(0);
+  users.forEach(u => {
+    const t = u.joinedAt || (u.hasSignup ? u.signupAt : null);
+    if (!t) return;
+    const ago = Math.floor((now - t) / WEEK);
+    if (ago >= 0 && ago < 8) buckets[7 - ago]++;
+  });
+  const maxB = Math.max(1, ...buckets);
+  const wEl = document.getElementById('weekly-signups');
+  if (wEl) {
+    wEl.innerHTML = '<div style="display:flex;align-items:flex-end;gap:6px;height:70px;">'
+      + buckets.map((n, i) => `<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;">
+          <div style="font-size:10px;text-align:center;color:${i===7?'var(--accent-2)':'var(--muted)'};margin-bottom:2px;">${n||''}</div>
+          <div style="height:${Math.max(4, Math.round(n / maxB * 52))}px;border-radius:4px 4px 0 0;background:${i===7?'var(--accent-2)':'rgba(212,160,86,0.25)'};"></div>
+        </div>`).join('')
+      + '</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted-2);margin-top:4px;"><span>8 สัปดาห์ก่อน</span><span>สัปดาห์นี้</span></div>';
+  }
+  // --- Funnel การใช้งาน ---
+  const total = users.length;
+  const steps = [
+    { label: 'สมัคร', n: total },
+    { label: 'ตั้งค่าร้าน (มีชื่อร้าน)', n: users.filter(u => u.shop).length },
+    { label: 'สร้างงาน/ใบเสนอแรก', n: users.filter(u => (u.jobCount + u.quoteCount) > 0).length },
+    { label: 'บันทึกเงินเข้า', n: users.filter(u => u.hasPayment).length },
+  ];
+  const fEl = document.getElementById('activation-funnel');
+  if (fEl) {
+    fEl.innerHTML = steps.map(s => {
+      const pct = total ? Math.round(s.n / total * 100) : 0;
+      return `<div style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>${s.label}</span><span style="color:var(--accent-2);font-weight:700;">${s.n} <span style="color:var(--muted-2);font-weight:400;">(${pct}%)</span></span></div>
+        <div style="height:7px;border-radius:4px;background:rgba(255,255,255,0.05);"><div style="width:${pct}%;height:7px;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent-2));"></div></div>
+      </div>`;
+    }).join('');
+  }
+  // --- KPI: % คนอยู่เวอร์ชันล่าสุด (เทียบเฉพาะเลขเวอร์ชันมือถือ 2.x) ---
+  const vUsers = users.filter(u => /^2\./.test(u.appVersion));
+  const latest = vUsers.map(u => u.appVersion).sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0];
+  const onLatest = latest ? vUsers.filter(u => u.appVersion === latest).length : 0;
+  const vEl = document.getElementById('kpi-version');
+  if (vEl) {
+    vEl.textContent = vUsers.length ? Math.round(onLatest / vUsers.length * 100) + '%' : '—';
+    const sub = document.getElementById('kpi-version-sub');
+    if (sub) sub.textContent = latest ? (onLatest + '/' + vUsers.length + ' อยู่บน v' + latest) : 'ยังไม่มีข้อมูล';
+  }
+  // --- KPI: GMV mini (ดึงเลขจาก insights ที่คำนวณแล้ว) ---
+  const gmvEl = document.getElementById('kpi-gmv-mini');
+  const srcGmv = document.getElementById('metric-gmv');
+  if (gmvEl && srcGmv) gmvEl.textContent = srcGmv.textContent;
+  // --- ต้องทำวันนี้ (action list) ---
+  const tEl = document.getElementById('todo-list');
+  if (tEl) {
+    const todos = [];
+    users.filter(u => isActionNeeded(u)).slice(0, 3).forEach(u => {
+      const days = Math.floor((now - u.updatedAt) / 86400000);
+      todos.push({ ic: '🔥', html: `DM <b>${escapeHtml(u.shop || u.email)}</b> · หายไป ${days} วัน`, email: u.email });
+    });
+    users.filter(u => !u.shop && (now - (u.joinedAt || u.signupAt)) < 7 * 86400000).slice(0, 2).forEach(u => {
+      todos.push({ ic: '🏪', html: `<b>${escapeHtml(u.email)}</b> สมัครแล้วยังไม่ตั้งค่าร้าน · ชวนตั้ง`, email: u.email });
+    });
+    const champ = users.filter(u => u.stage === 'champion' && u.hasPayment).sort((a, b) => b.jobCount - a.jobCount)[0];
+    if (champ) todos.push({ ic: '⭐', html: `ขอ testimonial จาก <b>${escapeHtml(champ.shop || champ.email)}</b> (${champ.jobCount} งาน)`, email: champ.email });
+    document.getElementById('todo-count').textContent = todos.length;
+    tEl.innerHTML = todos.length
+      ? todos.map(t => `<div onclick="openUserSheet('${escapeHtml(t.email)}')" style="display:flex;gap:10px;align-items:flex-start;padding:9px 4px;border-bottom:1px solid var(--line);font-size:12.5px;cursor:pointer;"><span>${t.ic}</span><span style="flex:1;line-height:1.5;">${t.html}</span><span style="color:var(--muted-2);">›</span></div>`).join('')
+      : '<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px;">วันนี้ไม่มีอะไรค้าง 🎉</div>';
+  }
 }
 
 function renderHome(users) {
