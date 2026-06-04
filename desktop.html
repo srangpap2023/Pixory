@@ -1051,6 +1051,19 @@
   #jobs-table-card .data-table tbody td:last-child { border-right: 1px solid var(--border) !important; border-radius: 0 12px 12px 0 !important; }
   #jobs-table-card .data-table tbody tr:hover { background: rgba(184,133,74,0.08) !important; }
 
+  /* v1.0.58 · Quote detail quick actions · คุมโทนทุกธีม (Joe: เดิม pastel ธีมสว่าง hardcode โดดในธีมมืด) */
+  .qd-act { padding: 14px 8px; border-radius: 14px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; font-weight: 600; font-size: 12px; transition: all .15s; }
+  .qd-act:hover { transform: translateY(-2px); }
+  .qd-act .qa-ico { font-size: 22px; }
+  .qd-act-edit    { background: linear-gradient(135deg,#dbeafe,#bfdbfe); border: 1px solid #3b82f6; color: #1e40af; }
+  .qd-act-pdf     { background: linear-gradient(135deg,#fef3c7,#fde68a); border: 1px solid #fbbf24; color: #7c2d12; }
+  .qd-act-convert { background: linear-gradient(135deg,#FBE5C8,#F5A87E); border: 1px solid #B85A3D; color: #7c2d12; }
+  .qd-act-reject  { background: linear-gradient(135deg,#fee2e2,#fecaca); border: 1px solid #dc2626; color: #b91c1c; }
+  html[data-theme="dark"] .qd-act-edit,    html[data-theme="luxe"] .qd-act-edit    { background: rgba(59,130,246,0.10) !important; border-color: rgba(59,130,246,0.35) !important; color: #93c5fd !important; }
+  html[data-theme="dark"] .qd-act-pdf,     html[data-theme="luxe"] .qd-act-pdf     { background: rgba(212,160,86,0.12) !important; border-color: rgba(212,160,86,0.40) !important; color: #E8B870 !important; }
+  html[data-theme="dark"] .qd-act-convert, html[data-theme="luxe"] .qd-act-convert { background: linear-gradient(135deg,#D4A056,#B8854A) !important; border-color: transparent !important; color: #0A0A0E !important; }
+  html[data-theme="dark"] .qd-act-reject,  html[data-theme="luxe"] .qd-act-reject  { background: rgba(239,68,68,0.10) !important; border-color: rgba(239,68,68,0.35) !important; color: #f87171 !important; }
+
   /* View toggle (list/card) */
   .view-toggle {
     display: inline-flex;
@@ -2917,12 +2930,20 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.57';
+const PIXORY_DESKTOP_VERSION = '1.0.58';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.58': {
+    date: '2026-06-04',
+    title: '🏷 เลือก/แก้ประเภทงานได้บนเดสก์ท็อป',
+    subtitle: 'เหมือนฝั่งมือถือแล้ว',
+    items: [
+      { icon: '🏷', title: 'ช่อง "ประเภทงาน" ในหน้าต่างสร้าง/แก้งาน', desc: 'ค่าเริ่มต้นเป็นอัตโนมัติตามแพคเกจ · ถ้าระบบจัดหมวดให้ไม่ตรง เปิดงานมาเลือกประเภทเองได้ รายได้จะย้ายหมวดในหน้ารายงานทันที' }
+    ]
+  },
   '1.0.57': {
     date: '2026-06-04',
     title: '🔧 แก้ปุ่มบันทึกหน้าแก้ไขบริการ',
@@ -10879,6 +10900,21 @@ function renderFormBody(ctx, item) {
     <!-- 🏦 บัญชี + สถานะ -->
     <div class="form-section">
       <div class="form-section-title">🏦 บัญชี / สถานะ</div>
+      ${isJob ? (() => {
+        // v1.0.57 · parity กับมือถือ v2.5.85 · dropdown ประเภทงาน · '' = อัตโนมัติตามแพคเกจ · เลือกเองได้ถ้าจัดให้ไม่ตรง
+        const curType = item && item.type;
+        let opts = '<option value="">🪄 อัตโนมัติ · ตามแพคเกจที่เลือก</option>';
+        (JOB_TYPES || []).forEach(jt => { opts += `<option value="${escapeHtml(jt)}" ${curType === jt ? 'selected' : ''}>${escapeHtml(jt)}</option>`; });
+        if (curType && !(JOB_TYPES || []).includes(curType)) {
+          opts += `<option value="${escapeHtml(curType)}" selected>${escapeHtml(curType)} (ประเภทเดิม)</option>`;
+        }
+        return `
+          <div class="form-field" style="margin-bottom:12px;">
+            <label>🏷 ประเภทงาน</label>
+            <select id="${ctx}-jobtype">${opts}</select>
+            <div class="hint">ใช้จัดหมวดรายได้ในหน้ารายงาน · เลือกเองได้ถ้าระบบจัดให้ไม่ตรง</div>
+          </div>`;
+      })() : ''}
       <div class="form-row">
         <div class="form-field"><label>🏦 บัญชีรับโอน</label>
           <select id="${ctx}-bank">
@@ -12104,7 +12140,9 @@ async function saveJob() {
   }
 
   job.profit = job.sell - teamCost - (job.travelCost || 0) - (job.otherCost || 0) - costsSnapshot.reduce((s, c) => s + c.price, 0);
-  job.type = deriveJobType(job);
+  // v1.0.57 · ถ้าผู้ใช้เลือกประเภทเองใน dropdown → ใช้ค่านั้น · '' (อัตโนมัติ) → derive ตามแพคเกจเหมือนเดิม
+  const _manualJobType = (document.getElementById('add-jobtype') || {}).value || '';
+  job.type = _manualJobType || deriveJobType(job);
 
   if (st.editing) {
     const idx = JOBS.findIndex(j => j.code === st.editing);
@@ -12720,21 +12758,21 @@ function renderQuoteDetailHtml(q) {
 
       <!-- 🎬 ACTION GRID · 4 quick actions (match Job Detail) -->
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
-        <button onclick="closeModal();setTimeout(()=>openQuoteModal('${escapeHtml(q.code)}'),50)" style="padding:14px 8px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:1px solid #3b82f6;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:#1e40af;font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-          <span style="font-size:22px;">✏️</span><span>แก้ไข</span>
+        <button class="qd-act qd-act-edit" onclick="closeModal();setTimeout(()=>openQuoteModal('${escapeHtml(q.code)}'),50)">
+          <span class="qa-ico">✏️</span><span>แก้ไข</span>
         </button>
-        <button onclick="closeModal();setTimeout(()=>openQuotePrint('${escapeHtml(q.code)}'),50)" style="padding:14px 8px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fbbf24;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:#7c2d12;font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-          <span style="font-size:22px;">📄</span><span>พิมพ์/PDF</span>
+        <button class="qd-act qd-act-pdf" onclick="closeModal();setTimeout(()=>openQuotePrint('${escapeHtml(q.code)}'),50)">
+          <span class="qa-ico">📄</span><span>พิมพ์/PDF</span>
         </button>
         ${((status === 'pending' || status === 'draft' || status === 'approved') && !q.convertedJobCode) ? `
-          <button onclick="convertQuoteToJob('${escapeHtml(q.code)}')" style="padding:14px 8px;background:linear-gradient(135deg,#FBE5C8,#F5A87E);border:1px solid #B85A3D;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:#7c2d12;font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-            <span style="font-size:22px;">→</span><span>สร้างงาน</span>
+          <button class="qd-act qd-act-convert" onclick="convertQuoteToJob('${escapeHtml(q.code)}')">
+            <span class="qa-ico">→</span><span>สร้างงาน</span>
           </button>
         ` : '<div></div>'}
         <!-- FIX C8 · ปุ่มปฏิเสธ · เฉพาะ pending/draft/approved (ที่ยังไม่ converted) -->
         ${((status === 'pending' || status === 'draft' || status === 'approved') && !q.convertedJobCode) ? `
-          <button onclick="rejectQuote('${escapeHtml(q.code)}')" style="padding:14px 8px;background:linear-gradient(135deg,#fee2e2,#fecaca);border:1px solid #dc2626;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:#b91c1c;font-weight:600;font-size:12px;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-            <span style="font-size:22px;">✗</span><span>ปฏิเสธ</span>
+          <button class="qd-act qd-act-reject" onclick="rejectQuote('${escapeHtml(q.code)}')">
+            <span class="qa-ico">✗</span><span>ปฏิเสธ</span>
           </button>
         ` : '<div></div>'}
       </div>
