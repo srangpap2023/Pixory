@@ -2934,12 +2934,20 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.61';
+const PIXORY_DESKTOP_VERSION = '1.0.62';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.62': {
+    date: '2026-06-04',
+    title: '💬 แชทติดต่อแอดมิน',
+    subtitle: 'คุยกับทีมงาน Pixory ได้จากเดสก์ท็อป',
+    items: [
+      { icon: '💬', title: 'ปุ่มแชทมุมขวาล่าง', desc: 'กดปุ่ม 💬 มุมขวาล่าง พิมพ์คุยกับทีมงานได้เลย · ข้อความเด้งสด · ห้องเดียวกับฝั่งมือถือ คุยต่อกันได้ข้ามเครื่อง' }
+    ]
+  },
   '1.0.61': {
     date: '2026-06-04',
     title: '🏅 ตรา Founding Tester',
@@ -3705,6 +3713,7 @@ async function finishAuthAndStart() {
   // Start realtime sync (Sprint 2E)
   startRealtimeSync();
   loadMyBadge();  // v1.0.61 · ตรา Founding Tester · fire-and-forget
+  initDeskChat(); // v1.0.62 · แชทติดต่อแอดมิน · fire-and-forget
   // v1.0.50 · auto-sync poll · refreshes data by itself if realtime misses an event
   startAutoSyncPoll();
   // v1.0.40 · show What's New if version changed since last seen
@@ -14764,6 +14773,172 @@ async function applyRemoteIfNewer() {
     toast('📲 อัปเดตข้อมูลล่าสุดจากอีกเครื่องแล้ว', 'success');
     return true;
   } catch(e) { console.warn('applyRemoteIfNewer:', e); return false; }
+}
+
+// ========== v1.0.62 · แชทติดต่อแอดมิน (ปุ่มลอยมุมขวาล่าง · ตาราง support_messages · parity มือถือ v2.5.90) ==========
+let _dcMsgs = [];
+let _dcChannel = null;
+let _dcLoaded = false;
+let _dcOpen = false;
+
+function _dcReadKey() { return 'pixory.chatReadAt.' + (CURRENT_USER ? CURRENT_USER.id : ''); }
+
+function _dcEnsureUI() {
+  if (document.getElementById('dc-fab')) return;
+  const fab = document.createElement('button');
+  fab.id = 'dc-fab';
+  fab.title = 'ติดต่อแอดมิน';
+  fab.style.cssText = 'position:fixed;right:22px;bottom:22px;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,#E8B870,#C9954F);color:#1a1208;font-size:22px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:8000;';
+  fab.innerHTML = '💬<span id="dc-dot" style="display:none;position:absolute;top:2px;right:2px;width:12px;height:12px;background:#e0533f;border:2px solid #0E0A08;border-radius:50%;"></span>';
+  fab.onclick = toggleDeskChat;
+  document.body.appendChild(fab);
+
+  const panel = document.createElement('div');
+  panel.id = 'dc-panel';
+  panel.style.cssText = 'display:none;position:fixed;right:22px;bottom:84px;width:360px;max-width:calc(100vw - 44px);height:480px;max-height:calc(100vh - 120px);background:linear-gradient(170deg,#1a140d,#0E0A08);border:1px solid rgba(212,160,86,0.4);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.55);z-index:8001;flex-direction:column;overflow:hidden;';
+  panel.innerHTML = `
+    <div style="padding:13px 16px 10px;border-bottom:1px solid rgba(212,160,86,0.2);display:flex;align-items:center;gap:10px;background:rgba(212,160,86,0.07);">
+      <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#E8B870,#C9954F);display:flex;align-items:center;justify-content:center;font-size:16px;">🛟</div>
+      <div style="flex:1;">
+        <div style="font-size:13.5px;font-weight:800;color:#fff;">ทีมงาน Pixory</div>
+        <div style="font-size:10px;color:#6EE0A7;">● ปกติตอบภายใน 24 ชม.</div>
+      </div>
+      <button onclick="toggleDeskChat()" style="background:none;border:none;color:#8a7a66;font-size:16px;cursor:pointer;padding:4px;">✕</button>
+    </div>
+    <div id="dc-msgs" style="flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;"></div>
+    <div style="display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid rgba(212,160,86,0.2);">
+      <input id="dc-input" placeholder="พิมพ์ข้อความ..." autocomplete="off" onkeydown="if(event.key==='Enter')sendDeskChat()" style="flex:1;background:#241b15;border:1px solid rgba(212,160,86,0.3);border-radius:99px;padding:10px 14px;color:#EDE3D0;font-size:13px;font-family:inherit;outline:none;min-width:0;">
+      <button onclick="sendDeskChat()" style="width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,#E8B870,#C9954F);color:#1a1208;font-size:16px;cursor:pointer;flex-shrink:0;">➤</button>
+    </div>`;
+  document.body.appendChild(panel);
+}
+
+function toggleDeskChat() {
+  _dcEnsureUI();
+  const p = document.getElementById('dc-panel');
+  _dcOpen = !_dcOpen;
+  p.style.display = _dcOpen ? 'flex' : 'none';
+  if (_dcOpen) { _dcLoad(); _dcMarkRead(); }
+}
+
+async function _dcLoad() {
+  const box = document.getElementById('dc-msgs');
+  if (!CURRENT_USER || !SUPABASE) return;
+  if (box && !_dcLoaded) box.innerHTML = '<div style="text-align:center;color:#8a7a66;font-size:12px;padding:30px 10px;">กำลังโหลด...</div>';
+  try {
+    const { data, error } = await SUPABASE.from('support_messages')
+      .select('id,sender,body,created_at')
+      .eq('user_id', CURRENT_USER.id)
+      .order('created_at', { ascending: true })
+      .limit(500);
+    if (error) {
+      if (box) box.innerHTML = '<div style="text-align:center;color:#8a7a66;font-size:12px;padding:30px 16px;line-height:1.6;">ระบบแชทยังไม่พร้อมใช้งาน<br>ติดต่อทาง LINE: rubjangsrangpap ได้ก่อนครับ</div>';
+      return;
+    }
+    _dcMsgs = data || [];
+    _dcLoaded = true;
+    _dcRender();
+  } catch (e) { console.warn('[chat] load:', e); }
+}
+
+function _dcRender() {
+  const box = document.getElementById('dc-msgs');
+  if (!box) return;
+  if (_dcMsgs.length === 0) {
+    box.innerHTML = '<div style="align-self:flex-start;max-width:85%;background:#241b15;border:1px solid rgba(212,160,86,0.25);color:#EDE3D0;padding:9px 13px;border-radius:14px;border-bottom-left-radius:4px;font-size:13px;line-height:1.5;">สวัสดีครับ 🙏 มีอะไรให้ทีมงาน Pixory ช่วยไหมครับ — แจ้งปัญหา สอบถามวิธีใช้ หรือเสนอไอเดียได้เลย</div>';
+    return;
+  }
+  let html = ''; let lastDay = '';
+  _dcMsgs.forEach(m => {
+    const d = new Date(m.created_at);
+    const day = d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+    if (day !== lastDay) { html += '<div style="align-self:center;font-size:9.5px;color:#6b5d4c;background:rgba(255,255,255,.06);padding:2px 10px;border-radius:99px;margin:3px 0;">' + day + '</div>'; lastDay = day; }
+    const time = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    const me = m.sender === 'user';
+    const st = me
+      ? 'align-self:flex-end;background:linear-gradient(135deg,#E8B870,#C9954F);color:#241708;border-bottom-right-radius:4px;'
+      : 'align-self:flex-start;background:#241b15;border:1px solid rgba(212,160,86,0.25);color:#EDE3D0;border-bottom-left-radius:4px;';
+    html += '<div style="max-width:85%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word;' + st + '">' + escapeHtml(m.body) + '<span style="display:block;font-size:8.5px;opacity:.55;margin-top:2px;text-align:right;">' + time + '</span></div>';
+  });
+  box.innerHTML = html;
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendDeskChat() {
+  const inp = document.getElementById('dc-input');
+  const text = ((inp && inp.value) || '').trim();
+  if (!text || !CURRENT_USER || !SUPABASE) return;
+  if (inp) inp.value = '';
+  const temp = { id: 'tmp' + Date.now(), sender: 'user', body: text, created_at: new Date().toISOString() };
+  _dcMsgs.push(temp); _dcRender();
+  try {
+    const { data, error } = await SUPABASE.from('support_messages')
+      .insert({ user_id: CURRENT_USER.id, sender: 'user', body: text })
+      .select('id,created_at').single();
+    if (error) {
+      _dcMsgs = _dcMsgs.filter(m => m !== temp); _dcRender();
+      toast('ส่งไม่สำเร็จ · ลองอีกครั้ง', 'error');
+      if (inp) inp.value = text;
+      return;
+    }
+    if (data) { temp.id = data.id; temp.created_at = data.created_at; }
+    try {
+      SUPABASE.functions.invoke('notify_chat', { body: { to: 'admin', body: text.slice(0, 300), fromName: (typeof PROFILE !== 'undefined' && PROFILE && PROFILE.shop) || CURRENT_USER.email || 'ผู้ใช้ Pixory' } });
+    } catch (e) { /* เงียบ */ }
+  } catch (e) { console.warn('[chat] send:', e); }
+}
+
+function _dcMarkRead() {
+  try { localStorage.setItem(_dcReadKey(), new Date().toISOString()); } catch (e) {}
+  const dot = document.getElementById('dc-dot');
+  if (dot) dot.style.display = 'none';
+}
+
+function _dcSubscribe() {
+  if (_dcChannel || !SUPABASE || !CURRENT_USER) return;
+  try {
+    _dcChannel = SUPABASE
+      .channel('support_chat_desk_' + CURRENT_USER.id)
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'support_messages',
+        filter: 'user_id=eq.' + CURRENT_USER.id
+      }, (payload) => {
+        const m = payload && payload.new;
+        if (!m) return;
+        if (_dcMsgs.some(x => String(x.id) === String(m.id))) return;
+        _dcMsgs.push(m);
+        if (_dcOpen) { _dcRender(); _dcMarkRead(); }
+        else if (m.sender === 'admin') {
+          const dot = document.getElementById('dc-dot');
+          if (dot) dot.style.display = '';
+          try { toast('💬 ทีมงาน Pixory ตอบกลับแล้ว'); } catch (e) {}
+        }
+      })
+      .subscribe();
+  } catch (e) { console.warn('[chat] subscribe:', e); }
+}
+
+async function initDeskChat() {
+  // เรียกตอนบูต · สร้างปุ่ม + เช็คข้อความยังไม่อ่าน + ฟัง realtime
+  try {
+    if (!CURRENT_USER || !SUPABASE) return;
+    _dcEnsureUI();
+    const { data, error } = await SUPABASE.from('support_messages')
+      .select('created_at')
+      .eq('user_id', CURRENT_USER.id)
+      .eq('sender', 'admin')
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (error) return; // ตารางยังไม่สร้าง · ปุ่มยังอยู่ เปิดแล้วเจอข้อความ fallback LINE
+    _dcSubscribe();
+    if (!data || !data.length) return;
+    let readAt = '';
+    try { readAt = localStorage.getItem(_dcReadKey()) || ''; } catch (e) {}
+    if (!readAt || new Date(data[0].created_at) > new Date(readAt)) {
+      const dot = document.getElementById('dc-dot');
+      if (dot) dot.style.display = '';
+    }
+  } catch (e) { /* optional · เงียบ */ }
 }
 
 // ========== v1.0.61 · Founding Tester badge (parity มือถือ v2.5.89 · อ่านจาก user_badges นอก blob) ==========
