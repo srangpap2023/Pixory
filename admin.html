@@ -60,23 +60,18 @@
     max-width: 480px;
     margin: 0 auto;
     min-height: 100vh; min-height: 100dvh;
-    padding-top: calc(52px + env(safe-area-inset-top));
-    padding-bottom: 40px;
-    padding-bottom: calc(40px + env(safe-area-inset-bottom));
+    padding-bottom: 100px;
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
     position: relative;
   }
-  /* v3.0 · single-page · ทุก section ต่อกัน (เดิม 4 แท็บสลับ) · แท็บบาร์กลายเป็น nav เลื่อนไป section */
-  .view { display: block; }
-  .view + .view { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 6px; }
-  /* v3.0 · desktop = ใช้จอกว้างจริง */
+  /* v3.1 · กลับเป็นแท็บแยกหน้า (Joe: หน้าเดียวแน่นเกิน) · เก็บธีมทอง + มอนิเตอร์ใหม่ไว้ */
+  /* desktop = จอกว้างขึ้น + จัด 2 คอลัมน์ภายในหน้า */
   @media (min-width: 900px) {
-    .app { max-width: 1160px; }
+    .app { max-width: 1100px; }
     .stats-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
-    #view-insights { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; align-items: start; }
+    #view-insights.active { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; align-items: start; }
     #view-insights > div:first-child { grid-column: 1 / -1; }
     #view-insights .stats-grid { grid-column: 1 / -1; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-    #view-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; align-items: start; }
-    #view-settings > div:first-child { grid-column: 1 / -1; }
     .desk-2col { display: grid; grid-template-columns: 1.35fr 1fr; gap: 0 16px; align-items: start; }
     .stages-scroll { flex-wrap: wrap; }
     .stage-pill { flex: 1; min-width: 150px; }
@@ -433,29 +428,29 @@
   .empty .icon { font-size: 42px; margin-bottom: 8px; opacity: 0.5; }
   .empty .title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
 
-  /* === v3.0 · Nav bar (เดิม bottom tab) → sticky บนจอ · กดแล้วเลื่อนไป section === */
+  /* === Bottom Tab Bar (v3.1 · กลับมาแบบเดิม) === */
   .tab-bar {
-    position: fixed; top: 0; left: 0; right: 0;
+    position: fixed; bottom: 0; left: 0; right: 0;
     background: rgba(14,10,8,.92); backdrop-filter: blur(24px);
-    border-bottom: 0.5px solid var(--line-2);
+    border-top: 0.5px solid var(--line-2);
     display: flex;
-    padding: 6px;
-    padding-top: calc(6px + env(safe-area-inset-top));
+    padding: 8px 6px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
     z-index: 50;
   }
-  .tab-bar-inner { max-width: 480px; margin: 0 auto; display: flex; width: 100%; gap: 4px; }
-  @media (min-width: 900px) { .tab-bar-inner { max-width: 1160px; justify-content: center; } }
+  .tab-bar-inner { max-width: 480px; margin: 0 auto; display: flex; width: 100%; }
+  @media (min-width: 900px) { .tab-bar-inner { max-width: 700px; } }
   .tab-item {
-    flex: 1; max-width: 160px; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px;
-    padding: 8px 10px; color: var(--muted-2); cursor: pointer; border-radius: 10px;
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 4px; color: var(--muted-2); cursor: pointer;
     background: none; border: none; font-family: inherit;
   }
-  .tab-item.active { color: var(--accent-2); background: rgba(212,160,86,0.10); }
-  .tab-item .ic { font-size: 16px; line-height: 1; }
-  .tab-item .lbl { font-size: 12px; font-weight: 600; }
+  .tab-item.active { color: var(--accent-2); }
+  .tab-item .ic { font-size: 22px; line-height: 1; }
+  .tab-item .lbl { font-size: 10px; font-weight: 600; }
 
-  /* v3.0 · ทุก section โชว์พร้อมกัน (single page) */
-  .view { display: block; }
+  /* === Tab views (show/hide) — v3.1 กลับมาแยกหน้า === */
+  .view { display: none; }
   .view.active { display: block; }
 
   /* === Toast === */
@@ -622,14 +617,7 @@
       <div>
         <div class="section-h">✅ ต้องทำวันนี้ <span class="badge" id="todo-count">—</span></div>
         <div class="panel" style="margin-top:0;"><div id="todo-list"></div></div>
-
-        <!-- Champions -->
-        <div class="section-h">🚀 Champions <span class="badge" id="champion-count">0</span></div>
-        <div class="user-list" id="champions-list"><div class="empty" style="padding:20px;"><div class="title" style="font-size:12px;">ยังไม่มี Champion</div></div></div>
-
-        <!-- At-Risk -->
-        <div class="section-h">⚠️ At-Risk <span class="badge" id="risk-count">0</span></div>
-        <div class="user-list" id="risk-list"><div class="empty" style="padding:20px;"><div class="title" style="font-size:12px;">ไม่มี user ใกล้ churn 🎉</div></div></div>
+        <!-- v3.1 · ลิสต์ Champions/At-Risk ย้ายไปอยู่หน้า Users ที่เดียว (ตัดความซ้ำซ้อน) -->
       </div>
       <div>
         <!-- Live activity -->
@@ -645,9 +633,7 @@
       <div style="font-size: 22px; font-weight: 800; color: white; margin-bottom: 4px;">ผู้ใช้</div>
       <div style="font-size: 12px; color: var(--muted);"><span id="users-total-text">—</span></div>
     </div>
-    <!-- v2.0 · Priority sections (only shown when filter = 'all') -->
-    <div id="priority-sections"></div>
-    <!-- v2.6 · user search -->
+    <!-- v3.1 · Joe: ค้นหา + ฟิลเตอร์ย้ายขึ้นบนสุด (เดิมอยู่ใต้ priority sections) -->
     <div style="padding:0 16px 10px;">
       <input type="text" id="user-search" placeholder="🔍 ค้นหา · email · ชื่อร้าน · เบอร์" oninput="onUserSearch(this.value)" autocomplete="off" style="width:100%;padding:9px 12px;background:#241b15;border:1px solid #3a2e24;border-radius:10px;color:#F2E0BA;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;" />
     </div>
@@ -660,6 +646,8 @@
       <button class="filter-chip" data-filter="ghost">👻 Ghost</button>
       <button class="filter-chip" data-filter="online">🟢 Online</button>
     </div>
+    <!-- v2.0 · Priority sections (only shown when filter = 'all') -->
+    <div id="priority-sections"></div>
     <div id="users-cards"></div>
   </div>
 
@@ -880,8 +868,8 @@
     <div class="panel">
       <div class="panel-title">ℹ เกี่ยวกับ</div>
       <div style="font-size:12px; color: var(--muted); line-height:1.6;">
-        Pixory Admin Monitor · v3.0<br>
-        Single-page dashboard · champagne gold<br><br>
+        Pixory Admin Monitor · v3.1<br>
+        4 แท็บ · champagne gold · growth monitors<br><br>
         • Realtime sync + polling 10s<br>
         • Live notification toast + sound<br>
         • 4 user stages · engagement score<br>
@@ -1220,14 +1208,11 @@ function subscribeToRealtime() {
 
 // ============ TAB SWITCHING ============
 function switchTab(tab) {
-  // v3.0 · single page · nav = เลื่อนไป section (ทุก view โชว์พร้อมกัน)
+  // v3.1 · กลับเป็นแท็บแยกหน้า (Joe: หน้าเดียวแน่นเกิน)
   _currentTab = tab;
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + tab));
   document.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  const el = document.getElementById('view-' + tab);
-  if (el) {
-    const y = el.getBoundingClientRect().top + window.scrollY - 64;
-    window.scrollTo({ top: tab === 'home' ? 0 : y, behavior: 'smooth' });
-  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ============ DATA LOADING / PROCESSING ============
@@ -1357,11 +1342,13 @@ function processRows(rows) {
 
 // ============ RENDER (all views) ============
 function renderAll(users) {
-  renderHome(users);
-  renderUsersView(users);
-  renderInsights(users);
-  renderGrowth(users);   // v3.0 · weekly signups + funnel + version KPI + todo
-  detectAndNotify(users);
+  // v3.1 · กันพังเป็นโดมิโน: render ตัวใด error ห้ามลากตัวอื่นพังตาม
+  //        (บทเรียนจริง: renderGrowth error ทำ detectAndNotify ไม่รัน → แจ้งเตือนสมัครใหม่/ใบเสนอหายทั้งระบบ)
+  try { renderHome(users); } catch (e) { console.error('renderHome:', e); }
+  try { renderUsersView(users); } catch (e) { console.error('renderUsersView:', e); }
+  try { renderInsights(users); } catch (e) { console.error('renderInsights:', e); }
+  try { renderGrowth(users); } catch (e) { console.error('renderGrowth:', e); }
+  try { detectAndNotify(users); } catch (e) { console.error('detectAndNotify:', e); }
 }
 
 // ============ v3.0 · GROWTH MONITORS (ใหม่) ============
@@ -1384,7 +1371,8 @@ function renderGrowth(users) {
           <div style="font-size:10px;text-align:center;color:${i===7?'var(--accent-2)':'var(--muted)'};margin-bottom:2px;">${n||''}</div>
           <div style="height:${Math.max(4, Math.round(n / maxB * 52))}px;border-radius:4px 4px 0 0;background:${i===7?'var(--accent-2)':'rgba(212,160,86,0.25)'};"></div>
         </div>`).join('')
-      + '</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted-2);margin-top:4px;"><span>8 สัปดาห์ก่อน</span><span>สัปดาห์นี้</span></div>';
+      + '</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted-2);margin-top:4px;"><span>8 สัปดาห์ก่อน</span><span>สัปดาห์นี้</span></div>'
+      + '<div style="font-size:10px;color:var(--muted-2);margin-top:6px;line-height:1.5;">⚠️ ผู้ใช้เก่าที่กดยอมรับเงื่อนไขซ้ำช่วง มิ.ย. 69 อาจถูกนับเป็นสัปดาห์ล่าสุด · ตัวเลขจะแม่นขึ้นเรื่อยๆ หลัง v2.5.87 (เก็บวันสมัครครั้งแรกถาวรแล้ว)</div>';
   }
   // --- Funnel การใช้งาน ---
   const total = users.length;
@@ -1516,17 +1504,18 @@ function renderHome(users) {
   document.getElementById('activity-feed').innerHTML = feedItems.length ? feedItems.map(u => renderActivityItem(u)).join('') :
     '<div class="empty" style="padding:30px;"><div style="font-size:24px;opacity:.5;">🌙</div><div style="font-size:12px;margin-top:6px;color:var(--muted);">ยังไม่มี activity · รอ user เริ่มใช้แอพ</div></div>';
 
-  // Champions
-  document.getElementById('champion-count').textContent = champions.length;
-  document.getElementById('champions-list').innerHTML = champions.length
-    ? champions.slice(0, 3).map(u => renderUserRow(u, 'purple', `${u.quoteCount}q · ${u.jobCount}j · score ${u.score}`)).join('')
-    : '<div class="empty" style="padding:18px;"><div style="font-size:11.5px;color:var(--muted);">ยังไม่มี Champion (ต้องมี ≥5 quotes/jobs + รับเงินแล้ว + active <3 วัน)</div></div>';
-
-  // At Risk
-  document.getElementById('risk-count').textContent = atRisk.length;
-  document.getElementById('risk-list').innerHTML = atRisk.length
-    ? atRisk.slice(0, 5).map(u => renderUserRow(u, 'red', `ไม่เข้า ${formatDays(u.secondsAgo)} · ${u.quoteCount}q ${u.jobCount}j`)).join('')
-    : '<div class="empty" style="padding:18px;"><div style="font-size:11.5px;color:var(--muted);">ไม่มี user ใกล้ churn · ดีเยี่ยม!</div></div>';
+  // v3.1 · ตัดลิสต์ Champions/At-Risk ออกจาก Home (Joe: ข้อมูลซ้ำ 3 ชั้น) — บ้านของรายชื่อ = หน้า Users
+  //        element ลบจาก HTML แล้ว · guard กันโค้ดเก่า/ใหม่ปนกัน
+  const _champEl = document.getElementById('champions-list');
+  if (_champEl) {
+    document.getElementById('champion-count').textContent = champions.length;
+    _champEl.innerHTML = champions.slice(0, 3).map(u => renderUserRow(u, 'purple', `${u.quoteCount}q · ${u.jobCount}j · score ${u.score}`)).join('');
+  }
+  const _riskEl = document.getElementById('risk-list');
+  if (_riskEl) {
+    document.getElementById('risk-count').textContent = atRisk.length;
+    _riskEl.innerHTML = atRisk.slice(0, 5).map(u => renderUserRow(u, 'red', `ไม่เข้า ${formatDays(u.secondsAgo)} · ${u.quoteCount}q ${u.jobCount}j`)).join('');
+  }
 }
 
 function renderActivityItem(u) {
@@ -1722,15 +1711,7 @@ function renderPrioritySections(users) {
       ${actionNeeded.slice(0, 5).map(renderUserRow).join('')}
     </div>`;
   }
-  if (champions.length > 0) {
-    html += `<div class="priority-section">
-      <div class="priority-section-head">
-        <div class="priority-section-title">⭐ Champions</div>
-        <div class="priority-section-count">${champions.length} ราย</div>
-      </div>
-      ${champions.slice(0, 5).map(renderUserRow).join('')}
-    </div>`;
-  }
+  // v3.1 · ตัด section Champions ออก (ซ้ำกับ chip 🚀 Champions ด้านบน) · เก็บ Online + ต้องดูวันนี้ ที่ไม่มี chip แทน
   if (!html) {
     html = '<div class="priority-empty">ยังไม่มีผู้ใช้ใน priority sections · ลองดู "ทั้งหมด" ด้านล่าง</div>';
   }

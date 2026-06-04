@@ -11622,9 +11622,13 @@ async function reconsentAccept() {
   if (btn) { btn.disabled = true; btn.textContent = 'กำลังบันทึก...'; }
   const consentedAt = new Date().toISOString();
   // 1) Persist locally (PROFILE.consent) — synced to cloud via normal saveData
+  // v2.5.87 · FIX: ห้ามทับ consentedAt เดิม (= วันสมัครจริง · admin ใช้ทำกราฟ/cohort)
+  //          การกดยอมรับซ้ำเก็บแยกใน reconsentedAt · บั๊กนี้ทำวันสมัครของผู้ใช้เก่าทั้งระบบกลายเป็นวันที่กดยอมรับรอบใหม่
   try {
+    const _firstConsentedAt = (PROFILE.consent && PROFILE.consent.consentedAt) || consentedAt;
     PROFILE.consent = {
-      consentedAt: consentedAt,
+      consentedAt: _firstConsentedAt,
+      reconsentedAt: consentedAt,
       version: CONSENT_VERSION,
       terms: true,
       privacy: true
