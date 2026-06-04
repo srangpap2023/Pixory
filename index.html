@@ -162,6 +162,22 @@
   .card { background: white; border-radius: 14px; padding: 14px 16px; margin: 0 16px 12px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
   .card.compact { padding: 12px 14px; }
 
+  /* ===== v2.5.90 · Support chat (ติดต่อแอดมิน) ===== */
+  .sc-bub { max-width: 80%; padding: 9px 13px; border-radius: 16px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+  .sc-bub.me { align-self: flex-end; background: linear-gradient(135deg,#E8B870,#C9954F); color: #241708; border-bottom-right-radius: 5px; }
+  .sc-bub.them { align-self: flex-start; background: #fff; border: 1px solid #eee4d8; color: #3a2f25; border-bottom-left-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  .sc-bub .sc-t { display: block; font-size: 9px; opacity: .55; margin-top: 3px; text-align: right; }
+  .sc-day { align-self: center; font-size: 10px; color: #a89a8c; background: rgba(0,0,0,.05); padding: 3px 12px; border-radius: 99px; margin: 4px 0; }
+  #screen-support-chat.active { display: flex; flex-direction: column; padding-bottom: 0; }
+  #sc-inputbar { position: sticky; bottom: 0; display: flex; gap: 8px; padding: 10px 14px 14px; background: rgba(247,248,250,.94); backdrop-filter: blur(12px); border-top: 1px solid rgba(0,0,0,.06); z-index: 6; }
+  #sc-input { flex: 1; border: 1px solid #e2d9cd; border-radius: 99px; padding: 11px 16px; font-size: 14px; outline: none; background: #fff; color: #3a2f25; font-family: inherit; }
+  /* dark + luxe overrides (อย่าลืม! · §17) */
+  body.dark-theme .sc-bub.them, body.luxe-theme .sc-bub.them { background: #2a2018; border-color: rgba(212,160,86,0.25); color: #EDE3D0; }
+  body.dark-theme .sc-day, body.luxe-theme .sc-day { background: rgba(255,255,255,.07); color: #8a7a66; }
+  body.dark-theme #sc-inputbar, body.luxe-theme #sc-inputbar { background: rgba(20,15,10,.92); border-top-color: rgba(212,160,86,0.18); }
+  body.dark-theme #sc-input, body.luxe-theme #sc-input { background: #2a2018; border-color: rgba(212,160,86,0.3); color: #EDE3D0; }
+  body.dark-theme #sc-note, body.luxe-theme #sc-note { color: #8a7a66; }
+
   .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 4px 16px 12px; }
   /* v2.5.67 · monthly summary card · 3-theme safe */
   .msum { margin: 4px 16px 12px; background: #fff; border: 0.5px solid rgba(0,0,0,0.06); border-radius: 16px; padding: 13px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
@@ -6927,6 +6943,11 @@
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-orange)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><rect x="26" y="18" width="36" height="52" rx="6" fill="#fff"/><circle cx="44" cy="60" r="3" fill="url(#ic-orange)"/><path d="M44 28 L44 44 M36 38 L44 46 L52 38" stroke="url(#ic-orange)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div><div class="row-title" data-i18n="pwa.installRow">ติดตั้งเป็นแอพ</div><div class="row-sub" data-i18n="pwa.installRowSub">ใช้เต็มจอ · ออฟไลน์ได้ · มี icon ใน home</div></div></div>
             <div class="right">›</div>
           </div>
+          <!-- v2.5.90 · แชทติดต่อแอดมิน -->
+          <div class="settings-row" onclick="goTo('support-chat')">
+            <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-orange)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 26 h44 a6 6 0 0 1 6 6 v22 a6 6 0 0 1 -6 6 H40 l-12 10 v-10 h-6 a6 6 0 0 1 -6 -6 V32 a6 6 0 0 1 6 -6 Z" fill="#fff"/><circle cx="34" cy="43" r="3.5" fill="url(#ic-orange)"/><circle cx="44" cy="43" r="3.5" fill="url(#ic-orange)"/><circle cx="54" cy="43" r="3.5" fill="url(#ic-orange)"/></svg></div><div><div class="row-title">ติดต่อแอดมิน</div><div class="row-sub">แชทกับทีมงาน Pixory ได้โดยตรง</div></div></div>
+            <div class="right"><span id="settings-chat-dot" style="display:none; width:9px; height:9px; background:#e0533f; border-radius:50%; margin-right:8px;"></span><span style="color:#a89a8c;">›</span></div>
+          </div>
           <div class="settings-row" onclick="goTo('settings-about')">
             <div class="left"><div class="ico-wrap svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-home)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="22" fill="none" stroke="#fff" stroke-width="3.5"/><circle cx="44" cy="32" r="3" fill="#fff"/><rect x="40" y="40" width="8" height="20" rx="2" fill="#fff"/></svg></div><div><div class="row-title" data-i18n="set.about">เกี่ยวกับแอป</div></div></div>
             <div class="right">›</div>
@@ -7496,9 +7517,9 @@
             <div class="left"><div class="row-title" data-i18n="ab.developer">ผู้พัฒนา</div></div>
             <div class="right" style="font-size:13px; color:#7c7066;">SRANGPAP</div>
           </div>
-          <div class="settings-row">
-            <div class="left"><div class="row-title" data-i18n="ab.contactAdmin">ติดต่อแอดมิน</div></div>
-            <div class="right" style="font-size:13px; color:#7c7066;">LINE: rubjangsrangpap</div>
+          <div class="settings-row" onclick="goTo('support-chat')">
+            <div class="left"><div class="row-title" data-i18n="ab.contactAdmin">ติดต่อแอดมิน</div><div class="row-sub">💬 แชทในแอพ · หรือ LINE: rubjangsrangpap</div></div>
+            <div class="right">›</div>
           </div>
           <div class="settings-row" onclick="showCurrentVersionNotes()">
             <div class="left"><div class="row-title" data-i18n="ab.releaseNotes">รายการพัฒนาเวอร์ชันนี้</div><div class="row-sub" data-i18n="ab.releaseNotesSub">ดูสิ่งที่เปลี่ยนแปลงล่าสุด</div></div>
@@ -7544,6 +7565,21 @@
         <span style="width: 22px;"></span>
       </div>
       <div id="legal-content" style="padding:0 20px 32px; font-size:13px; line-height:1.65; color:#3a2f25;"></div>
+    </div>
+
+    <!-- ====== SUPPORT CHAT · v2.5.90 · แชทติดต่อแอดมิน ====== -->
+    <div class="screen" id="screen-support-chat">
+      <div class="header">
+        <button class="back" onclick="goTo('settings')">‹</button>
+        <h1><span style="margin-right:6px;">💬</span>ติดต่อแอดมิน</h1>
+        <span style="width: 22px;"></span>
+      </div>
+      <div id="sc-note" style="text-align:center; font-size:11px; color:#a89a8c; padding:0 24px 10px; line-height:1.5;">แชทนี้เห็นเฉพาะคุณกับทีมงาน Pixory · ปกติตอบภายใน 24 ชม.</div>
+      <div id="sc-msgs" style="flex:1; padding:0 16px 12px; display:flex; flex-direction:column; gap:8px;"></div>
+      <div id="sc-inputbar">
+        <input id="sc-input" placeholder="พิมพ์ข้อความ..." onkeydown="if(event.key==='Enter')sendSupportMessage()">
+        <button onclick="sendSupportMessage()" style="width:44px; height:44px; border-radius:50%; border:none; background:linear-gradient(135deg,#E8B870,#C9954F); color:#241708; font-size:18px; cursor:pointer; flex-shrink:0;">➤</button>
+      </div>
     </div>
 
     <!-- ====== SETTINGS: ACCOUNT (Logout, user info) ====== -->
@@ -8402,6 +8438,7 @@ function goTo(name) {
   }
   if (name === 'settings-account') { updateAccountUI(); if (typeof updateSyncIndicatorUI === 'function') updateSyncIndicatorUI(); }
   if (name === 'settings') { if (typeof renderShopSetupHero === 'function') renderShopSetupHero(); }
+  if (name === 'support-chat') { if (typeof initSupportChat === 'function') initSupportChat(); }
   if (name === 'jobs') { if (typeof renderJobsWithCurrentFilter === 'function') { renderJobsWithCurrentFilter(); syncJobFilterChips(); } }
   if (name === 'settings-tax') {
     if (typeof populateTaxSettings === 'function') { populateTaxSettings(); setupTaxToggleListener(); updateTaxHubSub(); }
@@ -8448,7 +8485,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.89';
+const PIXORY_VERSION = '2.5.90';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8459,6 +8496,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.90': {
+    date: '2026-06-04',
+    title: '💬 แชทติดต่อแอดมิน',
+    subtitle: 'คุยกับทีมงาน Pixory ได้โดยตรงในแอพ',
+    items: [
+      { icon: '💬', title: 'แชทกับทีมงานได้เลย', desc: 'ตั้งค่า → ติดต่อแอดมิน · แจ้งปัญหา สอบถามวิธีใช้ หรือเสนอไอเดีย พิมพ์คุยได้เหมือนแชททั่วไป · ข้อความเด้งสดทันที' },
+      { icon: '🔔', title: 'ทีมงานตอบ มีแจ้งเตือนเด้งถึงเครื่อง', desc: 'ถ้าเปิด Push Notifications ไว้ พอทีมงานตอบกลับจะมีแจ้งเตือนเด้ง · กดแล้วเปิดเข้าหน้าแชทเลย' }
+    ]
+  },
   '2.5.89': {
     date: '2026-06-04',
     title: '🏅 ตรา Founding Tester',
@@ -12312,9 +12358,143 @@ function showFoundingBadgeModal() {
   document.body.appendChild(ov);
 }
 
+// ========== v2.5.90 · SUPPORT CHAT (ติดต่อแอดมิน · ตาราง support_messages) ==========
+let _scMsgs = [];
+let _scChannel = null;
+let _scLoaded = false;
+
+function _scReadKey() { return 'pixory.chatReadAt.' + (CURRENT_USER ? CURRENT_USER.id : ''); }
+
+async function initSupportChat() {
+  const box = document.getElementById('sc-msgs');
+  if (!CURRENT_USER || !SUPABASE) {
+    if (box) box.innerHTML = '<div style="text-align:center; color:#a89a8c; font-size:13px; padding:40px 20px;">ต้องล็อกอินก่อนจึงจะใช้แชทได้</div>';
+    return;
+  }
+  if (box && !_scLoaded) box.innerHTML = '<div style="text-align:center; color:#a89a8c; font-size:13px; padding:40px 20px;">กำลังโหลด...</div>';
+  try {
+    const { data, error } = await SUPABASE.from('support_messages')
+      .select('id,sender,body,created_at')
+      .eq('user_id', CURRENT_USER.id)
+      .order('created_at', { ascending: true })
+      .limit(500);
+    if (error) {
+      if (box) box.innerHTML = '<div style="text-align:center; color:#a89a8c; font-size:13px; padding:40px 20px; line-height:1.6;">ระบบแชทยังไม่พร้อมใช้งาน<br>ติดต่อทาง LINE: rubjangsrangpap ได้ก่อนครับ</div>';
+      return;
+    }
+    _scMsgs = data || [];
+    _scLoaded = true;
+    renderSupportChat();
+    _scSubscribe();
+    _scMarkRead();
+  } catch (e) { console.warn('[chat] init error:', e); }
+}
+
+function renderSupportChat() {
+  const box = document.getElementById('sc-msgs');
+  if (!box) return;
+  if (_scMsgs.length === 0) {
+    box.innerHTML = '<div class="sc-bub them">สวัสดีครับ 🙏 มีอะไรให้ทีมงาน Pixory ช่วยไหมครับ — แจ้งปัญหา สอบถามวิธีใช้ หรือเสนอไอเดียได้เลย</div>';
+    return;
+  }
+  let html = '';
+  let lastDay = '';
+  _scMsgs.forEach(m => {
+    const d = new Date(m.created_at);
+    const day = d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+    if (day !== lastDay) { html += '<div class="sc-day">' + day + '</div>'; lastDay = day; }
+    const time = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    html += '<div class="sc-bub ' + (m.sender === 'user' ? 'me' : 'them') + '">' + escapeHtml(m.body) + '<span class="sc-t">' + time + '</span></div>';
+  });
+  box.innerHTML = html;
+  const sc = document.getElementById('screen-support-chat');
+  if (sc) sc.scrollTop = sc.scrollHeight;
+}
+
+function _scSubscribe() {
+  if (_scChannel || !SUPABASE || !CURRENT_USER) return;
+  try {
+    _scChannel = SUPABASE
+      .channel('support_chat_' + CURRENT_USER.id)
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'support_messages',
+        filter: 'user_id=eq.' + CURRENT_USER.id
+      }, (payload) => {
+        const m = payload && payload.new;
+        if (!m) return;
+        if (_scMsgs.some(x => String(x.id) === String(m.id))) return; // กันซ้ำ (เราเพิ่ง insert เอง)
+        _scMsgs.push(m);
+        const chatScreen = document.getElementById('screen-support-chat');
+        const onChat = chatScreen && chatScreen.classList.contains('active');
+        if (onChat) { renderSupportChat(); _scMarkRead(); }
+        else if (m.sender === 'admin') {
+          _scUpdateDot(true);
+          try { toast('💬 ทีมงาน Pixory ตอบกลับแล้ว · ดูได้ที่ ตั้งค่า → ติดต่อแอดมิน'); } catch (e) {}
+        }
+      })
+      .subscribe();
+  } catch (e) { console.warn('[chat] subscribe error:', e); }
+}
+
+async function sendSupportMessage() {
+  const inp = document.getElementById('sc-input');
+  const text = ((inp && inp.value) || '').trim();
+  if (!text || !CURRENT_USER || !SUPABASE) return;
+  if (inp) inp.value = '';
+  // optimistic render · เด้งขึ้นจอทันที ไม่รอ network
+  const temp = { id: 'tmp' + Date.now(), sender: 'user', body: text, created_at: new Date().toISOString() };
+  _scMsgs.push(temp); renderSupportChat();
+  try {
+    const { data, error } = await SUPABASE.from('support_messages')
+      .insert({ user_id: CURRENT_USER.id, sender: 'user', body: text })
+      .select('id,created_at').single();
+    if (error) {
+      _scMsgs = _scMsgs.filter(m => m !== temp); renderSupportChat();
+      try { toast('ส่งไม่สำเร็จ · ลองอีกครั้ง', 'warn'); } catch (e) { alert('ส่งไม่สำเร็จ: ' + error.message); }
+      if (inp) inp.value = text;
+      return;
+    }
+    if (data) { temp.id = data.id; temp.created_at = data.created_at; }
+    // พุชหาแอดมิน · fire-and-forget (พังเงียบได้ ข้อความบันทึกแล้ว)
+    try {
+      SUPABASE.functions.invoke('notify_chat', { body: { to: 'admin', body: text.slice(0, 300), fromName: (typeof PROFILE !== 'undefined' && PROFILE && PROFILE.shop) || CURRENT_USER.email || 'ผู้ใช้ Pixory' } });
+    } catch (e) { /* เงียบ */ }
+  } catch (e) { console.warn('[chat] send error:', e); }
+}
+
+function _scMarkRead() {
+  try { localStorage.setItem(_scReadKey(), new Date().toISOString()); } catch (e) {}
+  _scUpdateDot(false);
+}
+function _scUpdateDot(show) {
+  const d1 = document.getElementById('settings-chat-dot');
+  if (d1) d1.style.display = show ? 'inline-block' : 'none';
+}
+async function checkChatUnread() {
+  // เรียกตอนบูต · มีข้อความ admin ใหม่กว่าครั้งล่าสุดที่เปิดแชทมั้ย → จุดแดงหน้าตั้งค่า
+  try {
+    if (!CURRENT_USER || !SUPABASE) return;
+    const { data, error } = await SUPABASE.from('support_messages')
+      .select('created_at')
+      .eq('user_id', CURRENT_USER.id)
+      .eq('sender', 'admin')
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (error) return; // ตารางยังไม่สร้าง · เงียบ
+    _scSubscribe(); // ฟัง realtime ค้างไว้ เผื่อแอดมินตอบระหว่างใช้แอป
+    if (!data || !data.length) return;
+    let readAt = '';
+    try { readAt = localStorage.getItem(_scReadKey()) || ''; } catch (e) {}
+    if (!readAt || new Date(data[0].created_at) > new Date(readAt)) _scUpdateDot(true);
+  } catch (e) { /* optional feature · เงียบ */ }
+}
+
 async function syncOnStartup() {
   if (!CURRENT_USER || !SUPABASE) { _cloudInitialSyncDone = true; setSyncState('offline'); return; }
   loadMyBadge();  // v2.5.89 · fire-and-forget · ไม่บล็อก sync
+  checkChatUnread();  // v2.5.90 · fire-and-forget · จุดแดงแชทแอดมิน
+  // v2.5.90 · เปิดจากพุช "ทีมงานตอบกลับ" (url './?chat') → เข้าหน้าแชทเลย
+  try { if (/[?&]chat\b/.test(location.search)) setTimeout(() => goTo('support-chat'), 600); } catch (e) {}
   setSyncState('syncing');
   const remote = await pullFromCloud();
   const localRaw = localStorage.getItem(STORAGE_KEY);

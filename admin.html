@@ -449,6 +449,14 @@
   .tab-item .ic { font-size: 22px; line-height: 1; }
   .tab-item .lbl { font-size: 10px; font-weight: 600; }
 
+  /* === v3.3 · Inbox chat === */
+  .conv-av { width: 38px; height: 38px; border-radius: 50%; background: #2a2018; display: flex; align-items: center; justify-content: center; font-size: 15px; color: #C9954F; font-weight: 800; flex-shrink: 0; }
+  .chat-bub { max-width: 80%; padding: 9px 13px; border-radius: 16px; font-size: 13.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+  .chat-bub.me { align-self: flex-end; background: linear-gradient(135deg,#E8B870,#C9954F); color: #241708; border-bottom-right-radius: 5px; }
+  .chat-bub.them { align-self: flex-start; background: #241b15; border: 1px solid #3a2e24; color: #F2E0BA; border-bottom-left-radius: 5px; }
+  .chat-bub .t { display: block; font-size: 9px; opacity: .55; margin-top: 3px; text-align: right; }
+  .chat-day { align-self: center; font-size: 10px; color: var(--muted); background: rgba(255,255,255,.06); padding: 3px 12px; border-radius: 99px; margin: 4px 0; }
+
   /* === Tab views (show/hide) — v3.1 กลับมาแยกหน้า === */
   .view { display: none; }
   .view.active { display: block; }
@@ -645,6 +653,7 @@
       <button class="filter-chip" data-filter="tire">🪞 Tire</button>
       <button class="filter-chip" data-filter="ghost">👻 Ghost</button>
       <button class="filter-chip" data-filter="online">🟢 Online</button>
+      <button class="filter-chip" data-filter="badge">🏅 Tester</button>
     </div>
     <!-- v2.0 · Priority sections (only shown when filter = 'all') -->
     <div id="priority-sections"></div>
@@ -660,6 +669,33 @@
         <button class="modal-close" onclick="closeUserSheet()">✕</button>
       </div>
       <div id="user-sheet-body"></div>
+    </div>
+  </div>
+
+  <!-- ============ VIEW: INBOX (v3.3 · แชทติดต่อแอดมิน) ============ -->
+  <div class="view" id="view-inbox">
+    <div style="padding: 16px 22px 8px; display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+      <div>
+        <div style="font-size: 22px; font-weight: 800; color: white;">💬 Inbox</div>
+        <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">แชทจากผู้ใช้ · ตอบในนามทีมงาน Pixory</div>
+      </div>
+      <button id="admin-push-btn" onclick="toggleAdminPush()" style="background:#241b15;border:1px solid #3a2e24;border-radius:10px;color:#F2E0BA;font-size:12px;padding:8px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;">🔕 เปิดพุช</button>
+    </div>
+    <div id="inbox-list"></div>
+    <div id="inbox-thread" style="display:none;">
+      <div style="display:flex; align-items:center; gap:8px; padding:2px 16px 10px;">
+        <button onclick="closeThread()" style="background:none;border:none;color:#E8B870;font-size:22px;cursor:pointer;padding:0 6px;font-family:inherit;">‹</button>
+        <div style="flex:1; min-width:0;">
+          <div id="th-name" style="font-size:14px;font-weight:800;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+          <div id="th-email" style="font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+        </div>
+        <button onclick="openThreadProfile()" style="background:#241b15;border:1px solid #3a2e24;border-radius:8px;color:#F2E0BA;font-size:11px;padding:6px 10px;cursor:pointer;font-family:inherit;flex-shrink:0;">👤 โปรไฟล์</button>
+      </div>
+      <div id="th-msgs" style="padding:0 16px 12px; display:flex; flex-direction:column; gap:8px; min-height:200px;"></div>
+      <div style="position:sticky; bottom:66px; display:flex; gap:8px; padding:10px 14px; background:rgba(14,10,8,.94); backdrop-filter:blur(10px); border-top:1px solid var(--line); z-index:5;">
+        <input id="th-input" placeholder="ตอบกลับในชื่อทีมงาน Pixory..." onkeydown="if(event.key==='Enter')sendAdminReply()" autocomplete="off" style="flex:1;padding:10px 14px;background:#241b15;border:1px solid #3a2e24;border-radius:99px;color:#F2E0BA;font-size:13px;font-family:inherit;outline:none;min-width:0;">
+        <button onclick="sendAdminReply()" style="width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,#E8B870,#C9954F);color:#1a1208;font-size:16px;cursor:pointer;flex-shrink:0;">➤</button>
+      </div>
     </div>
   </div>
 
@@ -868,10 +904,11 @@
     <div class="panel">
       <div class="panel-title">ℹ เกี่ยวกับ</div>
       <div style="font-size:12px; color: var(--muted); line-height:1.6;">
-        Pixory Admin Monitor · v3.2<br>
-        4 แท็บ · champagne gold · growth monitors<br><br>
+        Pixory Admin Monitor · v3.3<br>
+        5 แท็บ · champagne gold · growth monitors<br><br>
         • Realtime sync + polling 10s<br>
         • Live notification toast + sound<br>
+        • 💬 Inbox แชทกับผู้ใช้ + web push (sw-admin.js)<br>
         • 4 user stages · engagement score<br>
         • DM via LINE / Email / SMS
       </div>
@@ -889,6 +926,10 @@
     <button class="tab-item" onclick="switchTab('users')" data-tab="users">
       <div class="ic">👥</div>
       <div class="lbl">Users</div>
+    </button>
+    <button class="tab-item" onclick="switchTab('inbox')" data-tab="inbox" style="position:relative;">
+      <div class="ic">💬<span id="inbox-tab-dot" style="display:none; position:absolute; top:6px; right:calc(50% - 19px); width:9px; height:9px; background:#d8704a; border-radius:50%;"></span></div>
+      <div class="lbl">Inbox</div>
     </button>
     <button class="tab-item" onclick="switchTab('insights')" data-tab="insights">
       <div class="ic">📊</div>
@@ -1169,10 +1210,13 @@ function enterApp(user) {
     }
     usersCards.innerHTML = skel;
   }
+  window._ADMIN_USER = user; // v3.3 · ใช้ตอนสมัคร push subscription
   loadDashboard(true);
   if (_refreshTimer) clearInterval(_refreshTimer);
   _refreshTimer = setInterval(() => loadDashboard(false), REFRESH_INTERVAL_MS);
   subscribeToRealtime();
+  loadInbox();        // v3.3 · แชท · fire-and-forget
+  initAdminPushUI();  // v3.3 · ปุ่มพุช · fire-and-forget
   if (_onlineTickTimer) clearInterval(_onlineTickTimer);
   _onlineTickTimer = setInterval(() => { if (_lastUsers.length) renderAll(_lastUsers); }, 5000);
 }
@@ -1212,7 +1256,247 @@ function switchTab(tab) {
   _currentTab = tab;
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + tab));
   document.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  if (tab === 'inbox') loadInbox(); // v3.3 · refresh ทุกครั้งที่เข้า
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============ v3.3 · INBOX · แชทติดต่อแอดมิน (ตาราง support_messages) ============
+let _chatMsgs = [];
+let _chatThreadUser = null;
+let _chatChannel = null;
+let _chatTableOk = true;
+const CHAT_READ_KEY = 'pixory.admin.chatReadAt';
+
+function _chatReadMap() { try { return JSON.parse(localStorage.getItem(CHAT_READ_KEY) || '{}'); } catch (e) { return {}; } }
+function _chatMarkRead(uid) {
+  const m = _chatReadMap(); m[uid] = new Date().toISOString();
+  try { localStorage.setItem(CHAT_READ_KEY, JSON.stringify(m)); } catch (e) {}
+  updateInboxBadge();
+}
+function _agoTh(iso) {
+  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return 'ตอนนี้';
+  if (s < 3600) return Math.floor(s / 60) + ' นาที';
+  if (s < 86400) return Math.floor(s / 3600) + ' ชม.';
+  return Math.floor(s / 86400) + ' วัน';
+}
+
+async function loadInbox() {
+  try {
+    const { data, error } = await SUPABASE.from('support_messages')
+      .select('id,user_id,sender,body,created_at')
+      .order('created_at', { ascending: true })
+      .limit(2000);
+    if (error) { _chatTableOk = false; renderInbox(); return; }
+    _chatTableOk = true;
+    _chatMsgs = data || [];
+    renderInbox();
+    if (_chatThreadUser) renderThread();
+    updateInboxBadge();
+    _chatSubscribe();
+  } catch (e) { console.warn('inbox load:', e); }
+}
+
+function _chatUserOf(uid) { return (_lastUsers || []).find(u => u.userId === uid) || null; }
+
+function _convs() {
+  const map = {};
+  _chatMsgs.forEach(m => { (map[m.user_id] = map[m.user_id] || []).push(m); });
+  const readMap = _chatReadMap();
+  return Object.keys(map).map(uid => {
+    const msgs = map[uid];
+    const last = msgs[msgs.length - 1];
+    const readAt = readMap[uid] || '';
+    const unread = msgs.filter(m => m.sender === 'user' && (!readAt || new Date(m.created_at) > new Date(readAt))).length;
+    return { uid, msgs, last, unread };
+  }).sort((a, b) => new Date(b.last.created_at) - new Date(a.last.created_at));
+}
+
+function renderInbox() {
+  const list = document.getElementById('inbox-list');
+  if (!list) return;
+  if (!_chatTableOk) {
+    list.innerHTML = `<div class="empty"><div class="icon">💬</div><div class="title">ระบบแชทยังไม่พร้อม</div><div style="font-size:12px;margin-top:8px;color:var(--muted);">รัน SQL + deploy Edge Function notify_chat ก่อน<br>ดู 04_docs/support_chat_setup_for_Joe.md</div></div>`;
+    return;
+  }
+  const convs = _convs();
+  if (convs.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="icon">💬</div><div class="title">ยังไม่มีข้อความ</div><div style="font-size:12px;margin-top:8px;color:var(--muted);">ผู้ใช้ทักมาจาก ตั้งค่า → ติดต่อแอดมิน ในแอพ</div></div>`;
+    return;
+  }
+  list.innerHTML = convs.map(c => {
+    const u = _chatUserOf(c.uid);
+    const name = (u && (u.shop || u.email)) || (c.uid.slice(0, 8) + '…');
+    const badge = (window._BADGES && window._BADGES[c.uid]) ? ' 🏅' : '';
+    const prefix = c.last.sender === 'admin' ? 'คุณ: ' : '';
+    return `<div class="user-row" onclick="openThread('${c.uid}')">
+      <div class="conv-av">${escapeHtml((name || '?').charAt(0).toUpperCase())}</div>
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:13px; font-weight:700; color:#F2E0BA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(name)}${badge}</div>
+        <div style="font-size:11.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">${escapeHtml(prefix + c.last.body)}</div>
+      </div>
+      <div style="text-align:right; flex-shrink:0;">
+        <div style="font-size:10px; color:var(--muted);">${_agoTh(c.last.created_at)}</div>
+        ${c.unread ? `<div style="margin:4px 0 0 auto; min-width:18px; height:18px; background:#d8704a; color:#fff; border-radius:9px; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; padding:0 5px;">${c.unread}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openThread(uid) {
+  _chatThreadUser = uid;
+  document.getElementById('inbox-list').style.display = 'none';
+  document.getElementById('inbox-thread').style.display = '';
+  const u = _chatUserOf(uid);
+  document.getElementById('th-name').textContent = (u && (u.shop || u.email)) || 'ผู้ใช้';
+  document.getElementById('th-email').textContent = (u && u.email) || uid;
+  renderThread();
+  _chatMarkRead(uid);
+}
+function closeThread() {
+  _chatThreadUser = null;
+  document.getElementById('inbox-thread').style.display = 'none';
+  document.getElementById('inbox-list').style.display = '';
+  renderInbox();
+}
+function openThreadProfile() {
+  const u = _chatUserOf(_chatThreadUser);
+  if (u && typeof openUserSheet === 'function') openUserSheet(u.email);
+}
+
+function renderThread() {
+  const box = document.getElementById('th-msgs');
+  if (!box || !_chatThreadUser) return;
+  const msgs = _chatMsgs.filter(m => m.user_id === _chatThreadUser);
+  if (!msgs.length) {
+    box.innerHTML = '<div style="text-align:center; font-size:12px; color:var(--muted); padding:30px 0;">ยังไม่มีข้อความ</div>';
+    return;
+  }
+  let html = ''; let lastDay = '';
+  msgs.forEach(m => {
+    const d = new Date(m.created_at);
+    const day = d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+    if (day !== lastDay) { html += `<div class="chat-day">${day}</div>`; lastDay = day; }
+    const time = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    html += `<div class="chat-bub ${m.sender === 'admin' ? 'me' : 'them'}">${escapeHtml(m.body)}<span class="t">${time}</span></div>`;
+  });
+  box.innerHTML = html;
+  try { window.scrollTo(0, document.body.scrollHeight); } catch (e) {}
+}
+
+async function sendAdminReply() {
+  const inp = document.getElementById('th-input');
+  const text = ((inp && inp.value) || '').trim();
+  if (!text || !_chatThreadUser) return;
+  inp.value = '';
+  const temp = { id: 'tmp' + Date.now(), user_id: _chatThreadUser, sender: 'admin', body: text, created_at: new Date().toISOString() };
+  _chatMsgs.push(temp); renderThread();
+  try {
+    const { data, error } = await SUPABASE.from('support_messages')
+      .insert({ user_id: _chatThreadUser, sender: 'admin', body: text })
+      .select('id,created_at').single();
+    if (error) {
+      _chatMsgs = _chatMsgs.filter(m => m !== temp); renderThread();
+      alert('ส่งไม่สำเร็จ: ' + error.message);
+      inp.value = text;
+      return;
+    }
+    if (data) { temp.id = data.id; temp.created_at = data.created_at; }
+    // พุชหา user · fire-and-forget
+    try { SUPABASE.functions.invoke('notify_chat', { body: { to: _chatThreadUser, body: text.slice(0, 300) } }); } catch (e) {}
+    renderInbox();
+  } catch (e) { console.warn('reply error:', e); }
+}
+
+function _chatSubscribe() {
+  if (_chatChannel || !SUPABASE) return;
+  try {
+    _chatChannel = SUPABASE.channel('admin:support_chat')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'support_messages' }, (payload) => {
+        const m = payload && payload.new;
+        if (!m) return;
+        if (_chatMsgs.some(x => String(x.id) === String(m.id))) return; // กันซ้ำ (เรา insert เอง)
+        _chatMsgs.push(m);
+        if (_chatThreadUser === m.user_id) {
+          renderThread();
+          if (m.sender === 'user') _chatMarkRead(m.user_id);
+        }
+        renderInbox();
+        updateInboxBadge();
+        if (m.sender === 'user' && _chatThreadUser !== m.user_id) {
+          const u = _chatUserOf(m.user_id);
+          const name = (u && (u.shop || u.email)) || 'ผู้ใช้';
+          showToast({ type: 'signup', title: '💬 ' + name, body: m.body.slice(0, 120), onClick: () => { switchTab('inbox'); openThread(m.user_id); } });
+        }
+      })
+      .subscribe();
+  } catch (e) { console.warn('chat realtime:', e); }
+}
+
+function updateInboxBadge() {
+  const dot = document.getElementById('inbox-tab-dot');
+  if (!dot) return;
+  dot.style.display = _convs().some(c => c.unread > 0) ? '' : 'none';
+}
+
+// ============ v3.3 · ADMIN WEB PUSH (sw-admin.js · scope แยก ./pixory-admin-push/ · ไม่ชน sw.js มือถือ) ============
+const ADMIN_VAPID_PUBLIC_KEY = 'BMEHtYFdPaYYVKWSOwwOa-QBu5iWI3LUlQEdTxrv4hj2K4gRKXfLF3BoEq4Lv0XBmIHeQSWUz2zcIb2srhh4WiQ';
+let _adminSwReg = null;
+
+function _adminB64ToU8(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  const out = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; ++i) out[i] = raw.charCodeAt(i);
+  return out;
+}
+
+async function initAdminPushUI() {
+  const btn = document.getElementById('admin-push-btn');
+  try {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) { if (btn) btn.style.display = 'none'; return; }
+    _adminSwReg = await navigator.serviceWorker.register('./sw-admin.js', { scope: './pixory-admin-push/', updateViaCache: 'none' });
+    const sub = await _adminSwReg.pushManager.getSubscription();
+    _setAdminPushBtn(!!sub);
+  } catch (e) { console.warn('[admin push] sw register:', e); if (btn) btn.style.display = 'none'; }
+}
+function _setAdminPushBtn(on) {
+  const b = document.getElementById('admin-push-btn');
+  if (!b) return;
+  b.textContent = on ? '🔔 พุช: เปิดอยู่' : '🔕 เปิดพุช';
+  b.style.borderColor = on ? 'rgba(110,224,167,.4)' : '#3a2e24';
+}
+async function toggleAdminPush() {
+  try {
+    if (!_adminSwReg) { alert('เบราว์เซอร์นี้ไม่รองรับ push'); return; }
+    const existing = await _adminSwReg.pushManager.getSubscription();
+    if (existing) {
+      try { await SUPABASE.from('push_subscriptions').delete().eq('endpoint', existing.endpoint); } catch (e) {}
+      await existing.unsubscribe();
+      _setAdminPushBtn(false);
+      showToast({ title: '🔕 ปิดพุชแล้ว', body: 'จะไม่มีแจ้งเตือนเมื่อปิดแท็บแอดมิน' });
+      return;
+    }
+    let perm = Notification.permission;
+    if (perm === 'default') perm = await Notification.requestPermission();
+    if (perm !== 'granted') { alert('เบราว์เซอร์ไม่อนุญาตการแจ้งเตือน\nไปที่ตั้งค่าเบราว์เซอร์ → อนุญาต Notifications สำหรับเว็บนี้ แล้วลองใหม่'); return; }
+    const sub = await _adminSwReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: _adminB64ToU8(ADMIN_VAPID_PUBLIC_KEY) });
+    const j = sub.toJSON();
+    const uid = window._ADMIN_USER && window._ADMIN_USER.id;
+    const { error } = await SUPABASE.from('push_subscriptions').upsert({
+      user_id: uid,
+      device_id: 'admin-portal',
+      endpoint: j.endpoint,
+      p256dh: j.keys && j.keys.p256dh,
+      auth: j.keys && j.keys.auth,
+      user_agent: navigator.userAgent || '',
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'endpoint' });
+    if (error) { alert('บันทึก subscription ไม่สำเร็จ: ' + error.message); return; }
+    _setAdminPushBtn(true);
+    showToast({ title: '🔔 เปิดพุชแล้ว', body: 'มีคนทักแชท จะเด้งถึงแม้ปิดแท็บแอดมิน' });
+  } catch (e) { alert('เปิดพุชไม่สำเร็จ: ' + (e.message || e)); }
 }
 
 // ============ DATA LOADING / PROCESSING ============
@@ -1618,6 +1902,10 @@ function renderUsersView(users) {
     const NEW_MS = 7 * 86400 * 1000;
     filtered = users.filter(u => u.joinedAt && (Date.now() - u.joinedAt) <= NEW_MS);
   }
+  else if (_currentUserFilter === 'badge') {
+    // 🏅 v3.2 · กลุ่ม Founding Tester (มีตราใน user_badges)
+    filtered = users.filter(u => window._BADGES && u.userId && window._BADGES[u.userId]);
+  }
   else if (_currentUserFilter !== 'all') filtered = users.filter(u => u.stage === _currentUserFilter);
   // v2.6 · text search (email · shop · phone · line)
   if (_userSearch) {
@@ -1639,6 +1927,8 @@ function renderUsersView(users) {
       totalEl.innerHTML = `${users.length} ราย · 🟢 ${onlineN} online · ⭐ ${champN} champs · 🔥 ${actionN} ต้องดู`;
     } else if (_currentUserFilter === 'new') {
       totalEl.textContent = `🆕 ${filtered.length} คนสมัครใหม่ · 7 วันล่าสุด (ใหม่สุดอยู่บน)`;
+    } else if (_currentUserFilter === 'badge') {
+      totalEl.textContent = `🏅 ${filtered.length} Founding Testers (ผู้ได้รับตรา)`;
     } else {
       totalEl.textContent = `${filtered.length} ราย (กรอง ${_currentUserFilter})`;
     }
