@@ -276,8 +276,8 @@
   /* v1.9.20 · row-gap 8px so wrapped chip rows breathe; column-gap 6px stays compact */
   .chip-row { display: flex; flex-wrap: wrap; gap: 8px 6px; align-items: flex-start; }
   /* v2.5.85 · ตัวกรองหน้างาน · 2 แถว × 3 ปุ่ม (เดิม scroll แนวนอน ปุ่มขาดๆ) */
-  #jobs-filter-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0 16px 12px; }
-  #jobs-filter-row .chip { text-align: center; white-space: nowrap; }
+  #jobs-filter-row, #quotes-filter-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0 16px 12px; }
+  #jobs-filter-row .chip, #quotes-filter-row .chip { text-align: center; white-space: nowrap; }
   .chip { padding: 7px 12px; border-radius: 16px; background: white; border: 0.5px solid #d1d5db; font-size: 12px; cursor: pointer; user-select: none; transition: all .1s; }
   .chip.active { background: #3a2f25; color: white; border-color: #3a2f25; }
   /* v2.5.67 · "รอจัดทีม" warn chip + count badge · 3-theme */
@@ -2852,6 +2852,29 @@
   body.dark-theme .pdf-paper .pdf-body .detail-row .v { color: #111827 !important; }
   body.dark-theme #q-customer { color: #111827 !important; }
   body.dark-theme .pdf-body strong { color: #111827 !important; }
+  /* v2.5.87 · FIX (Joe report): ธีม luxe ไม่มีเกราะกันแบบ dark → ตัวจับสี luxe (body.luxe-theme [style*=...])
+     ชนะ specificity ทาตัวหนังสือในกระดาษเป็นสีอ่อนบนกระดาษขาว (จอมองไม่ชัด แต่ export JPEG ถูกเพราะใช้สีต้นฉบับ) */
+  body.luxe-theme .pdf-paper { background: white !important; color: #3a2f25 !important; }
+  body.luxe-theme .pdf-paper .pdf-header { background: #3a2f25 !important; color: white !important; }
+  body.luxe-theme .pdf-paper [style*="color:#7c7066"],
+  body.luxe-theme .pdf-paper [style*="color: #7c7066"],
+  body.luxe-theme .pdf-paper [style*="color:#4a4a4a"],
+  body.luxe-theme .pdf-paper [style*="color:#374151"],
+  body.luxe-theme .pdf-paper [style*="color: #374151"] { color: #374151 !important; }
+  body.luxe-theme .pdf-paper [style*="color:#111827"],
+  body.luxe-theme .pdf-paper [style*="color: #111827"] { color: #111827 !important; }
+  body.luxe-theme .pdf-paper [style*="color:#a89a8c"],
+  body.luxe-theme .pdf-paper [style*="color: #a89a8c"] { color: #6b7280 !important; }
+  body.luxe-theme .pdf-paper .pdf-body table th { color: #374151 !important; }
+  body.luxe-theme .pdf-paper .pdf-body table td { color: #1f2937 !important; }
+  body.luxe-theme .pdf-paper .pdf-body .total { color: #0f172a !important; border-color: #3a2f25 !important; }
+  body.luxe-theme .pdf-paper .pdf-body .detail-row .k { color: #374151 !important; }
+  body.luxe-theme .pdf-paper .pdf-body .detail-row .v { color: #111827 !important; }
+  body.luxe-theme #q-customer { color: #111827 !important; }
+  body.luxe-theme .pdf-paper .pdf-body strong { color: #111827 !important; }
+  body.luxe-theme .pdf-paper [style*="background:#f3f4f6"],
+  body.luxe-theme .pdf-paper [style*="background: #f3f4f6"] { background: #f3f4f6 !important; }
+  body.luxe-theme .pdf-paper [style*="background:#f9fafb"] { background: #f9fafb !important; }
 
   /* ============================================================ */
   /* HOME HERO WIDGET                                              */
@@ -5373,7 +5396,8 @@
       </div>
 
       <!-- Quotes filters -->
-      <div id="quotes-filter-row" style="display: none; gap: 6px; padding: 0 16px 12px; overflow-x: auto;">
+      <!-- v2.5.87 · ตัด inline layout ออก ให้ CSS grid คุมเหมือน jobs-filter-row -->
+      <div id="quotes-filter-row" style="display: none;">
         <div class="chip active" onclick="filterQuotes('all', this)" data-i18n="filter.all">ทั้งหมด</div>
         <div class="chip" onclick="filterQuotes('pending', this)" data-i18n="filter.pending">รออนุมัติ</div>
         <div class="chip" onclick="filterQuotes('converted', this)" data-i18n="filter.converted">สร้างงานแล้ว</div>
@@ -8420,7 +8444,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.86';
+const PIXORY_VERSION = '2.5.87';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8431,6 +8455,14 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.87': {
+    date: '2026-06-04',
+    title: '🧾 ใบเสนอ/ใบเรียกเก็บบนจออ่านชัดทุกธีม',
+    subtitle: 'ธีมดำหรู ตัวหนังสือบนกระดาษไม่ซีดแล้ว',
+    items: [
+      { icon: '🧾', title: 'ตัวหนังสือในใบเสนอ/ใบเรียกเก็บชัดเหมือนไฟล์ที่ส่งลูกค้า', desc: 'ในธีมดำหรู รายละเอียดใต้ชื่อลูกค้า (งาน·วันที่·สถานที่·เวลา) เคยซีดจางบนหน้าจอ ทั้งที่ไฟล์ที่บันทึกออกมาปกติ · ตอนนี้บนจอชัดตรงกับไฟล์แล้ว' }
+    ]
+  },
   '2.5.86': {
     date: '2026-06-04',
     title: '🔧 เก็บงานหน้าบริการ',
@@ -18480,8 +18512,9 @@ function switchJobsTab(tab) {
   CURRENT_JOBS_TAB = tab;
   document.getElementById('seg-jobs').classList.toggle('active', tab === 'jobs');
   document.getElementById('seg-quotes').classList.toggle('active', tab === 'quotes');
-  document.getElementById('jobs-filter-row').style.display = tab === 'jobs' ? 'flex' : 'none';
-  document.getElementById('quotes-filter-row').style.display = tab === 'quotes' ? 'flex' : 'none';
+  // v2.5.87 · FIX: เดิม set 'flex' inline ทับ CSS grid 2 แถว (Joe report: สลับแท็บแล้วตัวกรองกลายเป็นแถวเดียวล้นจอ) → ใช้ '' ให้ CSS คุม
+  document.getElementById('jobs-filter-row').style.display = tab === 'jobs' ? '' : 'none';
+  document.getElementById('quotes-filter-row').style.display = tab === 'quotes' ? '' : 'none';
   document.getElementById('jobs-list').style.display = tab === 'jobs' ? '' : 'none';
   document.getElementById('quotes-list').style.display = tab === 'quotes' ? '' : 'none';
   const title = document.getElementById('jobs-title');
