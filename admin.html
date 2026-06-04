@@ -1359,6 +1359,18 @@ function closeThread() {
   document.getElementById('inbox-list').style.display = '';
   renderInbox();
 }
+
+// v3.3 · แอดมินทักก่อนได้ · เปิดห้องแชทของ user คนไหนก็ได้ (ยังไม่เคยมีข้อความก็ได้)
+function startChatWith(email) {
+  const u = _lastUsers.find(x => x.email === email);
+  if (!u || !u.userId) { alert('หา user id ไม่เจอ · ผู้ใช้คนนี้อาจยังไม่เคย sync ข้อมูล'); return; }
+  if (!_chatTableOk) { alert('ระบบแชทยังไม่พร้อม — รัน SQL + deploy notify_chat ก่อน (ดู 04_docs/support_chat_setup_for_Joe.md)'); return; }
+  closeUserSheet();
+  switchTab('inbox');
+  openThread(u.userId);
+  const inp = document.getElementById('th-input');
+  if (inp) setTimeout(() => inp.focus(), 150);
+}
 function openThreadProfile() {
   const u = _chatUserOf(_chatThreadUser);
   if (u && typeof openUserSheet === 'function') openUserSheet(u.email);
@@ -2052,7 +2064,8 @@ function openUserSheet(email) {
     ${u.studioGenres && u.studioGenres.length ? `<div class="udc-genres">${formatGenres(u.studioGenres, u.studioGenresOther)}</div>` : ''}
     <div class="udc-action">${lastAction}</div>
     <div class="udc-btn-row">
-      <button class="user-action" onclick='closeUserSheet();openDmModal(${JSON.stringify(u.email)}, "active")'>💬 DM ทักทาย</button>
+      <button class="user-action" style="background:rgba(212,160,86,0.14);color:var(--accent-2);border:1px solid rgba(212,160,86,0.4);" onclick='startChatWith(${JSON.stringify(u.email)})'>💬 แชทในแอพ</button>
+      <button class="user-action" onclick='closeUserSheet();openDmModal(${JSON.stringify(u.email)}, "active")'>📨 DM (LINE/Email)</button>
     </div>
     ${(() => {
       // v3.2 · Founding Tester badge toggle
