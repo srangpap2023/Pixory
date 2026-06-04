@@ -5217,6 +5217,10 @@
             <div style="flex:1; min-width:0;">
               <h1 id="home-greeting" style="font-size:18px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">SRANGPAP WEDDING</h1>
               <div id="home-greeting-sub" style="font-size:12px; color:#7c7066; margin-top:2px;">สวัสดีครับ 👋</div>
+              <!-- v2.5.89 · ตรา Founding Tester (โหลดจากตาราง user_badges · นอก blob) -->
+              <div id="home-badge" style="display:none; margin-top:5px;" onclick="event.stopPropagation(); showFoundingBadgeModal();">
+                <span style="font-size:10px; font-weight:800; letter-spacing:2px; color:#C9954F; border-bottom:1.5px solid rgba(201,149,79,0.55); padding-bottom:1px; cursor:pointer;">🏅 FOUNDING TESTER</span>
+              </div>
             </div>
           </div>
           <div class="header-actions">
@@ -8444,7 +8448,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.87';
+const PIXORY_VERSION = '2.5.89';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8455,6 +8459,22 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.89': {
+    date: '2026-06-04',
+    title: '🏅 ตรา Founding Tester',
+    subtitle: 'เครื่องหมายขอบคุณผู้บุกเบิก Pixory',
+    items: [
+      { icon: '🏅', title: 'ตราผู้บุกเบิก สำหรับผู้ร่วมทดสอบกลุ่มแรก', desc: 'ใครได้รับตราจะเห็น "FOUNDING TESTER" สีทองใต้ชื่อร้านบนหน้าแรก · แตะดูความหมายได้ · ตรานี้มีจำกัด มอบให้เฉพาะกลุ่มบุกเบิกเท่านั้น' }
+    ]
+  },
+  '2.5.88': {
+    date: '2026-06-04',
+    title: '🔧 ปรับปรุงความเสถียรภายใน',
+    subtitle: 'เก็บกวาดโค้ดให้แข็งแรงขึ้น',
+    items: [
+      { icon: '🛡', title: 'เก็บกวาดภายใน', desc: 'ปรับโครงสร้างโค้ดส่วนแปลงใบเสนอเป็นงานให้ชัดเจนขึ้น · ไม่มีผลต่อการใช้งาน ทุกอย่างทำงานเหมือนเดิม' }
+    ]
+  },
   '2.5.87': {
     date: '2026-06-04',
     title: '🧾 ใบเสนอ/ใบเรียกเก็บบนจออ่านชัดทุกธีม',
@@ -12249,8 +12269,52 @@ function snapshotLocalForRecovery() {
   } catch(e) { console.warn('snapshot failed', e); }
 }
 
+// ========== v2.5.89 · Founding Tester badge ==========
+// อ่านจากตาราง user_badges (RLS: user อ่านได้เฉพาะของตัวเอง · admin เป็นคนให้ตรา)
+// เก็บนอก blob โดยเจตนา — blob โดน client push ทับตลอด ตราจะหายถ้าเก็บใน blob
+async function loadMyBadge() {
+  try {
+    if (!CURRENT_USER || !SUPABASE) return;
+    const { data, error } = await SUPABASE.from('user_badges')
+      .select('badge,badge_no,granted_at')
+      .eq('user_id', CURRENT_USER.id)
+      .maybeSingle();
+    if (error || !data) return;  // ไม่มีตรา/ตารางยังไม่ถูกสร้าง → เงียบๆ
+    window._MY_BADGE = data;
+    const el = document.getElementById('home-badge');
+    if (el) el.style.display = '';
+    // เด้งการ์ดขอบคุณอัตโนมัติครั้งแรกที่ได้ตรา
+    try {
+      const seenKey = 'pixory.badgeSeen.' + (data.badge || 'founding_tester');
+      if (!localStorage.getItem(seenKey)) {
+        localStorage.setItem(seenKey, '1');
+        setTimeout(showFoundingBadgeModal, 1200);
+      }
+    } catch (e) {}
+  } catch (e) { /* เงียบ · ตราเป็น optional feature */ }
+}
+function showFoundingBadgeModal() {
+  let ov = document.getElementById('badge-modal-ov');
+  if (ov) { ov.style.display = 'flex'; return; }
+  ov = document.createElement('div');
+  ov.id = 'badge-modal-ov';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(8,6,4,0.78);z-index:9500;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px);';
+  ov.onclick = (e) => { if (e.target === ov) ov.style.display = 'none'; };
+  ov.innerHTML = `
+    <div style="max-width:360px;width:100%;background:radial-gradient(ellipse at top, rgba(212,160,86,0.14), transparent 60%), linear-gradient(170deg,#1a140d,#0E0A08);border:1px solid rgba(212,160,86,0.45);border-radius:22px;padding:30px 26px;text-align:center;color:#EDE3D0;">
+      <div style="font-size:44px;line-height:1;">🏅</div>
+      <div style="font-size:13px;font-weight:800;letter-spacing:3px;color:#E8B870;margin-top:10px;border-bottom:1.5px solid rgba(212,160,86,0.5);display:inline-block;padding-bottom:3px;">FOUNDING TESTER</div>
+      <div style="font-size:17px;font-weight:700;color:#fff;margin-top:16px;">คุณคือผู้บุกเบิก Pixory</div>
+      <div style="font-size:13px;color:#B8A994;line-height:1.7;margin-top:10px;">ตรานี้มีจำกัด — มอบให้เฉพาะช่างภาพกลุ่มแรก<br>ที่ร่วมทดสอบ ให้ฟีดแบ็ก และอดทนกับบั๊ก<br>ไปด้วยกันตั้งแต่ Pixory ยังเป็นแอปเล็กๆ<br><br>ทุกฟีเจอร์ที่คุณเห็น มีรอยมือของกลุ่มบุกเบิกอยู่ในนั้น<br>ขอบคุณครับ 🙏</div>
+      <div style="font-size:11.5px;color:#8a7a66;margin-top:14px;font-style:italic;">สิทธิพิเศษรุ่นก่อตั้งจะประกาศเมื่อครบ 100 คนแรก</div>
+      <button onclick="document.getElementById('badge-modal-ov').style.display='none'" style="margin-top:20px;background:linear-gradient(135deg,#E8B870,#C9954F);color:#1a1208;border:none;border-radius:12px;padding:11px 32px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;">ภูมิใจครับ 🫡</button>
+    </div>`;
+  document.body.appendChild(ov);
+}
+
 async function syncOnStartup() {
   if (!CURRENT_USER || !SUPABASE) { _cloudInitialSyncDone = true; setSyncState('offline'); return; }
+  loadMyBadge();  // v2.5.89 · fire-and-forget · ไม่บล็อก sync
   setSyncState('syncing');
   const remote = await pullFromCloud();
   const localRaw = localStorage.getItem(STORAGE_KEY);
@@ -19066,7 +19130,8 @@ function convertQuoteToJob(code) {
     deposit: qDeposit, remain: qRemain, payStatus: qPayStatus,
     depositPaidDate: qDeposit > 0 ? today : null,
     depositInitial: qDeposit,  // v2.5.71 · ให้ savePayment ถัดไปคิดยอดสะสมถูก
-    payments: qDeposit > 0 ? [{ date: today, amount: qDeposit, note: 'มัดจำ (จากใบเสนอ)' }] : [],  // v2.5.71 · ลงมัดจำในประวัติจ่ายตั้งแต่แปลง
+    // v2.5.88 · ลบ key `payments` ตัวแรกที่เคยอยู่ตรงนี้ (dead code — ถูก payments:[] ด้านล่างทับเสมอ)
+    //          มัดจำถูกลงประวัติทาง logDepositPayment(newJob, ...) หลังสร้าง object · เป็นทางเดียว (single source)
     jobStatus: 'รอถ่าย', delivery: 'ยังไม่ถ่าย', // v2.5.0 · was 'จอง' · delivery legacy
     // v2.5.19 · Fix bug: was `source: 'Quote ' + q.code` which created a new chart category per quote
     // Now uses last SOURCES entry (Other/อื่นๆ) by default · user can edit in Job detail
@@ -20378,6 +20443,7 @@ function v2pdf_pickDocCase(customerType, studioVatRegistered) {
   return 'casual';
 }
 
+// ⚠ v2.5.88 · ก๊อปปี้ของ calcTax (~22115) — แก้สูตรต้อง sync ทั้ง 3 จุด (รวม desktop.html ~10464)
 function v2pdf_calcTax(base, opts) {
   base = Math.max(0, Number(base) || 0);
   const includeVat = !!opts.includeVat;
@@ -22108,6 +22174,8 @@ function updateCustomerB2BFieldsVisibility(type) {
 //   netReceived,    // grandTotal − wht — what the studio actually gets
 //   includeVat, includeWht
 // }
+// ⚠ v2.5.88 · เครื่องคิดภาษีมี 3 ก๊อปปี้ — แก้สูตรที่นี่ต้อง sync: v2pdf_calcTax (ไฟล์นี้ ~20381) + desktop.html calcTax (~10464)
+//   (backlog: รวมเป็น single source ใน pixory-helpers.js แบบเดียวกับ helper เงิน 6 ตัว)
 function calcTax(base, opts) {
   base = Math.max(0, Number(base) || 0);
   opts = opts || {};

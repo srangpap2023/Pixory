@@ -868,7 +868,7 @@
     <div class="panel">
       <div class="panel-title">ℹ เกี่ยวกับ</div>
       <div style="font-size:12px; color: var(--muted); line-height:1.6;">
-        Pixory Admin Monitor · v3.1<br>
+        Pixory Admin Monitor · v3.2<br>
         4 แท็บ · champagne gold · growth monitors<br><br>
         • Realtime sync + polling 10s<br>
         • Live notification toast + sound<br>
@@ -1230,6 +1230,12 @@ async function loadDashboard(showLoading) {
       document.getElementById('activity-feed').innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">โหลดไม่สำเร็จ</div><div style="font-size:11px;margin-top:6px;color:var(--muted);">${escapeHtml(error.message)}</div></div>`;
       return;
     }
+    // v3.2 · Founding Tester badges (ตาราง user_badges · นอก blob เพราะ blob โดน client ทับ)
+    try {
+      const { data: bd, error: be } = await SUPABASE.from('user_badges').select('user_id,badge,badge_no,granted_at');
+      if (!be) { window._BADGES = {}; (bd || []).forEach(b => { window._BADGES[b.user_id] = b; }); window._badgesTableOk = true; }
+      else { window._BADGES = window._BADGES || {}; window._badgesTableOk = false; }
+    } catch (e) { window._BADGES = window._BADGES || {}; window._badgesTableOk = false; }
     _lastUsers = processRows(rows || []);
     renderAll(_lastUsers);
   } catch (e) {
@@ -1307,6 +1313,7 @@ function processRows(rows) {
     const pdfGenerated = lastAction.type === 'generated_pdf';
     if (!map.has(email)) {
       map.set(email, {
+        userId: row.user_id,  // v3.2 · ใช้ผูกตรา Founding Tester
         email, emailIsFallback, shop, phone, line, updatedAt, signupAt, hasSignup, joinedAt,
         jobCount: jobs.length, quoteCount: quotes.length, custCount: Object.keys(customers).length,
         appVersion: meta.app_version || '—',
@@ -1668,13 +1675,14 @@ function renderUserRow(u) {
   const onlineHtml = u.isOnline ? `<span class="online">🟢 online</span>` : '';
   const timeHtml = `<span>${formatLastSeen(u.secondsAgo)}</span>`;
   const actionTag = isActionNeeded(u) ? '<span style="color:#fde68a; font-weight:700;">🔥</span>' : '';
+  const badgeTag = (window._BADGES && u.userId && window._BADGES[u.userId]) ? ' <span title="Founding Tester">🏅</span>' : '';
   const emailSafe = JSON.stringify(u.email);
   // If shop exists use shop; else use email username (redacted if redact mode on)
   const displayName = u.shop ? u.shop : (_notifPrefs.redact ? redactEmail(u.email).split('@')[0] : u.email.split('@')[0]);
   return `<div class="user-row ${u.stage}" onclick='openUserSheet(${emailSafe})'>
     <div class="user-row-avatar ${avatarClass}">${liveDot}${initials}</div>
     <div class="user-row-mid">
-      <div class="user-row-name">${stageEmoji} ${escapeHtml(displayName)} ${actionTag}</div>
+      <div class="user-row-name">${stageEmoji} ${escapeHtml(displayName)}${badgeTag} ${actionTag}</div>
       <div class="user-row-sub">${onlineHtml}${timeHtml}<span>📋 ${u.quoteCount} Quo · 💼 ${u.jobCount} Job</span></div>
     </div>
     <div class="user-row-right">
@@ -1756,8 +1764,41 @@ function openUserSheet(email) {
     <div class="udc-btn-row">
       <button class="user-action" onclick='closeUserSheet();openDmModal(${JSON.stringify(u.email)}, "active")'>💬 DM ทักทาย</button>
     </div>
+    ${(() => {
+      // v3.2 · Founding Tester badge toggle
+      if (!window._badgesTableOk) return `<div style="margin-top:12px;padding:10px 12px;border:1px dashed var(--line-2);border-radius:10px;font-size:11px;color:var(--muted);">🏅 ระบบตรายังไม่พร้อม — รัน SQL สร้างตาราง user_badges ก่อน (ดู 04_docs/user_badges_setup_for_Joe.md)</div>`;
+      const b = u.userId && window._BADGES[u.userId];
+      return b
+        ? `<div style="margin-top:12px;display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(212,160,86,0.10);border:1px solid rgba(212,160,86,0.4);border-radius:12px;">
+            <span style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--accent-2);border-bottom:1.5px solid rgba(212,160,86,0.6);">🏅 FOUNDING TESTER</span>
+            <span style="font-size:11px;color:var(--muted);flex:1;">ให้เมื่อ ${new Date(b.granted_at).toLocaleDateString('th-TH')}</span>
+            <button class="user-action" style="background:rgba(239,68,68,0.12);color:#fca5a5;" onclick='revokeBadge(${JSON.stringify(u.email)})'>ยกเลิกตรา</button>
+          </div>`
+        : `<div style="margin-top:12px;"><button class="user-action" style="width:100%;background:rgba(212,160,86,0.14);color:var(--accent-2);border:1px solid rgba(212,160,86,0.4);" onclick='grantBadge(${JSON.stringify(u.email)})'>🏅 ให้ตรา Founding Tester</button></div>`;
+    })()}
   `;
   document.getElementById('user-sheet').classList.add('show');
+}
+
+// v3.2 · ให้/ยกเลิกตรา Founding Tester
+async function grantBadge(email) {
+  const u = _lastUsers.find(x => x.email === email);
+  if (!u || !u.userId) { showToast({ type: 'job', title: '⚠ หา user id ไม่เจอ', body: '', time: '' }); return; }
+  const maxNo = Object.values(window._BADGES || {}).reduce((m, b) => Math.max(m, b.badge_no || 0), 0);
+  const { error } = await SUPABASE.from('user_badges').upsert({ user_id: u.userId, badge: 'founding_tester', badge_no: maxNo + 1 });
+  if (error) { alert('ให้ตราไม่สำเร็จ: ' + error.message); return; }
+  window._BADGES[u.userId] = { user_id: u.userId, badge: 'founding_tester', badge_no: maxNo + 1, granted_at: new Date().toISOString() };
+  openUserSheet(email);
+  showToast({ type: 'signup', title: '🏅 ให้ตราแล้ว', body: `<b>${escapeHtml(u.shop || email)}</b> · Founding Tester #${maxNo + 1}`, time: 'เมื่อกี้' });
+}
+async function revokeBadge(email) {
+  const u = _lastUsers.find(x => x.email === email);
+  if (!u || !u.userId) return;
+  if (!confirm('ยกเลิกตรา Founding Tester ของ ' + (u.shop || email) + '?')) return;
+  const { error } = await SUPABASE.from('user_badges').delete().eq('user_id', u.userId);
+  if (error) { alert('ยกเลิกไม่สำเร็จ: ' + error.message); return; }
+  delete window._BADGES[u.userId];
+  openUserSheet(email);
 }
 function closeUserSheet() {
   document.getElementById('user-sheet').classList.remove('show');

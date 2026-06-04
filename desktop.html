@@ -2853,6 +2853,10 @@
       <span class="sync-dot"></span>
       <span id="sync-text" data-i18n="app.syncReady">พร้อม</span>
     </div>
+    <!-- v1.0.61 · ตรา Founding Tester (โหลดจาก user_badges · parity กับมือถือ v2.5.89) -->
+    <span id="topbar-badge" style="display:none; cursor:pointer; margin-right:4px;" onclick="showFoundingBadgeModal()">
+      <span style="font-size:10px; font-weight:800; letter-spacing:2px; color:#C9954F; border-bottom:1.5px solid rgba(201,149,79,0.55); padding-bottom:1px; white-space:nowrap;">🏅 FOUNDING TESTER</span>
+    </span>
     <div class="user-chip">
       <div id="user-avatar" class="avatar">?</div>
       <span id="user-email">--</span>
@@ -2930,12 +2934,28 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.58';
+const PIXORY_DESKTOP_VERSION = '1.0.61';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.61': {
+    date: '2026-06-04',
+    title: '🏅 ตรา Founding Tester',
+    subtitle: 'ผู้บุกเบิกเห็นตราบนเดสก์ท็อปด้วยแล้ว',
+    items: [
+      { icon: '🏅', title: 'ตราผู้บุกเบิกบนแถบบนสุด', desc: 'ผู้ที่ได้รับตราจะเห็น "FOUNDING TESTER" สีทองข้างชื่อบัญชี · คลิกดูความหมายได้ · ตรงกับฝั่งมือถือ' }
+    ]
+  },
+  '1.0.60': {
+    date: '2026-06-04',
+    title: '📊 Excel ภาษีบนเดสก์ท็อปแล้ว',
+    subtitle: 'ภ.พ.30 + ภ.ง.ด.3 ส่งบัญชีได้จากจอใหญ่',
+    items: [
+      { icon: '📊', title: 'ปุ่ม "บันทึก Excel ภาษี" ในหน้ารายงาน → ส่งออก', desc: 'ไฟล์เดียว 4 ชีต: สรุปปี · ภ.พ.30 ขายออก · ภ.ง.ด.3 ถูกหัก · รายได้รวมทั้งปี — เหมือนฝั่งมือถือทุกชีต ส่งให้คนทำบัญชีได้เลย' }
+    ]
+  },
   '1.0.58': {
     date: '2026-06-04',
     title: '🏷 เลือก/แก้ประเภทงานได้บนเดสก์ท็อป',
@@ -3684,6 +3704,7 @@ async function finishAuthAndStart() {
   if (!_landedSetup) navigate('dashboard');
   // Start realtime sync (Sprint 2E)
   startRealtimeSync();
+  loadMyBadge();  // v1.0.61 · ตรา Founding Tester · fire-and-forget
   // v1.0.50 · auto-sync poll · refreshes data by itself if realtime misses an event
   startAutoSyncPoll();
   // v1.0.40 · show What's New if version changed since last seen
@@ -6514,8 +6535,188 @@ function renderReportsCustomers() {
 }
 
 // ===== Tab 4: Export CSV =====
+// ===================================================================
+// v1.0.60 · Excel ภาษี (ภ.พ.30 + ภ.ง.ด.3 + รายได้รวมปี) — port จากมือถือ exportTaxExcel (index.html ~23416)
+// ⚠ sync: ถ้าแก้โครงชีต/สูตรฝั่งมือถือ ต้องแก้ที่นี่คู่กัน (schema blob เดียวกัน · calcTax desktop มีอยู่แล้ว)
+// ===================================================================
+function _ensureXlsxLib() {
+  if (typeof XLSX !== 'undefined') return Promise.resolve();
+  if (window._xlsxLoading) return window._xlsxLoading;
+  window._xlsxLoading = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = () => resolve();
+    s.onerror = () => { window._xlsxLoading = null; reject(new Error('xlsx load failed')); };
+    document.head.appendChild(s);
+  });
+  return window._xlsxLoading;
+}
+function isJobInTaxReport(j) {
+  if (!j) return false;
+  return !!j.taxEnabled;
+}
+function getTaxYearPeriod(year) {
+  const ys = (PROFILE && PROFILE.taxYearStart) ? PROFILE.taxYearStart : 1;
+  if (ys === 1) {
+    return { start: new Date(year, 0, 1), end: new Date(year, 11, 31), label: String(year) };
+  }
+  const startYear = year - 1;
+  const start = new Date(startYear, ys - 1, 1);
+  const end = new Date(year, ys - 1, 0);
+  return { start, end, label: start.toISOString().slice(0, 10) + ' – ' + end.toISOString().slice(0, 10) };
+}
+function getTaxReportRows(year, filter) {
+  const period = getTaxYearPeriod(year);
+  const today = new Date();
+  const rows = [];
+  JOBS.forEach(j => {
+    const d = new Date(j.date);
+    if (isNaN(d)) return;
+    if (d > today) return;
+    if (d < period.start || d > period.end) return;
+    if (!isJobInTaxReport(j)) return;
+    if (filter && filter !== 'all' && j.customerType !== filter) return;
+    let breakdown = j.taxBreakdown;
+    if (!breakdown && j.taxEnabled && j.tax) breakdown = calcTax(j.sell || 0, j.tax);
+    if (!breakdown) {
+      breakdown = { base: j.sell || 0, vatAmount: 0, vatRate: 0, whtAmount: 0, whtRate: 0, whtBasis: 'base', grandTotal: j.sell || 0, netReceived: j.sell || 0, includeVat: false, includeWht: false };
+    }
+    rows.push({
+      code: j.code, date: j.date, customer: j.customer,
+      customerType: j.customerType || 'B2C',
+      customerTaxId: j.customerTaxId || '',
+      customerCompany: j.customerCompanyName || '',
+      type: j.type, location: j.loc,
+      base: breakdown.base, vatAmount: breakdown.vatAmount, vatRate: breakdown.vatRate,
+      whtAmount: breakdown.whtAmount, whtRate: breakdown.whtRate, whtBasis: breakdown.whtBasis,
+      grandTotal: breakdown.grandTotal, netReceived: breakdown.netReceived,
+      taxEnabled: !!j.taxEnabled
+    });
+  });
+  rows.sort((a, b) => new Date(a.date) - new Date(b.date));
+  return { rows, period };
+}
+function summariseTaxRows(rows) {
+  return rows.reduce((acc, r) => ({
+    gross: acc.gross + (r.base || 0),
+    vat: acc.vat + (r.vatAmount || 0),
+    wht: acc.wht + (r.whtAmount || 0),
+    net: acc.net + (r.netReceived || 0)
+  }), { gross: 0, vat: 0, wht: 0, net: 0 });
+}
+function exportTaxExcel() {
+  if (typeof XLSX === 'undefined') {
+    toast('กำลังเตรียมเครื่องมือ Excel…');
+    _ensureXlsxLib().then(exportTaxExcel).catch(() => toast('โหลดเครื่องมือ Excel ไม่สำเร็จ — ลองใหม่อีกครั้ง', 'error'));
+    return;
+  }
+  const yr = REPORTS_YEAR || new Date().getFullYear();
+  const { rows, period } = getTaxReportRows(yr, 'all');
+  const summary = summariseTaxRows(rows);
+  const today = new Date();
+  const allJobs = JOBS.filter(j => {
+    const d = new Date(j.date);
+    if (isNaN(d)) return false;
+    if (d > today) return false;
+    return d >= period.start && d <= period.end;
+  }).sort((a, b) => new Date(a.date) - new Date(b.date));
+  const totalRevenueAll = allJobs.reduce((s, j) => s + jobRevenue(j), 0);
+
+  const wb = XLSX.utils.book_new();
+  const studioName = (PROFILE && PROFILE.shop) || 'Studio';
+  const studioTaxId = (PROFILE && PROFILE.taxId) || '';
+  const summaryRows = [
+    ['Pixory — รายงานปีภาษี'],
+    [],
+    ['ชื่อสตูดิโอ', studioName],
+    ['เลขผู้เสียภาษี', studioTaxId],
+    ['ปีภาษี', String(yr)],
+    ['ช่วงเวลา', period.start.toISOString().slice(0, 10) + '  →  ' + period.end.toISOString().slice(0, 10)],
+    ['สร้างเมื่อ', new Date().toISOString().slice(0, 10)],
+    [],
+    ['— รายได้รวมทั้งปี (ทุกงาน) —'],
+    ['จำนวนงานทั้งหมด', allJobs.length],
+    ['ยอดรายได้รวม (ราคาขาย)', totalRevenueAll],
+    [],
+    ['— เฉพาะงานที่เกี่ยวกับภาษี —'],
+    ['จำนวนงานที่มีภาษี', rows.length],
+    ['ยอดขายก่อนภาษี', summary.gross],
+    ['VAT รวม (ขายออก)', summary.vat],
+    ['WHT ถูกหักรวม', summary.wht],
+    ['ยอดสุทธิที่รับจริงจากงานภาษี', summary.net]
+  ];
+  const ws0 = XLSX.utils.aoa_to_sheet(summaryRows);
+  ws0['!cols'] = [{ wch: 28 }, { wch: 22 }];
+  XLSX.utils.book_append_sheet(wb, ws0, 'สรุป');
+
+  const vatHeader = ['ลำดับ', 'วันที่ใบกำกับ', 'เลขที่งาน', 'เลขผู้เสียภาษีลูกค้า', 'ชื่อลูกค้า', 'ประเภท', 'ฐาน (ก่อน VAT)', 'อัตรา VAT %', 'จำนวน VAT', 'ยอดรวม (รวม VAT)'];
+  const vatBody = rows.filter(r => r.vatAmount > 0).map((r, i) => [
+    i + 1, r.date, r.code, r.customerTaxId || '', r.customerCompany || r.customer, r.customerType,
+    r.base, r.vatRate, r.vatAmount, r.grandTotal
+  ]);
+  if (vatBody.length > 0) {
+    const totalBase = vatBody.reduce((s, r) => s + r[6], 0);
+    const totalVat = vatBody.reduce((s, r) => s + r[8], 0);
+    const totalGr = vatBody.reduce((s, r) => s + r[9], 0);
+    vatBody.push(['', '', '', '', 'รวม', '', totalBase, '', totalVat, totalGr]);
+  }
+  const ws1 = XLSX.utils.aoa_to_sheet([vatHeader, ...vatBody]);
+  ws1['!cols'] = [{ wch: 5 }, { wch: 12 }, { wch: 14 }, { wch: 18 }, { wch: 28 }, { wch: 8 }, { wch: 14 }, { wch: 10 }, { wch: 14 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, ws1, 'ภ.พ.30 ขายออก');
+
+  const whtHeader = ['ลำดับ', 'วันที่', 'เลขที่งาน', 'เลขผู้เสียภาษีผู้จ่าย', 'ชื่อผู้จ่าย', 'ประเภท', 'ฐาน', 'อัตรา WHT %', 'ฐานหัก', 'จำนวน WHT', 'ยอดสุทธิ'];
+  const whtBody = rows.filter(r => r.whtAmount > 0).map((r, i) => [
+    i + 1, r.date, r.code, r.customerTaxId || '', r.customerCompany || r.customer, r.customerType,
+    r.base, r.whtRate, r.whtBasis === 'total' ? 'รวม VAT' : 'ก่อน VAT', r.whtAmount, r.netReceived
+  ]);
+  if (whtBody.length > 0) {
+    const tBase = whtBody.reduce((s, r) => s + r[6], 0);
+    const tWht = whtBody.reduce((s, r) => s + r[9], 0);
+    const tNet = whtBody.reduce((s, r) => s + r[10], 0);
+    whtBody.push(['', '', '', '', 'รวม', '', tBase, '', '', tWht, tNet]);
+  }
+  const ws2 = XLSX.utils.aoa_to_sheet([whtHeader, ...whtBody]);
+  ws2['!cols'] = [{ wch: 5 }, { wch: 12 }, { wch: 14 }, { wch: 18 }, { wch: 28 }, { wch: 8 }, { wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 14 }, { wch: 14 }];
+  XLSX.utils.book_append_sheet(wb, ws2, 'ภ.ง.ด.3 ถูกหัก');
+
+  const allHeader = ['วันที่', 'เลขที่งาน', 'ลูกค้า', 'ประเภท', 'เลขผู้เสียภาษี', 'บริษัท', 'ประเภทงาน', 'สถานที่', 'ยอดขาย', 'VAT', 'WHT', 'สุทธิ', 'มี ภาษี'];
+  const allBody = allJobs.map(j => {
+    const bd = j.taxBreakdown || (j.taxEnabled && j.tax ? calcTax(j.sell || 0, j.tax) : null);
+    const vatAmt = bd ? bd.vatAmount : 0;
+    const whtAmt = bd ? bd.whtAmount : 0;
+    const netReceived = bd ? bd.netReceived : (j.sell || 0);
+    return [
+      j.date, j.code, j.customer || '', j.customerType || 'B2C',
+      j.customerTaxId || '', j.customerCompanyName || '',
+      j.type || '', j.loc || '',
+      j.sell || 0, vatAmt, whtAmt, netReceived, j.taxEnabled ? 'มี' : 'ไม่มี'
+    ];
+  });
+  if (allBody.length > 0) {
+    const tSell = allBody.reduce((s, r) => s + (r[8] || 0), 0);
+    const tVat = allBody.reduce((s, r) => s + (r[9] || 0), 0);
+    const tWht = allBody.reduce((s, r) => s + (r[10] || 0), 0);
+    const tNet = allBody.reduce((s, r) => s + (r[11] || 0), 0);
+    allBody.push(['', '', '', '', '', '', '', 'รวม', tSell, tVat, tWht, tNet, '']);
+  }
+  const ws3 = XLSX.utils.aoa_to_sheet([allHeader, ...allBody]);
+  ws3['!cols'] = [{ wch: 12 }, { wch: 14 }, { wch: 22 }, { wch: 8 }, { wch: 18 }, { wch: 24 }, { wch: 12 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }];
+  XLSX.utils.book_append_sheet(wb, ws3, 'รายได้รวมทั้งปี');
+
+  const safe = (s) => (s || '').toString().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_').slice(0, 40);
+  const fname = 'Pixory_Tax_' + safe(studioName) + '_' + yr + '.xlsx';
+  XLSX.writeFile(wb, fname);
+  toast('✓ ส่งออก Excel · ' + allJobs.length + ' งาน (' + rows.length + ' งานมีภาษี)', 'success');
+}
+
 function renderReportsExport() {
   return `
+    <div class="glass-card">
+      <div class="form-section-title">📊 Excel ภาษี (accountant-ready) · ปี ${REPORTS_YEAR + 543}</div>
+      <div class="text-mute text-sm" style="margin-bottom:12px;">ไฟล์เดียว 4 ชีต: สรุป · ภ.พ.30 ขายออก · ภ.ง.ด.3 ถูกหัก · รายได้รวมทั้งปี — ส่งให้บัญชีได้เลย (ตรงกับปุ่ม Excel ฝั่งมือถือ)</div>
+      <button class="btn btn-primary" onclick="exportTaxExcel()">📊 บันทึก Excel · ภ.พ.30 + ภ.ง.ด.3</button>
+    </div>
+
     <div class="glass-card">
       <div class="form-section-title">⬇ ส่งออกข้อมูลเป็น CSV · ปี ${REPORTS_YEAR + 543}</div>
       <div class="text-mute text-sm" style="margin-bottom:16px;">เปิดด้วย Excel · Google Sheets · ส่งให้บัญชีได้เลย · UTF-8 BOM สำหรับภาษาไทย</div>
@@ -10460,7 +10661,7 @@ function generateInvoiceCode(year) {
 }
 
 // ===== Tax calculation (per Section 4.2) =====
-
+// ⚠ v1.0.59 · ก๊อปปี้ของ calcTax ฝั่งมือถือ — แก้สูตรต้อง sync 3 จุด: index.html calcTax (~22115) + v2pdf_calcTax (~20383)
 function calcTax(base, opts) {
   base = Math.max(0, Number(base) || 0);
   const includeVat = !!opts.includeVat;
@@ -14563,6 +14764,46 @@ async function applyRemoteIfNewer() {
     toast('📲 อัปเดตข้อมูลล่าสุดจากอีกเครื่องแล้ว', 'success');
     return true;
   } catch(e) { console.warn('applyRemoteIfNewer:', e); return false; }
+}
+
+// ========== v1.0.61 · Founding Tester badge (parity มือถือ v2.5.89 · อ่านจาก user_badges นอก blob) ==========
+async function loadMyBadge() {
+  try {
+    if (!CURRENT_USER || !SUPABASE) return;
+    const { data, error } = await SUPABASE.from('user_badges')
+      .select('badge,badge_no,granted_at')
+      .eq('user_id', CURRENT_USER.id)
+      .maybeSingle();
+    if (error || !data) return;
+    window._MY_BADGE = data;
+    const el = document.getElementById('topbar-badge');
+    if (el) el.style.display = '';
+    try {
+      const seenKey = 'pixory.desktop.badgeSeen.' + (data.badge || 'founding_tester');
+      if (!localStorage.getItem(seenKey)) {
+        localStorage.setItem(seenKey, '1');
+        setTimeout(showFoundingBadgeModal, 1200);
+      }
+    } catch (e) {}
+  } catch (e) { /* optional feature · เงียบ */ }
+}
+function showFoundingBadgeModal() {
+  let ov = document.getElementById('badge-modal-ov');
+  if (ov) { ov.style.display = 'flex'; return; }
+  ov = document.createElement('div');
+  ov.id = 'badge-modal-ov';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(8,6,4,0.78);z-index:9500;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px);';
+  ov.onclick = (e) => { if (e.target === ov) ov.style.display = 'none'; };
+  ov.innerHTML = `
+    <div style="max-width:380px;width:100%;background:radial-gradient(ellipse at top, rgba(212,160,86,0.14), transparent 60%), linear-gradient(170deg,#1a140d,#0E0A08);border:1px solid rgba(212,160,86,0.45);border-radius:22px;padding:32px 28px;text-align:center;color:#EDE3D0;">
+      <div style="font-size:46px;line-height:1;">🏅</div>
+      <div style="font-size:13px;font-weight:800;letter-spacing:3px;color:#E8B870;margin-top:10px;border-bottom:1.5px solid rgba(212,160,86,0.5);display:inline-block;padding-bottom:3px;">FOUNDING TESTER</div>
+      <div style="font-size:18px;font-weight:700;color:#fff;margin-top:16px;">คุณคือผู้บุกเบิก Pixory</div>
+      <div style="font-size:13.5px;color:#B8A994;line-height:1.7;margin-top:10px;">ตรานี้มีจำกัด — มอบให้เฉพาะช่างภาพกลุ่มแรก<br>ที่ร่วมทดสอบ ให้ฟีดแบ็ก และอดทนกับบั๊ก<br>ไปด้วยกันตั้งแต่ Pixory ยังเป็นแอปเล็กๆ<br><br>ทุกฟีเจอร์ที่คุณเห็น มีรอยมือของกลุ่มบุกเบิกอยู่ในนั้น<br>ขอบคุณครับ 🙏</div>
+      <div style="font-size:11.5px;color:#8a7a66;margin-top:14px;font-style:italic;">สิทธิพิเศษรุ่นก่อตั้งจะประกาศเมื่อครบ 100 คนแรก</div>
+      <button onclick="document.getElementById('badge-modal-ov').style.display='none'" style="margin-top:20px;background:linear-gradient(135deg,#E8B870,#C9954F);color:#1a1208;border:none;border-radius:12px;padding:11px 32px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;">ภูมิใจครับ 🫡</button>
+    </div>`;
+  document.body.appendChild(ov);
 }
 
 function startAutoSyncPoll() {
