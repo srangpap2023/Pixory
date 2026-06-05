@@ -1162,6 +1162,8 @@ async function onLogout() {
   if (_refreshTimer) clearInterval(_refreshTimer);
   if (_onlineTickTimer) clearInterval(_onlineTickTimer);
   if (_realtimeChannel) { try { SUPABASE.removeChannel(_realtimeChannel); } catch (e) {} _realtimeChannel = null; }
+  if (_chatChannel) { try { SUPABASE.removeChannel(_chatChannel); } catch (e) {} _chatChannel = null; }  // v3.3 SEC · กัน channel ค้าง + re-subscribe ตันหลัง re-login
+  _chatMsgs = []; _chatThreadUser = null;
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('tab-bar').style.display = 'none';
   document.getElementById('login-screen').style.display = '';
@@ -1438,7 +1440,8 @@ function _chatSubscribe() {
         if (m.sender === 'user' && _chatThreadUser !== m.user_id) {
           const u = _chatUserOf(m.user_id);
           const name = (u && (u.shop || u.email)) || 'ผู้ใช้';
-          showToast({ type: 'signup', title: '💬 ' + name, body: m.body.slice(0, 120), onClick: () => { switchTab('inbox'); openThread(m.user_id); } });
+          // v3.3 SEC · escape ทั้ง name + body — m.body เป็นข้อความที่ผู้ใช้พิมพ์เอง (กัน stored XSS เข้า session แอดมิน)
+          showToast({ type: 'signup', title: '💬 ' + escapeHtml(name), body: escapeHtml(m.body.slice(0, 120)), onClick: () => { switchTab('inbox'); openThread(m.user_id); } });
         }
       })
       .subscribe();

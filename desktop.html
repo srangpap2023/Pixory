@@ -3639,6 +3639,12 @@ async function doResetPassword() {
 async function doLogout() {
   if (!confirm('ออกจากระบบ?')) return;
   stopRealtimeSync();
+  // v1.0.62 SEC · เก็บกวาด state แชท+ตรา (เดสก์ท็อปไม่ reload ตอน logout → ต้องล้างเอง · กัน user คนถัดไปบนเครื่องเดียวกันเห็นของเก่า/subscription ค้าง)
+  try { if (_dcChannel && SUPABASE) SUPABASE.removeChannel(_dcChannel); } catch(e) {}
+  _dcChannel = null; _dcMsgs = []; _dcLoaded = false; _dcOpen = false;
+  try { document.getElementById('dc-panel')?.remove(); document.getElementById('dc-fab')?.remove(); } catch(e) {}
+  window._MY_BADGE = null;
+  try { const _b = document.getElementById('topbar-badge'); if (_b) _b.style.display = 'none'; } catch(e) {}
   try { if (SUPABASE) await SUPABASE.auth.signOut(); } catch(e) {}
   CURRENT_USER = null;
   localStorage.removeItem(DATA_STORAGE_KEY);
