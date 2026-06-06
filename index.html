@@ -186,12 +186,15 @@
   .msum-tile { background: rgba(0,0,0,0.03); border-radius: 10px; padding: 9px 5px; text-align: center; }
   .msum-tile .v { font-size: 15px; font-weight: 700; color: #3a2f25; line-height: 1.1; }
   .msum-tile .l { font-size: 10px; color: #7c7066; margin-top: 3px; }
+  .msum-tile .ll { font-size: 8.5px; color: #a89a8c; margin-top: 1px; line-height: 1.2; }
   .msum-tile.cash .v { color: #0f6e56; }
   .msum-tile.debt .v { color: #dc2626; }
   body.dark-theme .msum { background: #1c1c1c; border-color: rgba(255,255,255,0.06); }
   body.dark-theme .msum-tile { background: rgba(255,255,255,0.04); }
   body.dark-theme .msum-tile .v { color: #f5f0e8; }
   body.dark-theme .msum-tile .l, body.dark-theme .msum-head { color: #a89a8c; }
+  body.dark-theme .msum-tile .ll { color: #6f655a; }
+  body.luxe-theme .msum-tile .ll { color: #6f655a; }
   body.dark-theme .msum-tile.cash .v { color: #86efac; }
   body.dark-theme .msum-tile.debt .v { color: #fca5a5; }
   body.luxe-theme .msum { background: rgba(255,255,255,0.04); border-color: rgba(212,160,86,0.22); }
@@ -5273,12 +5276,12 @@
 
       <!-- v2.5.67 · monthly summary card -->
       <div class="msum" id="home-month-summary">
-        <div class="msum-head">📅 <span data-i18n="msum.title">เดือนนี้</span> · <span id="msum-month"></span></div>
+        <div class="msum-head">📅 <span data-i18n="msum.title">สรุปเดือนนี้</span> · <span id="msum-month"></span></div>
         <div class="msum-grid">
-          <div class="msum-tile"><div class="v" id="msum-cases">0</div><div class="l" data-i18n="msum.cases">เคส</div></div>
-          <div class="msum-tile"><div class="v" id="msum-sales">฿0</div><div class="l" data-i18n="msum.sales">ยอดขาย</div></div>
-          <div class="msum-tile cash"><div class="v" id="msum-collected">฿0</div><div class="l" data-i18n="msum.collected">เก็บแล้ว</div></div>
-          <div class="msum-tile debt"><div class="v" id="msum-outstanding">฿0</div><div class="l" data-i18n="msum.outstanding">ค้างเก็บ</div></div>
+          <div class="msum-tile"><div class="v" id="msum-cases">0</div><div class="l" data-i18n="msum.cases">เคส</div><div class="ll" data-i18n="msum.scopeBooked">จองเดือนนี้</div></div>
+          <div class="msum-tile"><div class="v" id="msum-sales">฿0</div><div class="l" data-i18n="msum.sales">ยอดขาย</div><div class="ll" data-i18n="msum.scopeBooked">จองเดือนนี้</div></div>
+          <div class="msum-tile cash"><div class="v" id="msum-collected">฿0</div><div class="l" data-i18n="msum.collected">เก็บแล้ว</div><div class="ll" data-i18n="msum.scopeMonth">เดือนนี้</div></div>
+          <div class="msum-tile debt"><div class="v" id="msum-outstanding">฿0</div><div class="l" data-i18n="msum.outstanding">ค้างเก็บ</div><div class="ll" data-i18n="msum.scopeNow">ค้างตอนนี้</div></div>
         </div>
       </div>
 
@@ -8485,7 +8488,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.90';
+const PIXORY_VERSION = '2.5.91';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8496,6 +8499,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.91': {
+    date: '2026-06-05',
+    title: '💰 ยอดค้างเก็บ ชัดเจน ตรงกันทุกการ์ด',
+    subtitle: 'รู้ทันทีว่าตัวเลขไหนนับช่วงไหน',
+    items: [
+      { icon: '📅', title: 'การ์ดสรุปเดือนนี้ บอกช่วงเวลาใต้ทุกช่อง', desc: 'เคส/ยอดขาย = จองเดือนนี้ · เก็บแล้ว = เดือนนี้ · ค้างเก็บ = ค้างตอนนี้ทุกงาน · ไม่ต้องเดาอีกว่าช่องไหนนับยังไง' },
+      { icon: '💰', title: '"ลูกหนี้คงค้าง" ตรงกับ "ค้างเก็บ" แล้ว', desc: 'เดิมลูกหนี้คงค้างนับเฉพาะงานปีนี้ ทำให้ตัวเลขน้อยกว่าจริง · ตอนนี้นับยอดค้างทุกงาน ณ ตอนนี้ (มัดจำงานปีหน้าก็ถือเป็นเงินเข้าแล้ว ส่วนที่เหลือคือค้างจริง) · สองการ์ดตรงกันเป๊ะ' }
+    ]
+  },
   '2.5.90': {
     date: '2026-06-04',
     title: '💬 แชทติดต่อแอดมิน',
@@ -13394,7 +13406,10 @@ const I18N = {
   'home.greetEvening':  { th: 'สวัสดีตอนเย็น',  en: 'Good evening' },
   'home.totalRevenue':  { th: 'รายได้รวม',         en: 'Total Revenue' },
   'home.kpiRevenue':    { th: 'ยอดขาย',           en: 'Revenue' },
-  'msum.title':         { th: 'เดือนนี้ (จองเข้ามา)', en: 'This month (booked)' },
+  'msum.title':         { th: 'สรุปเดือนนี้', en: 'This month' },
+  'msum.scopeBooked':   { th: 'จองเดือนนี้',     en: 'booked this mo.' },
+  'msum.scopeMonth':    { th: 'เดือนนี้',         en: 'this month' },
+  'msum.scopeNow':      { th: 'ค้างตอนนี้',       en: 'owed now' },
   'msum.cases':         { th: 'เคส',               en: 'Cases' },
   'msum.sales':         { th: 'ยอดขาย',           en: 'Sales' },
   'msum.collected':     { th: 'เก็บแล้ว',          en: 'Collected' },
@@ -17404,8 +17419,10 @@ function updateHomeKPIs() {
   const totalCost = teamCost + travelCost + otherCost + costItemsTotal + expense;
   const profit = totalRev - totalCost;
   const margin = totalRev > 0 ? Math.round(profit / totalRev * 100) : 0;
-  const debt = yearJobs.reduce((s,j) => s + jobOutstanding(j), 0);
-  const debtCount = yearJobs.filter(j => jobOutstanding(j) > 0).length;
+  // v2.5.91 · ลูกหนี้คงค้าง = ยอดค้างทุกงาน ณ ตอนนี้ (ไม่ผูกปี · ให้ตรงกับการ์ดสรุปเดือน "ค้างเก็บ")
+  // เดิมกรองเฉพาะ yearJobs ทำให้ตัวเลขต่ำกว่าจริง + ไม่ตรงกับ msum-outstanding (มัดจำงานปีหน้าก็ถือเป็นหนี้ที่ค้างอยู่ตอนนี้)
+  const debt = JOBS.reduce((s,j) => s + jobOutstanding(j), 0);
+  const debtCount = JOBS.filter(j => jobOutstanding(j) > 0).length;
   const openJobs = yearJobs.filter(j => getStageFromJobStatus(j.jobStatus) !== 'closed').length;
 
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };

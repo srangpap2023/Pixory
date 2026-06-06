@@ -2934,12 +2934,20 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.62';
+const PIXORY_DESKTOP_VERSION = '1.0.63';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.63': {
+    date: '2026-06-05',
+    title: '💰 ยอดค้างเก็บ ระบุช่วงเวลาชัด',
+    subtitle: 'แดชบอร์ด = ค้างตอนนี้ทุกงาน · รายงาน = เฉพาะงานปีนั้น',
+    items: [
+      { icon: '⏳', title: 'แยกชัด "ค้างเก็บ" กับ "ค้างรับรายปี"', desc: 'การ์ดแดชบอร์ด "ค้างเก็บ · ตอนนี้" = ยอดค้างทุกงาน ณ ปัจจุบัน · ส่วนหน้ารายงานปี "ค้างรับ · งานปี XX" = เฉพาะงานปีที่เลือก · ติดป้ายปีกำกับ ไม่สับสนอีก' }
+    ]
+  },
   '1.0.62': {
     date: '2026-06-04',
     title: '💬 แชทติดต่อแอดมิน',
@@ -4471,9 +4479,9 @@ function renderDashboard(root) {
         <div style="font-size:11px;color:var(--ink-mute);margin-top:2px;">มัดจำ + เก็บยอดคงเหลือ</div>
       </div>
       <div style="background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
-        <div style="font-size:12px;color:var(--ink-mute);">⏳ ค้างเก็บ (รวม)</div>
+        <div style="font-size:12px;color:var(--ink-mute);">⏳ ค้างเก็บ · ตอนนี้</div>
         <div style="font-size:24px;font-weight:700;color:var(--red);margin-top:6px;">${fmtTHB(pendingTotal)}</div>
-        <div style="font-size:11px;color:var(--ink-mute);margin-top:2px;">${pendingCustomers} ราย</div>
+        <div style="font-size:11px;color:var(--ink-mute);margin-top:2px;">${pendingCustomers} ราย · ทุกงาน</div>
       </div>
     </div>
 
@@ -5826,8 +5834,9 @@ function renderReportsOverview() {
             <div style="font-size:11px;color:var(--ink-mute);margin-top:4px;">margin ${margin.toFixed(1)}%</div>
           </div>
           <div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:12px;padding:14px 16px;border:1px solid rgba(255,255,255,0.9);">
-            <div style="font-size:10px;font-weight:600;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.08em;">⏳ ค้างรับ</div>
+            <div style="font-size:10px;font-weight:600;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.08em;">⏳ ค้างรับ · งานปี ${(REPORTS_YEAR + 543) % 100}</div>
             <div style="font-size:clamp(15px, 1.3vw, 22px);font-weight:800;color:var(--yellow);margin-top:4px;line-height:1;">${fmtTHB(outstanding)}</div>
+            <div style="font-size:11px;color:var(--ink-mute);margin-top:4px;">เฉพาะงานปีนี้ · ดูยอดค้างรวมที่แดชบอร์ด</div>
           </div>
         </div>
       </div>
