@@ -85,7 +85,7 @@
 
   /* v2.5.94 · Home brand bar (concept 2 · Luxe gold · sticky) — ซ่อน global topbar ที่ซ้ำเฉพาะหน้าหลัก */
   body:has(#screen-home.active) .pixory-topbar { display: none !important; }
-  #home-brandbar{ position:sticky; top:0; z-index:25; display:flex; justify-content:space-between; align-items:center; padding:13px 16px; background:rgba(21,16,11,0.94); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); border-bottom:1px solid rgba(212,160,86,0.18); }
+  #home-brandbar{ position:sticky; top:0; z-index:25; display:flex; justify-content:space-between; align-items:center; padding:calc(env(safe-area-inset-top, 0px) + 13px) 16px 13px; background:rgba(21,16,11,0.94); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); border-bottom:1px solid rgba(212,160,86,0.18); }
   #home-brandbar .pxbrand{ display:flex; align-items:center; gap:9px; }
   #home-brandbar .pxwm{ font-family:'Inter',sans-serif; font-weight:700; font-size:17px; letter-spacing:1.2px; background:linear-gradient(135deg,#ECDAA6 0%,#E8B870 45%,#C99A52 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
   #home-brandbar .pxic{ width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.06); border:none; display:inline-flex; align-items:center; justify-content:center; color:rgba(245,240,232,0.85); position:relative; cursor:pointer; padding:0; }
@@ -5321,6 +5321,37 @@
         <a onclick="goTo('notifications')" data-i18n="home.viewAll">ดูทั้งหมด ›</a>
       </div>
       <div id="home-notifs"></div>
+
+      <!-- v2.5.94 · เอากลับมา (เคยมีในหน้าหลัก · ตัดออกผิดตอนรื้อ v2.5.93) -->
+      <div class="section-title">
+        <h2 data-i18n="sec.customersExpense">👥 ลูกค้า · 🧾 ค่าใช้จ่าย</h2>
+      </div>
+      <div style="padding: 0 16px;">
+        <div class="cust-row" onclick="goTo('customers')" style="margin: 0 0 8px;">
+          <div class="avatar" style="background:#dbeafe;color:#1e40af" id="home-customer-avatar">0</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:500;" id="home-customer-title" data-i18n="home.customersTitle">ลูกค้าทั้งหมด</div>
+            <div class="hsub" id="home-customer-sub" data-i18n="home.noJobsYet">ยังไม่มีงานในระบบ</div>
+          </div>
+          <div style="color:#a89a8c">›</div>
+        </div>
+        <div class="cust-row" onclick="goTo('expense-list')" style="margin: 0 0 8px;">
+          <div class="avatar" style="background:#fee2e2;color:#991b1b">🧾</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:500;" data-i18n="home.expenseTitle">ค่าใช้จ่ายทั้งหมด</div>
+            <div class="hsub" id="home-expense-sum" data-i18n="home.expenseSub">ปีนี้ — รวมจะคำนวณให้</div>
+          </div>
+          <div style="color:#a89a8c">›</div>
+        </div>
+        <div class="cust-row" onclick="goTo('equipment')" style="margin: 0;">
+          <div class="avatar" style="background:#e0e7ff;color:#3730a3">🎒</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:500;" data-i18n="home.equipTitle">คลังอุปกรณ์</div>
+            <div class="hsub" id="home-equipment-sum" data-i18n="home.equipSub">ดูอุปกรณ์ที่มีในคลัง</div>
+          </div>
+          <div style="color:#a89a8c">›</div>
+        </div>
+      </div>
     </div>
 
     <!-- ====== SCREEN: DASHBOARD ====== -->
@@ -8436,7 +8467,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.94';
+const PIXORY_VERSION = '2.5.95';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8447,6 +8478,14 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.95': {
+    date: '2026-06-06',
+    title: '🔧 แก้แถบหัวหน้าหลัก',
+    subtitle: 'แถบ Pixory ไม่ทับแถบสถานะมือถือแล้ว',
+    items: [
+      { icon: '🔧', title: 'จัดระยะหัวให้พอดีจอ', desc: 'แถบโลโก้เว้นขอบบนพ้นแถบสถานะ/ติ่งจอ · เนื้อหากลับมาตำแหน่งปกติ เมนูล่างไม่ลอย' }
+    ]
+  },
   '2.5.94': {
     date: '2026-06-06',
     title: '✨ หัวหน้าหลักดีไซน์ใหม่',
