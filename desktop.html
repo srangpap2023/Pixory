@@ -397,6 +397,17 @@
     background: rgba(255,255,255,0.05) !important;
     border: 1px solid rgba(255,255,255,0.04);
   }
+  /* Dark · Overview redesign (v1.0.65) · white/cream cards flip on dark · mirror luxe (Deep Scan 6 มิ.ย. · §17 · เดิม dark ไม่ดัก = การ์ดขาวบนขาว) */
+  html[data-theme="dark"] [style*="background:white"],
+  html[data-theme="dark"] [style*="background: white"],
+  html[data-theme="dark"] [style*="background:#fff"],
+  html[data-theme="dark"] [style*="background: #fff"],
+  html[data-theme="dark"] [style*="linear-gradient(135deg, #FDF1E0"],
+  html[data-theme="dark"] [style*="linear-gradient(135deg,#FDF1E0"] {
+    background: var(--bg-b) !important;
+    border: 1px solid var(--border) !important;
+  }
+  html[data-theme="dark"] [style*="border:1px solid #ebd9c0"] { border-color: var(--border) !important; }
   /* Luxe · Top bar (sticky header in app) */
   html[data-theme="luxe"] .topbar {
     background: rgba(10,10,14,0.7);
@@ -2936,12 +2947,22 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.64';
+const PIXORY_DESKTOP_VERSION = '1.0.65';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.65': {
+    date: '2026-06-06',
+    title: '✨ หน้าภาพรวมโฉมใหม่',
+    subtitle: 'ฮีโร่รายได้ทั้งปี + กราฟเทรนด์ · อ่านง่าย ไม่ซ้ำซ้อน',
+    items: [
+      { icon: '📈', title: 'ฮีโร่การ์ด + กราฟ 12 เดือน', desc: 'รายได้สะสมทั้งปี + เส้นเทรนด์รายเดือน + วงแหวนเป้าหมาย เห็นภาพธุรกิจทั้งปีในการ์ดเดียว' },
+      { icon: '🧹', title: 'ตัดตัวเลขซ้ำซ้อน', desc: 'แต่ละตัวเลขโผล่ที่เดียว · จัดเป็นชั้น ปี → เดือนนี้ → คิวงาน → งานที่ต้องทำต่อ' },
+      { icon: '🎬', title: 'งานถัดไป + คิวงาน', desc: 'การ์ดงานถัดไปนับถอยหลัง + รายการงานที่กำลังจะมาถึง เห็นคิวล่วงหน้าชัด' }
+    ]
+  },
   '1.0.64': {
     date: '2026-06-05',
     title: '✨ โลโก้ PIXORY ตัวพิมพ์ใหญ่',
@@ -4510,7 +4531,7 @@ function renderDashboard(root) {
       <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
         ${(window._MY_BADGE) ? `<span style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:#E8B870;border:1px solid rgba(212,160,86,0.5);border-radius:6px;padding:3px 9px;">🏅 FOUNDING TESTER</span>` : ''}
         <div style="display:flex;gap:8px;">
-          <button class="btn btn-ghost" onclick="openQuoteModal()">📝 ใบเสนอใหม่</button>
+          <button class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,0.28);background:rgba(255,255,255,0.08);" onclick="openQuoteModal()">📝 ใบเสนอใหม่</button>
           <button class="btn btn-primary" onclick="openJobModal()">+ งานใหม่</button>
         </div>
       </div>

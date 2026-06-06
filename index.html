@@ -5232,22 +5232,26 @@
 
     <!-- ====== SCREEN: HOME ====== -->
     <div class="screen active" id="screen-home">
-      <div class="header" style="flex-direction:column; align-items:stretch; padding-bottom: 20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:12px;">
-          <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:0; cursor:pointer;" onclick="goTo('settings-profile')">
-            <div id="home-profile-avatar" style="width:48px; height:48px; border-radius:50%; flex-shrink:0; background:linear-gradient(135deg,#fde7c8,#e8b288); display:flex; align-items:center; justify-content:center; font-size:22px; box-shadow: 0 2px 8px rgba(0,0,0,.08), inset 0 1px 1px rgba(255,255,255,.5); background-size:cover; background-position:center;">🏪</div>
-            <div style="flex:1; min-width:0;">
-              <h1 id="home-greeting" style="font-size:18px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">SRANGPAP WEDDING</h1>
-              <div id="home-greeting-sub" style="font-size:12px; color:#7c7066; margin-top:2px;">สวัสดีครับ 👋</div>
-              <!-- v2.5.89 · ตรา Founding Tester (โหลดจากตาราง user_badges · นอก blob) -->
-              <div id="home-badge" style="display:none; margin-top:5px;" onclick="event.stopPropagation(); showFoundingBadgeModal();">
-                <span style="font-size:10px; font-weight:800; letter-spacing:2px; color:#C9954F; border-bottom:1.5px solid rgba(201,149,79,0.55); padding-bottom:1px; cursor:pointer;">🏅 FOUNDING TESTER</span>
-              </div>
-            </div>
-          </div>
+      <!-- v2.5.93 · brand header · PIXORY wordmark + slogan (forced-dark · §17 safe ทุกธีม) -->
+      <div class="header" id="home-brandbar" style="flex-direction:column; align-items:stretch; padding:14px 16px 15px; background:linear-gradient(135deg,#2A1F18 0%,#15100b 80%); position:relative; overflow:hidden;">
+        <div style="position:absolute; right:-30px; top:-44px; width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,rgba(217,119,87,0.35),transparent 70%);"></div>
+        <div style="position:relative; display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-family:'Inter',sans-serif; font-weight:800; font-size:25px; letter-spacing:3px; color:#fff;">PIXORY</div>
           <div class="header-actions">
-            <button class="icon-btn" onclick="goTo('notifications')">🔔<span class="bell-badge">5</span></button>
-            <button class="icon-btn" onclick="goTo('settings')">⚙</button>
+            <button class="icon-btn" style="color:#fff;" onclick="goTo('notifications')">🔔<span class="bell-badge">5</span></button>
+            <button class="icon-btn" style="color:#fff;" onclick="goTo('settings')">⚙</button>
+          </div>
+        </div>
+        <div style="position:relative; font-size:11px; color:#E8B870; letter-spacing:0.5px; margin-top:1px;">Your studio, in your pocket</div>
+        <div style="position:relative; display:flex; align-items:center; gap:9px; margin-top:11px; cursor:pointer;" onclick="goTo('settings-profile')">
+          <div id="home-profile-avatar" style="width:32px; height:32px; border-radius:50%; flex-shrink:0; background:linear-gradient(135deg,#fde7c8,#e8b288); display:flex; align-items:center; justify-content:center; font-size:16px; background-size:cover; background-position:center;">🏪</div>
+          <div style="flex:1; min-width:0;">
+            <h1 id="home-greeting" style="font-size:14px; line-height:1.2; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin:0;">SRANGPAP WEDDING</h1>
+            <div id="home-greeting-sub" style="font-size:11px; color:rgba(255,255,255,0.6); margin-top:1px;">สวัสดีครับ 👋</div>
+          </div>
+          <!-- v2.5.89 · ตรา Founding Tester (โหลดจากตาราง user_badges · นอก blob) -->
+          <div id="home-badge" style="display:none;" onclick="event.stopPropagation(); showFoundingBadgeModal();">
+            <span style="font-size:9px; font-weight:800; letter-spacing:1.5px; color:#E8B870; border:1px solid rgba(212,160,86,0.5); border-radius:5px; padding:2px 7px; cursor:pointer;">🏅 FOUNDING TESTER</span>
           </div>
         </div>
       </div>
@@ -5277,6 +5281,9 @@
         </div>
       </div>
 
+      <!-- v2.5.93 · goal ring · เป้าหมายปี (forced-dark card · §17 safe · populated by renderHomeGoal()) -->
+      <div id="home-goal" style="margin: 0 16px 14px;"></div>
+
       <!-- v2.5.67 · monthly summary card -->
       <div class="msum" id="home-month-summary">
         <div class="msum-head">📅 <span data-i18n="msum.title">สรุปเดือนนี้</span> · <span id="msum-month"></span></div>
@@ -5288,94 +5295,19 @@
         </div>
       </div>
 
-      <div class="kpi-grid">
-        <div class="kpi income">
-          <div class="label" data-i18n="home.kpiRevenue">ยอดขาย</div>
-          <div class="value" id="home-kpi-revenue">฿0</div>
-          <div class="sub" id="home-kpi-revenue-sub">0 งาน</div>
-        </div>
-        <div class="kpi">
-          <div class="label" data-i18n="home.kpiProfit">กำไรสุทธิ</div>
-          <div class="value" id="home-kpi-profit">฿0</div>
-          <div class="sub" id="home-kpi-margin">มาร์จิ้น 0%</div>
-        </div>
-        <div class="kpi warn">
-          <div class="label" data-i18n="home.kpiDebt">⚠ ลูกหนี้คงค้าง</div>
-          <div class="value" id="home-kpi-debt">฿0</div>
-          <div class="sub" id="home-kpi-debt-sub">0 งาน รอเก็บ</div>
-        </div>
-        <div class="kpi">
-          <div class="label" data-i18n="home.kpiOpen">งานที่ยังไม่ปิด</div>
-          <div class="value" id="home-kpi-open">0</div>
-          <div class="sub" id="home-kpi-open-sub">งานจอง</div>
-        </div>
-      </div>
-
-      <!-- S1.4 — งานที่กำลังทำอยู่ (active jobs, max 3) -->
-      <div class="section-title" id="home-active-section" style="display:none;">
-        <h2>📌 งานกำลังทำ</h2>
-        <a onclick="goTo('jobs')">ดูทั้งหมด ›</a>
-      </div>
-      <div id="home-active"></div>
-
-      <div class="section-title" id="home-notifs-section" style="display:none;">
-        <h2 data-i18n="home.todayJobs">🔔 ต้องทำวันนี้</h2>
-        <a onclick="goTo('notifications')" data-i18n="home.viewAll">ดูทั้งหมด ›</a>
-      </div>
-      <div id="home-notifs"></div>
-
-      <!-- M5 · Upcoming birthday reminders -->
-      <div class="section-title" id="home-birthdays-section" style="display:none;">
-        <h2>🎂 วันเกิดลูกค้า</h2>
-        <a onclick="goTo('customers')">ดูทั้งหมด ›</a>
-      </div>
-      <div id="home-birthdays"></div>
-
-      <!-- v2.5.27+ · Quick access to Notes -->
-      <div onclick="goTo('notes')" style="margin: 8px 16px 12px; padding: 14px 16px; background: linear-gradient(135deg, rgba(254,243,199,0.7), rgba(253,230,138,0.7)); backdrop-filter: blur(20px); border: 0.5px solid rgba(0,0,0,0.04); border-radius: 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.04);">
-        <div style="font-size: 28px; transform: rotate(-8deg); flex-shrink: 0;">📝</div>
-        <div style="flex:1; min-width: 0;">
-          <div style="font-size: 13.5px; font-weight: 700; color: #2A1F18;">บันทึก</div>
-          <div style="font-size: 11.5px; color: #7c6856; margin-top: 2px;" id="home-notes-sub">จดอะไรกันลืม · กระดาษโน๊ตสี</div>
-        </div>
-        <div style="font-size: 16px; color: #B85A3D; flex-shrink: 0;">›</div>
-      </div>
-
+      <!-- v2.5.93 · งานที่กำลังจะมาถึง (ย้ายขึ้น · ตัด kpi-grid/active/birthdays/notes/customers ที่ซ้ำซ้อนออกจากหน้าหลัก) -->
       <div class="section-title">
         <h2 data-i18n="home.upcoming">📅 งานใกล้ถึง</h2>
         <a onclick="goTo('jobs')" data-i18n="home.viewAll">ดูทั้งหมด ›</a>
       </div>
       <div id="home-upcoming"></div>
 
-      <div class="section-title">
-        <h2 data-i18n="sec.customersExpense">👥 ลูกค้า · 🧾 ค่าใช้จ่าย</h2>
+      <!-- v2.5.93 · ต้องทำต่อ (todo) -->
+      <div class="section-title" id="home-notifs-section" style="display:none;">
+        <h2 data-i18n="home.todayJobs">🔔 ต้องทำวันนี้</h2>
+        <a onclick="goTo('notifications')" data-i18n="home.viewAll">ดูทั้งหมด ›</a>
       </div>
-      <div style="padding: 0 16px;">
-        <div class="cust-row" onclick="goTo('customers')" style="margin: 0 0 8px;">
-          <div class="avatar" style="background:#dbeafe;color:#1e40af" id="home-customer-avatar">0</div>
-          <div style="flex:1">
-            <div style="font-size:14px;font-weight:500;" id="home-customer-title" data-i18n="home.customersTitle">ลูกค้าทั้งหมด</div>
-            <div class="hsub" id="home-customer-sub" data-i18n="home.noJobsYet">ยังไม่มีงานในระบบ</div>
-          </div>
-          <div style="color:#a89a8c">›</div>
-        </div>
-        <div class="cust-row" onclick="goTo('expense-list')" style="margin: 0 0 8px;">
-          <div class="avatar" style="background:#fee2e2;color:#991b1b">🧾</div>
-          <div style="flex:1">
-            <div style="font-size:14px;font-weight:500;" data-i18n="home.expenseTitle">ค่าใช้จ่ายทั้งหมด</div>
-            <div class="hsub" id="home-expense-sum" data-i18n="home.expenseSub">ปีนี้ — รวมจะคำนวณให้</div>
-          </div>
-          <div style="color:#a89a8c">›</div>
-        </div>
-        <div class="cust-row" onclick="goTo('equipment')" style="margin: 0;">
-          <div class="avatar" style="background:#e0e7ff;color:#3730a3">🎒</div>
-          <div style="flex:1">
-            <div style="font-size:14px;font-weight:500;" data-i18n="home.equipTitle">คลังอุปกรณ์</div>
-            <div class="hsub" id="home-equipment-sum" data-i18n="home.equipSub">ดูอุปกรณ์ที่มีในคลัง</div>
-          </div>
-          <div style="color:#a89a8c">›</div>
-        </div>
-      </div>
+      <div id="home-notifs"></div>
     </div>
 
     <!-- ====== SCREEN: DASHBOARD ====== -->
@@ -8435,7 +8367,7 @@ function goTo(name) {
   if (name === 'settings-notif') { populateNotifSettings(); if (typeof renderPushUI === 'function') renderPushUI(); }
   if (name === 'settings-wallpaper') loadWallpaper();
   if (name === 'notifications') { renderAllNotifs(); if (!(_announceAll && _announceAll.length)) { try { _fetchAnnouncements().then(() => { try { renderAllNotifs(); } catch(e) {} }); } catch(e) {} } }
-  if (name === 'home') { renderHomeNotifs(); renderHomeHero(); if (typeof renderHomeBirthdays === 'function') renderHomeBirthdays(); }
+  if (name === 'home') { renderHomeNotifs(); renderHomeHero(); if (typeof renderHomeGoal === 'function') renderHomeGoal(); if (typeof renderHomeBirthdays === 'function') renderHomeBirthdays(); }
   if (name === 'calendar') {
     CAL_YEAR = new Date().getFullYear(); CAL_MONTH = new Date().getMonth();
     renderCalendar();
@@ -8491,7 +8423,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.92';
+const PIXORY_VERSION = '2.5.93';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8502,6 +8434,16 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.93': {
+    date: '2026-06-06',
+    title: '✨ หน้าหลักโฉมใหม่',
+    subtitle: 'แบรนด์เด่น · เป้าหมายปี · อ่านง่าย ไม่ซ้ำซ้อน',
+    items: [
+      { icon: '🎯', title: 'วงแหวนเป้าหมายปี', desc: 'เห็นทันทีว่ารายได้ปีนี้ถึงเป้ากี่ % และต้องหาอีกเดือนละเท่าไหร่ถึงเป้า' },
+      { icon: '🧹', title: 'หน้าหลักโล่งขึ้น', desc: 'จัดเรียงใหม่: งานถัดไป → รายได้ปี+กราฟ → เป้าหมาย → สรุปเดือนนี้ → งานที่จะมาถึง → ต้องทำต่อ · ตัดการ์ดที่ตัวเลขซ้ำกันออก' },
+      { icon: '✨', title: 'แถบหัว PIXORY', desc: 'หัวหน้าหลักโชว์โลโก้ PIXORY + สโลแกน "Your studio, in your pocket" ดูเป็นแบรนด์พรีเมียม' }
+    ]
+  },
   '2.5.92': {
     date: '2026-06-05',
     title: '✨ โลโก้ PIXORY ตัวพิมพ์ใหญ่',
@@ -17447,6 +17389,8 @@ function updateHomeKPIs() {
   set('home-kpi-open-sub', openJobs > 0 ? t('home.kpiOpenSub') : t('home.kpiOpenEmpty'));
   // Also refresh hero
   if (typeof renderHomeHero === 'function') renderHomeHero();
+  // v2.5.93 · goal ring
+  if (typeof renderHomeGoal === 'function') renderHomeGoal();
   // v2.5.22 · FIX H14 · render next shoot card
   if (typeof renderNextShootCard === 'function') renderNextShootCard();
 }
@@ -17505,6 +17449,41 @@ function renderNextShootCard() {
           </div>
           ${candidates.length > 1 ? `<div style="font-size:10.5px; color:rgba(255,255,255,0.55); margin-top:8px;">+ อีก ${candidates.length - 1} งาน</div>` : ''}
         </div>
+      </div>
+    </div>
+  `;
+}
+
+// v2.5.93 · Goal ring · เป้าหมายรายได้ปี (forced-dark card · §17 safe ทุกธีม · mirror desktop renderDashboard)
+function renderHomeGoal() {
+  const el = document.getElementById('home-goal');
+  if (!el) return;
+  const now = new Date();
+  const yr = now.getFullYear();
+  const m = now.getMonth();
+  const ytdIncome = (JOBS || []).filter(j => j.date && new Date(j.date).getFullYear() === yr)
+                                .reduce((s, j) => s + jobRevenue(j), 0);
+  const yearlyGoal = Number(PROFILE.yearlyGoal) || 2000000;
+  const goalPct = yearlyGoal > 0 ? Math.min(100, ytdIncome / yearlyGoal * 100) : 0;
+  const monthsLeft = 12 - m;
+  const goalRemain = Math.max(0, yearlyGoal - ytdIncome);
+  const monthlyNeed = monthsLeft > 0 ? goalRemain / monthsLeft : 0;
+  const C = 2 * Math.PI * 32;
+  const dash = Math.min(C, (goalPct / 100) * C);
+  const fmt = (typeof fmtTHB === 'function') ? fmtTHB : (n => '฿' + Math.round(n).toLocaleString());
+  el.innerHTML = `
+    <div onclick="goTo('settings-profile')" style="cursor:pointer; display:flex; align-items:center; gap:14px; background:linear-gradient(135deg,#241a13,#15100b); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:14px 16px;">
+      <svg viewBox="0 0 84 84" style="width:72px;height:72px;flex-shrink:0;">
+        <g transform="rotate(-90 42 42)">
+          <circle cx="42" cy="42" r="32" fill="none" stroke="rgba(212,160,86,0.18)" stroke-width="9"/>
+          <circle cx="42" cy="42" r="32" fill="none" stroke="#D4A056" stroke-width="9" stroke-linecap="round" stroke-dasharray="${dash.toFixed(1)} ${(C - dash).toFixed(1)}"/>
+        </g>
+        <text x="42" y="48" text-anchor="middle" fill="#E8B870" font-size="17" font-weight="800" font-family="Inter,sans-serif">${goalPct.toFixed(0)}%</text>
+      </svg>
+      <div style="min-width:0;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:700;">🎯 เป้าหมายปี ${yr + 543}</div>
+        <div style="font-size:13.5px;font-weight:700;color:#fff;margin-top:3px;">${fmt(ytdIncome)} <span style="color:rgba(255,255,255,0.5);font-weight:400;font-size:11px;">/ ${fmt(yearlyGoal)}</span></div>
+        <div style="font-size:10.5px;color:rgba(255,255,255,0.5);margin-top:4px;">${goalRemain > 0 ? 'เฉลี่ยอีก ' + fmt(monthlyNeed) + '/เดือน · ' + monthsLeft + ' เดือน' : '🎉 เกินเป้าแล้ว!'}</div>
       </div>
     </div>
   `;
