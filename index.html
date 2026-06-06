@@ -69,10 +69,11 @@
   }
   .pixory-topbar-text {
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 24px;    /* v2.5.13 · larger wordmark · was 18 */
-    font-weight: 700;
-    letter-spacing: -0.8px;
+    font-size: 23px;    /* v2.5.13 · larger wordmark · was 18 */
+    font-weight: 800;
+    letter-spacing: 1.5px;   /* v2.5.91 · UPPERCASE wordmark */
     line-height: 1;
+    text-transform: uppercase;
   }
   body.dark-theme .pixory-topbar {
     background: #0a0a0b;
@@ -3417,10 +3418,11 @@
   .pixory-wordmark {
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 38px;
-    font-weight: 700;
-    letter-spacing: -1.3px;
+    font-weight: 800;
+    letter-spacing: 2px;
     line-height: 1;
     color: #3a2f25;
+    text-transform: uppercase;
   }
   body.dark-theme .pixory-wordmark { color: #f5f5f5; }
   .pixory-tagline {
@@ -3516,9 +3518,10 @@
     font-family: 'Inter', -apple-system, sans-serif;
     font-weight: 800;
     font-size: 36px;
-    letter-spacing: -0.02em;
+    letter-spacing: 2px;
     color: #fff;
     text-shadow: 0 2px 6px rgba(0,0,0,.18);
+    text-transform: uppercase;
   }
   .auth-brand .auth-tagline {
     font-size: 13px;
@@ -8488,7 +8491,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.91';
+const PIXORY_VERSION = '2.5.92';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8499,6 +8502,14 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.92': {
+    date: '2026-06-05',
+    title: '✨ โลโก้ PIXORY ตัวพิมพ์ใหญ่',
+    subtitle: 'แบรนด์เด่นขึ้น ดูพรีเมียม',
+    items: [
+      { icon: '✨', title: 'โลโก้ใหม่ตัวพิมพ์ใหญ่ทั้งแอป', desc: 'เปลี่ยนเวิร์ดมาร์กเป็น "PIXORY" ตัวใหญ่ทั้งหมด · หน้าแรก หน้าล็อกอิน และหน้าเกี่ยวกับแอป — ดูเด่นและเป็นแบรนด์มากขึ้น' }
+    ]
+  },
   '2.5.91': {
     date: '2026-06-05',
     title: '💰 ยอดค้างเก็บ ชัดเจน ตรงกันทุกการ์ด',
