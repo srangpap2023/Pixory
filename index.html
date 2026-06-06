@@ -36,7 +36,7 @@
   .phone { width: 100%; max-width: 400px; height: min(880px, 95vh); background: #f7f8fa; border-radius: 36px; box-shadow: 0 20px 60px rgba(0,0,0,.15), 0 0 0 10px #3a2f25, 0 0 0 11px #2a2a2a; overflow: hidden; position: relative; display: flex; flex-direction: column; }
   @media (max-width: 460px) {
     .phone-wrap { padding: 0; }
-    .phone { max-width: 100%; height: 100dvh; min-height: 100vh; border-radius: 0; box-shadow: none; }
+    .phone { max-width: 100%; height: 100vh; height: 100dvh; min-height: 100dvh; border-radius: 0; box-shadow: none; }
     /* Hide the desktop-mockup status bar + notch on real phones — the OS already shows its own */
     .notch { display: none !important; }
     .status-bar { display: none !important; }
@@ -83,11 +83,10 @@
   /* Hide topbar + bottom nav during Wizard (full-screen onboarding) */
   body.wizard-mode .pixory-topbar { display: none !important; }
 
-  /* v2.5.94 · Home brand bar (concept 2 · Luxe gold · sticky) — ซ่อน global topbar ที่ซ้ำเฉพาะหน้าหลัก */
-  body:has(#screen-home.active) .pixory-topbar { display: none !important; }
-  #home-brandbar{ position:sticky; top:0; z-index:25; display:flex; justify-content:space-between; align-items:center; padding:calc(env(safe-area-inset-top, 0px) + 13px) 16px 13px; background:rgba(21,16,11,0.94); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); border-bottom:1px solid rgba(212,160,86,0.18); }
+  /* v2.5.96 · Home brand bar (concept 2 · Luxe gold · sticky) — topbar ซ้ำซ่อนด้วย JS (ไม่พึ่ง :has · รองรับ Android เก่า) */
+  #home-brandbar{ position:sticky; top:0; z-index:25; display:flex; justify-content:space-between; align-items:center; padding:calc(env(safe-area-inset-top, 0px) + 8px) 16px 9px; background:rgba(21,16,11,0.94); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); border-bottom:1px solid rgba(212,160,86,0.18); }
   #home-brandbar .pxbrand{ display:flex; align-items:center; gap:9px; }
-  #home-brandbar .pxwm{ font-family:'Inter',sans-serif; font-weight:700; font-size:17px; letter-spacing:1.2px; background:linear-gradient(135deg,#ECDAA6 0%,#E8B870 45%,#C99A52 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  #home-brandbar .pxwm{ font-family:'Inter',sans-serif; font-weight:700; font-size:20px; letter-spacing:1.5px; background:linear-gradient(135deg,#ECDAA6 0%,#E8B870 45%,#C99A52 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
   #home-brandbar .pxic{ width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.06); border:none; display:inline-flex; align-items:center; justify-content:center; color:rgba(245,240,232,0.85); position:relative; cursor:pointer; padding:0; }
   #home-brandbar .pxic svg{ width:19px; height:19px; }
   #home-brandbar .pxic .bell-badge{ position:absolute; top:5px; right:6px; }
@@ -5249,7 +5248,7 @@
       <!-- v2.5.94 · brand bar (locked · Luxe gold) + greeting · หัวแนว 2 -->
       <div id="home-brandbar">
         <div class="pxbrand">
-          <svg viewBox="0 0 200 200" width="24" height="24" fill="none" stroke="#E8B870" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M 40 85 Q 40 65 60 65 L 70 65 L 82 50 Q 86 45 92 45 L 108 45 Q 114 45 118 50 L 130 65 L 140 65 Q 160 65 160 85 L 160 150 Q 160 165 145 165 L 55 165 Q 40 165 40 150 Z"/><circle cx="100" cy="118" r="26"/><circle cx="100" cy="118" r="13" stroke-width="7"/></svg>
+          <svg viewBox="0 0 200 200" width="28" height="28" fill="none" stroke="#E8B870" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M 40 85 Q 40 65 60 65 L 70 65 L 82 50 Q 86 45 92 45 L 108 45 Q 114 45 118 50 L 130 65 L 140 65 Q 160 65 160 85 L 160 150 Q 160 165 145 165 L 55 165 Q 40 165 40 150 Z"/><circle cx="100" cy="118" r="26"/><circle cx="100" cy="118" r="13" stroke-width="7"/></svg>
           <span class="pxwm">pixory</span>
         </div>
         <div style="display:flex; gap:9px;">
@@ -8377,6 +8376,9 @@ function setListsTagsMobileTab(tab) {
   } catch (e) { console.warn('lt re-render:', e); }
 }
 
+// v2.5.96 · ซ่อน topbar ตอนบูต ถ้าหน้าหลัก active อยู่แล้ว (ไม่ได้เรียกผ่าน goTo)
+document.addEventListener('DOMContentLoaded', function(){ try { var tb=document.querySelector('.pixory-topbar'); var h=document.getElementById('screen-home'); if (tb && h && h.classList.contains('active')) tb.style.display='none'; } catch(e){} });
+
 function goTo(name) {
   // v2.5.43 · ลิสต์และแท็ก · BC alias — old IDs redirect to consolidated screen
   if (name === 'settings-jobtypes')    { setListsTagsMobileTab('jobtypes');    name = 'settings-lists-tags'; }
@@ -8392,6 +8394,8 @@ function goTo(name) {
   const sc = document.getElementById('screen-' + name);
   if (!sc) { console.warn('No screen', name); return; }
   sc.classList.add('active');
+  // v2.5.96 · ซ่อน global topbar เฉพาะหน้าหลัก (แถบแบรนด์ใหม่แทน) · JS แทน :has เพื่อรองรับทุกเบราว์เซอร์
+  try { var _tb = document.querySelector('.pixory-topbar'); if (_tb) _tb.style.display = (name === 'home') ? 'none' : ''; } catch (e) {}
   // v1.9.2 · Push to history stack so hardware Back works (Android)
   if (!_navIgnorePop) {
     const top = _navStack[_navStack.length - 1];
@@ -8467,7 +8471,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.5.95';
+const PIXORY_VERSION = '2.5.96';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8478,6 +8482,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.5.96': {
+    date: '2026-06-06',
+    title: '🔧 จัดหัว/เมนูให้พอดีจอ',
+    subtitle: 'พอดีทั้ง iPhone และ Android',
+    items: [
+      { icon: '🔧', title: 'แถบหัว + โลโก้พอดีขึ้น', desc: 'โลโก้ใหญ่ขึ้น แถบกระชับ ไม่ทับแถบสถานะ · ซ่อนแถบซ้ำได้ทุกเบราว์เซอร์ (รวม Android เก่า)' },
+      { icon: '📐', title: 'เมนูล่างพอดีจอ', desc: 'ปรับความสูงหน้าจอให้ตรงกับจอจริง เมนูล่างไม่ลอย ไม่กินพื้นที่เกิน' }
+    ]
+  },
   '2.5.95': {
     date: '2026-06-06',
     title: '🔧 แก้แถบหัวหน้าหลัก',
@@ -17493,7 +17506,7 @@ function renderNextShootCard() {
   el.innerHTML = `
     <div onclick="openJob('${(j.code||'').replace(/'/g,"\\'")}')" style="
       cursor:pointer; position:relative; overflow:hidden;
-      background:#17130F; border:1px solid rgba(237,230,216,0.11);
+      background:rgba(28,28,34,0.85); border:1px solid rgba(255,255,255,0.10);
       color:#F0EBE0; border-radius:20px; padding:18px 22px;
     ">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
@@ -17534,7 +17547,7 @@ function renderHomeGoal() {
   const dash = Math.min(C, (goalPct / 100) * C);
   const fmt = (typeof fmtTHB === 'function') ? fmtTHB : (n => '฿' + Math.round(n).toLocaleString());
   el.innerHTML = `
-    <div onclick="goTo('settings-profile')" style="cursor:pointer; display:flex; align-items:center; gap:14px; background:#17130F; border:1px solid rgba(237,230,216,0.11); border-radius:18px; padding:14px 16px;">
+    <div onclick="goTo('settings-profile')" style="cursor:pointer; display:flex; align-items:center; gap:14px; background:rgba(28,28,34,0.85); border:1px solid rgba(255,255,255,0.10); border-radius:18px; padding:14px 16px;">
       <svg viewBox="0 0 84 84" style="width:72px;height:72px;flex-shrink:0;">
         <g transform="rotate(-90 42 42)">
           <circle cx="42" cy="42" r="32" fill="none" stroke="rgba(107,138,240,0.16)" stroke-width="9"/>
