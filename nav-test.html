@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Nav Test</title>
+<style>
+  /* ===== โครงแบบหน้าแอดมิน 100% · body เลื่อนปกติ (ไม่ล็อก position:fixed) ===== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #0A0A0E; color: #F2E0BA; font-family: -apple-system, 'Inter', sans-serif; }
+  body {
+    min-height: 100vh; min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .content {
+    min-height: 100vh; min-height: 100dvh;
+    padding: calc(16px + env(safe-area-inset-top)) 16px;
+    /* เว้นล่างให้พ้นแถบเมนู (เหมือนแอดมิน) */
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+  }
+  h1 { font-size: 20px; color: #E8B870; margin-bottom: 8px; }
+  .card { background: #14110c; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; }
+
+  /* ===== เส้นแดงตรงขอบล่างสุดจริง (fixed bottom:0) ไว้เทียบว่าแถบชิดไหม ===== */
+  .baseline { position: fixed; bottom: 0; left: 0; right: 0; height: 5px; background: #ff3b30; z-index: 40; }
+
+  /* ===== แถบเมนู · ลอก .tab-bar แอดมินเป๊ะ ===== */
+  .tab-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(14,10,8,.92); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border-top: 0.5px solid rgba(255,255,255,0.10);
+    display: flex;
+    padding: 8px 6px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    z-index: 50;
+  }
+  .tab-bar-inner { max-width: 480px; margin: 0 auto; display: flex; width: 100%; }
+  .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; color: #A1A1AA; }
+  .tab-item.active { color: #E8B870; }
+  .tab-item .ic { font-size: 22px; line-height: 1; }
+  .tab-item .lbl { font-size: 10px; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="content">
+    <h1>🧪 ทดสอบแถบเมนู (โครงแอดมิน)</h1>
+    <div class="card"><b>วิธีดู:</b> เลื่อนลงล่างสุด → ดูว่า <b>แถบเมนูทับเส้นแดง</b>พอดีไหม<br>• ทับเส้นแดง = ชิดขอบล่างเป๊ะ ✅<br>• มีช่องว่างเหนือเส้นแดง = ยังไม่ชิด ❌</div>
+    <div class="card">รีเฟรชหน้านี้ได้เรื่อยๆ (ไม่ติด cache แอป) · เปิดมาเลยไม่ต้องหมุนจอ ดูว่าชิดทันทีไหม</div>
+    <div class="card">บรรทัดเติมความสูง 1</div>
+    <div class="card">บรรทัดเติมความสูง 2</div>
+    <div class="card">บรรทัดเติมความสูง 3</div>
+    <div class="card">บรรทัดเติมความสูง 4</div>
+    <div class="card">บรรทัดเติมความสูง 5 · เลื่อนลงสุดแล้วดูแถบเมนูกับเส้นแดง</div>
+  </div>
+
+  <div class="baseline"></div>
+
+  <div class="tab-bar">
+    <div class="tab-bar-inner">
+      <div class="tab-item active"><div class="ic">🏠</div><div class="lbl">หน้าหลัก</div></div>
+      <div class="tab-item"><div class="ic">📋</div><div class="lbl">งาน</div></div>
+      <div class="tab-item"><div class="ic">➕</div><div class="lbl"></div></div>
+      <div class="tab-item"><div class="ic">📅</div><div class="lbl">ปฏิทิน</div></div>
+      <div class="tab-item"><div class="ic">📊</div><div class="lbl">สรุป</div></div>
+    </div>
+  </div>
+</body>
+</html>
