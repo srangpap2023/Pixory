@@ -2953,7 +2953,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.70';
+const PIXORY_DESKTOP_VERSION = '1.0.71';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -3832,6 +3832,25 @@ function applyDataBlob(blob) {
   try { _ensureProfileJobStatuses(); } catch(e) { console.warn('jobStatuses migration:', e); }
   // v1.0.32 · Auto-advance status: wait_shoot → wait_deliver after shoot date + 1 day @ 05:00
   try { autoAdvanceWaitShootJobs(); } catch(e) { console.warn('auto-advance:', e); }
+  // v1.0.71 · backfill key ให้บริการเสริมที่ไม่มี key/ซ้ำ (ของเก่าที่สร้างจากมือถือก่อน fix) · สูตรเดียวกับมือถือ
+  try { migrateAddonKeys(); } catch(e) { console.warn('addon-key migration:', e); }
+}
+
+// v1.0.71 · ใส่ key เฉพาะตัวให้บริการเสริมที่ไม่มี key / key ซ้ำ · deterministic (ตำแหน่ง+ชื่อ)
+//   สูตร *ตรงกับมือถือ index.html เป๊ะ* → 2 เครื่อง migrate ได้ key เดียวกัน ไม่ชนกันตอน sync
+function migrateAddonKeys() {
+  if (typeof ADDONS === 'undefined' || !Array.isArray(ADDONS)) return false;
+  const seen = new Set();
+  let changed = false;
+  ADDONS.forEach((a, idx) => {
+    if (!a || typeof a !== 'object') return;
+    if (!a.key || seen.has(a.key)) {
+      a.key = 'ad_' + idx + '_' + String(a.name || 'addon').replace(/[^a-zA-Z0-9ก-๙]/g, '').slice(0, 10);
+      changed = true;
+    }
+    seen.add(a.key);
+  });
+  return changed;
 }
 
 function _ensureProfileJobStatuses() {

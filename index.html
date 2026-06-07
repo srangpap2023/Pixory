@@ -8544,7 +8544,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.8.6';
+const PIXORY_VERSION = '2.8.7';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8555,6 +8555,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.8.7': {
+    date: '2026-06-07',
+    title: '🧩 แก้บั๊กบริการเสริม',
+    subtitle: 'เลือกบริการเสริมทีละอันได้ถูกต้อง · ขึ้นครบในใบเสนอ',
+    items: [
+      { icon: '✅', title: 'เลือกบริการเสริมทีละรายการได้แล้ว', desc: 'แก้บั๊กที่กดบริการเสริมที่สร้างเองอันเดียว แล้วติดมาหลายอันพร้อมกัน — ตอนนี้กดอันไหนติดอันนั้น' },
+      { icon: '🧾', title: 'บริการเสริมขึ้นครบในใบเสนอราคา', desc: 'แก้บั๊กที่ยอดเงินรวมบริการเสริมมาด้วย แต่รายการไม่ขึ้นในใบเสนอ — ตอนนี้ทั้งยอดและรายการตรงกัน (ทั้งหน้าสร้างงานและใบเสนอ)' }
+    ]
+  },
   '2.8.6': {
     date: '2026-06-07',
     title: '🛠 แก้บั๊กบันทึกยอดชำระ + เสถียรขึ้น',
@@ -13001,6 +13010,8 @@ function loadData() {
     }
     // === Migration: backfill payments[] for jobs created before payment-log feature ===
     migrateBackfillPayments();
+    // v2.8.7 · backfill key ให้บริการเสริมที่สร้างก่อน fix (ไม่มี key/ซ้ำ) · deterministic เพื่อ sync ไม่ชนกัน
+    migrateAddonKeys();
     // === Migration v2.5.0: migrate legacy jobStatus values + ensure PROFILE.jobStatuses exists ===
     migrateV25JobStatuses();
     // === Migration v2.5.4: infer category for each SERVICE from job usage ===
@@ -13216,6 +13227,23 @@ function migrateV25JobStatuses() {
 
 // One-time migration: jobs created in older versions have deposit > 0 but no payments[]
 // Backfill so Dashboard "เงินสดเข้า" KPI counts them correctly.
+// v2.8.7 · ใส่ key เฉพาะตัวให้บริการเสริมที่ไม่มี key / key ซ้ำ (ของเก่าที่สร้างก่อน fix)
+//   deterministic (ตามตำแหน่ง+ชื่อ) → 2 เครื่อง migrate ได้ key เดียวกัน · ไม่ persist ในนี้ (idempotent ทุก load)
+function migrateAddonKeys() {
+  if (typeof ADDONS === 'undefined' || !Array.isArray(ADDONS)) return false;
+  const seen = new Set();
+  let changed = false;
+  ADDONS.forEach((a, idx) => {
+    if (!a || typeof a !== 'object') return;
+    if (!a.key || seen.has(a.key)) {
+      a.key = 'ad_' + idx + '_' + String(a.name || 'addon').replace(/[^a-zA-Z0-9ก-๙]/g, '').slice(0, 10);
+      changed = true;
+    }
+    seen.add(a.key);
+  });
+  return changed;
+}
+
 function migrateBackfillPayments() {
   let migrated = 0;
   JOBS.forEach(j => {
@@ -14837,6 +14865,11 @@ function saveEditItem() {
     if (EDIT_CTX.index < 0) list.push(data.name);
     else list[EDIT_CTX.index] = data.name;
   } else {
+    // v2.8.7 FIX · บริการเสริมต้องมี key เฉพาะตัว — เดิมสร้างใหม่ไม่ได้ใส่ key (มีแค่ qr/profile)
+    //   → ทุกอันใหม่ key=undefined เหมือนกัน → กดเลือก 1 ติดหลายอัน + ยอด/รายการในใบเสนอเพี้ยน
+    if (EDIT_CTX.type === 'addon' && EDIT_CTX.index < 0 && !data.key) {
+      data.key = 'ad_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    }
     if (EDIT_CTX.index < 0) list.push(data);
     else Object.assign(list[EDIT_CTX.index], data);
   }
