@@ -35,7 +35,8 @@
   .phone-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 12px; }
   .phone { width: 100%; max-width: 400px; height: min(880px, 95vh); background: #f7f8fa; border-radius: 36px; box-shadow: 0 20px 60px rgba(0,0,0,.15), 0 0 0 10px #3a2f25, 0 0 0 11px #2a2a2a; overflow: hidden; position: relative; display: flex; flex-direction: column; }
   @media (max-width: 460px) {
-    /* v2.6.9 · ความสูง = ค่าที่ JS วัดจริง (--app-h) · fallback 100dvh · กัน iOS วัดผิดตอนโหลดแรก (ต้องหมุนจอถึงถูก) */
+    /* v2.7.2 · ปลดล็อก body ออกจาก position:fixed (แบบเดียวกับหน้าแอดมิน) · ตัวนี้ทำให้ iOS วางแถบ fixed ที่ซ้อนข้างในผิดตำแหน่ง (ต้องหมุนจอ) · overflow:hidden+height ยังล็อกไม่ให้หน้าเด้งเหมือนเดิม */
+    html, body { position: static !important; top: auto !important; left: auto !important; right: auto !important; bottom: auto !important; }
     .phone-wrap { padding: 0; height: var(--app-h, 100dvh); min-height: var(--app-h, 100dvh); max-height: var(--app-h, 100dvh); align-items: stretch; justify-content: flex-start; }
     .phone { max-width: 100%; width: 100%; height: var(--app-h, 100dvh); min-height: var(--app-h, 100dvh); max-height: var(--app-h, 100dvh); border-radius: 0; box-shadow: none; }
     /* v2.6.9 · เมนู = position:fixed bottom:0 (วิธีเดียวกับหน้าแอดมินที่ชิดเป๊ะ) · ปักขอบล่างจอจริงเสมอ */
@@ -8505,7 +8506,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.7.1';
+const PIXORY_VERSION = '2.7.2';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
