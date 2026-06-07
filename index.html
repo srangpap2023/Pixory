@@ -59,12 +59,12 @@
     .pixory-topbar { flex-shrink: 0 !important; }
     .screen {
       flex: 1 1 auto !important; min-height: 0 !important; height: auto !important;
-      overflow-y: auto !important; padding-bottom: 16px !important;
+      overflow-y: auto !important; padding-bottom: 80px !important;
     }
+    /* v2.8.2 · ปักเมนูกับขอบล่างจริง (fixed bottom:0 แบบแอดมิน) · shell 100dvh สั้นกว่าจอ → in-flow เลยลอย · fixed ปักขอบจริงเสมอ */
     .bottom-nav {
-      position: static !important; bottom: auto !important; left: auto !important; right: auto !important;
-      flex-shrink: 0 !important; align-self: stretch !important;
-      /* v2.8.1 · iPhone ใหม่ไม่มีปุ่ม home → ไม่ต้องเว้น safe-area เต็ม · ดันไอคอนชิดขอบล่าง เหลือกันชนแค่ 8px */
+      position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 50 !important;
+      flex-shrink: 0 !important;
       padding-top: 5px !important; padding-bottom: 8px !important;
       align-items: center !important;
     }
@@ -8528,7 +8528,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.8.1';
+const PIXORY_VERSION = '2.8.2';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
