@@ -2,47 +2,45 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Nav Test v3 · flex-column</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Pixory · หน้าวัดจอ (diagnostic)</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  /* ===== v2.8.0 · shell ใหม่ · flex column เต็มจอ (เหมือนแอปจริงที่รื้อใหม่) ===== */
   html, body { height: 100%; min-height: 0; overflow: hidden; background:#0A0A0E; color:#F2E0BA; font-family:-apple-system,'Inter',sans-serif; }
-  .phone-wrap { height: 100dvh; max-height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
-  .topbar { flex-shrink: 0; padding: calc(env(safe-area-inset-top,0px) + 12px) 16px 12px; background:#0a0a0b; border-bottom:0.5px solid rgba(255,255,255,0.08); font-size:18px; font-weight:800; color:#E8B870; }
-  .screen { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 16px; padding-bottom: 16px; }
-  .card { background:#14110c; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px; margin-bottom:12px; font-size:14px; line-height:1.6; }
+  .wrap { height: 100dvh; max-height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .top { flex-shrink:0; padding: calc(env(safe-area-inset-top,0px) + 12px) 16px 12px; background:#0a0a0b; font-size:16px; font-weight:800; color:#E8B870; }
+  .screen { flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px; padding-bottom:120px; }
+  .hud { background:#14110c; border:1px solid #E8B870; border-radius:14px; padding:16px; font-size:15px; line-height:2; }
+  .hud b { color:#E8B870; }
+  .big { font-size:22px; font-weight:800; color:#fff; }
+  .verdict { margin-top:10px; padding:12px; border-radius:10px; font-weight:800; font-size:17px; }
+  .ok { background:#13351f; color:#7fdba8; }
+  .bad { background:#3a1414; color:#f59595; }
 
-  /* แถบเมนู = ชิ้นล่างสุดในคอลัมน์ (static, in-flow) · พื้นทึบ · safe-area */
-  .bottom-nav {
-    flex-shrink: 0; align-self: stretch;
+  /* แถบเมนูจริง: fixed bottom 0 */
+  .nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
     display: flex; align-items: center; justify-content: space-around;
-    background:#0A0A0E; border-top:0.5px solid rgba(255,255,255,0.10);
-    padding-top: 5px; padding-bottom: 8px;
-  }
+    background:#14141a; border-top:0.5px solid rgba(255,255,255,0.10);
+    padding-top: 5px; padding-bottom: 8px; }
   .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; color:#A1A1AA; }
   .tab.active { color:#E8B870; }
   .tab .ic { font-size:22px; line-height:1; }
   .tab .lbl { font-size:10px; }
   .fab { flex:0 0 auto; width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,#D4A056,#B8854A); color:#0A0A0E; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700; }
 
-  /* เส้นแดงขอบล่างจริง ไว้เทียบ */
-  .baseline { position: fixed; bottom: 0; left: 0; right: 0; height: 6px; background:#ff3b30; z-index: 9; }
+  /* เส้นอ้างอิงขอบล่างจริงของ innerHeight (เขียว) และ visualViewport (ฟ้า) */
+  #lineInner { position: fixed; left:0; right:0; height:3px; background:#22c55e; z-index:60; }
+  #lineVV    { position: fixed; left:0; right:0; height:3px; background:#3b82f6; z-index:60; }
+  .legend { position: fixed; left:8px; z-index:61; font-size:11px; font-weight:700; padding:2px 6px; border-radius:6px; }
 </style>
 </head>
 <body>
-<div class="phone-wrap">
-  <div class="topbar">🧪 ทดสอบ v3 · shell ใหม่ flex-column</div>
+<div class="wrap">
+  <div class="top">🧪 Pixory · หน้าวัดจอ — ส่งสกรีนช็อตนี้ให้ผม 1 รูป</div>
   <div class="screen">
-    <div class="card"><b>เลื่อนลงล่างสุด</b> → แถบเมนูควร<b>ทับเส้นแดง</b>ขอบล่างพอดี = ชิด ✅</div>
-    <div class="card"><b>สำคัญ:</b> เปิดมาเลย <b>ไม่ต้องหมุนจอ</b> ดูว่าชิดทันที + <b>ไม่มีแถบสีโผล่ใต้เมนู</b></div>
-    <div class="card">เติมความสูง 1</div>
-    <div class="card">เติมความสูง 2</div>
-    <div class="card">เติมความสูง 3</div>
-    <div class="card">เติมความสูง 4</div>
-    <div class="card">เติมความสูง 5 · เลื่อนลงสุด</div>
+    <div class="hud" id="hud">กำลังวัด…</div>
   </div>
-  <div class="bottom-nav">
+  <div class="nav">
     <div class="tab active"><div class="ic">🏠</div><div class="lbl">หน้าหลัก</div></div>
     <div class="tab"><div class="ic">📋</div><div class="lbl">งาน</div></div>
     <div class="fab">+</div>
@@ -50,6 +48,47 @@
     <div class="tab"><div class="ic">📊</div><div class="lbl">สรุป</div></div>
   </div>
 </div>
-<div class="baseline"></div>
+<div id="lineInner"></div>
+<div id="lineVV"></div>
+
+<script>
+  // probe สำหรับอ่านค่า env(safe-area-inset-bottom) จริงบนเครื่อง
+  var probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;bottom:0;height:env(safe-area-inset-bottom,0px);width:0;visibility:hidden;';
+  document.body.appendChild(probe);
+
+  function measure(){
+    var ih = Math.round(window.innerHeight);
+    var vv = window.visualViewport ? Math.round(window.visualViewport.height) : 0;
+    var ch = Math.round(document.documentElement.clientHeight);
+    var safe = Math.round(probe.getBoundingClientRect().height);
+    var nav = document.querySelector('.nav').getBoundingClientRect();
+    var navBottom = Math.round(nav.bottom);
+    var gap = ih - navBottom;               // ระยะจากก้นเมนู ถึงขอบล่าง innerHeight
+    var standalone = (window.navigator.standalone === true) ? 'ใช่ (เพิ่มหน้าจอโฮม)' : 'ไม่ (เปิดใน Safari)';
+
+    // ขีดเส้นอ้างอิง
+    document.getElementById('lineInner').style.top = (ih - 3) + 'px';
+    document.getElementById('lineVV').style.top = (vv - 3) + 'px';
+
+    var verdictClass = (gap <= 1) ? 'ok' : 'bad';
+    var verdictText = (gap <= 1)
+      ? '✅ เมนูชิดขอบล่างพอดี (gap = ' + gap + ')'
+      : '⚠️ เมนูลอยสูงจากขอบล่าง ' + gap + ' px ← นี่คือช่องว่างที่พี่เห็น';
+
+    document.getElementById('hud').innerHTML =
+      '<b>โหมด PWA:</b> ' + standalone + '<br>' +
+      '<b>innerHeight:</b> <span class="big">' + ih + '</span> px<br>' +
+      '<b>visualViewport:</b> ' + vv + ' px<br>' +
+      '<b>clientHeight:</b> ' + ch + ' px<br>' +
+      '<b>safe-area ล่าง:</b> ' + safe + ' px<br>' +
+      '<b>ก้นเมนู (fixed bottom:0):</b> ' + navBottom + ' px<br>' +
+      '<div class="verdict ' + verdictClass + '">' + verdictText + '</div>';
+  }
+  measure();
+  ['resize','orientationchange','scroll','load'].forEach(function(e){ window.addEventListener(e, measure); });
+  if (window.visualViewport){ window.visualViewport.addEventListener('resize', measure); window.visualViewport.addEventListener('scroll', measure); }
+  setTimeout(measure, 300); setTimeout(measure, 1000); setTimeout(measure, 2500);
+</script>
 </body>
 </html>
