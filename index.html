@@ -8382,6 +8382,27 @@ if (typeof window.jobRevenue !== 'function') {
   window._isSameMonthD = window._isSameMonth;
   console.warn('[Pixory] pixory-helpers.js ไม่ได้โหลด · ใช้ fallback ในตัว · ตรวจว่า push ไฟล์ pixory-helpers.js แล้ว');
 }
+
+// v2.8.8 · คืนรายการบริการเสริมของใบเสนอ/งาน เป็น [{name,price}] · รองรับทั้งโมเดลใหม่ (doc.addons = {key:price})
+//   และของเก่า (doc.qr / doc.other) · ชื่อดึงจากรายการกลาง ADDONS ด้วย key (fallback ชื่อเดิม)
+function getAddonLineItems(doc) {
+  const out = [];
+  if (!doc) return out;
+  if (doc.addons && typeof doc.addons === 'object') {
+    Object.entries(doc.addons).forEach(([k, v]) => {
+      const p = Number(v) || 0;
+      if (p <= 0) return;
+      const m = (typeof ADDONS !== 'undefined' && Array.isArray(ADDONS)) ? ADDONS.find(a => (a.key || a.name) === k) : null;
+      const name = m ? m.name : (k === 'qr' ? 'QR หน้า Backdrop' : (k === 'profile' ? 'Profile' : k));
+      out.push({ name, price: p });
+    });
+  } else {
+    if (Number(doc.qr) > 0) out.push({ name: 'QR หน้า Backdrop', price: Number(doc.qr) });
+    if (Number(doc.other) > 0) out.push({ name: 'Profile', price: Number(doc.other) });
+  }
+  return out;
+}
+window.getAddonLineItems = getAddonLineItems;
 // Smart K formatter — 24000→"24K", 8500→"8.5K", 8900→"8.9K"
 function fmtPkgK(n) {
   if (n == null) return '';
@@ -8544,7 +8565,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.8.7';
+const PIXORY_VERSION = '2.8.8';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8555,6 +8576,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.8.8': {
+    date: '2026-06-07',
+    title: '🧾 บริการเสริมขึ้นครบในใบเสนอ/งาน',
+    subtitle: 'ทั้งรายการและรายละเอียดโชว์ครบทุกตัว',
+    items: [
+      { icon: '📋', title: 'บริการเสริมทุกตัวขึ้นในใบเสนอราคาแล้ว', desc: 'แก้บั๊กที่ยอดรวมมาครบแต่รายการบริการเสริมที่สร้างเองไม่โชว์ในใบเสนอ — ตอนนี้ขึ้นครบทั้งชื่อและราคา (รวมถึงหน้างาน ใบเรียกเก็บเงิน และกราฟด้วย)' },
+      { icon: '🔁', title: 'เปิดใบเสนอเดิมมาแก้ บริการเสริมไม่หาย', desc: 'เดิมเก็บได้แค่ 2 ช่อง · ตอนนี้เก็บครบทุกตัว แก้ไขหรือแปลงเป็นงานก็ยังอยู่ครบ' }
+    ]
+  },
   '2.8.7': {
     date: '2026-06-07',
     title: '🧩 แก้บั๊กบริการเสริม',
@@ -15036,6 +15066,7 @@ function saveCurrentJobAsTemplate() {
     extraTime: j.extraTime || 0,
     qr: j.qr || null,
     other: j.other || null,
+    addons: j.addons ? {...j.addons} : null, // v2.8.8 · เก็บบริการเสริมครบในเทมเพลต
     note: '',
     createdAt: new Date().toISOString()
   };
@@ -15243,8 +15274,12 @@ function openQuoteFromJob() {
   // Pre-fill service selections, add-ons, sessions from the job
   NQ_SELECTED = j.selectedServices ? JSON.parse(JSON.stringify(j.selectedServices)) : {};
   NQ_ADDONS = {};
-  if (j.qr) NQ_ADDONS.qr = j.qr;
-  if (j.other) NQ_ADDONS.profile = j.other;
+  if (j.addons && typeof j.addons === 'object') { // v2.8.8 · โหลดบริการเสริมครบทุกตัว
+    Object.entries(j.addons).forEach(([k, v]) => { if (Number(v) > 0) NQ_ADDONS[k] = Number(v); });
+  } else {
+    if (j.qr) NQ_ADDONS.qr = j.qr;
+    if (j.other) NQ_ADDONS.profile = j.other;
+  }
   // v1.9.14 · carry custom items from the job into the new quote
   loadCustomItems('nq', j.customItems || []);
   // v1.9.27 · carry billable cost items from job (if any · job-side ones are internal but we don't auto-bill them)
@@ -15724,8 +15759,7 @@ function openJob(code) {
       addRow(ci.name || 'งานพิเศษ', parseFloat(ci.price) || 0);
     });
   }
-  if (j.qr) addRow('QR หน้า Backdrop', j.qr);
-  if (j.other) addRow('อื่นๆ', j.other);
+  getAddonLineItems(j).forEach(it => addRow(it.name, it.price)); // v2.8.8 · แสดงบริการเสริมครบทุกตัว
   if (j.extraTime > 0) addRow('⏱ Extra time', j.extraTime);
   // v1.9.30 · render billable cost items (carried from quote · added to sell price)
   if (Array.isArray(j.billableCosts)) {
@@ -16237,8 +16271,7 @@ function copyQuoteToClipboard() {
   if (data.pre) txt += `• Pre-wedding${data.preName ? ' '+data.preName : ''} — ${fmt(data.pre)}\n`;
   if (data.video) txt += `• Video — ${fmt(data.video)}\n`;
   if (data.pb && data.pbPrice) txt += `• Photobooth ${data.pb} — ${fmt(data.pbPrice)}\n`;
-  if (data.qr) txt += `• QR หน้า Backdrop — ${fmt(data.qr)}\n`;
-  if (data.other) txt += `• อื่นๆ — ${fmt(data.other)}\n`;
+  getAddonLineItems(data).forEach(it => { txt += `• ${it.name} — ${fmt(it.price)}\n`; }); // v2.8.8 · ครบทุกบริการเสริม
   txt += `\nรวม ${fmt(data.total)}`;
   if (data.discount > 0) txt += `\nส่วนลด -${fmt(data.discount)}`;
   txt += `\n💰 ราคาสุทธิ ${fmt(data.sell)}\n`;
@@ -18507,8 +18540,12 @@ function editCurrentJob() {
     });
   }
   ADD_ADDONS = {};
-  if (j.qr) ADD_ADDONS.qr = j.qr;
-  if (j.other) ADD_ADDONS.profile = j.other;
+  if (j.addons && typeof j.addons === 'object') { // v2.8.8 · โหลดบริการเสริมครบทุกตัว
+    Object.entries(j.addons).forEach(([k, v]) => { if (Number(v) > 0) ADD_ADDONS[k] = Number(v); });
+  } else {
+    if (j.qr) ADD_ADDONS.qr = j.qr;
+    if (j.other) ADD_ADDONS.profile = j.other;
+  }
   // v1.9.14 · restore custom items
   loadCustomItems('add', j.customItems || []);
   // v1.9.19 · restore cost items · v1.9.31 split into preset slots + others
@@ -18752,6 +18789,7 @@ function collectAddFormData() {
     extraTime: parseFloat(document.getElementById('addExtraTime').value) || 0,
     qr: ADD_ADDONS.qr || null,
     other: ADD_ADDONS.profile || null,
+    addons: {...ADD_ADDONS}, // v2.8.8 · เก็บบริการเสริมครบทุกตัว (เดิมเก็บแค่ qr/other → ตัวใหม่หาย)
     total, sell, discount, deposit, remain,
     payStatus,
     jobStatus: 'รอถ่าย', // v2.5.0 · was 'จอง'
@@ -19161,8 +19199,7 @@ function showQuoteScreen(data, source) {
       addItem(ci.name || 'งานพิเศษ', ci.desc || '', parseFloat(ci.price) || 0);
     });
   }
-  if (data.qr) addItem(t('addon.qrBackdrop'), t('addon.qrBackdropDesc'), data.qr);
-  if (data.other) addItem(t('addon.otherAddOn'), '', data.other);
+  getAddonLineItems(data).forEach(it => addItem(it.name, '', it.price)); // v2.8.8 · แสดงบริการเสริมครบทุกตัว
   if (data.extraTime > 0) addItem(t('lbl.extraTime'), t('addon.extraTime'), data.extraTime);
   // v1.9.27 · render billable cost items (ค่าใช้จ่ายในงานนี้) as regular line items after packages/addons
   if (Array.isArray(data.costItems)) {
@@ -19511,6 +19548,7 @@ function convertQuoteToJob(code) {
     // User fills internal costs (job.costItems) manually since actual paid != amount billed to customer
     billableCosts: Array.isArray(q.costItems) ? q.costItems.map(c => ({...c})) : [],
     qr: q.qr || null, other: q.other || null,
+    addons: q.addons ? {...q.addons} : null, // v2.8.8 · ตกทอดบริการเสริมครบตอนแปลงใบเสนอ→งาน
     extraTime: q.extraTime || 0,  // ← Fix: carry over Extra time from quote
     total: q.total, sell: q.sell, discount: q.discount,
     deposit: qDeposit, remain: qRemain, payStatus: qPayStatus,
@@ -19671,8 +19709,12 @@ function editCurrentQuote() {
   NQ_SELECTED = q.selectedServices ? JSON.parse(JSON.stringify(q.selectedServices)) : {};
   if (typeof NQ_OPEN_SVC !== 'undefined') NQ_OPEN_SVC = null;
   NQ_ADDONS = {};
-  if (q.qr) NQ_ADDONS.qr = q.qr;
-  if (q.other) NQ_ADDONS.profile = q.other;
+  if (q.addons && typeof q.addons === 'object') { // v2.8.8 · โหลดบริการเสริมครบทุกตัว
+    Object.entries(q.addons).forEach(([k, v]) => { if (Number(v) > 0) NQ_ADDONS[k] = Number(v); });
+  } else {
+    if (q.qr) NQ_ADDONS.qr = q.qr;
+    if (q.other) NQ_ADDONS.profile = q.other;
+  }
   // v1.9.14 · restore custom items
   loadCustomItems('nq', q.customItems || []);
   // v1.9.27 · restore billable cost items
@@ -20547,6 +20589,7 @@ function saveNewQuote(status) {
       extraTime: parseFloat((document.getElementById('nq-extratime')||{}).value) || 0,
       qr: NQ_ADDONS.qr || null,
       other: NQ_ADDONS.profile || null,
+      addons: {...NQ_ADDONS}, // v2.8.8 · เก็บบริการเสริมครบทุกตัว (เดิมเก็บแค่ qr/other → ตัวใหม่หาย)
       total, discount: disc, sell: _sell,
       deposit: parseFloat(document.getElementById('nq-deposit').value) || 0,
       bankIdx: document.getElementById('nq-bank').value || null,
@@ -20590,6 +20633,7 @@ function saveNewQuote(status) {
     extraTime: parseFloat((document.getElementById('nq-extratime')||{}).value) || 0,
     qr: NQ_ADDONS.qr || null,
     other: NQ_ADDONS.profile || null,
+    addons: {...NQ_ADDONS}, // v2.8.8 · เก็บบริการเสริมครบทุกตัว (เดิมเก็บแค่ qr/other → ตัวใหม่หาย)
     total, discount: disc, sell: _sell,
     deposit: parseFloat(document.getElementById('nq-deposit').value) || 0,
     bankIdx: document.getElementById('nq-bank').value || null,
@@ -21789,8 +21833,7 @@ function renderInvoicePDF(job) {
       addItem(ci.name || 'ค่าใช้จ่ายเพิ่มเติม', ci.desc || '', p);
     });
   }
-  if (job.qr) addItem(t('addon.qrBackdrop'), t('addon.qrBackdropDesc'), job.qr);
-  if (job.other) addItem(t('addon.otherAddOn'), '', job.other);
+  getAddonLineItems(job).forEach(it => addItem(it.name, '', it.price)); // v2.8.8 · แสดงบริการเสริมครบทุกตัว
   if (job.extraTime > 0) addItem(t('inv.fromQuote'), '', job.extraTime);
   if (inv.extraTime > 0) addItem(t('inv.fromInvoice'), '', inv.extraTime);
   (inv.addOns || []).forEach(a => {
@@ -24781,10 +24824,8 @@ function renderDashboard() {
         gross += p; components.push({ price: p, category: c });
       });
     }
-    const qrPrice = parseFloat(j.qr) || 0;
-    const otherPrice = parseFloat(j.other) || 0;
-    if (qrPrice > 0) { gross += qrPrice; components.push({ price: qrPrice, category: fallback }); }
-    if (otherPrice > 0) { gross += otherPrice; components.push({ price: otherPrice, category: fallback }); }
+    // v2.8.8 · กระจายบริการเสริมครบทุกตัวเข้าชาร์ต (เดิมนับแค่ qr/other → ชาร์ตขาดบางตัว)
+    getAddonLineItems(j).forEach(it => { if (it.price > 0) { gross += it.price; components.push({ price: it.price, category: fallback }); } });
     if (Array.isArray(j.customItems)) {
       j.customItems.forEach(ci => {
         const p = parseFloat(ci && ci.price) || 0;
