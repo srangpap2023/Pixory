@@ -753,7 +753,7 @@
   .app-shell {
     display: grid;
     grid-template-columns: 240px 1fr;
-    grid-template-rows: 64px 1fr;
+    grid-template-rows: 80px 1fr;
     grid-template-areas:
       "topbar topbar"
       "sidebar main";
@@ -779,30 +779,32 @@
     font-family: var(--font-display);
     color: var(--brand-dark);
   }
-  .topbar-brand img {
-    width: 36px; height: 36px;
-    filter: drop-shadow(0 2px 6px rgba(217,119,87,0.30));
+  .topbar-brand img, .topbar-brand .topbar-brand-icon {
+    width: 48px; height: 48px;
+    color: var(--brand);
+    filter: drop-shadow(0 2px 8px rgba(217,119,87,0.35));
     transition: transform 0.2s;
+    flex-shrink: 0;
   }
-  .topbar-brand:hover img { transform: rotate(-6deg) scale(1.05); }
+  .topbar-brand:hover img, .topbar-brand:hover .topbar-brand-icon { transform: rotate(-6deg) scale(1.05); }
   .topbar-brand .brand-text { display: flex; flex-direction: column; line-height: 1; }
   .topbar-brand .brand-name {
     font-family: var(--font-display);
     font-weight: 800;
-    font-size: 22px;
+    font-size: 28px;
     color: var(--brand-dark);
-    letter-spacing: 1.5px;
+    letter-spacing: 2.5px;
     line-height: 1;
     text-transform: uppercase;
   }
   .topbar-brand .brand-sub {
     font-family: var(--font-th);
     font-weight: 500;
-    font-size: 10px;
+    font-size: 11px;
     color: var(--ink-mute);
     text-transform: uppercase;
-    letter-spacing: 0.18em;
-    margin-top: 3px;
+    letter-spacing: 0.2em;
+    margin-top: 4px;
   }
   .topbar-spacer { flex: 1; }
   .sync-pill {
@@ -2841,7 +2843,11 @@
   <!-- Top bar -->
   <div class="topbar">
     <div class="topbar-brand">
-      <img src="../02_brand/logo/pixory_mark.svg" alt="Pixory" onerror="this.style.display='none'" />
+      <svg class="topbar-brand-icon" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M 40 85 Q 40 65 60 65 L 70 65 L 82 50 Q 86 45 92 45 L 108 45 Q 114 45 118 50 L 130 65 L 140 65 Q 160 65 160 85 L 160 150 Q 160 165 145 165 L 55 165 Q 40 165 40 150 Z" />
+        <circle cx="100" cy="118" r="28" />
+        <circle cx="100" cy="118" r="14" stroke-width="6" />
+      </svg>
       <div class="brand-text">
         <span class="brand-name">Pixory</span>
         <span class="brand-sub">Studio · Desktop</span>
@@ -2947,7 +2953,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.65';
+const PIXORY_DESKTOP_VERSION = '1.0.69';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -4522,7 +4528,6 @@ function renderDashboard(root) {
   // Render
   root.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap;background:linear-gradient(135deg,#2A1F18 0%,#15100b 78%);border:1px solid var(--border);border-radius:18px;padding:18px 24px;position:relative;overflow:hidden;">
-      <div style="position:absolute;right:-30px;top:-46px;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(217,119,87,0.40),transparent 70%);filter:blur(16px);"></div>
       <div style="position:relative;z-index:1;min-width:0;">
         <div style="font-size:12px;color:rgba(255,255,255,0.55);">👋 ${escapeHtml(_greeting())} · ${escapeHtml(['อา','จ','อ','พ','พฤ','ศ','ส'][now.getDay()])} ${now.getDate()} ${escapeHtml(thMonthsShort[m])} ${yr + 543}</div>
         <div style="font-family:'Fraunces',serif;font-weight:700;font-size:23px;color:#fff;margin-top:3px;line-height:1.15;">${escapeHtml(PROFILE.shop || 'สตูดิโอของคุณ')}</div>
@@ -4543,7 +4548,6 @@ function renderDashboard(root) {
 
       <!-- HERO · รายได้สะสมปี + กราฟเทรนด์ (span 8) -->
       <div style="grid-column:span 8;background:linear-gradient(135deg, #2A1F18 0%, #15100b 80%);color:white;padding:22px 26px;border-radius:18px;position:relative;overflow:hidden;">
-        <div style="position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(217,119,87,0.4),transparent 70%);filter:blur(18px);"></div>
         <div style="position:relative;z-index:1;">
           <div style="font-size:12px;color:rgba(255,255,255,0.55);">รายได้สะสม · ปี ${yr + 543}</div>
           <div style="display:flex;align-items:baseline;gap:10px;margin-top:2px;">
@@ -4563,19 +4567,19 @@ function renderDashboard(root) {
         </div>
       </div>
 
-      <!-- GOAL RING (span 4) -->
-      <div style="grid-column:span 4;background:var(--bg-b);border:1px solid var(--border);border-radius:18px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;" onclick="setSettingsTab('profile');navigate('settings');">
-        <svg viewBox="0 0 84 84" style="width:84px;height:84px;flex-shrink:0;">
+      <!-- GOAL RING (span 4) · v1.0.66 · คุมโทนให้ตรงกับการ์ดรายได้ (พื้นไล่เฉดเข้ม + ข้อความสว่าง + แสงเรืองทอง) -->
+      <div style="grid-column:span 4;background:linear-gradient(135deg, #2A1F18 0%, #15100b 80%);color:white;border-radius:18px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;position:relative;overflow:hidden;" onclick="setSettingsTab('profile');navigate('settings');">
+        <svg viewBox="0 0 84 84" style="width:84px;height:84px;flex-shrink:0;position:relative;z-index:1;">
           <g transform="rotate(-90 42 42)">
-            <circle cx="42" cy="42" r="32" fill="none" stroke="rgba(212,160,86,0.18)" stroke-width="9"/>
-            <circle cx="42" cy="42" r="32" fill="none" stroke="var(--brand)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${_ringDash.toFixed(1)} ${(_ringC - _ringDash).toFixed(1)}"/>
+            <circle cx="42" cy="42" r="32" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="9"/>
+            <circle cx="42" cy="42" r="32" fill="none" stroke="#E8B870" stroke-width="9" stroke-linecap="round" stroke-dasharray="${_ringDash.toFixed(1)} ${(_ringC - _ringDash).toFixed(1)}"/>
           </g>
-          <text x="42" y="47" text-anchor="middle" fill="var(--brand-dark)" font-size="17" font-weight="800" font-family="Inter,sans-serif">${goalPct.toFixed(0)}%</text>
+          <text x="42" y="47" text-anchor="middle" fill="#E8B870" font-size="17" font-weight="800" font-family="Inter,sans-serif">${goalPct.toFixed(0)}%</text>
         </svg>
-        <div style="min-width:0;">
-          <div style="font-size:11px;color:var(--ink-mute);font-weight:700;">🎯 เป้าหมายปี ${yr + 543}</div>
-          <div style="font-size:14px;font-weight:700;color:var(--ink);margin-top:3px;">${fmtTHB(ytdIncome)} <span style="color:var(--ink-mute);font-weight:400;font-size:12px;">/ ${fmtTHB(yearlyGoal)}</span></div>
-          <div style="font-size:11px;color:var(--ink-mute);margin-top:4px;">${goalRemain > 0 ? 'เฉลี่ยอีก ' + fmtTHB(monthlyNeed) + '/เดือน · ' + monthsLeft + ' เดือน' : '🎉 เกินเป้าแล้ว!'}</div>
+        <div style="min-width:0;position:relative;z-index:1;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:700;">🎯 เป้าหมายปี ${yr + 543}</div>
+          <div style="font-size:14px;font-weight:700;color:#fff;margin-top:3px;">${fmtTHB(ytdIncome)} <span style="color:rgba(255,255,255,0.55);font-weight:400;font-size:12px;">/ ${fmtTHB(yearlyGoal)}</span></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:4px;">${goalRemain > 0 ? 'เฉลี่ยอีก ' + fmtTHB(monthlyNeed) + '/เดือน · ' + monthsLeft + ' เดือน' : '🎉 เกินเป้าแล้ว!'}</div>
         </div>
       </div>
 
