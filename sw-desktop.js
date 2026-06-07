@@ -1,4 +1,4 @@
-// Pixory Desktop Service Worker — v1.0.71
+// Pixory Desktop Service Worker — v1.0.72
 // Mirrors mobile sw.js but with separate cache so the two apps don't collide.
 // Strategy:
 //   - HTML (navigation): network-first, fall back to cache when offline
@@ -6,7 +6,7 @@
 //   - Supabase API calls: never cache (live data only)
 // NOTE: bump CACHE_NAME on every release so old caches are evicted on activate
 
-const CACHE_NAME = 'pixory-desktop-v1.0.71';
+const CACHE_NAME = 'pixory-desktop-v1.0.72';
 const PRECACHE_URLS = [
   './desktop.html',
   './pixory-helpers.js',
