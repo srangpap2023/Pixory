@@ -4800,6 +4800,15 @@
     // FAILSAFE · ไม่ว่าอะไรจะเกิด ต้องไม่ค้างจอ loading เกิน 8 วิ
     setTimeout(window.hideBootSplash, 8000);
   })();
+  // v2.6.8 FIX (C4) · global error net — error/promise ที่หลุดมือ: log + ปิด splash (กันจอเปล่าเงียบๆ ตอนบูต)
+  (function () {
+    function _net(kind, err) {
+      try { console.error('[pixory:' + kind + ']', err); } catch (_) {}
+      try { if (typeof window.hideBootSplash === 'function') window.hideBootSplash(); } catch (_) {}
+    }
+    window.addEventListener('error', function (e) { _net('error', (e && (e.error || e.message)) || e); });
+    window.addEventListener('unhandledrejection', function (e) { _net('promise', e && e.reason); });
+  })();
 </script>
 
 <!-- v2.6.9 · วัดความสูงจอจริงด้วย JS → ตั้ง --app-h · กัน iOS วัดผิดตอนโหลดแรก (เดิมต้องหมุนจอถึงชิด) · วัดใหม่ตอน load/resize/หมุนจอ + หน่วงเวลาให้ Safari toolbar นิ่ง -->
@@ -8535,7 +8544,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.8.4';
+const PIXORY_VERSION = '2.8.6';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8546,6 +8555,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.8.6': {
+    date: '2026-06-07',
+    title: '🛠 แก้บั๊กบันทึกยอดชำระ + เสถียรขึ้น',
+    subtitle: 'เงินเข้าครบทุกบาท · แอปเปิดทนขึ้น',
+    items: [
+      { icon: '💰', title: 'กด "ชำระครบ" แล้วเงินเข้าถูกบันทึกจริง', desc: 'แก้บั๊กที่กดทำเครื่องหมายจ่ายยอดคงเหลือครบ แล้วเงินก้อนนั้นไม่ถูกนับใน "เก็บแล้ว"/กำไร — ตอนนี้บันทึกครบและไม่นับซ้ำ' },
+      { icon: '🛡', title: 'เปิดแอปทนขึ้น', desc: 'ถ้าเน็ตสะดุดหรือมีบางส่วนโหลดพลาด แอปจะไม่ค้างจอโหลด/จอเปล่าอีก เข้าหน้าหลักได้เสมอ' }
+    ]
+  },
   '2.5.97': {
     date: '2026-06-06',
     title: '🔧 แถบหัวคุมโทนเทาเย็น',
@@ -21885,15 +21903,18 @@ function toggleInvoiceBalancePaid() {
     toast(t('inv.unmarkedPaid'));
   } else {
     const today = new Date().toISOString().slice(0, 10);
+    // v2.6.8 FIX (C1) · ต้องคำนวณยอดคงเหลือ "ก่อน" ตั้ง balancePaid
+    // เพราะ calcInvoiceTotals → jobOutstanding() คืน 0 ทันทีที่ balancePaid=true
+    // (เดิมตั้ง flag ก่อน → balanceDue=0 → payment ก้อนสุดท้ายไม่ถูกบันทึก เงินเข้า/กำไรหาย + ภาษีลงผิดปี)
+    const balanceDue = calcInvoiceTotals(j).balanceDue;
     j.invoice.balancePaid = true;
     j.invoice.balancePaidDate = today;
-    // Compute the balance amount and log it as a payment
-    const totals = calcInvoiceTotals(j);
-    if (totals.balanceDue > 0) {
-      j.payments = j.payments || [];
+    if (balanceDue > 0) {
+      // idempotent: เคลียร์ payment ยอดคงเหลือเดิมของใบนี้ (ถ้ามีค้าง) กันนับซ้ำ แล้วบันทึกใหม่
+      j.payments = (j.payments || []).filter(p => !(p.type === 'balance' && p.invoiceCode === j.invoice.code));
       j.payments.push({
         date: today,
-        amount: totals.balanceDue,
+        amount: balanceDue,
         type: 'balance',
         note: 'ชำระยอดคงเหลือ',
         invoiceCode: j.invoice.code
@@ -22140,8 +22161,8 @@ function renderMonthJobsList() {
       html += '<div onclick="openJob(\'' + safeCode + '\')" style="display:flex; align-items:center; gap:10px; background:#fefcf9; border-radius:11px; padding:10px 12px; margin-bottom:6px; border-left:3px solid ' + borderColor + '; box-shadow:0 1px 3px rgba(0,0,0,0.04); cursor:pointer; opacity:' + opacity + ';">' +
         '<div style="font-size:10.5px; color:' + timeFg + '; font-weight:800; background:' + timeBg + '; padding:4px 8px; border-radius:6px; flex-shrink:0; min-width:44px; text-align:center;">' + startStr + '</div>' +
         '<div style="flex:1; min-width:0; overflow:hidden;">' +
-          '<div style="font-size:13px; font-weight:700; color:#3a2f25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + custDisplay + '</div>' +
-          (metaText ? '<div style="font-size:10.5px; color:#7c7066; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + metaText + '</div>' : '') +
+          '<div style="font-size:13px; font-weight:700; color:#3a2f25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(custDisplay) + '</div>' +
+          (metaText ? '<div style="font-size:10.5px; color:#7c7066; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(metaText) + '</div>' : '') +
         '</div>' +
         '<span style="font-size:9.5px; font-weight:800; padding:3px 9px; border-radius:100px; background:' + pillBg + '; color:' + pillFg + '; flex-shrink:0;">' + pillTxt + '</span>' +
         '</div>';
@@ -22963,10 +22984,15 @@ function computePIT(year, opts) {
   const totalChildren = Math.max(0, Number(opts.numChildren) || 0);
   const children2018Plus = Math.max(0, Math.min(totalChildren, Number(opts.numChildren2018Plus) || 0));
   const childrenPre2018 = Math.max(0, totalChildren - children2018Plus);
-  const childAllowance = (childrenPre2018 * 30000) + (children2018Plus * 60000);
-  const lifeIns = Math.min(100000, Number(opts.lifeInsurance) || 0);
+  // v2.8.6 FIX (H7b) · ลูกคนแรกได้ 30k เสมอ · คนที่ 2 ขึ้นไปที่เกิด ≥2561 ได้ +30k (รวม 60k)
+  //   ถ้าไม่มีลูกก่อน 2561 เลย ลูก 2561+ คนแรก = "คนแรก" ได้ 30k (เดิมให้ 60k = ลดหย่อนเกิน)
+  const childExtra2018 = Math.max(0, children2018Plus - (childrenPre2018 === 0 ? 1 : 0));
+  const childAllowance = (totalChildren * 30000) + (childExtra2018 * 30000);
+  // v2.8.6 FIX (H7a) · สุขภาพ sub-cap 25k · ชีวิต+สุขภาพ "รวม" ไม่เกิน 100k (เดิมแยก cap → รวมได้ 125k เกินกฎ)
   const healthIns = Math.min(25000, Number(opts.healthInsurance) || 0);
-  const rmfSsf = Math.min(200000, Number(opts.rmfSsf) || 0);
+  const lifeIns = Math.min(Math.max(0, 100000 - healthIns), Number(opts.lifeInsurance) || 0);
+  // v2.8.6 FIX (H7c) · กลุ่มเกษียณเพิ่มเพดาน 30% ของรายได้พึงประเมิน — กันลดหย่อนเกินสำหรับผู้มีรายได้น้อย
+  const rmfSsf = Math.min(200000, 0.30 * revenue, Number(opts.rmfSsf) || 0);
   const mortgage = Math.min(100000, Number(opts.mortgageInterest) || 0);
 
   // M9 · Donation cap 10% of income after all OTHER deductions
@@ -25616,45 +25642,55 @@ async function initAfterAuth() {
       }
     }, 2500);
   } catch(e) { console.warn('push resync failed', e); }
-  loadWallpaper();
-  loadFontSize();
-  renderHomeUpcoming();
-  // Render Jobs with persisted filter from last session
-  renderJobsWithCurrentFilter();
-  syncJobFilterChips();
-  renderQuotesList(QUOTES);
-  document.querySelector('#seg-jobs .seg-count').textContent = JOBS.length;
-  document.querySelector('#seg-quotes .seg-count').textContent = QUOTES.length;
-  renderExpenseList();
-  updateHomeExpenseSum();
-  updateGreeting();
-  updateHomeKPIs();
-  renderHomeNotifs();
-  renderCalLegend();
-  renderCalendar();
-  renderCustomers();
-  renderSettingsLists();
-  renderAddJobScreen();
-  updateSettingsSubcounts();
-  if (JOBS.length > 0) openJob(JOBS[0].code);
+  // v2.6.8 FIX (C3) · ห่อแต่ละ render ด้วย try/catch · ถ้าตัวใดตัวหนึ่ง error
+  // จะไม่ทำให้ทั้งสายพัง (เดิม 1 ฟังก์ชัน throw = ตัวถัดไปรวมถึง goTo('home') ไม่ทำงาน → จอเปล่า)
+  const _safe = (label, fn) => { try { fn(); } catch (e) { console.warn('[init] ' + label + ' failed:', e); } };
+  _safe('loadWallpaper', loadWallpaper);
+  _safe('loadFontSize', loadFontSize);
+  _safe('renderHomeUpcoming', renderHomeUpcoming);
+  _safe('renderJobs', renderJobsWithCurrentFilter);
+  _safe('syncJobFilterChips', syncJobFilterChips);
+  _safe('renderQuotesList', () => renderQuotesList(QUOTES));
+  _safe('segCounts', () => {
+    document.querySelector('#seg-jobs .seg-count').textContent = JOBS.length;
+    document.querySelector('#seg-quotes .seg-count').textContent = QUOTES.length;
+  });
+  _safe('renderExpenseList', renderExpenseList);
+  _safe('updateHomeExpenseSum', updateHomeExpenseSum);
+  _safe('updateGreeting', updateGreeting);
+  _safe('updateHomeKPIs', updateHomeKPIs);
+  _safe('renderHomeNotifs', renderHomeNotifs);
+  _safe('renderCalLegend', renderCalLegend);
+  _safe('renderCalendar', renderCalendar);
+  _safe('renderCustomers', renderCustomers);
+  _safe('renderSettingsLists', renderSettingsLists);
+  _safe('renderAddJobScreen', renderAddJobScreen);
+  _safe('updateSettingsSubcounts', updateSettingsSubcounts);
+  _safe('openFirstJob', () => { if (JOBS.length > 0) openJob(JOBS[0].code); });
 
   // Update account UI
-  updateAccountUI();
+  _safe('updateAccountUI', updateAccountUI);
 
   // Wizard trigger logic:
   //   - If wizardDone === true → user has explicitly completed wizard → home
   //   - If wizardDone is unset BUT PROFILE.shop exists → legacy user, mark wizardDone, home
   //   - Otherwise (new user / fresh signup) → show Wizard
-  if (PROFILE.wizardDone === true) {
-    goTo('home');
-  } else if (PROFILE.shop && PROFILE.shop.trim().length > 0) {
-    // Legacy user from before wizardDone existed — skip wizard
-    PROFILE.wizardDone = true;
-    saveData();
-    goTo('home');
-  } else {
-    // Brand-new user (or never completed wizard) → onboarding
-    startWizard();
+  // v2.6.8 FIX (C3) · ห่อการตัดสินใจ nav · ถ้า throw ยังต้องพาเข้าหน้าหลักให้ได้ (กันจอเปล่า)
+  try {
+    if (PROFILE.wizardDone === true) {
+      goTo('home');
+    } else if (PROFILE.shop && PROFILE.shop.trim().length > 0) {
+      // Legacy user from before wizardDone existed — skip wizard
+      PROFILE.wizardDone = true;
+      saveData();
+      goTo('home');
+    } else {
+      // Brand-new user (or never completed wizard) → onboarding
+      startWizard();
+    }
+  } catch (e) {
+    console.error('[init] nav decision failed · falling back to home:', e);
+    try { goTo('home'); } catch (_) {}
   }
 
   // After home/wizard is settled — check for version notes to display
@@ -25680,13 +25716,24 @@ function updateAccountUI() {
 }
 
 // Wait for Supabase to load (v2.5.82: ตัดเงื่อนไข Chart.js ออก — lib ถูกลบแล้ว ไม่มีใครใช้)
+let _bootTries = 0;
 function bootstrap() {
   if (typeof window.supabase === 'undefined') {
-    // Give libs another chance
-    setTimeout(bootstrap, 100);
-    return;
+    // v2.6.8 FIX (C2) · จำกัด retry ~3 วิ แล้วเข้า init() แบบ anonymous fallback
+    // (เดิมวน setTimeout ไม่มีเพดาน — ถ้า Supabase CDN โหลดไม่ติด/ถูกบล็อก = ค้างหน้า splash ตลอดกาล)
+    if (_bootTries++ < 30) { setTimeout(bootstrap, 100); return; }
+    console.warn('Pixory: Supabase lib not loaded after 3s · entering anonymous fallback');
   }
-  init();
+  // init() มี fallback anonymous อยู่แล้วถ้า initSupabase() ล้มเหลว
+  try {
+    init().catch(function (e) {
+      console.error('[boot] init() rejected:', e);
+      try { if (typeof window.hideBootSplash === 'function') window.hideBootSplash(); } catch (_) {}
+    });
+  } catch (e) {
+    console.error('[boot] init() threw:', e);
+    try { if (typeof window.hideBootSplash === 'function') window.hideBootSplash(); } catch (_) {}
+  }
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', bootstrap);
