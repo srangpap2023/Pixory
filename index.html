@@ -2480,6 +2480,16 @@
     background: rgba(20, 20, 25, 0.7) !important;
     border-top: 0.5px solid rgba(255,255,255,.08) !important;
   }
+  /* v2.7.1 · มือถือ · ถอด backdrop-filter ออกจากแถบเมนู · บน iOS "position:fixed + backdrop-filter" คำนวณตำแหน่งคลาด ต้องหมุนจอถึงลงมาชิด · ใช้พื้นทึบแทน (วางท้ายกว่า rule glass จึง override ได้) */
+  @media (max-width: 460px) {
+    .bottom-nav, body.dark-theme .bottom-nav, body.luxe-theme .bottom-nav {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    .bottom-nav { background: #ffffff !important; }
+    body.dark-theme .bottom-nav { background: #14141a !important; }
+    body.luxe-theme .bottom-nav { background: #0A0A0E !important; }
+  }
 
   /* ---- Section title text colors in dark ---- */
   body.dark-theme .section-title h2 { color: #f5f5f5; }
@@ -8495,7 +8505,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.7.0';
+const PIXORY_VERSION = '2.7.1';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
