@@ -8650,7 +8650,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.0';
+const PIXORY_VERSION = '2.9.1';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -19126,12 +19126,19 @@ function savePayment() {
   if (!j) return;
   const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
   if (amount <= 0) { toast('กรุณากรอกจำนวนเงิน'); return; }
-  if (amount > j.remain) {
-    alert('⛔ จำนวนเงิน ' + fmt(amount) + ' เกินยอดคงเหลือ ' + fmt(j.remain) + '\n\nกรุณาแก้ไขก่อนบันทึก');
+  // v2.9.1 · กันรับเกิน · เช็กจาก "เงินที่รับรวมจริง (payments) vs ราคางาน" — ไม่พึ่ง j.remain ที่ถูกรีเซ็ตตอนแก้งานได้
+  const _receivedSoFar = (j.payments || []).reduce((s, p) => s + (Number(p && p.amount) || 0), 0);
+  const _jobValue = (Number(j.sell) || 0) + (typeof jobInvExtra === 'function' ? jobInvExtra(j) : 0);
+  if (_receivedSoFar + amount > _jobValue + 0.01) {
+    alert('⛔ ยอดรับรวมจะเป็น ' + fmt(_receivedSoFar + amount) + ' ซึ่งเกินราคางาน ' + fmt(_jobValue) + '\n\n(รับมาแล้ว ' + fmt(_receivedSoFar) + ') · รับเกินราคางานไม่ได้ · ตรวจสอบอีกครั้ง');
     return;
   }
   const date = document.getElementById('pay-date').value || new Date().toISOString().slice(0,10);
   const note = document.getElementById('pay-note').value;
+  // v2.9.1 · กันบันทึกซ้ำ · เตือนถ้ามีรายการวันเดียวกัน + จำนวนเท่ากันอยู่แล้ว
+  if ((j.payments || []).some(p => p && p.date === date && (Number(p.amount) || 0) === amount)) {
+    if (!confirm('⚠ มีรายการรับเงินวันที่ ' + date + ' จำนวน ' + fmt(amount) + ' อยู่แล้ว\n\nต้องการบันทึกซ้ำอีกครั้งไหม?')) return;
+  }
 
   // Add to payments history
   j.payments = j.payments || [];

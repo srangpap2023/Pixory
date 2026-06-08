@@ -2953,7 +2953,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.73';
+const PIXORY_DESKTOP_VERSION = '1.0.74';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -13496,6 +13496,17 @@ async function savePayment(jobCode) {
   const method = document.getElementById('pay-method').value || '';
   const noteRaw = (document.getElementById('pay-note').value || '').trim();
   if (amount <= 0) { toast('ใส่จำนวนเงิน', 'error'); return; }
+  // v2.9.1 · กันรับเกิน · เช็กจาก "เงินที่รับรวมจริง (payments) vs ราคางาน" — ไม่พึ่ง j.remain ที่ถูกรีเซ็ตตอนแก้งานได้
+  const _received = (j.payments || []).reduce((s, p) => s + (Number(p && p.amount) || 0), 0);
+  const _jobValue = (Number(j.sell) || 0) + ((typeof jobInvExtra === 'function') ? jobInvExtra(j) : 0);
+  if (_received + amount > _jobValue + 0.01) {
+    toast('⛔ รับเกินราคางาน · รับมาแล้ว ' + fmtTHB(_received) + ' / ราคางาน ' + fmtTHB(_jobValue), 'error');
+    return;
+  }
+  // v2.9.1 · กันบันทึกซ้ำ
+  if ((j.payments || []).some(p => p && p.date === date && (Number(p.amount) || 0) === amount)) {
+    if (!confirm('⚠ มีรายการรับเงินวันที่ ' + date + ' จำนวน ' + fmtTHB(amount) + ' อยู่แล้ว · บันทึกซ้ำไหม?')) return;
+  }
   const note = method ? (noteRaw ? (noteRaw + ' · ' + method) : method) : noteRaw;
   // Per Section 2.6
   j.payments = j.payments || [];
