@@ -5403,6 +5403,16 @@
         </div>
       </div>
 
+      <!-- v2.9.x · งาน Active (3 ช่อง: รอถ่าย/รอส่ง/รอจัดทีม) · กดกรองได้ -->
+      <div class="msum" id="home-active-card" style="margin: 0 16px 14px;">
+        <div class="msum-head">⚡ <span>งาน Active</span></div>
+        <div class="msum-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="msum-tile" style="cursor:pointer;" onclick="goToJobsFilter('upcoming')"><div class="v" id="ha-shoot">0</div><div class="l">รอถ่าย</div></div>
+          <div class="msum-tile cash" style="cursor:pointer;" onclick="goToJobsFilter('wait_deliver')"><div class="v" id="ha-deliver">0</div><div class="l">รอส่งงาน</div></div>
+          <div class="msum-tile debt" style="cursor:pointer;" onclick="goToJobsFilter('team_incomplete')"><div class="v" id="ha-team">0</div><div class="l">รอจัดทีม</div></div>
+        </div>
+      </div>
+
       <!-- v2.5.93 · งานที่กำลังจะมาถึง (ย้ายขึ้น · ตัด kpi-grid/active/birthdays/notes/customers ที่ซ้ำซ้อนออกจากหน้าหลัก) -->
       <div class="section-title">
         <h2 data-i18n="home.upcoming">📅 งานใกล้ถึง</h2>
@@ -8650,7 +8660,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.1';
+const PIXORY_VERSION = '2.9.2';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -17696,8 +17706,21 @@ function renderMonthSummary() {
   set('msum-outstanding', fmtK(outstanding));
 }
 
+// v2.9.x · การ์ดงาน Active บนหน้าหลัก: รอถ่าย / รอส่งงาน / รอจัดทีม (ไม่นับงานยกเลิก)
+function renderHomeActiveCard() {
+  var active = (JOBS || []).filter(function (j) { return !jobCancelled(j) && getStageFromJobStatus(j.jobStatus) !== 'closed'; });
+  var shoot = active.filter(function (j) { return getStageFromJobStatus(j.jobStatus) === 'wait_shoot'; }).length;
+  var deliver = active.filter(function (j) { return getStageFromJobStatus(j.jobStatus) === 'wait_deliver'; }).length;
+  var team = active.filter(function (j) { return j.teamStatus === 'incomplete'; }).length;
+  var s = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
+  s('ha-shoot', shoot); s('ha-deliver', deliver); s('ha-team', team);
+}
+// ไปหน้างาน + กรองตามสถานะ (รอถ่าย=upcoming · รอส่ง=wait_deliver · รอจัดทีม=team_incomplete)
+function goToJobsFilter(f) { try { goTo('jobs'); } catch (e) {} try { filterJobs(f, null); } catch (e) {} }
+
 function updateHomeKPIs() {
   try { renderMonthSummary(); } catch(e) { console.warn('renderMonthSummary:', e); }
+  try { renderHomeActiveCard(); } catch(e) { console.warn('renderHomeActiveCard:', e); }
   const yr = new Date().getFullYear();
   const yearJobs = JOBS.filter(j => !jobCancelled(j) && new Date(j.date).getFullYear() === yr); // v2.9.0 · ไม่นับงานยกเลิก (ตัดทั้งรายได้+ต้นทุน)
   const totalRev = yearJobs.reduce((s,j) => s + jobRevenue(j), 0);

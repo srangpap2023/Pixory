@@ -2887,7 +2887,7 @@
   <div class="sidebar">
     <div class="nav-section-label" data-i18n="nav.section.main">หลัก</div>
     <button class="nav-item" data-nav="dashboard" onclick="navigate('dashboard')">
-      <span class="icon">📊</span><span data-i18n="nav.dashboard">ภาพรวม</span>
+      <span class="icon">🏠</span><span data-i18n="nav.dashboard">หน้าหลัก</span>
     </button>
     <button class="nav-item" data-nav="calendar" onclick="navigate('calendar')">
       <span class="icon">🗓</span><span data-i18n="nav.calendar">ปฏิทิน</span>
@@ -2899,11 +2899,11 @@
       <span class="icon">📝</span><span data-i18n="nav.quotes">ใบเสนอราคา</span>
     </button>
     <div class="nav-section-label" data-i18n="nav.section.money">การเงิน</div>
+    <button class="nav-item" data-nav="reports" onclick="navigate('reports')">
+      <span class="icon">📈</span><span data-i18n="nav.reports">สรุป</span>
+    </button>
     <button class="nav-item" data-nav="expenses" onclick="navigate('expenses')">
       <span class="icon">💸</span><span data-i18n="nav.expenses">ค่าใช้จ่าย</span>
-    </button>
-    <button class="nav-item" data-nav="reports" onclick="navigate('reports')">
-      <span class="icon">📈</span><span data-i18n="nav.reports">รายงาน</span>
     </button>
     <div class="nav-section-label" data-i18n="nav.section.data">ฐานข้อมูล</div>
     <button class="nav-item" data-nav="customers" onclick="navigate('customers')">
@@ -2953,7 +2953,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.75';
+const PIXORY_DESKTOP_VERSION = '1.0.77';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -4418,9 +4418,10 @@ function renderDashboard(root) {
   JOBS.forEach(j => { if (!jobCancelled(j) && _isSameMonthD(jobBookingDate(j), yr, m)) { bookedCount++; bookedSales += jobRevenue(j); } }); // v2.9.0 · ไม่นับงานยกเลิก
 
   // Active jobs
-  const activeJobs = JOBS.filter(j => getStageFromJobStatus(j.jobStatus) !== 'closed');
+  const activeJobs = JOBS.filter(j => !jobCancelled(j) && getStageFromJobStatus(j.jobStatus) !== 'closed'); // v2.9.x · ไม่นับงานยกเลิก
   const waitShootCount = activeJobs.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_shoot').length;
   const waitDeliverCount = activeJobs.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_deliver').length;
+  const waitTeamCount = activeJobs.filter(j => j.teamStatus === 'incomplete').length; // v2.9.x · งานที่ทีมยังไม่ครบ
 
   // Pending payments
   const allPending = JOBS.filter(j => jobOutstanding(j) > 0);
@@ -4643,26 +4644,49 @@ function renderDashboard(root) {
         </div>
       </div>
 
-      <!-- 4 KPI · เดือนนี้ (span 3 each) -->
-      <div style="grid-column:span 3;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
-        <div style="font-size:11.5px;color:var(--ink-mute);">💰 ยอดขาย (จอง)</div>
-        <div style="font-size:23px;font-weight:700;color:var(--ink);margin-top:5px;">${fmtTHB(bookedSales)}</div>
-        <div style="font-size:10.5px;color:var(--ink-soft);margin-top:2px;">${bookedCount} เคสเดือนนี้</div>
+      <!-- v2.9.x · สรุปเดือนนี้ (span 8) · ครอบ 4 ช่อง: เคส/ยอดขาย/เก็บแล้ว/ค้างเก็บ (ตรงกับมือถือ) -->
+      <div style="grid-column:span 8;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
+        <div style="font-size:12.5px;font-weight:700;color:var(--ink-mute);margin-bottom:11px;">📅 สรุปเดือนนี้ · ${thMonths[m]} ${yr + 543}</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+          <div style="background:var(--bg-c,rgba(0,0,0,0.03));border-radius:10px;padding:11px 12px;">
+            <div style="font-size:20px;font-weight:800;color:var(--ink);">${bookedCount}</div>
+            <div style="font-size:11px;color:var(--ink-mute);margin-top:1px;">เคส</div>
+            <div style="font-size:9.5px;color:var(--ink-soft);">จองเดือนนี้</div>
+          </div>
+          <div style="background:var(--bg-c,rgba(0,0,0,0.03));border-radius:10px;padding:11px 12px;">
+            <div style="font-size:20px;font-weight:800;color:var(--ink);">${fmtTHB(bookedSales)}</div>
+            <div style="font-size:11px;color:var(--ink-mute);margin-top:1px;">ยอดขาย</div>
+            <div style="font-size:9.5px;color:var(--ink-soft);">จองเดือนนี้</div>
+          </div>
+          <div style="background:var(--bg-c,rgba(0,0,0,0.03));border-radius:10px;padding:11px 12px;">
+            <div style="font-size:20px;font-weight:800;color:var(--green);">${fmtTHB(monthCashIn)}</div>
+            <div style="font-size:11px;color:var(--ink-mute);margin-top:1px;">เก็บแล้ว</div>
+            <div style="font-size:9.5px;color:var(--ink-soft);">เดือนนี้</div>
+          </div>
+          <div style="background:var(--bg-c,rgba(0,0,0,0.03));border-radius:10px;padding:11px 12px;cursor:pointer;" onclick="navigate('jobs')">
+            <div style="font-size:20px;font-weight:800;color:var(--red);">${fmtTHB(monthOutstanding)}</div>
+            <div style="font-size:11px;color:var(--ink-mute);margin-top:1px;">ค้างเก็บ</div>
+            <div style="font-size:9.5px;color:var(--ink-soft);">ต้องเก็บเดือนนี้</div>
+          </div>
+        </div>
       </div>
-      <div style="grid-column:span 3;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
-        <div style="font-size:11.5px;color:var(--ink-mute);">👛 เก็บเข้าจริง</div>
-        <div style="font-size:23px;font-weight:700;color:var(--green);margin-top:5px;">${fmtTHB(monthCashIn)}</div>
-        <div style="font-size:10.5px;color:var(--ink-soft);margin-top:2px;">เงินเข้าเดือนนี้</div>
-      </div>
-      <div style="grid-column:span 3;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;" onclick="navigate('jobs')">
-        <div style="font-size:11.5px;color:var(--ink-mute);">⏳ ค้างเก็บ</div>
-        <div style="font-size:23px;font-weight:700;color:var(--red);margin-top:5px;">${fmtTHB(monthOutstanding)}</div>
-        <div style="font-size:10.5px;color:var(--ink-soft);margin-top:2px;">ต้องเก็บเดือนนี้ (งานเดือนนี้)</div>
-      </div>
-      <div style="grid-column:span 3;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;" onclick="navigate('jobs')">
-        <div style="font-size:11.5px;color:var(--ink-mute);">📅 งาน Active</div>
-        <div style="font-size:23px;font-weight:700;color:var(--blue);margin-top:5px;">${activeJobs.length}</div>
-        <div style="font-size:10.5px;color:var(--ink-soft);margin-top:2px;">${waitShootCount} รอถ่าย · ${waitDeliverCount} รอส่ง</div>
+      <!-- v2.9.x · งาน Active (span 4) · 3 ช่อง รอถ่าย/รอส่ง/รอจัดทีม -->
+      <div style="grid-column:span 4;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
+        <div style="font-size:12.5px;font-weight:700;color:var(--ink-mute);margin-bottom:11px;">⚡ งาน Active</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div style="background:rgba(55,138,221,0.10);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;" onclick="navigate('jobs')">
+            <div style="font-size:22px;font-weight:800;color:var(--ink);">${waitShootCount}</div>
+            <div style="font-size:10px;color:var(--blue);margin-top:2px;">รอถ่าย</div>
+          </div>
+          <div style="background:rgba(232,184,112,0.12);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;" onclick="navigate('jobs')">
+            <div style="font-size:22px;font-weight:800;color:var(--ink);">${waitDeliverCount}</div>
+            <div style="font-size:10px;color:#a06a16;margin-top:2px;">รอส่งงาน</div>
+          </div>
+          <div style="background:rgba(226,75,74,0.10);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;" onclick="navigate('jobs')">
+            <div style="font-size:22px;font-weight:800;color:var(--ink);">${waitTeamCount}</div>
+            <div style="font-size:10px;color:var(--red);margin-top:2px;">รอจัดทีม</div>
+          </div>
+        </div>
       </div>
 
       <!-- NEXT SHOOT (span 5) -->
@@ -7840,12 +7864,12 @@ const I18N = {
     'nav.section.main':      'หลัก',
     'nav.section.money':     'การเงิน',
     'nav.section.data':      'ฐานข้อมูล',
-    'nav.dashboard':         'ภาพรวม',
+    'nav.dashboard':         'หน้าหลัก',
     'nav.calendar':          'ปฏิทิน',
     'nav.jobs':              'งาน',
     'nav.quotes':            'ใบเสนอราคา',
     'nav.expenses':          'ค่าใช้จ่าย',
-    'nav.reports':           'รายงาน',
+    'nav.reports':           'สรุป',
     'nav.customers':         'ลูกค้า',
     'nav.settings':          'ตั้งค่า',
 
@@ -8009,12 +8033,12 @@ const I18N = {
     'nav.section.main':      'Main',
     'nav.section.money':     'Money',
     'nav.section.data':      'Data',
-    'nav.dashboard':         'Overview',
+    'nav.dashboard':         'Home',
     'nav.calendar':          'Calendar',
     'nav.jobs':              'Jobs',
     'nav.quotes':            'Quotes',
     'nav.expenses':          'Expenses',
-    'nav.reports':           'Reports',
+    'nav.reports':           'Summary',
     'nav.customers':         'Customers',
     'nav.settings':          'Settings',
 
