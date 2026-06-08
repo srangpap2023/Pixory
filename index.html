@@ -3052,6 +3052,27 @@
   }
   body.dark-theme .home-hero-months { color: #999; }
 
+  /* v2.9.0 · ฮีโร่: 2 การ์ดเล็ก รายรับจริง/ค้างเก็บ + % (รองรับ default/dark/luxe) */
+  .hh-split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 0.5px solid rgba(0,0,0,0.08); }
+  body.dark-theme .hh-split, body.luxe-theme .hh-split { border-top-color: rgba(255,255,255,0.08); }
+  .hh-mini { background: rgba(255,255,255,0.5); border: 0.5px solid rgba(0,0,0,0.05); border-radius: 12px; padding: 9px 11px; }
+  body.dark-theme .hh-mini, body.luxe-theme .hh-mini { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.07); }
+  .hh-mini-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .hh-mini-label { font-size: 11.5px; color: #5a5a5a; }
+  body.dark-theme .hh-mini-label, body.luxe-theme .hh-mini-label { color: #a1a1aa; }
+  .hh-mini-pct { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 99px; white-space: nowrap; }
+  .hh-mini-val { font-size: 18px; font-weight: 700; margin-top: 3px; letter-spacing: -0.3px; }
+  .hh-mini-sub { font-size: 10px; margin-top: 1px; color: #9a9a9a; }
+  body.dark-theme .hh-mini-sub, body.luxe-theme .hh-mini-sub { color: #8a8a8a; }
+  .hh-mini.cash .hh-mini-val { color: #1f6fd6; }
+  .hh-mini.cash .hh-mini-pct { color: #185FA5; background: rgba(79,142,247,0.16); }
+  body.dark-theme .hh-mini.cash .hh-mini-val, body.luxe-theme .hh-mini.cash .hh-mini-val { color: #7fb0f5; }
+  body.dark-theme .hh-mini.cash .hh-mini-pct, body.luxe-theme .hh-mini.cash .hh-mini-pct { color: #9cc3f7; background: rgba(79,142,247,0.2); }
+  .hh-mini.owe .hh-mini-val { color: #9a6a16; }
+  .hh-mini.owe .hh-mini-pct { color: #854F0B; background: rgba(232,184,112,0.2); }
+  body.dark-theme .hh-mini.owe .hh-mini-val, body.luxe-theme .hh-mini.owe .hh-mini-val { color: #e8b870; }
+  body.dark-theme .hh-mini.owe .hh-mini-pct, body.luxe-theme .hh-mini.owe .hh-mini-pct { color: #ecc88a; background: rgba(232,184,112,0.18); }
+
   /* ============================================================ */
   /* WIZARD — Stunning First Impression                            */
   /* ============================================================ */
@@ -5364,6 +5385,8 @@
         <div class="home-hero-months">
           <span>ม.ค.</span><span>ก.พ.</span><span>มี.ค.</span><span>เม.ย.</span><span>พ.ค.</span><span>มิ.ย.</span><span>ก.ค.</span><span>ส.ค.</span><span>ก.ย.</span><span>ต.ค.</span><span>พ.ย.</span><span>ธ.ค.</span>
         </div>
+        <!-- v2.9.0 · 2 การ์ดเล็ก: รายรับจริงปีนี้ / ค้างเก็บ + % (populated by renderHomeHero) -->
+        <div class="hh-split" id="home-hero-split"></div>
       </div>
 
       <!-- v2.5.93 · goal ring · เป้าหมายปี (forced-dark card · §17 safe · populated by renderHomeGoal()) -->
@@ -5490,6 +5513,7 @@
         <h1 data-i18n="job.detailTitle">รายละเอียดงาน</h1>
         <div style="display:flex; gap:14px; align-items:center;">
           <button class="icon-btn" onclick="editCurrentJob()" style="color:#C9954F;" data-i18n-attr="title" data-i18n="btn.edit" title="แก้ไข"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
+          <button class="icon-btn" onclick="cancelCurrentJob()" style="color:#9a6a16;" title="ยกเลิกงาน"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg></button>
           <button class="icon-btn" onclick="deleteCurrentJob()" style="color:#dc2626;" data-i18n-attr="title" data-i18n="btn.delete" title="ลบ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
       </div>
@@ -5508,6 +5532,11 @@
       </style>
 
       <!-- v2.5.54 · Team finalization banner · only shows when j.teamStatus === 'incomplete' -->
+      <!-- v2.9.0 · ป้ายงานยกเลิก -->
+      <div id="job-cancelled-banner" style="display:none; margin:0 20px 12px; padding:10px 14px; background:rgba(120,120,120,0.12); border:0.5px solid rgba(120,120,120,0.3); border-radius:12px; display:none; align-items:center; gap:8px; color:#6b6b6b; font-size:13px;">
+        <span style="font-size:16px;">🚫</span>
+        <div><strong style="color:#555;">งานนี้ถูกยกเลิก</strong> · ไม่นับในรายได้คาดการณ์/ค้างเก็บ · กดปุ่มยกเลิกอีกครั้งเพื่อกู้คืน</div>
+      </div>
       <div id="job-team-warn-banner" class="team-warn-banner" style="display:none;">
         <span style="font-size:18px;">⚠️</span>
         <div class="tw-info">
@@ -8375,10 +8404,10 @@ function escapeHtml(s) {
 // บล็อกล่างเป็น FALLBACK เฉพาะกรณีไฟล์โหลดไม่ติด/ลืม push เท่านั้น (กันแอปพัง) · ต้องตรงกับ pixory-helpers.js
 if (typeof window.jobRevenue !== 'function') {
   window.jobInvExtra = function (j) { if (!j || !j.invoice) return 0; var e = Number(j.invoice.extraTime) || 0; var a = Array.isArray(j.invoice.addOns) ? j.invoice.addOns.reduce(function (s, x) { return s + (Number(x && x.price) || 0); }, 0) : 0; return e + a; };
-  window.jobRevenue = function (j) { return (Number(j && j.sell) || 0) + window.jobInvExtra(j); };
-  window.jobOutstanding = function (j) { if (!j) return 0; if (j.invoice && j.invoice.balancePaid) return 0; return Math.max(0, (Number(j.sell) || 0) - (Number(j.deposit) || 0)) + window.jobInvExtra(j); };
+  window.jobRevenue = function (j) { if (jobCancelled(j)) return 0; return (Number(j && j.sell) || 0) + window.jobInvExtra(j); };
+  window.jobOutstanding = function (j) { if (!j) return 0; if (jobCancelled(j)) return 0; if (j.invoice && j.invoice.balancePaid) return 0; return Math.max(0, (Number(j.sell) || 0) - (Number(j.deposit) || 0)) + window.jobInvExtra(j); };
   window.jobPaid = function (j) { return window.jobRevenue(j) - window.jobOutstanding(j); };
-  window.jobBookingDate = function (j) { if (!j) return ''; return String(j._createdAt || j.dateDeposit || j.depositPaidDate || j.date || '').slice(0, 10); };
+  window.jobBookingDate = function (j) { if (!j) return ''; return String(j._createdAt || j.dateDeposit || j.depositPaidDate || '').slice(0, 10); }; // v2.9.0 · ไม่ fallback วันถ่าย
   window._isSameMonth = function (s, y, m) { if (!s) return false; var d = new Date(s); return !isNaN(d.getTime()) && d.getFullYear() === y && d.getMonth() === m; };
   window._isSameMonthD = window._isSameMonth;
   console.warn('[Pixory] pixory-helpers.js ไม่ได้โหลด · ใช้ fallback ในตัว · ตรวจว่า push ไฟล์ pixory-helpers.js แล้ว');
@@ -8404,6 +8433,61 @@ function getAddonLineItems(doc) {
   return out;
 }
 window.getAddonLineItems = getAddonLineItems;
+
+// ===================================================================
+// v2.9.0 · สูตรเงิน 3 ตัวบนหน้าหลัก (ดีไซน์เงินสด · ยึดปีถ่ายงานสำหรับค้างเก็บ)
+//   • รายรับจริงปีนี้  = เงินรับจริงตาม "วันที่รับเงิน" (ปฏิทิน) — รวมมัดจำงานปีหน้าที่รับปีนี้ · ตรงรายงานภาษี
+//   • ค้างเก็บ         = ยอดค้างต่องาน เฉพาะงานที่ "ถ่ายปีนี้" และไม่ถูกยกเลิก
+//   • คาดการณ์ทั้งปี   = รายรับจริงปีนี้ + ค้างเก็บ  (บวกกันลงตัวเสมอ)
+//   งานยกเลิก: ตัดออกจากค้างเก็บ/คาดการณ์ · มัดจำริบยังอยู่ใน payments → ยังนับรายรับ · คืนมัดจำ = payment ติดลบ
+// ===================================================================
+function jobCancelled(j) {
+  return !!(j && (j.cancelled === true || j.jobStatus === 'ยกเลิก'));
+}
+function jobEventYear(j) {
+  if (!j || !j.date) return null;
+  var d = new Date(j.date);
+  return isNaN(d.getTime()) ? null : d.getFullYear();
+}
+// เงินรับจริงทั้งปี (รวมทุกงานรวมยกเลิกที่ริบมัดจำ · คืนมัดจำเป็น payment ติดลบจึงหักออกเอง)
+function cashReceivedInYear(Y) {
+  var s = 0;
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach(function (j) {
+    (j && j.payments || []).forEach(function (p) {
+      if (!p || !p.date) return;
+      var d = new Date(p.date);
+      if (!isNaN(d.getTime()) && d.getFullYear() === Y) s += Number(p.amount) || 0;
+    });
+  });
+  return s;
+}
+// เงินรับจริงแยกรายเดือนของปีนั้น (ให้กราฟเส้น "เงินเข้าจริงรายเดือน")
+function cashReceivedMonthly(Y) {
+  var m = new Array(12).fill(0);
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach(function (j) {
+    (j && j.payments || []).forEach(function (p) {
+      if (!p || !p.date) return;
+      var d = new Date(p.date);
+      if (!isNaN(d.getTime()) && d.getFullYear() === Y) m[d.getMonth()] += Number(p.amount) || 0;
+    });
+  });
+  return m;
+}
+// ยอดค้างเก็บ เฉพาะงานที่ถ่ายปีนั้น และไม่ยกเลิก
+function outstandingForYearJobs(Y) {
+  var s = 0;
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach(function (j) {
+    if (jobCancelled(j)) return;
+    if (jobEventYear(j) !== Y) return;
+    s += (typeof jobOutstanding === 'function') ? jobOutstanding(j) : 0;
+  });
+  return s;
+}
+// รายได้คาดการณ์ทั้งปี = รับจริง + ค้างเก็บ
+function forecastRevenueForYear(Y) {
+  return cashReceivedInYear(Y) + outstandingForYearJobs(Y);
+}
+
 // Smart K formatter — 24000→"24K", 8500→"8.5K", 8900→"8.9K"
 function fmtPkgK(n) {
   if (n == null) return '';
@@ -8566,7 +8650,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.8.9';
+const PIXORY_VERSION = '2.9.0';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8577,6 +8661,16 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.0': {
+    date: '2026-06-08',
+    title: '💙 หน้าหลักใหม่ · รายได้คาดการณ์ + รายรับจริง + ยกเลิกงาน',
+    subtitle: 'แยกเงินจริงกับยอดคาดการณ์ชัดเจน',
+    items: [
+      { icon: '📊', title: 'การ์ดรายได้ใหม่ 3 ตัว', desc: 'รายได้คาดการณ์ทั้งปี (รับจริง + ค้างเก็บ) · รายรับจริงปีนี้ (เงินเข้าจริงตามวันที่รับ ตรงภาษี) · ค้างเก็บ (เฉพาะงานที่ถ่ายปีนี้) — พร้อมเปอร์เซ็นต์เก็บแล้ว/ค้าง' },
+      { icon: '🚫', title: 'ยกเลิกงานได้ (ไม่ต้องลบทิ้ง)', desc: 'กดยกเลิกงานในหน้ารายละเอียดงาน · เลือกริบหรือคืนมัดจำ · งานถูกตัดออกจากรายได้คาดการณ์/ค้างเก็บ แต่เก็บประวัติไว้ · กู้คืนได้' },
+      { icon: '🔄', title: 'มือถือ ↔ เดสก์ท็อป ตรงกัน', desc: 'ทั้งสองฝั่งคำนวณรายได้คาดการณ์/รายรับจริง/ค้างเก็บ ด้วยสูตรเดียวกันเป๊ะ' }
+    ]
+  },
   '2.8.9': {
     date: '2026-06-08',
     title: '📱 แก้บั๊กเลื่อนหน้าจอ (Android)',
@@ -13597,7 +13691,7 @@ const I18N = {
   'msum.title':         { th: 'สรุปเดือนนี้', en: 'This month' },
   'msum.scopeBooked':   { th: 'จองเดือนนี้',     en: 'booked this mo.' },
   'msum.scopeMonth':    { th: 'เดือนนี้',         en: 'this month' },
-  'msum.scopeNow':      { th: 'ค้างตอนนี้',       en: 'owed now' },
+  'msum.scopeNow':      { th: 'ต้องเก็บเดือนนี้',  en: 'due this mo.' },
   'msum.cases':         { th: 'เคส',               en: 'Cases' },
   'msum.sales':         { th: 'ยอดขาย',           en: 'Sales' },
   'msum.collected':     { th: 'เก็บแล้ว',          en: 'Collected' },
@@ -15842,6 +15936,10 @@ function openJob(code) {
 
   window._currentJob = j;
 
+  // v2.9.0 · ป้ายงานยกเลิก
+  const _cxBanner = document.getElementById('job-cancelled-banner');
+  if (_cxBanner) _cxBanner.style.display = jobCancelled(j) ? 'flex' : 'none';
+
   // v2.5.54 · Show team warning banner if teamStatus === 'incomplete' (legacy jobs silent)
   const _twBanner = document.getElementById('job-team-warn-banner');
   if (_twBanner) {
@@ -17584,9 +17682,9 @@ function renderMonthSummary() {
   const now = new Date(); const y = now.getFullYear(); const m = now.getMonth();
   let cases = 0, sales = 0, collected = 0, outstanding = 0;
   (JOBS || []).forEach(j => {
-    if (_isSameMonth(jobBookingDate(j), y, m)) { cases++; sales += jobRevenue(j); }
+    if (!jobCancelled(j) && _isSameMonth(jobBookingDate(j), y, m)) { cases++; sales += jobRevenue(j); } // v2.9.0 · ไม่นับงานยกเลิก
     (j.payments || []).forEach(p => { if (_isSameMonth(p.date, y, m)) collected += (Number(p.amount) || 0); });
-    outstanding += jobOutstanding(j);
+    if (!jobCancelled(j) && _isSameMonth(j.date, y, m)) outstanding += jobOutstanding(j); // v2.9.0 · ค้างเก็บ = เฉพาะงานที่ถ่ายเดือนนี้ (ต้องเก็บเดือนนี้) · ไม่ซ้ำกับฮีโร่
   });
   const MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
   const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -17601,7 +17699,7 @@ function renderMonthSummary() {
 function updateHomeKPIs() {
   try { renderMonthSummary(); } catch(e) { console.warn('renderMonthSummary:', e); }
   const yr = new Date().getFullYear();
-  const yearJobs = JOBS.filter(j => new Date(j.date).getFullYear() === yr);
+  const yearJobs = JOBS.filter(j => !jobCancelled(j) && new Date(j.date).getFullYear() === yr); // v2.9.0 · ไม่นับงานยกเลิก (ตัดทั้งรายได้+ต้นทุน)
   const totalRev = yearJobs.reduce((s,j) => s + jobRevenue(j), 0);
   const teamCost = yearJobs.reduce((s,j) => s + (j.teamCost || 0), 0);
   const travelCost = yearJobs.reduce((s,j) => s + (j.travelCost || 0), 0);
@@ -17749,28 +17847,35 @@ function renderHomeHero() {
   });
   const selYear = parseInt(sel.value, 10) || thisYear;
 
-  // v2.5.8 · j.sell already includes billable cost items · use sell directly
-  const months = new Array(12).fill(0);
-  let totalRev = 0;
-  JOBS.forEach(j => {
-    if (!j.date) return;
-    const d = new Date(j.date);
-    if (d.getFullYear() === selYear) {
-      months[d.getMonth()] += jobRevenue(j);
-      totalRev += jobRevenue(j);
-    }
-  });
-  // Prev year revenue for delta
-  let prevRev = 0;
-  JOBS.forEach(j => {
-    if (!j.date) return;
-    const d = new Date(j.date);
-    if (d.getFullYear() === selYear - 1) prevRev += jobRevenue(j);
-  });
+  // v2.9.0 · ดีไซน์เงินสด · เส้นกราฟ = เงินเข้าจริงรายเดือน · ฮีโร่ = รายได้คาดการณ์ทั้งปี (รับจริง + ค้างเก็บ)
+  const months = cashReceivedMonthly(selYear);
+  const cashYear = cashReceivedInYear(selYear);
+  const outstandingYear = outstandingForYearJobs(selYear);
+  const totalRev = cashYear + outstandingYear;
+  // Prev year forecast for delta (รับจริง + ค้างเก็บ ของปีก่อน)
+  const prevRev = cashReceivedInYear(selYear - 1) + outstandingForYearJobs(selYear - 1);
 
   // Labels
-  document.getElementById('home-hero-label').textContent = t('home.totalRevenue') + ' (' + (LANG === 'en' ? 'Year ' : 'ปี ') + displayYear(selYear) + ')';
+  document.getElementById('home-hero-label').textContent = (LANG === 'en' ? 'Projected revenue' : 'รายได้คาดการณ์ทั้งปี') + ' (' + (LANG === 'en' ? 'Year ' : 'ปี ') + displayYear(selYear) + ')';
   document.getElementById('home-hero-amount').textContent = '฿' + Math.round(totalRev).toLocaleString();
+
+  // v2.9.0 · 2 การ์ดเล็ก: รายรับจริงปีนี้ (เงินสด) / ค้างเก็บ (งานปีนี้) + เปอร์เซ็นต์
+  (function () {
+    const splitEl = document.getElementById('home-hero-split');
+    if (!splitEl) return;
+    const pctCash = totalRev > 0 ? Math.round((cashYear / totalRev) * 100) : 0;
+    const pctOwe = totalRev > 0 ? (100 - pctCash) : 0;
+    const fmtB = v => '฿' + Math.round(v).toLocaleString();
+    const lbCash = LANG === 'en' ? 'Received' : 'รายรับจริงปีนี้';
+    const lbOwe = LANG === 'en' ? 'Outstanding' : 'ค้างเก็บ';
+    const subCash = LANG === 'en' ? 'cash in' : 'เงินเข้าจริง · เก็บแล้ว';
+    const subOwe = LANG === 'en' ? "this year's jobs" : 'งานปีนี้ · ยังไม่ได้เก็บ';
+    splitEl.innerHTML =
+      '<div class="hh-mini cash"><div class="hh-mini-top"><span class="hh-mini-label">' + lbCash + '</span><span class="hh-mini-pct">' + pctCash + '%</span></div>'
+      + '<div class="hh-mini-val">' + fmtB(cashYear) + '</div><div class="hh-mini-sub">' + subCash + '</div></div>'
+      + '<div class="hh-mini owe"><div class="hh-mini-top"><span class="hh-mini-label">' + lbOwe + '</span><span class="hh-mini-pct">' + pctOwe + '%</span></div>'
+      + '<div class="hh-mini-val">' + fmtB(outstandingYear) + '</div><div class="hh-mini-sub">' + subOwe + '</div></div>';
+  })();
 
   const deltaEl = document.getElementById('home-hero-delta');
   if (prevRev > 0) {
@@ -18911,6 +19016,56 @@ function deleteCurrentJob() {
   renderHomeNotifs();
   window._currentJob = null;
   goTo('jobs');
+}
+
+// v2.9.0 · ยกเลิกงาน (เก็บประวัติไว้ · ตัดออกจากรายได้คาดการณ์/ค้างเก็บ · ถามริบ/คืนมัดจำ)
+function _afterJobChange() {
+  try { renderJobsWithCurrentFilter(); } catch (e) {}
+  try { updateCounts(); } catch (e) {}
+  try { renderHomeUpcoming(); } catch (e) {}
+  try { if (typeof renderHomeActive === 'function') renderHomeActive(); } catch (e) {}
+  try { renderCalendar(); } catch (e) {}
+  try { renderCustomers(); } catch (e) {}
+  try { if (typeof updateHomeKPIs === 'function') updateHomeKPIs(); } catch (e) {}
+  try { if (typeof renderHomeHero === 'function') renderHomeHero(); } catch (e) {}
+  try { if (typeof renderMonthSummary === 'function') renderMonthSummary(); } catch (e) {}
+}
+function cancelCurrentJob() {
+  const j = window._currentJob;
+  if (!j) return;
+  // ถ้ายกเลิกอยู่แล้ว → เสนอกู้คืนงาน
+  if (jobCancelled(j)) {
+    if (!confirm('งานนี้ถูกยกเลิกอยู่\n\nต้องการกู้คืนงานกลับมาไหม?')) return;
+    j.cancelled = false;
+    delete j._cancelledAt;
+    if (j.jobStatus === 'ยกเลิก') j.jobStatus = 'รอถ่าย';
+    // เอารายการคืนเงินที่ระบบเพิ่มตอนยกเลิกออก → เงินที่เคยรับกลับมานับเป็นรายรับเหมือนเดิม
+    if (Array.isArray(j.payments)) j.payments = j.payments.filter(p => !(p && p.type === 'refund' && p._autoCancelRefund));
+    delete j.depositRefunded;
+    saveData();
+    toast('กู้คืนงาน ' + j.code + ' แล้ว');
+    openJob(j.code);
+    _afterJobChange();
+    return;
+  }
+  const received = (j.payments || []).reduce((s, p) => s + (Number(p && p.amount) || 0), 0);
+  if (!confirm('ยกเลิกงาน "' + (j.customer || '') + '" (' + j.code + ')?\n\n• งานจะถูกตัดออกจาก "รายได้คาดการณ์" และ "ค้างเก็บ"\n• ยังเก็บประวัติไว้ (ไม่ลบทิ้ง) · กู้คืนได้ภายหลัง')) return;
+  let refunded = false;
+  if (received > 0) {
+    refunded = confirm('ลูกค้าจ่ายมาแล้ว ' + fmt(received) + '\n\nจะคืนเงินให้ลูกค้าไหม?\n\n• กด "ตกลง" = คืนเงิน (หักออกจากรายรับ)\n• กด "ยกเลิก" = ริบไว้ (ยังนับเป็นรายได้)');
+  }
+  j.cancelled = true;
+  j._cancelledAt = new Date().toISOString();
+  j.jobStatus = 'ยกเลิก';
+  if (refunded) {
+    j.payments = j.payments || [];
+    j.payments.push({ date: new Date().toISOString().slice(0, 10), amount: -received, type: 'refund', note: 'คืนเงิน (ยกเลิกงาน)', _autoCancelRefund: true });
+    j.depositRefunded = true;
+  }
+  saveData();
+  toast('ยกเลิกงาน ' + j.code + ' แล้ว' + (received > 0 ? (refunded ? ' · คืนเงิน ' + fmt(received) : ' · ริบไว้ ' + fmt(received)) : ''));
+  openJob(j.code);
+  _afterJobChange();
 }
 
 function deleteCurrentQuote() {
@@ -23011,6 +23166,7 @@ function computePIT(year, opts) {
   let whtWithheld = 0;
   const filedJobs = [];
   (JOBS || []).forEach(j => {
+    if (jobCancelled(j)) return;  // v2.9.0 · งานยกเลิก ไม่เข้ารายงานภาษี (ไม่หักต้นทุนหลอก)
     // v2.5.27 · นับทุกงาน · ไม่กรอง taxEnabled · ตามกฎหมายต้องยื่นรายได้ทั้งหมด (ลูกค้าส่วนใหญ่เป็น B2C)
     // WHT ยังคงนับเฉพาะที่มี taxBreakdown.whtAmount จริง · ไม่บวกของจินตนาการ
     // M11 · Cash-basis PIT — use last payment date if available, else event date
@@ -24778,7 +24934,7 @@ function renderDashboard() {
   const currMonth = isCurrentYear ? today.getMonth() : -1;
 
   // Filter jobs by year
-  const yearJobs = JOBS.filter(j => j.date && new Date(j.date).getFullYear() === yr);
+  const yearJobs = JOBS.filter(j => !jobCancelled(j) && j.date && new Date(j.date).getFullYear() === yr); // v2.9.0 · ไม่นับงานยกเลิก
   const yearExp = EXPENSES.filter(e => e.date && new Date(e.date).getFullYear() === yr);
   // Previous year (for delta %)
   const prevYearJobs = JOBS.filter(j => j.date && new Date(j.date).getFullYear() === yr - 1);

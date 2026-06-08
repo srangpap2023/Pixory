@@ -22,13 +22,22 @@
     return e + a;
   }
 
-  // รายได้ของงาน = ราคาขาย + ส่วนเรียกเก็บเพิ่ม
-  function jobRevenue(j) { return (Number(j && j.sell) || 0) + jobInvExtra(j); }
+  // v2.9.0 · งานที่ถูกยกเลิก = ไม่นับเป็นยอดขาย/ค้างเก็บ/คาดการณ์ (แต่เงินที่รับจริงยังอยู่ใน payments → ยังนับรายรับ)
+  function jobCancelled(j) {
+    return !!(j && (j.cancelled === true || j.jobStatus === 'ยกเลิก'));
+  }
 
-  // ยอดค้างเก็บ = max(0, ราคาขาย − ยอดที่จ่ายสะสม) + ส่วนเรียกเก็บเพิ่ม · 0 เมื่อปิดยอดใบเรียกเก็บแล้ว
+  // รายได้ของงาน = ราคาขาย + ส่วนเรียกเก็บเพิ่ม · งานยกเลิก = 0 (ไม่ใช่ยอดขายแล้ว)
+  function jobRevenue(j) {
+    if (jobCancelled(j)) return 0;
+    return (Number(j && j.sell) || 0) + jobInvExtra(j);
+  }
+
+  // ยอดค้างเก็บ = max(0, ราคาขาย − ยอดที่จ่ายสะสม) + ส่วนเรียกเก็บเพิ่ม · 0 เมื่อปิดยอดใบเรียกเก็บแล้ว/ยกเลิก
   // คิดจาก sell−deposit (ไม่พึ่ง j.remain ที่อาจ stale) · savePayment ตั้ง deposit เป็นยอดสะสมเสมอ
   function jobOutstanding(j) {
     if (!j) return 0;
+    if (jobCancelled(j)) return 0;            // v2.9.0 · งานยกเลิก ไม่ต้องเก็บแล้ว
     if (j.invoice && j.invoice.balancePaid) return 0;
     return Math.max(0, (Number(j.sell) || 0) - (Number(j.deposit) || 0)) + jobInvExtra(j);
   }
@@ -36,10 +45,12 @@
   // ยอดที่จ่ายมาแล้ว = รายได้ − ค้างเก็บ
   function jobPaid(j) { return jobRevenue(j) - jobOutstanding(j); }
 
-  // วันที่จอง/สร้างงานเข้ามา (สำหรับ เคส/ยอดขายเดือนนี้) · fallback ครอบงานเก่า
+  // วันที่ "ขาย/จองงาน" เข้ามา (สำหรับ เคส/ยอดขายเดือนนี้)
+  // v2.9.0 · ห้าม fallback ไปวันถ่าย (j.date) — ไม่งั้นงานที่ถ่ายเดือนนี้แต่ขายเดือนก่อน จะถูกนับเป็น "ขายเดือนนี้" ผิด
+  //   ใช้เฉพาะสัญญาณ "ตอนจอง": วันที่สร้างงาน → วันลงมัดจำ → วันจ่ายมัดจำ · งานเก่าที่ไม่มีข้อมูลพวกนี้ = ไม่นับเข้าเดือนไหน
   function jobBookingDate(j) {
     if (!j) return '';
-    return String(j._createdAt || j.dateDeposit || j.depositPaidDate || j.date || '').slice(0, 10);
+    return String(j._createdAt || j.dateDeposit || j.depositPaidDate || '').slice(0, 10);
   }
 
   // เช็คว่า date string อยู่ในเดือน/ปีที่ระบุ
@@ -50,6 +61,7 @@
   }
 
   g.jobInvExtra = jobInvExtra;
+  g.jobCancelled = jobCancelled;
   g.jobRevenue = jobRevenue;
   g.jobOutstanding = jobOutstanding;
   g.jobPaid = jobPaid;

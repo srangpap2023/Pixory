@@ -2953,7 +2953,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.72';
+const PIXORY_DESKTOP_VERSION = '1.0.73';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -3223,14 +3223,53 @@ const EQUIPMENT_CATEGORIES = [];
 // บล็อกล่างเป็น FALLBACK เฉพาะกรณีไฟล์โหลดไม่ติด/ลืม push เท่านั้น (กันแอปพัง) · ต้องตรงกับ pixory-helpers.js
 if (typeof window.jobRevenue !== 'function') {
   window.jobInvExtra = function (j) { if (!j || !j.invoice) return 0; var e = Number(j.invoice.extraTime) || 0; var a = Array.isArray(j.invoice.addOns) ? j.invoice.addOns.reduce(function (s, x) { return s + (Number(x && x.price) || 0); }, 0) : 0; return e + a; };
-  window.jobRevenue = function (j) { return (Number(j && j.sell) || 0) + window.jobInvExtra(j); };
-  window.jobOutstanding = function (j) { if (!j) return 0; if (j.invoice && j.invoice.balancePaid) return 0; return Math.max(0, (Number(j.sell) || 0) - (Number(j.deposit) || 0)) + window.jobInvExtra(j); };
+  window.jobRevenue = function (j) { if (jobCancelled(j)) return 0; return (Number(j && j.sell) || 0) + window.jobInvExtra(j); };
+  window.jobOutstanding = function (j) { if (!j) return 0; if (jobCancelled(j)) return 0; if (j.invoice && j.invoice.balancePaid) return 0; return Math.max(0, (Number(j.sell) || 0) - (Number(j.deposit) || 0)) + window.jobInvExtra(j); };
   window.jobPaid = function (j) { return window.jobRevenue(j) - window.jobOutstanding(j); };
-  window.jobBookingDate = function (j) { if (!j) return ''; return String(j._createdAt || j.dateDeposit || j.depositPaidDate || j.date || '').slice(0, 10); };
+  window.jobBookingDate = function (j) { if (!j) return ''; return String(j._createdAt || j.dateDeposit || j.depositPaidDate || '').slice(0, 10); }; // v2.9.0 · ไม่ fallback วันถ่าย
   window._isSameMonth = function (s, y, m) { if (!s) return false; var d = new Date(s); return !isNaN(d.getTime()) && d.getFullYear() === y && d.getMonth() === m; };
   window._isSameMonthD = window._isSameMonth;
   console.warn('[Pixory] pixory-helpers.js ไม่ได้โหลด · ใช้ fallback ในตัว · ตรวจว่า push ไฟล์ pixory-helpers.js แล้ว');
 }
+// v2.9.0 · jobCancelled (fallback เผื่อ helpers ไม่โหลด · ตรงกับ pixory-helpers.js)
+if (typeof window.jobCancelled !== 'function') {
+  window.jobCancelled = function (j) { return !!(j && (j.cancelled === true || j.jobStatus === 'ยกเลิก')); };
+}
+// v2.9.0 · สูตรเงิน 3 ตัว (ตรงกับมือถือเป๊ะ): รายรับจริง(เงินสดตามปีที่รับ) · ค้างเก็บ(งานถ่ายปีนั้น ไม่ยกเลิก) · คาดการณ์=รับจริง+ค้าง
+function jobCancelled(j) { return window.jobCancelled(j); }
+function jobEventYear(j) { if (!j || !j.date) return null; var d = new Date(j.date); return isNaN(d.getTime()) ? null : d.getFullYear(); }
+function cashReceivedInYear(Y) {
+  var s = 0;
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach(function (j) {
+    (j && j.payments || []).forEach(function (p) {
+      if (!p || !p.date) return;
+      var d = new Date(p.date);
+      if (!isNaN(d.getTime()) && d.getFullYear() === Y) s += Number(p.amount) || 0;
+    });
+  });
+  return s;
+}
+function cashReceivedMonthly(Y) {
+  var mm = new Array(12).fill(0);
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach(function (j) {
+    (j && j.payments || []).forEach(function (p) {
+      if (!p || !p.date) return;
+      var d = new Date(p.date);
+      if (!isNaN(d.getTime()) && d.getFullYear() === Y) mm[d.getMonth()] += Number(p.amount) || 0;
+    });
+  });
+  return mm;
+}
+function outstandingForYearJobs(Y) {
+  var s = 0;
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach(function (j) {
+    if (window.jobCancelled(j)) return;
+    if (jobEventYear(j) !== Y) return;
+    s += (typeof jobOutstanding === 'function') ? jobOutstanding(j) : 0;
+  });
+  return s;
+}
+function forecastRevenueForYear(Y) { return cashReceivedInYear(Y) + outstandingForYearJobs(Y); }
 let JOB_TYPES = ['Wedding','Pre-wedding','Engagement','Portrait','Family','Event','Corporate','Product','อื่นๆ'];
 let SOURCES = ['Facebook','Instagram','Instagram DM','LINE','Website','เว็บไซต์','Referral','เพื่อนแนะนำ','ลูกค้าเก่ากลับมา','Walk-in','อื่นๆ'];
 let EXPENSE_CATS = ['เดินทาง','ที่พัก','อุปกรณ์ถ่าย','เช่าอุปกรณ์','ค่ากินทีม','Software/Subscription','Marketing/โฆษณา','ค่าตัดต่อจ้างนอก','อื่นๆ'];
@@ -4379,7 +4418,7 @@ function renderDashboard(root) {
   const monthOutstanding = monthJobs.reduce((s,j) => s + jobOutstanding(j), 0);
   // v1.0.44 · booking-based "this month" · เคส/ยอดขายที่จองเข้ามาเดือนนี้ (ตรงกับมือถือ + ที่ Joe เลือก)
   let bookedCount = 0, bookedSales = 0;
-  JOBS.forEach(j => { if (_isSameMonthD(jobBookingDate(j), yr, m)) { bookedCount++; bookedSales += jobRevenue(j); } });
+  JOBS.forEach(j => { if (!jobCancelled(j) && _isSameMonthD(jobBookingDate(j), yr, m)) { bookedCount++; bookedSales += jobRevenue(j); } }); // v2.9.0 · ไม่นับงานยกเลิก
 
   // Active jobs
   const activeJobs = JOBS.filter(j => getStageFromJobStatus(j.jobStatus) !== 'closed');
@@ -4414,7 +4453,7 @@ function renderDashboard(root) {
   const monthLabel = TH_MONTHS_FULL[_curMonth].slice(0, 3) + '.'; // ม.ค./ก.พ./...
 
   // YTD income + margin
-  const yearJobs = JOBS.filter(j => j.date && new Date(j.date).getFullYear() === yr);
+  const yearJobs = JOBS.filter(j => !jobCancelled(j) && j.date && new Date(j.date).getFullYear() === yr); // v2.9.0 · ไม่นับงานยกเลิก (ตัดทั้งรายได้+ต้นทุน)
   const ytdIncome = yearJobs.reduce((s,j) => s + jobRevenue(j), 0);
   const yearExp = EXPENSES.filter(e => e.date && new Date(e.date).getFullYear() === yr);
   const ytdExpense = yearExp.reduce((s,e) => s + (Number(e.amount)||0), 0)
@@ -4516,6 +4555,11 @@ function renderDashboard(root) {
   }));
   const ytdCashPct = ytdIncome > 0 ? Math.round(ytdCashIn / ytdIncome * 100) : 0;
   const ytdExpPct = ytdIncome > 0 ? Math.round(ytdExpense / ytdIncome * 100) : 0;
+  // v2.9.0 · รายได้คาดการณ์ทั้งปี = รับจริง(เงินสดปีนี้) + ค้างเก็บ(งานถ่ายปีนี้ ไม่ยกเลิก) · ตรงกับมือถือเป๊ะ
+  const ytdOutstanding = outstandingForYearJobs(yr);
+  const ytdForecast = ytdCashIn + ytdOutstanding;
+  const fcCashPct = ytdForecast > 0 ? Math.round(ytdCashIn / ytdForecast * 100) : 0;
+  const fcOwePct = ytdForecast > 0 ? (100 - fcCashPct) : 0;
   // 12-month revenue sparkline (ตามวันงาน)
   const _monthsRev = [];
   for (let i = 0; i < 12; i++) _monthsRev.push(_monthIncome(yr, i));
@@ -4568,9 +4612,9 @@ function renderDashboard(root) {
       <!-- HERO · รายได้สะสมปี + กราฟเทรนด์ (span 8) -->
       <div style="grid-column:span 8;background:linear-gradient(135deg, #2A1F18 0%, #15100b 80%);color:white;padding:22px 26px;border-radius:18px;position:relative;overflow:hidden;">
         <div style="position:relative;z-index:1;">
-          <div style="font-size:12px;color:rgba(255,255,255,0.55);">รายได้สะสม · ปี ${yr + 543}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.55);">รายได้คาดการณ์ทั้งปี · ปี ${yr + 543}</div>
           <div style="display:flex;align-items:baseline;gap:10px;margin-top:2px;">
-            <span style="font-family:'Inter',sans-serif;font-weight:800;font-size:42px;line-height:1;letter-spacing:-0.02em;">${fmtTHB(ytdIncome)}</span>
+            <span style="font-family:'Inter',sans-serif;font-weight:800;font-size:42px;line-height:1;letter-spacing:-0.02em;">${fmtTHB(ytdForecast)}</span>
             <span style="color:#6EE0A7;font-size:12.5px;font-weight:700;">${ytdJobsCount} งาน · เฉลี่ย ${fmtTHB(ytdAvg)}/งาน</span>
           </div>
           <svg viewBox="0 0 ${_spW} ${_spH}" preserveAspectRatio="none" style="width:100%;height:60px;display:block;margin-top:8px;">
@@ -4579,9 +4623,9 @@ function renderDashboard(root) {
             <polyline points="${_spLine}" fill="none" stroke="#E8B870" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.14);">
-            <div><div style="font-size:10.5px;color:rgba(255,255,255,0.55);">💵 เก็บเข้าจริง (ปีนี้)</div><div style="font-weight:800;font-size:18px;color:#6EE0A7;margin-top:3px;">${fmtTHB(ytdCashIn)}</div></div>
-            <div><div style="font-size:10.5px;color:rgba(255,255,255,0.55);">💸 รายจ่าย</div><div style="font-weight:800;font-size:18px;color:#E89B7A;margin-top:3px;">${fmtTHB(ytdExpense)}</div></div>
-            <div><div style="font-size:10.5px;color:rgba(255,255,255,0.55);">📈 กำไร · ${ytdMargin.toFixed(0)}%</div><div style="font-weight:800;font-size:18px;color:#E8B870;margin-top:3px;">${fmtTHB(ytdProfit)}</div></div>
+            <div><div style="font-size:10.5px;color:rgba(255,255,255,0.55);">💵 รายรับจริงปีนี้ · ${fcCashPct}%</div><div style="font-weight:800;font-size:18px;color:#6EE0A7;margin-top:3px;">${fmtTHB(ytdCashIn)}</div></div>
+            <div><div style="font-size:10.5px;color:rgba(255,255,255,0.55);">⏳ ค้างเก็บ · ${fcOwePct}%</div><div style="font-weight:800;font-size:18px;color:#E8B870;margin-top:3px;">${fmtTHB(ytdOutstanding)}</div></div>
+            <div><div style="font-size:10.5px;color:rgba(255,255,255,0.55);">📈 กำไร · ${ytdMargin.toFixed(0)}%</div><div style="font-weight:800;font-size:18px;color:#E89B7A;margin-top:3px;">${fmtTHB(ytdProfit)}</div></div>
           </div>
         </div>
       </div>
@@ -4615,8 +4659,8 @@ function renderDashboard(root) {
       </div>
       <div style="grid-column:span 3;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;" onclick="navigate('jobs')">
         <div style="font-size:11.5px;color:var(--ink-mute);">⏳ ค้างเก็บ</div>
-        <div style="font-size:23px;font-weight:700;color:var(--red);margin-top:5px;">${fmtTHB(pendingTotal)}</div>
-        <div style="font-size:10.5px;color:var(--ink-soft);margin-top:2px;">${pendingCustomers} ราย · ทุกงาน</div>
+        <div style="font-size:23px;font-weight:700;color:var(--red);margin-top:5px;">${fmtTHB(monthOutstanding)}</div>
+        <div style="font-size:10.5px;color:var(--ink-soft);margin-top:2px;">ต้องเก็บเดือนนี้ (งานเดือนนี้)</div>
       </div>
       <div style="grid-column:span 3;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;" onclick="navigate('jobs')">
         <div style="font-size:11.5px;color:var(--ink-mute);">📅 งาน Active</div>
@@ -5658,6 +5702,7 @@ function _reportYearJobs() {
   // ภาษี/PIT ยังคงกรอง future date ออก ที่ _computePIT
   const period = _getTaxYearPeriod(REPORTS_YEAR);
   return JOBS.filter(j => {
+    if (jobCancelled(j)) return false;        // v2.9.0 · งานยกเลิก ไม่เข้ารายงานภาษี (ไม่หักต้นทุนหลอก)
     if (!j.date) return false;
     const d = new Date(j.date);
     if (isNaN(d.getTime())) return false;
@@ -12883,6 +12928,7 @@ function renderJobDetailHtml(j) {
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" onclick="deleteJob('${escapeHtml(j.code)}')">🗑 ลบงานนี้</button>
+      <button class="btn btn-ghost" onclick="cancelJob('${escapeHtml(j.code)}')">${window.jobCancelled(j) ? '♻ กู้คืนงาน' : '🚫 ยกเลิกงาน'}</button>
       <div style="flex:1;"></div>
       <button class="btn btn-ghost" onclick="closeModal()">ปิด</button>
     </div>
@@ -13588,6 +13634,33 @@ async function deleteJob(code) {
   await saveData();
   closeModal();
   toast('✓ ลบงาน ' + code + ' แล้ว' + (linkedExpenses.length > 0 ? ' (+ ' + linkedExpenses.length + ' ค่าใช้จ่าย)' : ''), 'success');
+  navigate('jobs');
+}
+
+// v2.9.0 · ยกเลิกงาน (เก็บประวัติ · ตัดออกจากรายได้คาดการณ์/ค้างเก็บ · ถามริบ/คืนมัดจำ · กู้คืนได้)
+async function cancelJob(code) {
+  const j = JOBS.find(x => x.code === code);
+  if (!j) return;
+  if (window.jobCancelled(j)) {
+    if (!confirm('งานนี้ถูกยกเลิกอยู่\n\nต้องการกู้คืนงานกลับมาไหม?')) return;
+    j.cancelled = false; delete j._cancelledAt;
+    if (j.jobStatus === 'ยกเลิก') j.jobStatus = 'รอถ่าย';
+    if (Array.isArray(j.payments)) j.payments = j.payments.filter(p => !(p && p.type === 'refund' && p._autoCancelRefund));
+    delete j.depositRefunded;
+    await saveData(); closeModal(); toast('✓ กู้คืนงาน ' + code + ' แล้ว', 'success'); navigate('jobs'); return;
+  }
+  const received = (j.payments || []).reduce((s, p) => s + (Number(p && p.amount) || 0), 0);
+  if (!confirm('ยกเลิกงาน ' + code + ' (' + (j.customer || '') + ') ?\n\n• ตัดออกจาก "รายได้คาดการณ์" และ "ค้างเก็บ"\n• เก็บประวัติไว้ (ไม่ลบทิ้ง) · กู้คืนได้ภายหลัง')) return;
+  let refunded = false;
+  if (received > 0) refunded = confirm('ลูกค้าจ่ายมาแล้ว ' + fmtTHB(received) + '\n\nจะคืนเงินให้ลูกค้าไหม?\n\n• ตกลง = คืนเงิน (หักออกจากรายรับ)\n• ยกเลิก = ริบไว้ (ยังนับเป็นรายได้)');
+  j.cancelled = true; j._cancelledAt = new Date().toISOString(); j.jobStatus = 'ยกเลิก';
+  if (refunded) {
+    j.payments = j.payments || [];
+    j.payments.push({ date: TODAY_ISO(), amount: -received, type: 'refund', note: 'คืนเงิน (ยกเลิกงาน)', _autoCancelRefund: true });
+    j.depositRefunded = true;
+  }
+  await saveData(); closeModal();
+  toast('✓ ยกเลิกงาน ' + code + ' แล้ว' + (received > 0 ? (refunded ? ' · คืนเงิน ' + fmtTHB(received) : ' · ริบไว้ ' + fmtTHB(received)) : ''), 'success');
   navigate('jobs');
 }
 
