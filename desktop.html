@@ -2953,7 +2953,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.74';
+const PIXORY_DESKTOP_VERSION = '1.0.75';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -3231,12 +3231,9 @@ if (typeof window.jobRevenue !== 'function') {
   window._isSameMonthD = window._isSameMonth;
   console.warn('[Pixory] pixory-helpers.js ไม่ได้โหลด · ใช้ fallback ในตัว · ตรวจว่า push ไฟล์ pixory-helpers.js แล้ว');
 }
-// v2.9.0 · jobCancelled (fallback เผื่อ helpers ไม่โหลด · ตรงกับ pixory-helpers.js)
-if (typeof window.jobCancelled !== 'function') {
-  window.jobCancelled = function (j) { return !!(j && (j.cancelled === true || j.jobStatus === 'ยกเลิก')); };
-}
+// v2.9.1 FIX · jobCancelled = ตัวจริง (เดิมเขียน return window.jobCancelled(j) → วนเรียกตัวเอง → stack overflow แครชทั้งหน้า)
 // v2.9.0 · สูตรเงิน 3 ตัว (ตรงกับมือถือเป๊ะ): รายรับจริง(เงินสดตามปีที่รับ) · ค้างเก็บ(งานถ่ายปีนั้น ไม่ยกเลิก) · คาดการณ์=รับจริง+ค้าง
-function jobCancelled(j) { return window.jobCancelled(j); }
+function jobCancelled(j) { return !!(j && (j.cancelled === true || j.jobStatus === 'ยกเลิก')); }
 function jobEventYear(j) { if (!j || !j.date) return null; var d = new Date(j.date); return isNaN(d.getTime()) ? null : d.getFullYear(); }
 function cashReceivedInYear(Y) {
   var s = 0;
