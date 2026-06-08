@@ -2953,7 +2953,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.77';
+const PIXORY_DESKTOP_VERSION = '1.0.79';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -4610,7 +4610,7 @@ function renderDashboard(root) {
       <!-- HERO · รายได้สะสมปี + กราฟเทรนด์ (span 8) -->
       <div style="grid-column:span 8;background:linear-gradient(135deg, #2A1F18 0%, #15100b 80%);color:white;padding:22px 26px;border-radius:18px;position:relative;overflow:hidden;">
         <div style="position:relative;z-index:1;">
-          <div style="font-size:12px;color:rgba(255,255,255,0.55);">รายได้คาดการณ์ทั้งปี · ปี ${yr + 543}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.6);">รายได้คาดการณ์ทั้งปี · ปี ${yr + 543}</div>
           <div style="display:flex;align-items:baseline;gap:10px;margin-top:2px;">
             <span style="font-family:'Inter',sans-serif;font-weight:800;font-size:42px;line-height:1;letter-spacing:-0.02em;">${fmtTHB(ytdForecast)}</span>
             <span style="color:#6EE0A7;font-size:12.5px;font-weight:700;">${ytdJobsCount} งาน · เฉลี่ย ${fmtTHB(ytdAvg)}/งาน</span>
@@ -4621,9 +4621,9 @@ function renderDashboard(root) {
             <polyline points="${_spLine}" fill="none" stroke="#E8B870" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.14);">
-            <div><div style="font-size:10.5px;color:rgba(255,255,255,0.55);">💵 รายรับจริงปีนี้ · ${fcCashPct}%</div><div style="font-weight:800;font-size:18px;color:#6EE0A7;margin-top:3px;">${fmtTHB(ytdCashIn)}</div></div>
-            <div><div style="font-size:10.5px;color:rgba(255,255,255,0.55);">⏳ ค้างเก็บ · ${fcOwePct}%</div><div style="font-weight:800;font-size:18px;color:#E8B870;margin-top:3px;">${fmtTHB(ytdOutstanding)}</div></div>
-            <div><div style="font-size:10.5px;color:rgba(255,255,255,0.55);">📈 กำไร · ${ytdMargin.toFixed(0)}%</div><div style="font-weight:800;font-size:18px;color:#E89B7A;margin-top:3px;">${fmtTHB(ytdProfit)}</div></div>
+            <div><div style="font-size:12px;color:rgba(255,255,255,0.6);">💵 รายรับจริงปีนี้ · ${fcCashPct}%</div><div style="font-weight:800;font-size:20px;color:#6EE0A7;margin-top:3px;">${fmtTHB(ytdCashIn)}</div></div>
+            <div><div style="font-size:12px;color:rgba(255,255,255,0.6);">⏳ ค้างเก็บ · ${fcOwePct}%</div><div style="font-weight:800;font-size:20px;color:#E8B870;margin-top:3px;">${fmtTHB(ytdOutstanding)}</div></div>
+            <div><div style="font-size:12px;color:rgba(255,255,255,0.6);">📈 กำไร · ${ytdMargin.toFixed(0)}%</div><div style="font-weight:800;font-size:20px;color:#E89B7A;margin-top:3px;">${fmtTHB(ytdProfit)}</div></div>
           </div>
         </div>
       </div>
@@ -4644,47 +4644,47 @@ function renderDashboard(root) {
         </div>
       </div>
 
-      <!-- v2.9.x · สรุปเดือนนี้ (span 8) · ครอบ 4 ช่อง: เคส/ยอดขาย/เก็บแล้ว/ค้างเก็บ (ตรงกับมือถือ) -->
-      <div style="grid-column:span 8;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
-        <div style="font-size:12.5px;font-weight:700;color:var(--ink-mute);margin-bottom:11px;">📅 สรุปเดือนนี้ · ${thMonths[m]} ${yr + 543}</div>
+      <!-- v2.9.x · สรุปเดือนนี้ (span 8) · ครอบ 4 ช่อง: เคส/ยอดขาย/เก็บแล้ว/ค้างเก็บ (ตรงกับมือถือ) · ฟอนต์ใหญ่อ่านง่าย -->
+      <div style="grid-column:span 8;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:16px 18px;">
+        <div style="font-size:14px;font-weight:700;color:var(--ink-mute);margin-bottom:12px;">📅 สรุปเดือนนี้ · ${thMonths[m]} ${yr + 543}</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
-          <div style="background:var(--bg-c,rgba(0,0,0,0.03));border-radius:10px;padding:11px 12px;">
-            <div style="font-size:20px;font-weight:800;color:var(--ink);">${bookedCount}</div>
-            <div style="font-size:11px;color:var(--ink-mute);margin-top:1px;">เคส</div>
-            <div style="font-size:9.5px;color:var(--ink-soft);">จองเดือนนี้</div>
+          <div style="background:var(--bg-c,rgba(0,0,0,0.03));border-radius:10px;padding:13px 14px;">
+            <div style="font-size:24px;font-weight:800;color:var(--ink);">${bookedCount}</div>
+            <div style="font-size:13px;color:var(--ink-mute);margin-top:3px;">เคส</div>
+            <div style="font-size:11.5px;color:var(--ink-soft);">จองเดือนนี้</div>
           </div>
-          <div style="background:var(--bg-c,rgba(0,0,0,0.03));border-radius:10px;padding:11px 12px;">
-            <div style="font-size:20px;font-weight:800;color:var(--ink);">${fmtTHB(bookedSales)}</div>
-            <div style="font-size:11px;color:var(--ink-mute);margin-top:1px;">ยอดขาย</div>
-            <div style="font-size:9.5px;color:var(--ink-soft);">จองเดือนนี้</div>
+          <div style="background:var(--bg-c,rgba(0,0,0,0.03));border-radius:10px;padding:13px 14px;">
+            <div style="font-size:24px;font-weight:800;color:var(--ink);">${fmtTHB(bookedSales)}</div>
+            <div style="font-size:13px;color:var(--ink-mute);margin-top:3px;">ยอดขาย</div>
+            <div style="font-size:11.5px;color:var(--ink-soft);">จองเดือนนี้</div>
           </div>
-          <div style="background:var(--bg-c,rgba(0,0,0,0.03));border-radius:10px;padding:11px 12px;">
-            <div style="font-size:20px;font-weight:800;color:var(--green);">${fmtTHB(monthCashIn)}</div>
-            <div style="font-size:11px;color:var(--ink-mute);margin-top:1px;">เก็บแล้ว</div>
-            <div style="font-size:9.5px;color:var(--ink-soft);">เดือนนี้</div>
+          <div style="background:var(--bg-c,rgba(0,0,0,0.03));border-radius:10px;padding:13px 14px;">
+            <div style="font-size:24px;font-weight:800;color:var(--green);">${fmtTHB(monthCashIn)}</div>
+            <div style="font-size:13px;color:var(--ink-mute);margin-top:3px;">เก็บแล้ว</div>
+            <div style="font-size:11.5px;color:var(--ink-soft);">เดือนนี้</div>
           </div>
-          <div style="background:var(--bg-c,rgba(0,0,0,0.03));border-radius:10px;padding:11px 12px;cursor:pointer;" onclick="navigate('jobs')">
-            <div style="font-size:20px;font-weight:800;color:var(--red);">${fmtTHB(monthOutstanding)}</div>
-            <div style="font-size:11px;color:var(--ink-mute);margin-top:1px;">ค้างเก็บ</div>
-            <div style="font-size:9.5px;color:var(--ink-soft);">ต้องเก็บเดือนนี้</div>
+          <div style="background:var(--bg-c,rgba(0,0,0,0.03));border-radius:10px;padding:13px 14px;cursor:pointer;" onclick="goToJobsTab('unpaid')">
+            <div style="font-size:24px;font-weight:800;color:var(--red);">${fmtTHB(monthOutstanding)}</div>
+            <div style="font-size:13px;color:var(--ink-mute);margin-top:3px;">ค้างเก็บ</div>
+            <div style="font-size:11.5px;color:var(--ink-soft);">ต้องเก็บเดือนนี้</div>
           </div>
         </div>
       </div>
-      <!-- v2.9.x · งาน Active (span 4) · 3 ช่อง รอถ่าย/รอส่ง/รอจัดทีม -->
-      <div style="grid-column:span 4;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
-        <div style="font-size:12.5px;font-weight:700;color:var(--ink-mute);margin-bottom:11px;">⚡ งาน Active</div>
+      <!-- v2.9.x · งาน Active (span 4) · 3 ช่อง รอถ่าย/รอส่ง/รอจัดทีม · ฟอนต์ใหญ่อ่านง่าย -->
+      <div style="grid-column:span 4;background:var(--bg-b);border:1px solid var(--border);border-radius:14px;padding:16px 18px;">
+        <div style="font-size:14px;font-weight:700;color:var(--ink-mute);margin-bottom:12px;">⚡ งาน Active</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-          <div style="background:rgba(55,138,221,0.10);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;" onclick="navigate('jobs')">
-            <div style="font-size:22px;font-weight:800;color:var(--ink);">${waitShootCount}</div>
-            <div style="font-size:10px;color:var(--blue);margin-top:2px;">รอถ่าย</div>
+          <div style="background:rgba(55,138,221,0.10);border-radius:10px;padding:12px 6px;text-align:center;cursor:pointer;" onclick="goToJobsTab('wait_shoot')">
+            <div style="font-size:28px;font-weight:800;color:var(--ink);">${waitShootCount}</div>
+            <div style="font-size:12.5px;color:var(--blue);margin-top:3px;">รอถ่าย</div>
           </div>
-          <div style="background:rgba(232,184,112,0.12);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;" onclick="navigate('jobs')">
-            <div style="font-size:22px;font-weight:800;color:var(--ink);">${waitDeliverCount}</div>
-            <div style="font-size:10px;color:#a06a16;margin-top:2px;">รอส่งงาน</div>
+          <div style="background:rgba(232,184,112,0.12);border-radius:10px;padding:12px 6px;text-align:center;cursor:pointer;" onclick="goToJobsTab('wait_deliver')">
+            <div style="font-size:28px;font-weight:800;color:var(--ink);">${waitDeliverCount}</div>
+            <div style="font-size:12.5px;color:#a06a16;margin-top:3px;">รอส่งงาน</div>
           </div>
-          <div style="background:rgba(226,75,74,0.10);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;" onclick="navigate('jobs')">
-            <div style="font-size:22px;font-weight:800;color:var(--ink);">${waitTeamCount}</div>
-            <div style="font-size:10px;color:var(--red);margin-top:2px;">รอจัดทีม</div>
+          <div style="background:rgba(226,75,74,0.10);border-radius:10px;padding:12px 6px;text-align:center;cursor:pointer;" onclick="goToJobsTab('team_incomplete')">
+            <div style="font-size:28px;font-weight:800;color:var(--ink);">${waitTeamCount}</div>
+            <div style="font-size:12.5px;color:var(--red);margin-top:3px;">รอจัดทีม</div>
           </div>
         </div>
       </div>
@@ -5255,6 +5255,8 @@ function renderJobs(root) {
 }
 
 function setJobsTab(tab) { JOBS_TAB = tab; renderJobs(document.getElementById('main')); }
+// v2.9.x · จากการ์ดหน้าหลัก → ไปหน้างานพร้อมเปิดแท็บที่ถูกต้อง (กันทุกปุ่มไปแท็บเดิม)
+function goToJobsTab(tab) { JOBS_TAB = tab; navigate('jobs'); }
 function setJobsView(v) { JOBS_VIEW = v; renderJobs(document.getElementById('main')); }
 
 function _filteredJobs() {
