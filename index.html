@@ -709,6 +709,14 @@
   }
   body.dark-theme .pit-disclaimer { background: #2a2a2a; color: #a89a8c; }
 
+  /* v2.9.x · กล่องหมายเหตุภาษี (ข้อตกลง/คำแนะนำ) · คุมโทนให้นุ่ม + อ่านง่าย + รองรับทุกธีม */
+  .tax-note { background:#f6f2ea; border:1px solid #e7e0d3; border-radius:12px; padding:12px 14px; margin-bottom:16px; font-size:12.5px; line-height:1.65; color:#4a3f33; }
+  .tax-note .tax-note-title { font-weight:700; font-size:13px; margin-bottom:6px; color:#2f2820; }
+  .tax-note strong { color:#2f2820; }
+  body.dark-theme .tax-note, body.luxe-theme .tax-note { background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.10); color:#cdbba8; }
+  body.dark-theme .tax-note .tax-note-title, body.luxe-theme .tax-note .tax-note-title,
+  body.dark-theme .tax-note strong, body.luxe-theme .tax-note strong { color:#ecdcc0; }
+
   /* Quick-Start type cards (S3) */
   .qs-type-card {
     display: flex; align-items: center; gap: 12px;
@@ -7123,8 +7131,8 @@
         </div>
 
         <!-- v1.9.38 · Legal disclaimer -->
-        <div style="background:#fef3c7; border:1px solid #fbbf24; border-radius:12px; padding:12px 14px; margin-bottom:16px; font-size:12px; line-height:1.65; color:#78350f;">
-          <div style="font-weight:700; margin-bottom:6px; font-size:12.5px;">🛡 ข้อตกลงการใช้งาน · ภาษี</div>
+        <div class="tax-note">
+          <div class="tax-note-title">🛡 ข้อตกลงการใช้งาน · ภาษี</div>
           <div style="margin-bottom:5px;">• Pixory เป็นเครื่องมือช่วยคำนวณและเก็บข้อมูลงาน · <strong>ไม่ใช่ที่ปรึกษาภาษี</strong> หรือนักบัญชีที่ได้รับอนุญาต</div>
           <div style="margin-bottom:5px;">• ตัวเลขที่คำนวณ ผู้ใช้ต้องตรวจสอบความถูกต้องด้วยตนเอง<strong>ก่อนยื่นจริง</strong>ทุกครั้ง</div>
           <div style="margin-bottom:5px;">• แนะนำให้<strong>ปรึกษานักบัญชี/ผู้สอบบัญชี</strong>ก่อนยื่นภาษีจริง · เพื่อความถูกต้องตามกฎหมาย</div>
@@ -7200,7 +7208,7 @@
           </div>
         </div>
 
-        <div style="background:#fef3eb; border:1px solid rgba(216, 112, 74, 0.2); border-radius:12px; padding:14px; font-size:12px; line-height:1.6; color:#7c2d12;">
+        <div class="tax-note">
           💡 <strong>คำแนะนำ:</strong> ถ้ารายได้รวมต่อปีของคุณยังไม่ถึง 1.8 ล้านบาท · ไม่จำเป็นต้องจดทะเบียน VAT · เปิด VAT เมื่อคุณจดแล้วเท่านั้น
         </div>
 
@@ -8660,7 +8668,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.2';
+const PIXORY_VERSION = '2.9.3';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
