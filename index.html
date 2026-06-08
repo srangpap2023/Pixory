@@ -41,18 +41,19 @@
        = สูตรเดียวกับแอดมินที่ชิดเป๊ะบนเครื่องจริง · fixed bottom:0 ถึงขอบจอล่างสุดเสมอ */
     html {
       height: auto !important; min-height: 100% !important;
-      overflow-x: hidden !important; overflow-y: visible !important;
+      overflow: visible !important;   /* v2.8.9 FIX · ห้ามล็อก overflow ที่ <html> → ไม่งั้น Android PWA เลื่อนนิ้วเดียวไม่ได้ ต้องใช้สองนิ้ว (viewport เลิกเลื่อนเอกสาร) */
     }
     body {
       position: static !important; top: auto !important; left: auto !important; right: auto !important; bottom: auto !important;
       height: auto !important; min-height: 100dvh !important;
-      overflow-x: hidden !important; overflow-y: visible !important;
+      overflow: visible !important;   /* v2.8.9 FIX · ปล่อยให้ viewport เลื่อนเอกสารตามปกติ (สูตรเดียวกับ admin ที่เลื่อนนิ้วเดียวได้) */
       padding-bottom: env(safe-area-inset-bottom, 0px) !important;
     }
     .phone-wrap {
       padding: 0 !important; margin: 0 !important;
       height: auto !important; min-height: 100dvh !important; max-height: none !important;
-      display: block !important; overflow: visible !important;
+      display: block !important;
+      overflow-x: clip !important; overflow-y: visible !important;   /* v2.8.9 FIX · กันเลื่อนซ้าย-ขวาที่ตัวครอบแทน · clip ไม่ทำลายการเลื่อนแนวตั้ง (ห้ามใช้ hidden ที่นี่) */
     }
     .phone {
       max-width: none !important; width: 100% !important;
@@ -8565,7 +8566,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.8.8';
+const PIXORY_VERSION = '2.8.9';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8576,6 +8577,14 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.8.9': {
+    date: '2026-06-08',
+    title: '📱 แก้บั๊กเลื่อนหน้าจอ (Android)',
+    subtitle: 'เลื่อนนิ้วเดียวได้ปกติแล้ว',
+    items: [
+      { icon: '👆', title: 'เลื่อนหน้าจอด้วยนิ้วเดียวได้แล้ว', desc: 'แก้บั๊กที่บนแอนดรอยด์ (เปิดเป็นแอปติดตั้ง) ต้องใช้สองนิ้วถึงจะเลื่อนหน้าจอได้ — ตอนนี้เลื่อนนิ้วเดียวได้ตามปกติทุกหน้า' }
+    ]
+  },
   '2.8.8': {
     date: '2026-06-07',
     title: '🧾 บริการเสริมขึ้นครบในใบเสนอ/งาน',
