@@ -60,7 +60,69 @@
     return !isNaN(d.getTime()) && d.getFullYear() === y && d.getMonth() === m;
   }
 
+  // ===== ภาษี · เกณฑ์เงินสด (task #9) =====================================
+  // เงินรับจริงในปีภาษี = Σ ทุก payment ที่ลงวันที่ในปีปฏิทิน Y (รวมมัดจำงานปีหน้าที่รับปีนี้)
+  // = "ยอดยื่นจริง" ของบุคคลธรรมดาไทย (cash basis) · ไม่นับราคาเต็มงานที่ยังเก็บไม่ครบ
+  function cashReceivedInYear(Y, jobs) {
+    jobs = jobs || (typeof JOBS !== 'undefined' ? JOBS : []);
+    var s = 0;
+    jobs.forEach(function (j) {
+      ((j && j.payments) || []).forEach(function (p) {
+        if (!p || !p.date) return;
+        var d = new Date(p.date);
+        if (!isNaN(d.getTime()) && d.getFullYear() === Y) s += Number(p.amount) || 0;
+      });
+    });
+    return s;
+  }
+
+  // รายการเงินรับรายตัว (payment-by-payment) ของปีภาษี → ใช้ทำชีต Excel "เงินรับจริง"
+  // แต่ละแถว = 1 การรับเงิน · รวมทุกแถว = cashReceivedInYear(Y)
+  function cashRowsForYear(Y, jobs) {
+    jobs = jobs || (typeof JOBS !== 'undefined' ? JOBS : []);
+    var rows = [];
+    jobs.forEach(function (j) {
+      if (!j) return;
+      var shootD = j.date ? new Date(j.date) : null;
+      var shootYear = (shootD && !isNaN(shootD.getTime())) ? shootD.getFullYear() : null;
+      (j.payments || []).forEach(function (p) {
+        if (!p || !p.date) return;
+        var d = new Date(p.date);
+        if (isNaN(d.getTime()) || d.getFullYear() !== Y) return;
+        rows.push({
+          date: String(p.date).slice(0, 10),
+          amount: Number(p.amount) || 0,
+          ptype: p.type || '',
+          code: j.code || '',
+          customer: j.customer || '',
+          jobType: j.type || '',
+          shootDate: j.date || '',
+          shootYear: shootYear,
+          nextYearJob: (shootYear != null && shootYear > Y)   // มัดจำงานปีถัดไป (รับปีนี้)
+        });
+      });
+    });
+    rows.sort(function (a, b) { return a.date.localeCompare(b.date); });
+    return rows;
+  }
+
+  // ฐาน "ประเมินล่วงหน้า/วางแผน" = มูลค่างานที่ "ถ่ายในปี Y" ทั้งหมด (ไม่นับงานยกเลิก)
+  // ต่างจากเงินสด: ไม่รวมมัดจำงานปีหน้า · รวมยอดเต็มของงานปีนี้แม้ยังเก็บไม่ครบ
+  function jobValueShotInYear(Y, jobs) {
+    jobs = jobs || (typeof JOBS !== 'undefined' ? JOBS : []);
+    var s = 0;
+    jobs.forEach(function (j) {
+      if (!j || jobCancelled(j) || !j.date) return;
+      var d = new Date(j.date);
+      if (!isNaN(d.getTime()) && d.getFullYear() === Y) s += jobRevenue(j);
+    });
+    return s;
+  }
+
   g.jobInvExtra = jobInvExtra;
+  g.cashReceivedInYear = cashReceivedInYear;
+  g.cashRowsForYear = cashRowsForYear;
+  g.jobValueShotInYear = jobValueShotInYear;
   g.jobCancelled = jobCancelled;
   g.jobRevenue = jobRevenue;
   g.jobOutstanding = jobOutstanding;

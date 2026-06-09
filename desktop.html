@@ -2953,7 +2953,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.79';
+const PIXORY_DESKTOP_VERSION = '1.0.80';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -3267,7 +3267,35 @@ function outstandingForYearJobs(Y) {
   return s;
 }
 function forecastRevenueForYear(Y) { return cashReceivedInYear(Y) + outstandingForYearJobs(Y); }
-let JOB_TYPES = ['Wedding','Pre-wedding','Engagement','Portrait','Family','Event','Corporate','Product','อื่นๆ'];
+// task #9 · fallback ถ้า pixory-helpers.js โหลดไม่ติด (ตัวจริงอยู่ใน helpers)
+function cashRowsForYear(Y) {
+  if (window.cashRowsForYear && window.cashRowsForYear !== cashRowsForYear) return window.cashRowsForYear(Y, (typeof JOBS !== 'undefined' ? JOBS : []));
+  var rows = [];
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach(function (j) {
+    if (!j) return;
+    var sd = j.date ? new Date(j.date) : null;
+    var sy = (sd && !isNaN(sd.getTime())) ? sd.getFullYear() : null;
+    (j.payments || []).forEach(function (p) {
+      if (!p || !p.date) return;
+      var d = new Date(p.date);
+      if (isNaN(d.getTime()) || d.getFullYear() !== Y) return;
+      rows.push({ date: String(p.date).slice(0, 10), amount: Number(p.amount) || 0, ptype: p.type || '', code: j.code || '', customer: j.customer || '', jobType: j.type || '', shootDate: j.date || '', shootYear: sy, nextYearJob: (sy != null && sy > Y) });
+    });
+  });
+  rows.sort(function (a, b) { return a.date.localeCompare(b.date); });
+  return rows;
+}
+function jobValueShotInYear(Y) {
+  if (window.jobValueShotInYear && window.jobValueShotInYear !== jobValueShotInYear) return window.jobValueShotInYear(Y, (typeof JOBS !== 'undefined' ? JOBS : []));
+  var s = 0;
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach(function (j) {
+    if (!j || window.jobCancelled(j) || !j.date) return;
+    var d = new Date(j.date);
+    if (!isNaN(d.getTime()) && d.getFullYear() === Y) s += jobRevenue(j);
+  });
+  return s;
+}
+let JOB_TYPES =['Wedding','Pre-wedding','Engagement','Portrait','Family','Event','Corporate','Product','อื่นๆ'];
 let SOURCES = ['Facebook','Instagram','Instagram DM','LINE','Website','เว็บไซต์','Referral','เพื่อนแนะนำ','ลูกค้าเก่ากลับมา','Walk-in','อื่นๆ'];
 let EXPENSE_CATS = ['เดินทาง','ที่พัก','อุปกรณ์ถ่าย','เช่าอุปกรณ์','ค่ากินทีม','Software/Subscription','Marketing/โฆษณา','ค่าตัดต่อจ้างนอก','อื่นๆ'];
 let EQUIPMENT = [];
@@ -6423,7 +6451,7 @@ function _computePIT(year, opts) {
     if (isNaN(d.getTime())) return;
     if (d > today) return; // skip future
     if (d < period.start || d > period.end) return;
-    revenue += jobRevenue(j);
+    // task #9 · ไม่นับ revenue จากราคาเต็มงานแล้ว → ใช้ cashReceivedInYear (เกณฑ์เงินสด) หลังลูป
     // actual expenses · team + travel + other + costItems
     let teamCost = 0;
     Object.values(j.teamWages || {}).forEach(w => teamCost += (Number(w) || 0));
@@ -6442,6 +6470,12 @@ function _computePIT(year, opts) {
     if (d < period.start || d > period.end) return;
     actualExpenses += (Number(ex.amount) || 0);
   });
+
+  // task #9 · รายได้ตามเกณฑ์เงินสด = เงินที่ "รับจริง" ในปีภาษี (ทุก payment ที่ลงวันที่ในปีนั้น)
+  //   = ยอดยื่นจริงของบุคคลธรรมดาไทย · รวมมัดจำงานปีหน้าที่รับปีนี้ · ไม่นับราคาเต็มงานที่ยังเก็บไม่ครบ
+  revenue = (typeof cashReceivedInYear === 'function') ? cashReceivedInYear(year) : revenue;
+  // ฐาน "ประเมินล่วงหน้า/วางแผน" = มูลค่างานที่ถ่ายปีนี้ทั้งหมด (ไม่ใช่ยอดยื่น)
+  const planRevenue = (typeof jobValueShotInYear === 'function') ? jobValueShotInYear(year) : revenue;
 
   // หักค่าใช้จ่าย · flat60% (ไม่มี cap · พ.ร.ฎ. 629) หรือ actual
   const expenseMode = opts.expenseMode || 'flat60';
@@ -6473,6 +6507,12 @@ function _computePIT(year, opts) {
   const totalDeductions = allowancesBeforeDonation + donation;
   const netTaxable = Math.max(0, incomeAfterExpense - totalDeductions);
   const taxOwed = _calcProgressiveTax(netTaxable);
+  // task #9 · มุม "ประเมินล่วงหน้า" · ภาษีถ้าคิดจากมูลค่างานที่ถ่ายปีนี้ทั้งหมด · ลดหย่อนชุดเดียวกัน
+  const planFlat60 = planRevenue * 0.60;
+  const planUsedExpense = (expenseMode === 'actual') ? actualExpenses : planFlat60;
+  const planIncomeAfterExpense = Math.max(0, planRevenue - planUsedExpense);
+  const planNetTaxable = Math.max(0, planIncomeAfterExpense - totalDeductions);
+  const planTaxOwed = _calcProgressiveTax(planNetTaxable);
   const balance = taxOwed - whtWithheld;
   const status = balance > 0 ? 'payable' : (balance < 0 ? 'refund' : 'balanced');
   return {
@@ -6483,7 +6523,9 @@ function _computePIT(year, opts) {
       lifeIns, healthIns, rmfSsf, mortgage, lumpDeductions, donation, donationRaw: rawDonation,
       total: totalDeductions
     },
-    netTaxable, taxOwed, whtWithheld, balance, status, filedJobCount
+    netTaxable, taxOwed, whtWithheld, balance, status, filedJobCount,
+    // task #9 · มุมประเมินล่วงหน้า (ฐานมูลค่างานที่ถ่ายปีนี้)
+    planRevenue, planUsedExpense, planIncomeAfterExpense, planNetTaxable, planTaxOwed
   };
 }
 
@@ -6575,9 +6617,9 @@ function renderReportsTax() {
     `}
 
     <div class="glass-card">
-      <div class="form-section-title">💼 ม.40(8) · ภาษีบุคคลธรรมดา (PIT) · ประมาณการ${pitMode === 'actual' ? ' (โหมดหักตามจริง)' : ' (โหมดหักเหมา 60%)'}</div>
+      <div class="form-section-title">💼 ม.40(8) · ภาษีบุคคลธรรมดา (PIT) · ยอดยื่นจริง (เกณฑ์เงินสด)${pitMode === 'actual' ? ' · โหมดหักตามจริง' : ' · โหมดหักเหมา 60%'}</div>
       <div class="kpi-grid">
-        <div class="kpi"><div class="kpi-label">รายได้รวม (cash-basis)</div><div class="kpi-value">${fmtTHB(totalIncome)}</div><div class="kpi-sub">${pit.filedJobCount} งานในปี · ประมาณการทุกงาน</div></div>
+        <div class="kpi"><div class="kpi-label">เงินรับจริงปีนี้ (ยอดยื่น)</div><div class="kpi-value">${fmtTHB(totalIncome)}</div><div class="kpi-sub">เกณฑ์เงินสด · รวมมัดจำงานปีหน้าที่รับปีนี้</div></div>
         <div class="kpi"><div class="kpi-label">หักค่าใช้จ่าย ${pitMode === 'actual' ? '(ตามจริง)' : '60%'}</div><div class="kpi-value">${fmtTHB(usedExpense)}</div><div class="kpi-sub">${pitMode === 'actual' ? 'จาก expenses + costs' : 'พ.ร.ฎ. 629 · ไม่มี cap'}</div></div>
         <div class="kpi"><div class="kpi-label">ภาษีต้องจ่าย</div><div class="kpi-value" style="color:${pitTax > 0 ? 'var(--red)' : 'var(--green)'};">${fmtTHB(pitTax)}</div><div class="kpi-sub">เฉลี่ย ${effectiveRate.toFixed(2)}%</div></div>
         <div class="kpi"><div class="kpi-label">${balance > 0 ? '💰 ต้องจ่ายเพิ่ม' : balance < 0 ? '🎁 ขอคืน' : 'ครบแล้ว'}</div><div class="kpi-value" style="color:${balance > 0 ? 'var(--red)' : 'var(--green)'};">${fmtTHB(Math.abs(balance))}</div><div class="kpi-sub">หัก WHT ฿${(whtCredit||0).toLocaleString()}</div></div>
@@ -6607,6 +6649,14 @@ function renderReportsTax() {
         <div style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(0,0,0,0.10);font-size:11.5px;color:var(--ink-mute);">
           💡 ตั้งค่าลดหย่อน · บุตร · คู่สมรส · ประกัน ที่ <strong style="color:var(--brand-dark); cursor:pointer; text-decoration:underline;" onclick="navigate('settings');setTimeout(()=>setSettingsTab('tax'),50)">⚙️ ตั้งค่า → ภาษี</strong> · หรือใช้ <strong>มือถือ → ภาษี → PIT Helper</strong> สำหรับฟิลด์ครบ
         </div>
+      </div>
+      <div style="margin-top:14px;padding:14px 16px;background:var(--yellow-bg, #fdf6e3);border:1px solid rgba(0,0,0,0.06);border-radius:10px;">
+        <div style="font-weight:700;color:var(--brand-dark);margin-bottom:8px;">🔮 ประเมินล่วงหน้า (วางแผน) · ฐานมูลค่างานที่ถ่ายปีนี้</div>
+        <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="kpi"><div class="kpi-label">มูลค่างานที่ถ่ายปีนี้</div><div class="kpi-value">${fmtTHB(pit.planRevenue)}</div><div class="kpi-sub">ทุกงานที่ถ่ายปีนี้ (รวมที่ยังเก็บไม่ครบ · ไม่รวมมัดจำงานปีหน้า)</div></div>
+          <div class="kpi"><div class="kpi-label">ภาษีประเมิน (ถ้าเก็บครบ)</div><div class="kpi-value" style="color:${pit.planTaxOwed > 0 ? 'var(--red)' : 'var(--green)'};">${fmtTHB(pit.planTaxOwed)}</div><div class="kpi-sub">ใช้ลดหย่อนชุดเดียวกัน · ไว้กันเงินเตรียมจ่าย</div></div>
+        </div>
+        <div style="margin-top:8px;font-size:11.5px;color:var(--ink-mute);">เลขนี้ไว้ "วางแผน" เท่านั้น · ตอนยื่นจริงใช้ยอดเงินรับจริง (เกณฑ์เงินสด) ด้านบน</div>
       </div>
     </div>
 
@@ -6804,6 +6854,11 @@ function exportTaxExcel() {
   const yr = REPORTS_YEAR || new Date().getFullYear();
   const { rows, period } = getTaxReportRows(yr, 'all');
   const summary = summariseTaxRows(rows);
+  // task #9 · เกณฑ์เงินสด · เงินรับจริงรายตัว (= ยอดยื่นจริง · รวมมัดจำงานปีหน้า)
+  const cashRows = (typeof cashRowsForYear === 'function') ? cashRowsForYear(yr) : [];
+  const cashTotal = cashRows.reduce((s, r) => s + (r.amount || 0), 0);
+  const cashNextYear = cashRows.filter(r => r.nextYearJob).reduce((s, r) => s + (r.amount || 0), 0);
+  const planRevenueX = (typeof jobValueShotInYear === 'function') ? jobValueShotInYear(yr) : 0;
   const today = new Date();
   const allJobs = JOBS.filter(j => {
     const d = new Date(j.date);
@@ -6825,7 +6880,12 @@ function exportTaxExcel() {
     ['ช่วงเวลา', period.start.toISOString().slice(0, 10) + '  →  ' + period.end.toISOString().slice(0, 10)],
     ['สร้างเมื่อ', new Date().toISOString().slice(0, 10)],
     [],
-    ['— รายได้รวมทั้งปี (ทุกงาน) —'],
+    ['— ยอดยื่นจริง (เกณฑ์เงินสด) —'],
+    ['เงินรับจริงในปีภาษี (ยอดยื่น)', cashTotal],
+    ['  · ในนี้เป็นมัดจำงานปีถัดไป', cashNextYear],
+    ['มูลค่างานที่ถ่ายปีนี้ (ไว้วางแผน)', planRevenueX],
+    [],
+    ['— มูลค่างานที่ถ่ายปีนี้ ราย job (ประเมิน) —'],
     ['จำนวนงานทั้งหมด', allJobs.length],
     ['ยอดรายได้รวม (ราคาขาย)', totalRevenueAll],
     [],
@@ -6837,10 +6897,21 @@ function exportTaxExcel() {
     ['ยอดสุทธิที่รับจริงจากงานภาษี', summary.net]
   ];
   const ws0 = XLSX.utils.aoa_to_sheet(summaryRows);
-  ws0['!cols'] = [{ wch: 28 }, { wch: 22 }];
+  ws0['!cols'] = [{ wch: 30 }, { wch: 22 }];
   XLSX.utils.book_append_sheet(wb, ws0, 'สรุป');
 
-  const vatHeader = ['ลำดับ', 'วันที่ใบกำกับ', 'เลขที่งาน', 'เลขผู้เสียภาษีลูกค้า', 'ชื่อลูกค้า', 'ประเภท', 'ฐาน (ก่อน VAT)', 'อัตรา VAT %', 'จำนวน VAT', 'ยอดรวม (รวม VAT)'];
+  // === Sheet (task #9): เงินรับจริง (เกณฑ์เงินสด) · payment-by-payment = ยอดยื่นจริง
+  const cashHeader = ['ลำดับ', 'วันที่รับเงิน', 'เลขที่งาน', 'ลูกค้า', 'ประเภทงาน', 'วันถ่าย', 'งานปีถัดไป', 'จำนวนเงินรับ'];
+  const cashBody = cashRows.map((r, i) => [
+    i + 1, r.date, r.code, r.customer || '', r.jobType || '', r.shootDate || '',
+    r.nextYearJob ? 'ใช่' : '', r.amount
+  ]);
+  if (cashBody.length > 0) cashBody.push(['', '', '', '', '', '', 'รวมยอดยื่น', cashTotal]);
+  const wsCash = XLSX.utils.aoa_to_sheet([cashHeader, ...cashBody]);
+  wsCash['!cols'] = [{ wch: 5 }, { wch: 13 }, { wch: 14 }, { wch: 24 }, { wch: 14 }, { wch: 13 }, { wch: 11 }, { wch: 15 }];
+  XLSX.utils.book_append_sheet(wb, wsCash, 'เงินรับจริง ยอดยื่น');
+
+  const vatHeader =['ลำดับ', 'วันที่ใบกำกับ', 'เลขที่งาน', 'เลขผู้เสียภาษีลูกค้า', 'ชื่อลูกค้า', 'ประเภท', 'ฐาน (ก่อน VAT)', 'อัตรา VAT %', 'จำนวน VAT', 'ยอดรวม (รวม VAT)'];
   const vatBody = rows.filter(r => r.vatAmount > 0).map((r, i) => [
     i + 1, r.date, r.code, r.customerTaxId || '', r.customerCompany || r.customer, r.customerType,
     r.base, r.vatRate, r.vatAmount, r.grandTotal

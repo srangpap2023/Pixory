@@ -911,6 +911,18 @@
   .chart-wrap { position: relative; height: 200px; }
   .chart-wrap.tall { height: 240px; }
 
+  /* v2.9.5 · หน้าสรุป · แถบแท็บ underline (overview/tax/customers/export) */
+  .dash-tabs { display:flex; margin:0 16px 12px; border-bottom:1px solid rgba(0,0,0,0.08); }
+  .dash-tab { flex:1; border:none; background:none; padding:11px 2px 10px; font-size:13.5px; font-family:inherit; color:#9a8c78; cursor:pointer; border-bottom:2.5px solid transparent; margin-bottom:-1px; transition:color .15s; }
+  .dash-tab.active { color:#3a2f25; font-weight:700; border-bottom-color:#B8854A; }
+  .dash-pane { animation: dashFade .18s ease; }
+  @keyframes dashFade { from { opacity:0; } to { opacity:1; } }
+  body.dark-theme .dash-tabs { border-bottom-color:rgba(255,255,255,0.10); }
+  body.dark-theme .dash-tab { color:#9a8c78; }
+  body.dark-theme .dash-tab.active { color:#f5f0e6; border-bottom-color:#D4A056; }
+  body.luxe-theme .dash-tabs { border-bottom-color:rgba(255,255,255,0.12); }
+  body.luxe-theme .dash-tab.active { color:#F0E6D2; border-bottom-color:#D4A056; }
+
   /* v2.5.27 · Pro Dashboard · Mockup C · Liquid Glass · Stripe/Linear style */
   /* Common glass card style for all dashboard sections */
   .pdb-hero, .pdb-kpi-card, .pdb-funnel, .pdb-section {
@@ -980,6 +992,17 @@
   body.dark-theme .pdb-funnel-row .step { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.06); }
   body.dark-theme .pdb-funnel-row .step .val { color: #f5f5f5; }
   body.dark-theme .pdb-funnel-row .step .l { color: #a89a8c; }
+  /* v2.9.5 · ย่อการ์ด KPI + Funnel ให้กระชับ (Joe request) */
+  .pdb-kpi-card, .pdb-funnel { padding: 10px 13px; }
+  .pdb-kpi-cell .val { font-size: 15px; margin-top: 2px; }
+  .pdb-kpi-cell .lbl { font-size: 9px; }
+  .pdb-kpi-cell .sub { font-size: 9.5px; margin-top: 2px; }
+  .pdb-funnel-head { margin-bottom: 7px; font-size: 11.5px; }
+  .pdb-funnel-row { gap: 10px; }
+  .pdb-funnel-row .step { padding: 7px 5px; }
+  .pdb-funnel-row .step .val { font-size: 16px; margin-top: 2px; }
+  .pdb-funnel-row .step .em { font-size: 12px; }
+  .pdb-funnel-row .step .l { font-size: 9px; margin-top: 2px; }
   .pdb-section-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; gap: 8px; }
   .pdb-section-head h2 { font-size: 13px; font-weight: 700; color: #2A1F18; letter-spacing: 0.02em; margin: 0; }
   .pdb-section-head .total { font-size: 12px; color: #B85A3D; font-weight: 700; }
@@ -5470,13 +5493,143 @@
     <!-- ====== SCREEN: DASHBOARD ====== -->
     <div class="screen" id="screen-dashboard">
       <div class="header">
-        <h1 data-i18n="home.dashTitle">📊 แดชบอร์ด</h1>
-        <select class="year-select" id="year-select" onchange="renderDashboard()">
+        <h1 data-i18n="home.dashTitle">📊 สรุป</h1>
+        <select class="year-select" id="year-select" onchange="onDashYearChange()">
           <!-- populated by populateYearSelect() -->
         </select>
       </div>
-      <!-- v2.5.27 · Pro Dashboard · injected by renderDashboard() -->
-      <div id="dashboard-content"></div>
+
+      <!-- v2.9.5 · หน้าสรุป 4 แท็บ (parity กับเดสก์ท็อป) -->
+      <div class="dash-tabs" id="dash-tabs">
+        <button class="dash-tab active" data-dtab="overview"  onclick="setDashTab('overview')">ภาพรวม</button>
+        <button class="dash-tab"        data-dtab="tax"       onclick="setDashTab('tax')">ภาษี</button>
+        <button class="dash-tab"        data-dtab="customers" onclick="setDashTab('customers')">ลูกค้า</button>
+        <button class="dash-tab"        data-dtab="export"    onclick="setDashTab('export')">ส่งออก</button>
+      </div>
+
+      <!-- TAB: ภาพรวม -->
+      <div class="dash-pane" id="dash-pane-overview">
+        <div id="dashboard-content"></div>
+      </div>
+
+      <!-- ===== TAB: ภาษี (PIT Helper ย้ายมาจากตั้งค่า v2.9.5) ===== -->
+      <div class="dash-pane" id="dash-pane-tax" style="display:none;">
+        <div style="padding:0 16px;">
+          <div class="pdb-section" style="margin:0 0 10px;">
+            <div class="pdb-section-head"><h2>🧾 ภาษีเงินได้บุคคลธรรมดา</h2></div>
+            <div style="font-size:12px;color:#7c7066;line-height:1.6;margin-top:2px;">คำนวณ “ยอดยื่นจริง (เกณฑ์เงินสด)” และ “ประเมินล่วงหน้า” ในที่เดียว · กรอกค่าลดหย่อนด้านล่างแล้วระบบคำนวณให้ทันที</div>
+          </div>
+        <!-- v2.5.60 · PIT Helper inline · merged from screen-pit-helper (parity กับเดสก์ทอป) -->
+        <div class="settings-section" style="margin-top:16px;">
+          <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; padding: 0 4px;">📊 ภาษีเงินได้ประจำปี (ภ.ง.ด.90/94)</div>
+
+          <div class="pit-info-hero" style="background:#FDF1E0; border:0.5px solid rgba(184,133,74,.30); border-radius:12px; padding:11px 13px; margin-bottom:12px; font-size:12px; color:#7a5a1f; line-height:1.55;">
+            ✨ <strong>PIT Helper</strong> — คำนวณภาษีเงินได้บุคคลธรรมดา · ใช้ข้อมูลจาก Pixory · กรอกแค่ที่จำเป็น
+          </div>
+
+          <div class="form-group" style="margin: 0 0 12px;">
+            <label>ปีภาษี <span style="color:#a89a8c; font-weight:400; font-size:11px;">· นับตามวันรับเงิน</span></label>
+            <select id="pit-year" onchange="refreshPITCalc()"></select>
+          </div>
+
+          <div class="form-group" style="margin: 0 0 10px;">
+            <label>สถานะ</label>
+            <select id="pit-marital" onchange="refreshPITCalc()">
+              <option value="single">โสด</option>
+              <option value="married">สมรส</option>
+              <option value="widowed">หม้าย</option>
+              <option value="divorced">หย่า</option>
+            </select>
+          </div>
+          <div class="form-group" id="pit-spouse-row" style="margin: 0 0 10px; display:none;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="pit-spouse-no-income" onchange="refreshPITCalc()" style="width:18px; height:18px;">
+              <span style="font-size:13.5px;">คู่สมรสไม่มีรายได้ (ลดหย่อน 60,000)</span>
+            </label>
+          </div>
+          <div class="form-group" style="margin: 0 0 10px;">
+            <label>จำนวนบุตร <span style="color:#a89a8c; font-size:11px;">(ลดหย่อน 30,000/คน)</span></label>
+            <input type="number" id="pit-children" min="0" max="20" value="0" oninput="refreshPITCalc()">
+          </div>
+          <div class="form-group" id="pit-children2018-row" style="margin: 0 0 12px; display:none;">
+            <label>ในจำนวนนี้ เป็นบุตรเกิดตั้งแต่ปี 2561+ <span style="color:#a89a8c; font-size:11px;">(บุตรคนที่ 2+ ได้ ฿60,000)</span></label>
+            <input type="number" id="pit-children-2018-plus" min="0" max="20" value="0" oninput="refreshPITCalc()">
+          </div>
+
+          <div style="font-size:11.5px; color:#7c7066; font-weight:700; margin: 6px 0 8px; padding-left:4px;">โหมดค่าใช้จ่าย</div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:14px;">
+            <button id="pit-mode-flat" class="pit-mode-btn active" onclick="setPITExpenseMode('flat60')">
+              <div style="font-size:13px; font-weight:700;">หักเหมา 60%</div>
+              <div style="font-size:10.5px; color:#7c7066; margin-top:2px;">ง่าย · ไม่ต้องเก็บบิล</div>
+            </button>
+            <button id="pit-mode-actual" class="pit-mode-btn" onclick="setPITExpenseMode('actual')">
+              <div style="font-size:13px; font-weight:700;">หักตามจริง</div>
+              <div style="font-size:10.5px; color:#7c7066; margin-top:2px;">จาก Pixory · cost จริง</div>
+            </button>
+          </div>
+
+          <details class="pit-deductions-details" style="margin: 0 0 12px;">
+            <summary class="pit-deductions-summary">
+              <span class="pit-ded-chev">▸</span>
+              <span class="pit-ded-label">ลดหย่อนเพิ่มเติม</span>
+              <span class="pit-ded-hint">5 หมวด · optional</span>
+            </summary>
+            <div style="margin-top:10px;">
+              <div class="form-group" style="margin: 0 0 10px;">
+                <label>ประกันชีวิต <span style="color:#a89a8c; font-size:11px;">(max ฿100,000)</span></label>
+                <input type="number" id="pit-life-ins" min="0" value="0" oninput="refreshPITCalc()">
+              </div>
+              <div class="form-group" style="margin: 0 0 10px;">
+                <label>ประกันสุขภาพ <span style="color:#a89a8c; font-size:11px;">(max ฿25,000)</span></label>
+                <input type="number" id="pit-health-ins" min="0" value="0" oninput="refreshPITCalc()">
+              </div>
+              <div class="form-group" style="margin: 0 0 10px;">
+                <label>กองทุน RMF/SSF <span style="color:#a89a8c; font-size:11px;">(max ฿200,000)</span></label>
+                <input type="number" id="pit-rmf-ssf" min="0" value="0" oninput="refreshPITCalc()">
+              </div>
+              <div class="form-group" style="margin: 0 0 10px;">
+                <label>บริจาค <span style="color:#a89a8c; font-size:11px;">(max 10% เงินได้)</span></label>
+                <input type="number" id="pit-donation" min="0" value="0" oninput="refreshPITCalc()">
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label>ดอกเบี้ยกู้บ้าน <span style="color:#a89a8c; font-size:11px;">(max ฿100,000)</span></label>
+                <input type="number" id="pit-mortgage" min="0" value="0" oninput="refreshPITCalc()">
+              </div>
+            </div>
+          </details>
+
+          <!-- Live results (compute + render) -->
+          <div id="pit-results"></div>
+
+          <!-- Export Excel -->
+          <div style="padding: 6px 0 0;">
+            <button class="btn pit-export-btn" onclick="exportPITExcel()" style="margin:0; background:linear-gradient(135deg, #B8854A, #7a5a1f); color:#fff;">
+              <span style="margin-right:6px;">📥</span>บันทึก Excel · ภ.ง.ด.90 / 94
+            </button>
+          </div>
+        </div>
+
+          <div class="pdb-section" style="margin:10px 0 0;cursor:pointer;" onclick="goTo('tax-report')">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:14px;font-weight:700;color:#3a2f25;">📊 รายงานปีภาษี (ภ.พ.30 · ภ.ง.ด.3)</div>
+                <div style="font-size:11.5px;color:#7c7066;margin-top:3px;">รายการราย job สำหรับ VAT/หัก ณ ที่จ่าย · ส่งออก Excel ให้นักบัญชี</div>
+              </div>
+              <div style="font-size:20px;color:#b8a98f;">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: ลูกค้า -->
+      <div class="dash-pane" id="dash-pane-customers" style="display:none;">
+        <div id="dash-cust-content"></div>
+      </div>
+
+      <!-- TAB: ส่งออก -->
+      <div class="dash-pane" id="dash-pane-export" style="display:none;">
+        <div id="dash-export-content"></div>
+      </div>
     </div>
 
     <!-- ====== SCREEN: JOBS LIST ====== -->
@@ -7212,95 +7365,7 @@
           💡 <strong>คำแนะนำ:</strong> ถ้ารายได้รวมต่อปีของคุณยังไม่ถึง 1.8 ล้านบาท · ไม่จำเป็นต้องจดทะเบียน VAT · เปิด VAT เมื่อคุณจดแล้วเท่านั้น
         </div>
 
-        <!-- v2.5.60 · PIT Helper inline · merged from screen-pit-helper (parity กับเดสก์ทอป) -->
-        <div class="settings-section" style="margin-top:16px;">
-          <div style="font-size:12px; color:#7c7066; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px; padding: 0 4px;">📊 ภาษีเงินได้ประจำปี (ภ.ง.ด.90/94)</div>
-
-          <div class="pit-info-hero" style="background:#FDF1E0; border:0.5px solid rgba(184,133,74,.30); border-radius:12px; padding:11px 13px; margin-bottom:12px; font-size:12px; color:#7a5a1f; line-height:1.55;">
-            ✨ <strong>PIT Helper</strong> — คำนวณภาษีเงินได้บุคคลธรรมดา · ใช้ข้อมูลจาก Pixory · กรอกแค่ที่จำเป็น
-          </div>
-
-          <div class="form-group" style="margin: 0 0 12px;">
-            <label>ปีภาษี <span style="color:#a89a8c; font-weight:400; font-size:11px;">· นับตามวันรับเงิน</span></label>
-            <select id="pit-year" onchange="refreshPITCalc()"></select>
-          </div>
-
-          <div class="form-group" style="margin: 0 0 10px;">
-            <label>สถานะ</label>
-            <select id="pit-marital" onchange="refreshPITCalc()">
-              <option value="single">โสด</option>
-              <option value="married">สมรส</option>
-              <option value="widowed">หม้าย</option>
-              <option value="divorced">หย่า</option>
-            </select>
-          </div>
-          <div class="form-group" id="pit-spouse-row" style="margin: 0 0 10px; display:none;">
-            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-              <input type="checkbox" id="pit-spouse-no-income" onchange="refreshPITCalc()" style="width:18px; height:18px;">
-              <span style="font-size:13.5px;">คู่สมรสไม่มีรายได้ (ลดหย่อน 60,000)</span>
-            </label>
-          </div>
-          <div class="form-group" style="margin: 0 0 10px;">
-            <label>จำนวนบุตร <span style="color:#a89a8c; font-size:11px;">(ลดหย่อน 30,000/คน)</span></label>
-            <input type="number" id="pit-children" min="0" max="20" value="0" oninput="refreshPITCalc()">
-          </div>
-          <div class="form-group" id="pit-children2018-row" style="margin: 0 0 12px; display:none;">
-            <label>ในจำนวนนี้ เป็นบุตรเกิดตั้งแต่ปี 2561+ <span style="color:#a89a8c; font-size:11px;">(บุตรคนที่ 2+ ได้ ฿60,000)</span></label>
-            <input type="number" id="pit-children-2018-plus" min="0" max="20" value="0" oninput="refreshPITCalc()">
-          </div>
-
-          <div style="font-size:11.5px; color:#7c7066; font-weight:700; margin: 6px 0 8px; padding-left:4px;">โหมดค่าใช้จ่าย</div>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:14px;">
-            <button id="pit-mode-flat" class="pit-mode-btn active" onclick="setPITExpenseMode('flat60')">
-              <div style="font-size:13px; font-weight:700;">หักเหมา 60%</div>
-              <div style="font-size:10.5px; color:#7c7066; margin-top:2px;">ง่าย · ไม่ต้องเก็บบิล</div>
-            </button>
-            <button id="pit-mode-actual" class="pit-mode-btn" onclick="setPITExpenseMode('actual')">
-              <div style="font-size:13px; font-weight:700;">หักตามจริง</div>
-              <div style="font-size:10.5px; color:#7c7066; margin-top:2px;">จาก Pixory · cost จริง</div>
-            </button>
-          </div>
-
-          <details class="pit-deductions-details" style="margin: 0 0 12px;">
-            <summary class="pit-deductions-summary">
-              <span class="pit-ded-chev">▸</span>
-              <span class="pit-ded-label">ลดหย่อนเพิ่มเติม</span>
-              <span class="pit-ded-hint">5 หมวด · optional</span>
-            </summary>
-            <div style="margin-top:10px;">
-              <div class="form-group" style="margin: 0 0 10px;">
-                <label>ประกันชีวิต <span style="color:#a89a8c; font-size:11px;">(max ฿100,000)</span></label>
-                <input type="number" id="pit-life-ins" min="0" value="0" oninput="refreshPITCalc()">
-              </div>
-              <div class="form-group" style="margin: 0 0 10px;">
-                <label>ประกันสุขภาพ <span style="color:#a89a8c; font-size:11px;">(max ฿25,000)</span></label>
-                <input type="number" id="pit-health-ins" min="0" value="0" oninput="refreshPITCalc()">
-              </div>
-              <div class="form-group" style="margin: 0 0 10px;">
-                <label>กองทุน RMF/SSF <span style="color:#a89a8c; font-size:11px;">(max ฿200,000)</span></label>
-                <input type="number" id="pit-rmf-ssf" min="0" value="0" oninput="refreshPITCalc()">
-              </div>
-              <div class="form-group" style="margin: 0 0 10px;">
-                <label>บริจาค <span style="color:#a89a8c; font-size:11px;">(max 10% เงินได้)</span></label>
-                <input type="number" id="pit-donation" min="0" value="0" oninput="refreshPITCalc()">
-              </div>
-              <div class="form-group" style="margin: 0;">
-                <label>ดอกเบี้ยกู้บ้าน <span style="color:#a89a8c; font-size:11px;">(max ฿100,000)</span></label>
-                <input type="number" id="pit-mortgage" min="0" value="0" oninput="refreshPITCalc()">
-              </div>
-            </div>
-          </details>
-
-          <!-- Live results (compute + render) -->
-          <div id="pit-results"></div>
-
-          <!-- Export Excel -->
-          <div style="padding: 6px 0 0;">
-            <button class="btn pit-export-btn" onclick="exportPITExcel()" style="margin:0; background:linear-gradient(135deg, #B8854A, #7a5a1f); color:#fff;">
-              <span style="margin-right:6px;">📥</span>บันทึก Excel · ภ.ง.ด.90 / 94
-            </button>
-          </div>
-        </div>
+        <!-- v2.9.5 · PIT Helper ย้ายไปหน้า "สรุป" → แท็บภาษี (goTo('dashboard')) -->
 
         <!-- Tax T3 — Report link -->
         <div class="settings-section" style="margin-top:16px;">
@@ -8505,6 +8570,33 @@ function outstandingForYearJobs(Y) {
 function forecastRevenueForYear(Y) {
   return cashReceivedInYear(Y) + outstandingForYearJobs(Y);
 }
+// task #9 · เกณฑ์เงินสด · สำเนาตรงกับ pixory-helpers.js (canonical อยู่ใน helpers · sync มือเหมือน cashReceivedInYear)
+function cashRowsForYear(Y) {
+  var rows = [];
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach(function (j) {
+    if (!j) return;
+    var sd = j.date ? new Date(j.date) : null;
+    var sy = (sd && !isNaN(sd.getTime())) ? sd.getFullYear() : null;
+    (j.payments || []).forEach(function (p) {
+      if (!p || !p.date) return;
+      var d = new Date(p.date);
+      if (isNaN(d.getTime()) || d.getFullYear() !== Y) return;
+      rows.push({ date: String(p.date).slice(0, 10), amount: Number(p.amount) || 0, ptype: p.type || '', code: j.code || '', customer: j.customer || '', jobType: j.type || '', shootDate: j.date || '', shootYear: sy, nextYearJob: (sy != null && sy > Y) });
+    });
+  });
+  rows.sort(function (a, b) { return a.date.localeCompare(b.date); });
+  return rows;
+}
+// ฐานประเมินล่วงหน้า = มูลค่างานที่ถ่ายปีนี้ทั้งหมด (ไม่นับยกเลิก · ไม่รวมมัดจำงานปีหน้า)
+function jobValueShotInYear(Y) {
+  var s = 0;
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach(function (j) {
+    if (!j || jobCancelled(j) || !j.date) return;
+    var d = new Date(j.date);
+    if (!isNaN(d.getTime()) && d.getFullYear() === Y) s += jobRevenue(j);
+  });
+  return s;
+}
 
 // Smart K formatter — 24000→"24K", 8500→"8.5K", 8900→"8.9K"
 function fmtPkgK(n) {
@@ -8605,7 +8697,7 @@ function goTo(name) {
   if (matchTab) matchTab.classList.add('active');
   sc.scrollTop = 0;
   try { window.scrollTo(0, 0); } catch (e) {} // v2.8.4 · body เป็นตัวเลื่อนแล้ว (โครงแอดมิน) → รีเซ็ตสกอลล์หน้าเมื่อสลับแท็บ
-  if (name === 'dashboard') setTimeout(renderDashboard, 80);
+  if (name === 'dashboard') setTimeout(() => setDashTab(DASH_TAB || 'overview'), 80);
   if (name === 'notes') setTimeout(renderNotes, 50);
   if (name === 'settings-profile') populateProfileForm();
   if (name === 'settings-quote-template') populateTemplateForm();
@@ -8625,8 +8717,7 @@ function goTo(name) {
   if (name === 'jobs') { if (typeof renderJobsWithCurrentFilter === 'function') { renderJobsWithCurrentFilter(); syncJobFilterChips(); } }
   if (name === 'settings-tax') {
     if (typeof populateTaxSettings === 'function') { populateTaxSettings(); setupTaxToggleListener(); updateTaxHubSub(); }
-    // v2.5.60 · PIT Helper now inline · populate + render here too
-    if (typeof renderPITHelper === 'function') renderPITHelper();
+    // v2.9.5 · PIT Helper ย้ายไปหน้าสรุป → แท็บภาษี · ที่นี่เหลือแค่ config
   }
   if (name === 'tax-report')   { if (typeof renderTaxReport === 'function') renderTaxReport(); }
   // v2.5.60 · backwards-compat: old pit-helper nav redirects to settings-tax
@@ -8668,7 +8759,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.3';
+const PIXORY_VERSION = '2.9.5';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -14004,7 +14095,7 @@ const I18N = {
 
   // Home extra
   'home.greetingPolite':{ th: 'ครับ', en: '' },
-  'home.dashTitle':     { th: 'แดชบอร์ด', en: 'Dashboard' },
+  'home.dashTitle':     { th: '📊 สรุป', en: '📊 Reports' },
   'home.customersTitle':{ th: 'ลูกค้าทั้งหมด', en: 'All Customers' },
   'home.noJobsYet':     { th: 'ยังไม่มีงานในระบบ', en: 'No jobs yet' },
   'home.expenseTitle':  { th: 'ค่าใช้จ่ายทั้งหมด', en: 'All Expenses' },
@@ -23219,7 +23310,7 @@ function computePIT(year, opts) {
       if (period.start && d < period.start) return;
       if (period.end && d > period.end) return;
     }
-    revenue += jobRevenue(j);
+    // task #9 · ไม่นับ revenue จากราคาเต็มงานแล้ว → ใช้ cashReceivedInYear (เกณฑ์เงินสด) หลังลูป
     // Actual expenses from job: team wages + travel + other + costItems (v1.9.40)
     let teamCost = 0;
     Object.values(j.teamWages || {}).forEach(w => teamCost += (Number(w) || 0));
@@ -23245,6 +23336,12 @@ function computePIT(year, opts) {
     }
     actualExpenses += (Number(ex.amount) || 0);
   });
+
+  // task #9 · รายได้ตามเกณฑ์เงินสด = เงินที่ "รับจริง" ในปีภาษี (ทุก payment ที่ลงวันที่ในปีนั้น)
+  //   = ยอดยื่นจริงของบุคคลธรรมดาไทย · รวมมัดจำงานปีหน้าที่รับปีนี้ · ไม่นับราคาเต็มงานที่ยังเก็บไม่ครบ
+  revenue = (typeof cashReceivedInYear === 'function') ? cashReceivedInYear(year) : revenue;
+  // ฐาน "ประเมินล่วงหน้า/วางแผน" = มูลค่างานที่ถ่ายปีนี้ทั้งหมด (ไม่ใช่ยอดยื่น)
+  const planRevenue = (typeof jobValueShotInYear === 'function') ? jobValueShotInYear(year) : revenue;
 
   // 2. Expense — flat 60% (NO cap for ม.40(8) since พ.ร.ฎ. 629 · 2017) or actual
   // v2.5.20 · FIXED · was capped at ฿600,000 which is wrong for photography (ม.40(8) อาชีพอิสระ)
@@ -23287,6 +23384,14 @@ function computePIT(year, opts) {
   const taxCalc = calcProgressiveTax(netTaxable);
   const taxOwed = taxCalc.totalTax;
 
+  // task #9 · มุม "ประเมินล่วงหน้า" · ภาษีถ้าคิดจากมูลค่างานที่ถ่ายปีนี้ทั้งหมด (วางแผนล่วงหน้า)
+  //   ใช้ลดหย่อนชุดเดียวกัน · ต่างกันแค่ฐานรายได้ (planRevenue แทน cash revenue)
+  const planFlat60 = planRevenue * 0.60;
+  const planUsedExpense = (expenseMode === 'actual') ? actualExpenses : planFlat60;
+  const planIncomeAfterExpense = Math.max(0, planRevenue - planUsedExpense);
+  const planNetTaxable = Math.max(0, planIncomeAfterExpense - totalDeductions);
+  const planTaxOwed = calcProgressiveTax(planNetTaxable).totalTax;
+
   // 5. Payable / Refund
   const balance = taxOwed - whtWithheld;
   const status = balance > 0 ? 'payable' : (balance < 0 ? 'refund' : 'balanced');
@@ -23317,7 +23422,13 @@ function computePIT(year, opts) {
     whtWithheld: Math.round(whtWithheld * 100) / 100,
     balance: Math.round(balance * 100) / 100,
     status,
-    filedJobCount: filedJobs.length
+    filedJobCount: filedJobs.length,
+    // task #9 · มุมประเมินล่วงหน้า (ฐานมูลค่างานที่ถ่ายปีนี้)
+    planRevenue: Math.round(planRevenue * 100) / 100,
+    planUsedExpense: Math.round(planUsedExpense * 100) / 100,
+    planIncomeAfterExpense: Math.round(planIncomeAfterExpense * 100) / 100,
+    planNetTaxable: Math.round(planNetTaxable * 100) / 100,
+    planTaxOwed: Math.round(planTaxOwed * 100) / 100
   };
 }
 
@@ -23421,7 +23532,7 @@ function refreshPITCalc() {
   const balanceLabel = r.status === 'refund' ? '💚 ขอคืนได้' : (r.status === 'payable' ? '⚠️ ต้องจ่ายเพิ่ม' : '✓ ครบพอดี');
   let html = '';
   html += '<div class="pit-result-card">';
-  html += '<div class="pit-row"><span>รายได้รวม</span><strong>฿' + fmt(r.revenue) + '</strong></div>';
+  html += '<div class="pit-row"><span>เงินรับจริงปีนี้ (ยอดยื่น · เกณฑ์เงินสด)</span><strong>฿' + fmt(r.revenue) + '</strong></div>';
   html += '<div class="pit-row"><span>− ค่าใช้จ่าย ' + expHint + '</span><strong style="color:#b91c1c;">−฿' + fmt(r.usedExpense) + '</strong></div>';
   html += '<div class="pit-row pit-row-divider"><span>รายได้หลังหักค่าใช้จ่าย</span><strong>฿' + fmt(r.incomeAfterExpense) + '</strong></div>';
   // Deductions detail
@@ -23469,6 +23580,13 @@ function refreshPITCalc() {
   html += '<div class="pit-cc"><div class="pit-cc-label">' + altLabel + '</div><div class="pit-cc-val">ภาษี ฿' + fmt(altR.taxOwed) + '</div></div>';
   html += '</div>';
   html += '<div class="pit-compare-hint">' + recommendNote + '</div></div>';
+
+  // task #9 · มุมประเมินล่วงหน้า (ฐานมูลค่างานที่ถ่ายปีนี้)
+  html += '<div class="pit-compare-card" style="background:#fdf6e3;">';
+  html += '<div class="pit-compare-title">🔮 ประเมินล่วงหน้า (วางแผน)</div>';
+  html += '<div class="pit-row"><span>มูลค่างานที่ถ่ายปีนี้</span><strong>฿' + fmt(r.planRevenue) + '</strong></div>';
+  html += '<div class="pit-row"><span>ภาษีประเมิน (ถ้าเก็บครบ)</span><strong style="color:#b91c1c;">฿' + fmt(r.planTaxOwed) + '</strong></div>';
+  html += '<div class="pit-compare-hint">ไว้ "วางแผน/กันเงิน" เท่านั้น · ตอนยื่นจริงใช้ยอดเงินรับจริง ฿' + fmt(r.revenue) + ' ด้านบน (รวมมัดจำงานปีหน้า · ไม่นับยอดที่ยังเก็บไม่ครบ)</div></div>';
 
   // Disclaimer
   html += '<div class="pit-disclaimer">📌 <strong>หมายเหตุ:</strong> ตัวเลขนี้เป็นการประมาณการเท่านั้น · ยังไม่รวมรายได้อื่นนอกเหนือจากงานถ่ายภาพ · แนะนำให้ consult กับนักบัญชีก่อนยื่นจริง</div>';
@@ -24119,6 +24237,11 @@ function exportTaxExcel() {
   // Pull tax-eligible rows for the year (for VAT/WHT sheets)
   const { rows, period } = getTaxReportRows(yr, 'all');
   const summary = summariseTaxRows(rows);
+  // task #9 · เกณฑ์เงินสด · เงินรับจริงรายตัว (= ยอดยื่นจริง · รวมมัดจำงานปีหน้า)
+  const cashRows = (typeof cashRowsForYear === 'function') ? cashRowsForYear(yr) : [];
+  const cashTotal = cashRows.reduce((s, r) => s + (r.amount || 0), 0);
+  const cashNextYear = cashRows.filter(r => r.nextYearJob).reduce((s, r) => s + (r.amount || 0), 0);
+  const planRevenueX = (typeof jobValueShotInYear === 'function') ? jobValueShotInYear(yr) : 0;
 
   // v1.9.38 · Pull ALL jobs in the period (including non-tax jobs) for "All Revenue" sheet
   const today = new Date();
@@ -24144,8 +24267,14 @@ function exportTaxExcel() {
     [LANG === 'en' ? 'Period' : 'ช่วงเวลา', period.start.toISOString().slice(0,10) + '  →  ' + period.end.toISOString().slice(0,10)],
     [LANG === 'en' ? 'Generated' : 'สร้างเมื่อ', new Date().toISOString().slice(0,10)],
     [],
+    // task #9 · ยอดยื่นจริง (เกณฑ์เงินสด) — เลขที่ใช้ยื่นสรรพากร
+    [LANG === 'en' ? '— FILING AMOUNT (Cash Basis) —' : '— ยอดยื่นจริง (เกณฑ์เงินสด) —'],
+    [LANG === 'en' ? 'Cash actually received in year' : 'เงินรับจริงในปีภาษี (ยอดยื่น)', cashTotal],
+    [LANG === 'en' ? '  incl. next-year-job deposits' : '  · ในนี้เป็นมัดจำงานปีถัดไป', cashNextYear],
+    [LANG === 'en' ? 'Planning value (jobs shot this year)' : 'มูลค่างานที่ถ่ายปีนี้ (ไว้วางแผน)', planRevenueX],
+    [],
     // v1.9.38 · Overall revenue (ALL jobs · including non-tax)
-    [LANG === 'en' ? '— Total Revenue (All Jobs) —' : '— รายได้รวมทั้งปี (ทุกงาน) —'],
+    [LANG === 'en' ? '— Total Revenue (All Jobs · accrual) —' : '— มูลค่างานที่ถ่ายปีนี้ ราย job (ประเมิน) —'],
     [LANG === 'en' ? 'Total jobs in year' : 'จำนวนงานทั้งหมด', allJobs.length],
     [LANG === 'en' ? 'Total revenue (sell price)' : 'ยอดรายได้รวม (ราคาขาย)', totalRevenueAll],
     [],
@@ -24158,8 +24287,23 @@ function exportTaxExcel() {
     [LANG === 'en' ? 'Net received from tax jobs' : 'ยอดสุทธิที่รับจริงจากงานภาษี', summary.net]
   ];
   const ws0 = XLSX.utils.aoa_to_sheet(summaryRows);
-  ws0['!cols'] = [{ wch: 28 }, { wch: 22 }];
+  ws0['!cols'] = [{ wch: 30 }, { wch: 22 }];
   XLSX.utils.book_append_sheet(wb, ws0, LANG === 'en' ? 'Summary' : 'สรุป');
+
+  // === Sheet (task #9): เงินรับจริง (เกณฑ์เงินสด) · payment-by-payment = ยอดยื่นจริง
+  const cashHeader = LANG === 'en'
+    ? ['No.', 'Payment Date', 'Job Code', 'Customer', 'Job Type', 'Shoot Date', 'Next-Year Job', 'Amount Received']
+    : ['ลำดับ', 'วันที่รับเงิน', 'เลขที่งาน', 'ลูกค้า', 'ประเภทงาน', 'วันถ่าย', 'งานปีถัดไป', 'จำนวนเงินรับ'];
+  const cashBody = cashRows.map((r, i) => [
+    i + 1, r.date, r.code, r.customer || '', r.jobType || '', r.shootDate || '',
+    r.nextYearJob ? (LANG === 'en' ? 'YES' : 'ใช่') : '', r.amount
+  ]);
+  if (cashBody.length > 0) {
+    cashBody.push(['', '', '', '', '', '', LANG === 'en' ? 'TOTAL' : 'รวมยอดยื่น', cashTotal]);
+  }
+  const wsCash = XLSX.utils.aoa_to_sheet([cashHeader, ...cashBody]);
+  wsCash['!cols'] = [{ wch: 5 }, { wch: 13 }, { wch: 14 }, { wch: 24 }, { wch: 14 }, { wch: 13 }, { wch: 11 }, { wch: 15 }];
+  XLSX.utils.book_append_sheet(wb, wsCash, LANG === 'en' ? 'Cash Received (Filing)' : 'เงินรับจริง ยอดยื่น');
 
   // === Sheet 2: ภ.พ.30 · VAT Sales (output VAT)
   // ภ.พ.30 needs: invoice date, invoice number, customer tax ID, customer name, base, VAT
@@ -25198,19 +25342,6 @@ function renderDashboard() {
     '</div>' +
   '</div>';
 
-  // MONTHLY BARS
-  html += '<div class="pdb-section">' +
-    '<div class="pdb-section-head"><h2>📈 รายได้/รายจ่ายรายเดือน</h2></div>' +
-    '<div class="pdb-bars-svg">' + _pdbMonthlyBars(monthlyIn, monthlyOut, currMonth) + '</div>' +
-    '<div class="pdb-bars-legend">' +
-      MONTHS.map((m, i) => '<span class="' + (i === currMonth ? 'curr' : '') + '">' + m + '</span>').join('') +
-    '</div>' +
-    '<div class="pdb-bars-key">' +
-      '<span><span class="sw" style="background:#D97757"></span>รายได้</span>' +
-      '<span><span class="sw" style="background:#dc2626"></span>รายจ่าย</span>' +
-    '</div>' +
-  '</div>';
-
   // SOURCE
   html += '<div class="pdb-section">' +
     '<div class="pdb-section-head"><h2>📣 Source ลูกค้า</h2><span class="total">' + yearJobs.length + ' งาน</span></div>' +
@@ -25239,22 +25370,158 @@ function renderDashboard() {
     '</div>' +
   '</div>';
 
-  // TOP 5 CUSTOMERS
+  // MONTHLY BARS · v2.9.5 · ย้ายมาไว้ใต้ "รายจ่ายแยกหมวด" · Top 5 ย้ายไปแท็บลูกค้า
   html += '<div class="pdb-section">' +
-    '<div class="pdb-section-head"><h2>🏆 Top 5 ลูกค้า</h2></div>' +
-    '<div class="pdb-top5">' +
-      (top5.length === 0
-        ? '<div class="pdb-empty" style="padding:12px 0;">ยังไม่มีลูกค้าในปีนี้</div>'
-        : top5.map(([name, info], i) => {
-            const types = Array.from(info.types).slice(0, 2).join(' · ') || '-';
-            const sub = types + ' · ' + info.jobs + ' งาน';
-            return '<div class="row" onclick="openCustomerDetail(\'' + escapeHtml(name).replace(/'/g, "\\'") + '\')"><div class="rank">' + (i + 1) + '</div><div class="nm">' + escapeHtml(name) + '<div class="sub">' + escapeHtml(sub) + '</div></div><div class="val">' + _pdbFmtMoney(info.revenue) + '</div></div>';
-          }).join('')
-      ) +
+    '<div class="pdb-section-head"><h2>📈 รายได้/รายจ่ายรายเดือน</h2></div>' +
+    '<div class="pdb-bars-svg">' + _pdbMonthlyBars(monthlyIn, monthlyOut, currMonth) + '</div>' +
+    '<div class="pdb-bars-legend">' +
+      MONTHS.map((m, i) => '<span class="' + (i === currMonth ? 'curr' : '') + '">' + m + '</span>').join('') +
+    '</div>' +
+    '<div class="pdb-bars-key">' +
+      '<span><span class="sw" style="background:#D97757"></span>รายได้</span>' +
+      '<span><span class="sw" style="background:#dc2626"></span>รายจ่าย</span>' +
     '</div>' +
   '</div>';
 
   document.getElementById('dashboard-content').innerHTML = html;
+}
+
+// ===== v2.9.5 · หน้าสรุป 4 แท็บ (ภาพรวม/ภาษี/ลูกค้า/ส่งออก) · parity กับเดสก์ท็อป =====
+let DASH_TAB = 'overview';
+function setDashTab(t) {
+  DASH_TAB = t;
+  if (typeof populateYearSelect === 'function') populateYearSelect();
+  document.querySelectorAll('#dash-tabs .dash-tab').forEach(b => b.classList.toggle('active', b.getAttribute('data-dtab') === t));
+  const panes = { overview: 'dash-pane-overview', tax: 'dash-pane-tax', customers: 'dash-pane-customers', export: 'dash-pane-export' };
+  Object.keys(panes).forEach(k => { const el = document.getElementById(panes[k]); if (el) el.style.display = (k === t) ? '' : 'none'; });
+  if (t === 'overview') renderDashboard();
+  else if (t === 'tax') { if (typeof renderPITHelper === 'function') renderPITHelper(); }
+  else if (t === 'customers') renderDashCustomers();
+  else if (t === 'export') renderDashExport();
+  const sc = document.getElementById('screen-dashboard'); if (sc) sc.scrollTop = 0;
+  try { window.scrollTo(0, 0); } catch (e) {}
+}
+function onDashYearChange() {
+  if (DASH_TAB === 'overview') renderDashboard();
+  else if (DASH_TAB === 'customers') renderDashCustomers();
+  else if (DASH_TAB === 'export') renderDashExport();
+  // แท็บภาษีใช้ตัวเลือกปีของ PIT Helper เอง (pit-year)
+}
+
+// ----- แท็บลูกค้า -----
+function renderDashCustomers() {
+  const el = document.getElementById('dash-cust-content'); if (!el) return;
+  const yr = parseInt(document.getElementById('year-select').value) || new Date().getFullYear();
+  const yearJobs = JOBS.filter(j => !jobCancelled(j) && j.date && new Date(j.date).getFullYear() === yr);
+  const yearQuotes = QUOTES.filter(q => q.dateSent && new Date(q.dateSent).getFullYear() === yr);
+  const active = new Set();
+  yearJobs.forEach(j => { if (j.customer) active.add(j.customer); });
+  yearQuotes.forEach(q => { if (q.customer) active.add(q.customer); });
+  const totalCust = Object.keys(CUSTOMER_INFO || {}).length;
+  const fmt = _pdbFmtMoney;
+
+  if (yearJobs.length === 0) {
+    el.innerHTML = '<div class="pdb-empty" style="padding:40px 16px;"><div style="font-size:40px;margin-bottom:10px;">👥</div><div style="font-size:14px;color:#56473a;font-weight:600;">ยังไม่มีงานของลูกค้าในปี ' + (yr + 543) + '</div></div>';
+    return;
+  }
+
+  // รายรับตามประเภทลูกค้า
+  const typeRev = {};
+  yearJobs.forEach(j => { const t = j.customerType || 'B2C'; typeRev[t] = (typeRev[t] || 0) + jobRevenue(j); });
+  const typeTotal = Object.values(typeRev).reduce((s, v) => s + v, 0);
+  const typeRows = Object.entries(typeRev).filter(([_, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+
+  // อันดับลูกค้า
+  const custRev = {};
+  yearJobs.forEach(j => { const n = j.customer || '-'; if (!custRev[n]) custRev[n] = { revenue: 0, jobs: 0, type: j.customerType || 'B2C' }; custRev[n].revenue += jobRevenue(j); custRev[n].jobs += 1; });
+  const ranking = Object.entries(custRev).sort((a, b) => b[1].revenue - a[1].revenue);
+
+  let html = '';
+  // KPI
+  html += '<div class="pdb-section"><div style="display:flex;gap:12px;">' +
+    '<div style="flex:1;"><div style="font-size:11px;color:#7c7066;font-weight:600;">ลูกค้าทั้งหมด</div><div style="font-size:24px;font-weight:800;margin-top:2px;">' + totalCust + '</div></div>' +
+    '<div style="flex:1;"><div style="font-size:11px;color:#7c7066;font-weight:600;">Active ปีนี้</div><div style="font-size:24px;font-weight:800;margin-top:2px;">' + active.size + '</div><div style="font-size:10.5px;color:#7c7066;">มีงาน/ใบเสนอ</div></div>' +
+    '<div style="flex:1;"><div style="font-size:11px;color:#7c7066;font-weight:600;">งานปีนี้</div><div style="font-size:24px;font-weight:800;margin-top:2px;">' + yearJobs.length + '</div></div>' +
+    '</div></div>';
+  // type breakdown
+  html += '<div class="pdb-section"><div class="pdb-section-head"><h2>👥 รายรับตามประเภทลูกค้า</h2></div><div class="pdb-hbars">' +
+    (typeRows.length === 0 ? '<div class="pdb-empty" style="padding:12px 0;">ยังไม่มีข้อมูล</div>'
+      : typeRows.map(([code, val]) => {
+          const meta = (typeof getCustomerTypeMeta === 'function') ? getCustomerTypeMeta(code) : { fg: '#D97757', icon: '' };
+          const pct = typeTotal > 0 ? (val / typeTotal * 100) : 0;
+          return '<div class="row"><span class="label">' + (meta.icon ? meta.icon + ' ' : '') + escapeHtml(code) + '</span><div class="bar-wrap"><div class="bar-fill" style="width:' + pct + '%;background:' + (meta.fg || '#D97757') + ';"></div></div><span class="value">' + fmt(val) + '</span></div>';
+        }).join('')) +
+    '</div></div>';
+  // ranking (full)
+  html += '<div class="pdb-section"><div class="pdb-section-head"><h2>🏆 อันดับลูกค้าตามรายรับ</h2><span class="total">' + ranking.length + ' ราย</span></div><div class="pdb-top5">' +
+    ranking.map(([name, info], i) => {
+      const meta = (typeof getCustomerTypeMeta === 'function') ? getCustomerTypeMeta(info.type) : { icon: '' };
+      const sub = (info.type || 'B2C') + ' · ' + info.jobs + ' งาน';
+      return '<div class="row" onclick="openCustomerDetail(\'' + escapeHtml(name).replace(/\x27/g, "\\\x27") + '\')"><div class="rank">' + (i + 1) + '</div><div class="nm">' + escapeHtml(name) + '<div class="sub">' + escapeHtml(sub) + '</div></div><div class="val">' + fmt(info.revenue) + '</div></div>';
+    }).join('') +
+    '</div></div>';
+  el.innerHTML = html;
+}
+
+// ----- แท็บส่งออก -----
+function renderDashExport() {
+  const el = document.getElementById('dash-export-content'); if (!el) return;
+  const yr = parseInt(document.getElementById('year-select').value) || new Date().getFullYear();
+  const row = (ic, title, sub, onclick, primary) =>
+    '<div onclick="' + onclick + '" style="display:flex;align-items:center;gap:12px;cursor:pointer;border:0.5px solid ' + (primary ? 'rgba(184,133,74,0.5)' : 'rgba(0,0,0,0.06)') + ';background:' + (primary ? 'rgba(184,133,74,0.10)' : 'rgba(255,255,255,0.6)') + ';border-radius:14px;padding:14px 15px;margin-bottom:10px;">' +
+      '<div style="font-size:22px;">' + ic + '</div><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:#3a2f25;">' + title + '</div><div style="font-size:11.5px;color:#7c7066;margin-top:2px;">' + sub + '</div></div><div style="font-size:18px;color:#b8a98f;">›</div></div>';
+  let html = '<div style="padding:0 16px;">' +
+    '<div style="font-size:12px;color:#7c7066;margin:2px 0 14px;line-height:1.55;">ไฟล์พร้อมส่งบัญชี · ปี ' + (yr + 543) + ' · UTF-8 รองรับภาษาไทย</div>' +
+    row('📊', 'Excel ภาษี · 4 ชีต', 'สรุป · เงินรับจริง(ยอดยื่น) · ภ.พ.30 · ภ.ง.ด.3', "exportTaxExcel()", true) +
+    row('📥', 'Excel ภ.ง.ด.90 / 94 (PIT)', 'สรุปภาษีเงินได้บุคคลธรรมดา + ค่าลดหย่อน', "exportPITExcel()") +
+    row('📋', 'CSV · รายการงานทั้งปี', 'ทุกงาน + ราคา/รับแล้ว/ค้างเก็บ', "dashExportCSV('jobs')") +
+    row('💰', 'CSV · รายรับ-รายจ่าย', 'เงินรับจริง + ค่าใช้จ่าย รายการต่อรายการ', "dashExportCSV('finance')") +
+    row('👥', 'CSV · ฐานข้อมูลลูกค้า', 'ชื่อ · ติดต่อ · จำนวนงาน/รายรับปีนี้', "dashExportCSV('customers')") +
+    '</div>';
+  el.innerHTML = html;
+}
+
+function _dashCSV(rows) {
+  return rows.map(r => r.map(c => {
+    let v = (c == null) ? '' : String(c);
+    if (/[",\n\r]/.test(v)) v = '"' + v.replace(/"/g, '""') + '"';
+    return v;
+  }).join(',')).join('\r\n');
+}
+function _dashDownload(name, csv) {
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
+function dashExportCSV(kind) {
+  const yr = parseInt(document.getElementById('year-select').value) || new Date().getFullYear();
+  let rows, fname;
+  if (kind === 'jobs') {
+    rows = [['วันงาน', 'เลขงาน', 'ลูกค้า', 'ประเภทงาน', 'สถานที่', 'ราคาขาย', 'รับแล้ว', 'ค้างเก็บ', 'สถานะ']];
+    JOBS.filter(j => j.date && new Date(j.date).getFullYear() === yr)
+      .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
+      .forEach(j => rows.push([j.date || '', j.code || '', j.customer || '', j.type || '', j.loc || '', Number(j.sell) || 0, jobPaid(j), jobOutstanding(j), jobCancelled(j) ? 'ยกเลิก' : (j.jobStatus || '')]));
+    fname = 'Pixory_งาน_' + yr + '.csv';
+  } else if (kind === 'finance') {
+    const body = [];
+    JOBS.forEach(j => { (j.payments || []).forEach(p => { if (p && p.date && new Date(p.date).getFullYear() === yr) body.push([String(p.date).slice(0, 10), 'รายรับ', ((j.customer || '') + ' ' + (j.code || '')).trim(), j.type || '', Number(p.amount) || 0]); }); });
+    EXPENSES.filter(e => e.date && new Date(e.date).getFullYear() === yr).forEach(e => body.push([String(e.date).slice(0, 10), 'รายจ่าย', e.note || e.title || e.cat || '', e.cat || 'อื่นๆ', -(Number(e.amount) || 0)]));
+    body.sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+    rows = [['วันที่', 'ประเภท', 'รายการ', 'หมวด', 'จำนวนเงิน'], ...body];
+    fname = 'Pixory_รายรับรายจ่าย_' + yr + '.csv';
+  } else {
+    rows = [['ชื่อลูกค้า', 'ประเภท', 'เบอร์โทร', 'LINE', 'อีเมล', 'จำนวนงานปีนี้', 'รายรับปีนี้']];
+    const yj = JOBS.filter(j => !jobCancelled(j) && j.date && new Date(j.date).getFullYear() === yr);
+    const agg = {}; yj.forEach(j => { const n = j.customer || '-'; if (!agg[n]) agg[n] = { jobs: 0, rev: 0, type: j.customerType || '' }; agg[n].jobs++; agg[n].rev += jobRevenue(j); });
+    const seen = {};
+    Object.keys(CUSTOMER_INFO || {}).sort().forEach(n => { const c = CUSTOMER_INFO[n] || {}; const a = agg[n] || { jobs: 0, rev: 0, type: c.type || '' }; seen[n] = 1; rows.push([n, c.type || a.type || '', c.phone || '', c.line || '', c.email || '', a.jobs, a.rev]); });
+    Object.keys(agg).forEach(n => { if (!seen[n]) rows.push([n, agg[n].type || '', '', '', '', agg[n].jobs, agg[n].rev]); });
+    fname = 'Pixory_ลูกค้า_' + yr + '.csv';
+  }
+  _dashDownload(fname, _dashCSV(rows));
+  if (typeof toast === 'function') toast('✓ ส่งออก CSV แล้ว · ' + fname, 'success');
 }
 
 // ========== NOTES (v2.5.27+ · Sticky board · checkbox · pin) ==========
