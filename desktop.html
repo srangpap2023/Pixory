@@ -2964,12 +2964,20 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.84';
+const PIXORY_DESKTOP_VERSION = '1.0.85';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.85': {
+    date: '2026-06-10',
+    title: '📈 เส้นกราฟหน้าหลักเล่าเรื่องทั้งปีแล้ว',
+    subtitle: 'ตรงกับมือถือ v2.9.12',
+    items: [
+      { icon: '📈', title: 'เส้นกราฟรายได้คาดการณ์แม่นขึ้น', desc: 'เส้นรวม "ค้างเก็บของงานแต่ละเดือน" ด้วย · เห็นภาพรายได้ทั้งปีตามคิวงานจริง · รวมทั้งเส้น = ตัวเลขฮีโร่พอดี' }
+    ]
+  },
   '1.0.84': {
     date: '2026-06-10',
     title: '⚡ เร็วขึ้น · ประหยัดเน็ต + จัดทีมในงานสะดวกขึ้น',
@@ -3318,6 +3326,20 @@ function cashReceivedMonthly(Y) {
     });
   });
   return mm;
+}
+// v1.0.85 · เส้นฮีโร่ = "คาดการณ์รายเดือน" ตรงหัว ytdForecast (parity มือถือ v2.9.12)
+//   เดือนละ = เงินรับจริง (ตามวันรับเงิน) + ค้างเก็บของงานที่ถ่ายเดือนนั้น (ไม่นับงานยกเลิก)
+//   Σ ทั้ง 12 เดือน = forecastRevenueForYear(Y) ตรงตัวเลขฮีโร่เป๊ะ
+function forecastMonthly(Y) {
+  var m = cashReceivedMonthly(Y);
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach(function (j) {
+    if (!j || window.jobCancelled(j)) return;
+    if (jobEventYear(j) !== Y) return;
+    var d = new Date(j.date);
+    if (isNaN(d.getTime())) return;
+    m[d.getMonth()] += (typeof jobOutstanding === 'function') ? jobOutstanding(j) : 0;
+  });
+  return m;
 }
 function outstandingForYearJobs(Y) {
   var s = 0;
@@ -4658,9 +4680,8 @@ function renderDashboard(root) {
   const ytdForecast = ytdCashIn + ytdOutstanding;
   const fcCashPct = ytdForecast > 0 ? Math.round(ytdCashIn / ytdForecast * 100) : 0;
   const fcOwePct = ytdForecast > 0 ? (100 - fcCashPct) : 0;
-  // 12-month revenue sparkline (ตามวันงาน)
-  const _monthsRev = [];
-  for (let i = 0; i < 12; i++) _monthsRev.push(_monthIncome(yr, i));
+  // v1.0.85 · 12-month FORECAST sparkline · ตรงหัว ytdForecast (เดิมวาดรายได้ตามวันงาน ไม่ตรงหัวการ์ด)
+  const _monthsRev = forecastMonthly(yr);
   const _maxRev = Math.max(1, ..._monthsRev);
   const _spW = 460, _spH = 62;
   const _spPts = _monthsRev.map((v, i) => {

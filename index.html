@@ -8635,6 +8635,21 @@ function cashReceivedMonthly(Y) {
   });
   return m;
 }
+// v2.9.12 · เส้นฮีโร่หน้าหลัก = "คาดการณ์รายเดือน" ให้ตรงหัวการ์ด (Joe report 10 มิ.ย.)
+//   เดิมวาดแค่เงินรับจริงรายเดือน → ค้างเก็บของงานครึ่งปีหลังไม่อยู่ในเส้น เส้นแบนผิดความจริง
+//   เดือนละ = เงินรับจริง (ตามวันรับเงิน) + ค้างเก็บของงานที่ถ่ายเดือนนั้น (ไม่นับงานยกเลิก)
+//   Σ ทั้ง 12 เดือน = forecastRevenueForYear(Y) ตรงตัวเลขฮีโร่เป๊ะ (รับจริง + ค้าง)
+function forecastMonthly(Y) {
+  var m = cashReceivedMonthly(Y);
+  (typeof JOBS !== 'undefined' ? JOBS : []).forEach(function (j) {
+    if (!j || jobCancelled(j)) return;
+    if (jobEventYear(j) !== Y) return;
+    var d = new Date(j.date);
+    if (isNaN(d.getTime())) return;
+    m[d.getMonth()] += (typeof jobOutstanding === 'function') ? jobOutstanding(j) : 0;
+  });
+  return m;
+}
 // ยอดค้างเก็บ เฉพาะงานที่ถ่ายปีนั้น และไม่ยกเลิก
 function outstandingForYearJobs(Y) {
   var s = 0;
@@ -8838,7 +8853,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.11';
+const PIXORY_VERSION = '2.9.12';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8849,6 +8864,14 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.12': {
+    date: '2026-06-10',
+    title: '📈 เส้นกราฟหน้าหลักเล่าเรื่องทั้งปีแล้ว',
+    subtitle: 'กราฟรายได้คาดการณ์ ตรงกับตัวเลขจริง',
+    items: [
+      { icon: '📈', title: 'เส้นกราฟ "รายได้คาดการณ์ทั้งปี" แม่นขึ้น', desc: 'เดิมเส้นโชว์เฉพาะเงินที่รับมาแล้ว ทำให้เดือนข้างหน้าดูแบนทั้งที่มีงานรอเก็บเงินอยู่ — ตอนนี้เส้นรวม "ค้างเก็บของงานแต่ละเดือน" ด้วย เห็นภาพรายได้ทั้งปีตามคิวงานจริง · รวมทั้งเส้น = ตัวเลขใหญ่บนการ์ดพอดี' }
+    ]
+  },
   '2.9.11': {
     date: '2026-06-10',
     title: '⚡ เร็วขึ้น · ประหยัดเน็ตและแบตมือถือ',
@@ -18128,7 +18151,7 @@ function renderHomeHero() {
   const selYear = parseInt(sel.value, 10) || thisYear;
 
   // v2.9.0 · ดีไซน์เงินสด · เส้นกราฟ = เงินเข้าจริงรายเดือน · ฮีโร่ = รายได้คาดการณ์ทั้งปี (รับจริง + ค้างเก็บ)
-  const months = cashReceivedMonthly(selYear);
+  const months = forecastMonthly(selYear); // v2.9.12 · คาดการณ์รายเดือน (รับจริง+ค้าง) ตรงหัวการ์ด
   const cashYear = cashReceivedInYear(selYear);
   const outstandingYear = outstandingForYearJobs(selYear);
   const totalRev = cashYear + outstandingYear;
