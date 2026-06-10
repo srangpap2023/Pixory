@@ -922,6 +922,8 @@
   body.dark-theme .dash-tab.active { color:#f5f0e6; border-bottom-color:#D4A056; }
   body.luxe-theme .dash-tabs { border-bottom-color:rgba(255,255,255,0.12); }
   body.luxe-theme .dash-tab.active { color:#F0E6D2; border-bottom-color:#D4A056; }
+  .home-hero-meta { color:#7c6856; }
+  body.dark-theme .home-hero-meta, body.luxe-theme .home-hero-meta { color:#a89a8c; }
 
   /* v2.5.27 · Pro Dashboard · Mockup C · Liquid Glass · Stripe/Linear style */
   /* Common glass card style for all dashboard sections */
@@ -8759,7 +8761,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.5';
+const PIXORY_VERSION = '2.9.6';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -25279,16 +25281,16 @@ function renderDashboard() {
 
   let html = '';
 
-  // HERO
-  html += '<div class="pdb-hero">' +
-    '<div class="pdb-lbl">รายได้รวมปี ' + (yr + 543) + '</div>' +
-    '<div class="pdb-amount-row">' +
-      '<span class="pdb-amount">' + incomeStr + '</span>' +
-      (incomeDelta !== 0 || prevIncome > 0 ? '<span class="pdb-delta ' + deltaCls + '">' + deltaIcon + ' ' + Math.abs(incomeDelta) + '%</span>' : '') +
+  // HERO · v2.9.5 · สไตล์ฮีโร่การ์ดแบบหน้าหลัก (frosted + เส้นกราฟเงินเข้ารายเดือน)
+  const hDeltaCls = incomeDelta > 0 ? '' : (incomeDelta < 0 ? 'down' : 'neutral');
+  html += '<div class="home-hero" style="margin:4px 16px 12px;">' +
+    '<div class="home-hero-label">รายได้รวมปี ' + (yr + 543) + '</div>' +
+    '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:2px;">' +
+      '<div class="home-hero-amount">' + incomeStr + '</div>' +
+      ((incomeDelta !== 0 || prevIncome > 0) ? '<div class="home-hero-delta ' + hDeltaCls + '">' + deltaIcon + ' ' + Math.abs(incomeDelta) + '%</div>' : '') +
     '</div>' +
-    '<div class="pdb-meta">' + prevStr + '<strong>' + yearJobs.length + ' งาน</strong>' +
-      (avgJob > 0 ? ' · เฉลี่ย ' + _pdbFmtMoney(avgJob) + '/งาน' : '') +
-    '</div>' +
+    '<div class="home-hero-meta" style="font-size:11.5px;margin-top:5px;">' + prevStr + yearJobs.length + ' งาน' + (avgJob > 0 ? ' · เฉลี่ย ' + _pdbFmtMoney(avgJob) + '/งาน' : '') + '</div>' +
+    _dashHeroSpark(monthlyIn) +
   '</div>';
 
   // v2.5.57 · VAT threshold warning · law ฿1.8M · only current year + not-yet-registered
@@ -25342,20 +25344,6 @@ function renderDashboard() {
     '</div>' +
   '</div>';
 
-  // SOURCE
-  html += '<div class="pdb-section">' +
-    '<div class="pdb-section-head"><h2>📣 Source ลูกค้า</h2><span class="total">' + yearJobs.length + ' งาน</span></div>' +
-    '<div class="pdb-hbars">' +
-      (srcEntries.length === 0
-        ? '<div class="pdb-empty" style="padding:12px 0;">ยังไม่มีข้อมูล Source</div>'
-        : srcEntries.map(e => {
-            const pct = (e.val / srcMax * 100);
-            return '<div class="row"><span class="label">' + escapeHtml(e.name) + '</span><div class="bar-wrap"><div class="bar-fill" style="width:' + pct + '%;background:' + e.color + ';"></div></div><span class="value">' + e.val + ' งาน</span></div>';
-          }).join('')
-      ) +
-    '</div>' +
-  '</div>';
-
   // EXPENSE BY CATEGORY
   html += '<div class="pdb-section">' +
     '<div class="pdb-section-head"><h2>🧾 รายจ่ายแยกหมวด</h2><span class="total" style="color:#dc2626;">' + _pdbFmtMoney(totalExpense) + '</span></div>' +
@@ -25383,6 +25371,20 @@ function renderDashboard() {
     '</div>' +
   '</div>';
 
+  // SOURCE · v2.9.5 · ย้ายมาท้ายสุด (ให้รายได้/รายจ่าย/รายเดือน อยู่ติดกัน)
+  html += '<div class="pdb-section">' +
+    '<div class="pdb-section-head"><h2>📣 Source ลูกค้า</h2><span class="total">' + yearJobs.length + ' งาน</span></div>' +
+    '<div class="pdb-hbars">' +
+      (srcEntries.length === 0
+        ? '<div class="pdb-empty" style="padding:12px 0;">ยังไม่มีข้อมูล Source</div>'
+        : srcEntries.map(e => {
+            const pct = (e.val / srcMax * 100);
+            return '<div class="row"><span class="label">' + escapeHtml(e.name) + '</span><div class="bar-wrap"><div class="bar-fill" style="width:' + pct + '%;background:' + e.color + ';"></div></div><span class="value">' + e.val + ' งาน</span></div>';
+          }).join('')
+      ) +
+    '</div>' +
+  '</div>';
+
   document.getElementById('dashboard-content').innerHTML = html;
 }
 
@@ -25406,6 +25408,21 @@ function onDashYearChange() {
   else if (DASH_TAB === 'customers') renderDashCustomers();
   else if (DASH_TAB === 'export') renderDashExport();
   // แท็บภาษีใช้ตัวเลือกปีของ PIT Helper เอง (pit-year)
+}
+
+// เส้นกราฟ sparkline สำหรับฮีโร่ (เงินเข้ารายเดือน) · โทนแบรนด์
+function _dashHeroSpark(arr) {
+  arr = Array.isArray(arr) ? arr : [];
+  const max = Math.max.apply(null, arr.concat([1]));
+  const W = 320, H = 50, P = 4, step = W / 11;
+  const pts = arr.map((v, i) => ({ x: i * step, y: H - P - ((Number(v) || 0) / max) * (H - P * 2) }));
+  if (pts.length === 0) return '';
+  const poly = pts.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+  const fill = 'M0,' + H + ' L' + poly.replace(/ /g, ' L') + ' L' + W + ',' + H + ' Z';
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="width:100%;height:50px;margin-top:11px;display:block;overflow:visible;">' +
+    '<path d="' + fill + '" fill="rgba(217,119,87,0.12)"/>' +
+    '<polyline points="' + poly + '" fill="none" stroke="#D97757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>';
 }
 
 // ----- แท็บลูกค้า -----
@@ -25467,17 +25484,20 @@ function renderDashCustomers() {
 function renderDashExport() {
   const el = document.getElementById('dash-export-content'); if (!el) return;
   const yr = parseInt(document.getElementById('year-select').value) || new Date().getFullYear();
-  const row = (ic, title, sub, onclick, primary) =>
-    '<div onclick="' + onclick + '" style="display:flex;align-items:center;gap:12px;cursor:pointer;border:0.5px solid ' + (primary ? 'rgba(184,133,74,0.5)' : 'rgba(0,0,0,0.06)') + ';background:' + (primary ? 'rgba(184,133,74,0.10)' : 'rgba(255,255,255,0.6)') + ';border-radius:14px;padding:14px 15px;margin-bottom:10px;">' +
-      '<div style="font-size:22px;">' + ic + '</div><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:#3a2f25;">' + title + '</div><div style="font-size:11.5px;color:#7c7066;margin-top:2px;">' + sub + '</div></div><div style="font-size:18px;color:#b8a98f;">›</div></div>';
-  let html = '<div style="padding:0 16px;">' +
-    '<div style="font-size:12px;color:#7c7066;margin:2px 0 14px;line-height:1.55;">ไฟล์พร้อมส่งบัญชี · ปี ' + (yr + 543) + ' · UTF-8 รองรับภาษาไทย</div>' +
-    row('📊', 'Excel ภาษี · 4 ชีต', 'สรุป · เงินรับจริง(ยอดยื่น) · ภ.พ.30 · ภ.ง.ด.3', "exportTaxExcel()", true) +
+  // การ์ดทุกใบ = .pdb-section (ขาวฝ้าจาง · frosted) คุมโทนเดียวกับแท็บอื่น · รองรับ light/dark/luxe
+  const row = (ic, title, sub, onclick) =>
+    '<div class="pdb-section" style="cursor:pointer;display:flex;align-items:center;gap:12px;" onclick="' + onclick + '">' +
+      '<div style="font-size:22px;flex:0 0 auto;">' + ic + '</div>' +
+      '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;">' + title + '</div><div class="home-hero-meta" style="font-size:11.5px;margin-top:2px;">' + sub + '</div></div>' +
+      '<div style="font-size:18px;color:#b8a98f;flex:0 0 auto;">›</div>' +
+    '</div>';
+  let html =
+    '<div class="home-hero-meta" style="font-size:12px;margin:2px 16px 12px;line-height:1.55;">ไฟล์พร้อมส่งบัญชี · ปี ' + (yr + 543) + ' · UTF-8 รองรับภาษาไทย</div>' +
+    row('📊', 'Excel ภาษี · 4 ชีต', 'สรุป · เงินรับจริง(ยอดยื่น) · ภ.พ.30 · ภ.ง.ด.3', "exportTaxExcel()") +
     row('📥', 'Excel ภ.ง.ด.90 / 94 (PIT)', 'สรุปภาษีเงินได้บุคคลธรรมดา + ค่าลดหย่อน', "exportPITExcel()") +
     row('📋', 'CSV · รายการงานทั้งปี', 'ทุกงาน + ราคา/รับแล้ว/ค้างเก็บ', "dashExportCSV('jobs')") +
     row('💰', 'CSV · รายรับ-รายจ่าย', 'เงินรับจริง + ค่าใช้จ่าย รายการต่อรายการ', "dashExportCSV('finance')") +
-    row('👥', 'CSV · ฐานข้อมูลลูกค้า', 'ชื่อ · ติดต่อ · จำนวนงาน/รายรับปีนี้', "dashExportCSV('customers')") +
-    '</div>';
+    row('👥', 'CSV · ฐานข้อมูลลูกค้า', 'ชื่อ · ติดต่อ · จำนวนงาน/รายรับปีนี้', "dashExportCSV('customers')");
   el.innerHTML = html;
 }
 
