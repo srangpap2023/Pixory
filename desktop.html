@@ -2964,12 +2964,23 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.83';
+const PIXORY_DESKTOP_VERSION = '1.0.84';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.84': {
+    date: '2026-06-10',
+    title: '⚡ เร็วขึ้น · ประหยัดเน็ต + จัดทีมในงานสะดวกขึ้น',
+    subtitle: 'รวมของ v1.0.83 ด้วย · ตรงกับมือถือ v2.9.11',
+    items: [
+      { icon: '⚡', title: 'ประหยัดอินเทอร์เน็ต', desc: 'ปรับระบบซิงค์เบื้องหลังให้ส่งข้อมูลน้อยลงมาก · ซิงค์ครบถ้วนเหมือนเดิม' },
+      { icon: '❌', title: 'ปุ่มเอาคนออกจากงาน ตรงแถวค่าแรง', desc: 'เปลี่ยนตัวทีมงานได้ในฟอร์มงานเลย · ค่าแรงรวมคำนวณใหม่ทันที' },
+      { icon: '➕', title: 'เพิ่มคนใหม่เข้าทีมจากในฟอร์มงาน', desc: 'กด "+ เพิ่มคนใหม่" กรอกชื่อ+ค่าแรง บันทึกเข้าทีมหลัก+เลือกเข้างานทันที' },
+      { icon: '🗂️', title: 'การ์ดทีมงานแยกชัดเจน', desc: '"ทีมงาน · ค่าแรง" เฉพาะทีม · สถานที่/Source/ติดต่อ แยกการ์ดใหม่' }
+    ]
+  },
   '1.0.83': {
     date: '2026-06-10',
     title: '👥 จัดทีมในงานสะดวกขึ้น · เปลี่ยนตัวได้ทันที',
@@ -3888,6 +3899,8 @@ async function finishAuthAndStart() {
   try { initDeskChat(); } catch (e) { console.warn('initDeskChat:', e); } // v1.0.62 · แชทติดต่อแอดมิน · fire-and-forget
   // v1.0.50 · auto-sync poll · refreshes data by itself if realtime misses an event
   try { startAutoSyncPoll(); } catch (e) { console.error('startAutoSyncPoll:', e); }
+  // v1.0.84 · presence beat → แอดมินเห็นออนไลน์ (ตารางจิ๋ว · ไม่เปลือง egress)
+  try { startPresenceHeartbeatDesktop(); } catch (e) { console.warn('presenceBeat:', e); }
   // v1.0.40 · show What's New if version changed since last seen
   try { checkVersionUpdate(); } catch(e) { console.warn('checkVersionUpdate:', e); }
   // v1.0.45 · then check for unread announcements (delayed so it doesn't fight What's New)
@@ -15538,6 +15551,29 @@ function showFoundingBadgeModal() {
       <button onclick="document.getElementById('badge-modal-ov').style.display='none'" style="margin-top:20px;background:linear-gradient(135deg,#E8B870,#C9954F);color:#1a1208;border:none;border-radius:12px;padding:11px 32px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;">ภูมิใจครับ 🫡</button>
     </div>`;
   document.body.appendChild(ov);
+}
+
+// v1.0.84 · presence beat (parity มือถือ v2.9.11) · เขียนตารางจิ๋ว user_presence ทุก 30 วิ
+//   → แอดมินเห็นว่าออนไลน์ · ไม่แตะ user_data (ไม่มี realtime broadcast blob · ไม่หลอก poll)
+//   ตารางยังไม่ถูกสร้าง = เงียบๆ ไม่พัง (เดสก์ท็อปไม่ fallback ไป bump updated_at · กันเปลือง)
+let _dtPresenceTimer = null;
+let _dtPresenceDead = false;
+function startPresenceHeartbeatDesktop() {
+  if (_dtPresenceTimer) return;
+  _sendPresenceBeatDesktop();
+  _dtPresenceTimer = setInterval(_sendPresenceBeatDesktop, 30 * 1000);
+}
+async function _sendPresenceBeatDesktop() {
+  if (!CURRENT_USER || !SUPABASE || _dtPresenceDead) return;
+  if (document.visibilityState !== 'visible') return;
+  try {
+    const { error } = await SUPABASE
+      .from('user_presence')
+      .upsert({ user_id: CURRENT_USER.id, last_seen: new Date().toISOString() }, { onConflict: 'user_id' });
+    if (error && (error.code === '42P01' || /user_presence|does not exist|schema cache/i.test(String(error.message || '')))) {
+      _dtPresenceDead = true; // ตารางยังไม่มี · หยุดยิงจนกว่าจะรีโหลด
+    }
+  } catch (e) { /* silent */ }
 }
 
 function startAutoSyncPoll() {

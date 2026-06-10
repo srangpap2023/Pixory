@@ -904,7 +904,7 @@
     <div class="panel">
       <div class="panel-title">ℹ เกี่ยวกับ</div>
       <div style="font-size:12px; color: var(--muted); line-height:1.6;">
-        Pixory Admin Monitor · v3.3<br>
+        Pixory Admin Monitor · v3.4<br>
         5 แท็บ · champagne gold · growth monitors<br><br>
         • Realtime sync + polling 10s<br>
         • Live notification toast + sound<br>
@@ -993,7 +993,7 @@ function _isAdmin(user) {
   const role = user.app_metadata && user.app_metadata.role;
   return role === 'admin';
 }
-const ONLINE_THRESHOLD_SEC = 45;
+const ONLINE_THRESHOLD_SEC = 75;   // v3.4 · beat ใหม่ทุก 30 วิ (ตาราง user_presence) → เผื่อ 2.5 รอบ
 const REFRESH_INTERVAL_MS  = 10 * 1000;
 
 const NOTIF_PREFS_KEY = 'pixory.admin.notifPrefs';
@@ -1520,22 +1520,37 @@ async function loadDashboard(showLoading) {
     document.getElementById('activity-feed').innerHTML = '<div class="empty"><div class="icon">⏳</div><div class="title">กำลังโหลด...</div></div>';
   }
   try {
-    // v2.4.2 · Simple select · created_at column doesn't exist in user_data
-    // Cohort/TTFQ metrics gracefully degrade via hasSignup=false (uses updatedAt fallback)
-    const { data: rows, error } = await SUPABASE.from('user_data')
-      .select('user_id, data, device_id, updated_at')
-      .order('updated_at', { ascending: false });
+    // v3.4 · EGRESS FIX · โหลดเต็มแค่ครั้งแรก · รอบถัดไปดึง "เฉพาะแถวที่เปลี่ยน" (.gt updated_at)
+    //   เดิม: ดึง blob ทุกคน (~หลาย MB) ทุก 10 วิ → egress ทะลุโควต้า (ตัวการหลักที่เจอ 10 มิ.ย.)
+    //   ใหม่: รอบ refresh ปกติ = 0-2 แถว (ไม่กี่ KB) · ฟีเจอร์ทุกอย่างเหมือนเดิม
+    const isFull = !window._rawRowsCache || window._rawRowsCache.size === 0;
+    let q = SUPABASE.from('user_data').select('user_id, data, device_id, updated_at');
+    if (isFull) q = q.order('updated_at', { ascending: false });
+    else q = q.gt('updated_at', window._lastRowTs);
+    const { data: rows, error } = await q;
     if (error) {
       document.getElementById('activity-feed').innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">โหลดไม่สำเร็จ</div><div style="font-size:11px;margin-top:6px;color:var(--muted);">${escapeHtml(error.message)}</div></div>`;
       return;
     }
-    // v3.2 · Founding Tester badges (ตาราง user_badges · นอก blob เพราะ blob โดน client ทับ)
+    if (isFull) window._rawRowsCache = new Map();
+    (rows || []).forEach(r => {
+      window._rawRowsCache.set(r.user_id, r); // user_data = 1 แถว/คน (PK user_id)
+      if (!window._lastRowTs || r.updated_at > window._lastRowTs) window._lastRowTs = r.updated_at;
+    });
+    // v3.2 · Founding Tester badges (ตาราง user_badges · นอก blob) · ดึงเฉพาะรอบโหลดเต็ม (เปลี่ยนน้อย)
+    if (isFull) {
+      try {
+        const { data: bd, error: be } = await SUPABASE.from('user_badges').select('user_id,badge,badge_no,granted_at');
+        if (!be) { window._BADGES = {}; (bd || []).forEach(b => { window._BADGES[b.user_id] = b; }); window._badgesTableOk = true; }
+        else { window._BADGES = window._BADGES || {}; window._badgesTableOk = false; }
+      } catch (e) { window._BADGES = window._BADGES || {}; window._badgesTableOk = false; }
+    }
+    // v3.4 · สถานะออนไลน์จากตารางจิ๋ว user_presence (ไม่พ่วง blob) · ตารางยังไม่สร้าง = ข้ามเงียบๆ
     try {
-      const { data: bd, error: be } = await SUPABASE.from('user_badges').select('user_id,badge,badge_no,granted_at');
-      if (!be) { window._BADGES = {}; (bd || []).forEach(b => { window._BADGES[b.user_id] = b; }); window._badgesTableOk = true; }
-      else { window._BADGES = window._BADGES || {}; window._badgesTableOk = false; }
-    } catch (e) { window._BADGES = window._BADGES || {}; window._badgesTableOk = false; }
-    _lastUsers = processRows(rows || []);
+      const { data: pr, error: pe } = await SUPABASE.from('user_presence').select('user_id,last_seen');
+      if (!pe) { window._PRESENCE = {}; (pr || []).forEach(p => { window._PRESENCE[p.user_id] = new Date(p.last_seen).getTime(); }); }
+    } catch (e) { /* ตารางยังไม่มี · ใช้ updated_at ตามเดิม */ }
+    _lastUsers = processRows(Array.from(window._rawRowsCache.values()));
     renderAll(_lastUsers);
   } catch (e) {
     document.getElementById('activity-feed').innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">Error</div><div style="font-size:11px;margin-top:6px;">${escapeHtml(e.message || e)}</div></div>`;
@@ -1640,7 +1655,10 @@ function processRows(rows) {
   users.forEach(u => {
     u.stage = classifyStage(u);
     u.score = computeScore(u);
-    u.secondsAgo = Math.floor((now - u.updatedAt) / 1000);
+    // v3.4 · ออนไลน์ดูจาก user_presence (beat 30 วิ) ถ้ามี · ไม่มีก็ใช้เวลาเซฟข้อมูลล่าสุดตามเดิม
+    const _pseen = (window._PRESENCE || {})[u.userId] || 0;
+    u.lastSeenAt = Math.max(u.updatedAt, _pseen);
+    u.secondsAgo = Math.floor((now - u.lastSeenAt) / 1000);
     u.isOnline = u.secondsAgo < ONLINE_THRESHOLD_SEC;
   });
   return users.sort((a,b) => b.score - a.score || b.updatedAt - a.updatedAt);

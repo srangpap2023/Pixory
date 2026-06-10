@@ -8838,7 +8838,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.10';
+const PIXORY_VERSION = '2.9.11';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8849,6 +8849,17 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.11': {
+    date: '2026-06-10',
+    title: '⚡ เร็วขึ้น · ประหยัดเน็ตและแบตมือถือ',
+    subtitle: 'รวมของ v2.9.10 ด้วย · จัดทีมในงานสะดวกขึ้น',
+    items: [
+      { icon: '⚡', title: 'ประหยัดอินเทอร์เน็ต/แบตเตอรี่', desc: 'ปรับระบบซิงค์เบื้องหลังให้ส่งข้อมูลน้อยลงมาก โดยข้อมูลยังซิงค์ครบถ้วนเหมือนเดิมทุกอย่าง' },
+      { icon: '❌', title: 'ปุ่มเอาคนออกจากงาน ตรงแถวค่าแรง', desc: 'เปลี่ยนตัวทีมงานได้ในฟอร์มแก้ไขงานเลย · ค่าแรงรวมคำนวณใหม่ทันที (คนที่เอาออกยังอยู่ในทีมหลัก)' },
+      { icon: '➕', title: 'เพิ่มคนใหม่เข้าทีมจากในฟอร์มงาน', desc: 'กด "+ เพิ่มคนใหม่" กรอกชื่อ+ค่าแรง ระบบบันทึกเข้าทีมหลักและเลือกเข้างานให้ทันที' },
+      { icon: '🗂️', title: 'การ์ด "ทีมงาน · ค่าแรง" แยกชัดเจน', desc: 'หน้ารายละเอียดงาน — การ์ดทีมโชว์เฉพาะทีม · สถานที่กับ Source ย้ายไปอยู่กับเวลาทำงาน' }
+    ]
+  },
   '2.9.10': {
     date: '2026-06-10',
     title: '👥 จัดทีมในงานสะดวกขึ้น · เปลี่ยนตัวได้ทันที',
@@ -12479,12 +12490,33 @@ async function deleteAccountConfirm() {
 // v1.9.36 · Lightweight presence beat — UPDATE only updated_at column on user_data
 // Keeps "online" status fresh without writing the whole data blob
 let _presenceTimer = null;
-const PRESENCE_INTERVAL_MS = 15 * 1000;
+const PRESENCE_INTERVAL_MS = 30 * 1000; // v2.9.11 · 15→30 วิ · beat ลงตารางจิ๋ว (admin ONLINE_THRESHOLD 75 วิ รองรับแล้ว)
 
+// v2.9.11 · EGRESS FIX · beat เขียนลงตารางจิ๋ว user_presence แทนการ bump updated_at บน user_data
+//   เดิม: UPDATE user_data ทุก 15 วิ → realtime broadcast "ทั้ง blob" ไปทุกเครื่องที่เปิด + หลอก poll
+//   ให้ดึงทั้งก้อนซ้ำ → egress ทะลุโควต้า (ตัวการหลัก · เจอ 10 มิ.ย.)
+//   ใหม่: upsert user_presence (ไม่อยู่ใน realtime publication · ไม่มี broadcast) · แอดมินอ่านจากตารางนี้
+//   fallback: ถ้า Joe ยังไม่รัน SQL สร้างตาราง → ใช้วิธีเก่าแต่ถี่สุด 5 นาที (กันพัง + กันเปลือง)
+let _presenceFallback = false;
+let _presenceLastFallbackAt = 0;
 async function _sendPresenceBeat() {
   if (!CURRENT_USER || !SUPABASE) return;
   if (document.visibilityState !== 'visible') return;
   try {
+    if (!_presenceFallback) {
+      const { error } = await SUPABASE
+        .from('user_presence')
+        .upsert({ user_id: CURRENT_USER.id, last_seen: new Date().toISOString() }, { onConflict: 'user_id' });
+      if (!error) return; // สำเร็จ · จบ
+      const msg = String((error && (error.message || error.code)) || '');
+      if (error.code === '42P01' || /user_presence|does not exist|schema cache/i.test(msg)) {
+        _presenceFallback = true; // ตารางยังไม่ถูกสร้าง → ใช้วิธีเก่า (ช้าลง)
+      } else { return; }
+    }
+    // วิธีเก่า (จำกัด 5 นาที/ครั้ง · กัน realtime ส่ง blob ถี่)
+    const nowTs = Date.now();
+    if (nowTs - _presenceLastFallbackAt < 5 * 60 * 1000) return;
+    _presenceLastFallbackAt = nowTs;
     const { data, error } = await SUPABASE
       .from('user_data')
       .update({ updated_at: new Date().toISOString() })
