@@ -12044,7 +12044,7 @@ async function doLogin() {
       btn.disabled = false; btn.textContent = t('auth.loginBtn');
       return;
     }
-    CURRENT_USER = { id: data.user.id, email: data.user.email };
+    CURRENT_USER = { id: data.user.id, email: data.user.email, isAdmin: !!(data.user.app_metadata && data.user.app_metadata.role === 'admin') }; // v2.9.9 · role claim แทน email
     finishAuthAndStartApp();
   } catch(e) {
     setAuthError('login', 'เกิดข้อผิดพลาด: ' + (e.message || e));
@@ -12292,6 +12292,7 @@ async function doSignup() {
       CURRENT_USER = {
         id: data.user.id,
         email: data.user.email,
+        isAdmin: !!(data.user.app_metadata && data.user.app_metadata.role === 'admin'), // v2.9.9
         signupStudio: studio,
         signupPhone: phone,
         signupLine: line,
@@ -13199,8 +13200,8 @@ const NOTIF_SETTINGS = {
 // Joe must replace with his own generated key — see /business/supabase/setup_push_notifications.md
 const VAPID_PUBLIC_KEY = 'BMEHtYFdPaYYVKWSOwwOa-QBu5iWI3LUlQEdTxrv4hj2K4gRKXfLF3BoEq4Lv0XBmIHeQSWUz2zcIb2srhh4WiQ';
 
-// v2.1.2 · Admin email · used to suppress admin notifications when admin themselves does the action
-const ADMIN_EMAIL_CONST = 'srangpap2023@gmail.com';
+// v2.9.9 · ADMIN_EMAIL_CONST ถูกถอดออกแล้ว — ใช้ CURRENT_USER.isAdmin (role claim จาก app_metadata) แทน
+// เหตุผล: email hardcode เห็นได้ใน view-source · role claim server-set ปลอมไม่ได้ (pattern เดียวกับ admin.html v2.5.57)
 
 function saveData() {
   try {
@@ -18570,7 +18571,8 @@ function recordAction(type, code) {
 async function notifyAdmin(event, extra) {
   try {
     if (!SUPABASE || !CURRENT_USER || !CURRENT_USER.email) return;
-    if (CURRENT_USER.email.toLowerCase() === ADMIN_EMAIL_CONST.toLowerCase()) return;
+    // v2.9.9 · ใช้ role claim (app_metadata.role==='admin') แทน email hardcode — เลิก leak email ใน view-source · pattern เดียวกับ admin.html v2.5.57
+    if (CURRENT_USER.isAdmin) return;
     // Prefer extra.studio (caller-provided), then signup studio (set right at signup),
     // then PROFILE.shop (after onboarding done)
     const studio = (extra && extra.studio) ||
@@ -26257,7 +26259,7 @@ async function init() {
   if (supaReady) {
     const session = await getCurrentSession();
     if (session && session.user) {
-      CURRENT_USER = { id: session.user.id, email: session.user.email };
+      CURRENT_USER = { id: session.user.id, email: session.user.email, isAdmin: !!(session.user.app_metadata && session.user.app_metadata.role === 'admin') }; // v2.9.9 · role claim แทน email
       STORAGE_KEY = buildStorageKey();
       // Has session → run full app init
       await initAfterAuth();

@@ -18,7 +18,8 @@
 <link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
 <link rel="mask-icon" href="./pixory-icon.svg" color="#D97757"/>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- v1.0.82 · เพิ่ม defer (ตรงกับมือถือ) — เลิก render-blocking · _desktopBoot รอ window.supabase พร้อมเพดาน 3 วิอยู่แล้ว -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <!-- v1.0.47 · shared money/date helpers (single source · ต้อง push ไฟล์นี้ด้วยเสมอ) -->
 <script src="./pixory-helpers.js"></script>
 
@@ -7162,9 +7163,12 @@ function exportFullBackupJson() {
 let CUSTOMER_SEARCH = '';
 let CUSTOMER_SORT = 'revenue'; // 'revenue' | 'jobs' | 'name'
 
+let _custSearchTimer = null;
 function setCustomerSearch(q) {
   CUSTOMER_SEARCH = (q || '').trim().toLowerCase();
-  _renderCustomerTable();
+  // v1.0.82 · debounce 250ms — เดิม re-render ตารางทุก keystroke (O(ลูกค้า×งาน)) พิมพ์เร็วๆ แล้วหน่วงเมื่อข้อมูลโต
+  clearTimeout(_custSearchTimer);
+  _custSearchTimer = setTimeout(() => { _renderCustomerTable(); }, 250);
 }
 function setCustomerSort(s) {
   CUSTOMER_SORT = s;
