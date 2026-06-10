@@ -364,6 +364,17 @@
   .chip.team-chip { display: flex; align-items: center; gap: 5px; }
   .chip.team-chip .team-dot { width: 8px; height: 8px; border-radius: 50%; }
   .chip.team-chip.active { color: white; }
+  /* v2.9.10 · ปุ่มเพิ่มคนใหม่ + ฟอร์มย่อย + ปุ่มลบคนออกจากงาน (คุม 3 ธีม §17) */
+  .chip.team-add { border: 1.5px dashed var(--brand, #D97757); color: var(--brand, #D97757); background: rgba(217,119,87,0.06); font-weight: 700; }
+  .team-add-form { background: rgba(217,119,87,0.06); border: 1px solid var(--brand, #D97757); border-radius: 14px; padding: 12px 14px; margin-top: 10px; }
+  .team-add-form .taf-title { font-size: 13px; color: var(--ink, #3a2f25); }
+  .team-add-form .taf-hint { font-size: 10.5px; color: #7c7066; margin-top: 8px; line-height: 1.5; }
+  .wage-row .wage-rm { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(220,38,38,0.35); background: rgba(220,38,38,0.08); color: #b91c1c; font-size: 16px; line-height: 1; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0; margin-left: 6px; }
+  body.dark-theme .chip.team-add, body.luxe-theme .chip.team-add { border-color: #D4A056 !important; color: #D4A056 !important; background: rgba(212,160,86,0.10) !important; }
+  body.dark-theme .team-add-form, body.luxe-theme .team-add-form { background: rgba(212,160,86,0.08) !important; border-color: #B8854A !important; }
+  body.dark-theme .team-add-form .taf-title, body.luxe-theme .team-add-form .taf-title { color: #F2E0BA !important; }
+  body.dark-theme .team-add-form .taf-hint, body.luxe-theme .team-add-form .taf-hint { color: rgba(242,224,186,0.6) !important; }
+  body.dark-theme .wage-row .wage-rm, body.luxe-theme .wage-row .wage-rm { border-color: rgba(252,165,165,0.45) !important; background: rgba(185,28,28,0.18) !important; color: #fca5a5 !important; }
 
   /* Search bar (S1.3) */
   .pxy-search-wrap {
@@ -5814,16 +5825,17 @@
         <div id="job-tax-breakdown" style="padding:10px 12px; border-radius:10px; background:linear-gradient(135deg, #fef3c7, #fde68a); border:1px solid #fbbf24; font-size:13px;"></div>
       </div>
 
+      <!-- v2.9.10 · แยกการ์ด: สถานที่/Source ย้ายมารวมกับเวลาทำงาน · การ์ดทีม = ทีม·ค่าแรงล้วน (Joe เคาะ) -->
       <div class="detail-block">
         <h3 data-i18n="job.workSchedule">⏱ เวลาทำงาน</h3>
         <div id="job-sessions-list"></div>
+        <div class="detail-row"><span class="k" data-i18n="job.location">สถานที่</span><span class="v" id="job-loc">—</span></div>
+        <div class="detail-row"><span class="k" data-i18n="job.sourceLabel">Source</span><span class="v" id="job-source">—</span></div>
       </div>
 
       <div class="detail-block">
-        <h3 data-i18n="job.teamLoc">ทีมงาน & สถานที่</h3>
+        <h3 data-i18n="job.teamLoc">👥 ทีมงาน · ค่าแรง</h3>
         <div id="job-team-list" style="margin-bottom: 6px;"></div>
-        <div class="detail-row"><span class="k" data-i18n="job.location">สถานที่</span><span class="v" id="job-loc">—</span></div>
-        <div class="detail-row"><span class="k" data-i18n="job.sourceLabel">Source</span><span class="v" id="job-source">—</span></div>
       </div>
 
       <div class="detail-block">
@@ -6040,6 +6052,20 @@
         <div class="sec-title">👥 ทีมช่าง (เลือกได้หลายคน)</div>
         <div class="chip-row" id="team-chip-row"></div>
         <div id="team-wage-list" style="margin-top: 12px;"></div>
+        <!-- v2.9.10 · เพิ่มคนใหม่เข้าทีมหลักจากในฟอร์มงาน (Joe ขอ · เดโม่อนุมัติ 10 มิ.ย.) -->
+        <div id="team-add-form" class="team-add-form" style="display:none;">
+          <strong class="taf-title">➕ เพิ่มคนใหม่เข้าทีม</strong>
+          <div class="form-group" style="margin:8px 0 0;"><label>ชื่อ *</label><input type="text" id="team-add-name" placeholder="เช่น เบนซ์ ตากล้องเสริม"></div>
+          <div style="display:flex; gap:8px;">
+            <div class="form-group" style="flex:1; margin:8px 0 0;"><label>ตำแหน่ง (ไม่บังคับ)</label><input type="text" id="team-add-role" placeholder="เช่น ช่างภาพเสริม"></div>
+            <div class="form-group" style="flex:1; margin:8px 0 0;"><label>ค่าแรงงานนี้ (บาท)</label><input type="number" id="team-add-wage" min="0" placeholder="0"></div>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button type="button" class="btn" style="flex:1; margin:0;" onclick="saveNewTeamMemberFromForm()">บันทึก + เลือกเข้างานนี้</button>
+            <button type="button" class="btn secondary" style="margin:0; width:auto; padding:10px 16px;" onclick="toggleTeamAddForm(false)">ยกเลิก</button>
+          </div>
+          <div class="taf-hint">💾 บันทึกเข้า "ทีมงาน" หลักให้อัตโนมัติ · ซิงค์ทุกเครื่อง · งานหน้าเลือกได้เลย</div>
+        </div>
         <!-- v2.5.54 · Team finalization flag · ติ๊กเมื่อจัดทีมเรียบร้อย · default ไม่ติ๊ก = ยังไม่ครบ · ขึ้น warning บน job card -->
         <label id="addTeamFinalBox" class="team-final-box">
           <input type="checkbox" id="addTeamFinal" style="width:18px; height:18px; cursor:pointer; flex-shrink:0;" onchange="onTeamFinalToggle()">
@@ -8812,7 +8838,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.9';
+const PIXORY_VERSION = '2.9.10';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8823,6 +8849,16 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.10': {
+    date: '2026-06-10',
+    title: '👥 จัดทีมในงานสะดวกขึ้น · เปลี่ยนตัวได้ทันที',
+    subtitle: 'ปุ่มลบ/เพิ่มทีมในฟอร์มงาน + การ์ดทีมงานอ่านง่ายขึ้น',
+    items: [
+      { icon: '❌', title: 'ปุ่มเอาคนออกจากงาน ตรงแถวค่าแรง', desc: 'เปลี่ยนตัวทีมงานได้ในฟอร์มแก้ไขงานเลย — กด × คนเก่า เลือกคนใหม่ จบ · ค่าแรงรวมคำนวณใหม่ทันที (คนที่เอาออกยังอยู่ในทีมหลักตามเดิม)' },
+      { icon: '➕', title: 'เพิ่มคนใหม่เข้าทีมจากในฟอร์มงาน', desc: 'ไม่ต้องออกไปหน้าตั้งค่าอีกแล้ว — กด "+ เพิ่มคนใหม่" กรอกชื่อ+ค่าแรง ระบบบันทึกเข้าทีมหลักและเลือกเข้างานให้ทันที' },
+      { icon: '🗂️', title: 'การ์ด "ทีมงาน · ค่าแรง" แยกชัดเจน', desc: 'หน้ารายละเอียดงาน — การ์ดทีมโชว์เฉพาะทีม · สถานที่กับ Source ย้ายไปอยู่กับเวลาทำงาน' }
+    ]
+  },
   '2.9.9': {
     date: '2026-06-10',
     title: '🧾 ภาษีแม่นขึ้น · แก้มัดจำแล้วประวัติรับเงินปรับตาม',
@@ -14285,7 +14321,7 @@ const I18N = {
   'job.totalPkg':       { th: 'รวมแพคเกจ', en: 'Package Total' },
   'job.discount':       { th: 'ส่วนลด', en: 'Discount' },
   'job.sellPrice':      { th: 'ราคาขาย', en: 'Sell Price' },
-  'job.teamLoc':        { th: 'ทีมงาน & สถานที่', en: 'Team & Location' },
+  'job.teamLoc':        { th: '👥 ทีมงาน · ค่าแรง', en: '👥 Team · Wages' }, // v2.9.10 · แยกการ์ด
   'job.location':       { th: 'สถานที่', en: 'Location' },
   'job.pnl':            { th: 'กำไรขาดทุน', en: 'P&L' },
   'job.income':         { th: 'รายได้', en: 'Revenue' },
@@ -24970,6 +25006,12 @@ function renderAddJobScreen() {
     };
     tr.appendChild(chip);
   });
+  // v2.9.10 · ปุ่มเพิ่มคนใหม่เข้าทีมจากในฟอร์ม (เดิมต้องไปตั้งค่า → ทีมงาน ก่อน)
+  const addChip = document.createElement('div');
+  addChip.className = 'chip team-add';
+  addChip.textContent = '+ เพิ่มคนใหม่';
+  addChip.onclick = () => toggleTeamAddForm(true);
+  tr.appendChild(addChip);
   renderTeamWages();
   updateAddTotal();
 }
@@ -25000,6 +25042,7 @@ function renderTeamWages() {
       <span class="wage-name">${escapeHtml(t.name)}</span>
       <span class="wage-currency">฿</span>
       <input type="number" value="${wage}" placeholder="${defaultRate}" data-wage-name="${escapeHtml(t.name)}">
+      <button type="button" class="wage-rm" data-rm-name="${escapeHtml(t.name)}" title="เอาออกจากงานนี้">×</button>
     `;
     wrap.appendChild(row);
   });
@@ -25041,6 +25084,37 @@ function renderTeamWages() {
       renderTeamWages();
     });
   });
+}
+
+// v2.9.10 · เพิ่มคนใหม่เข้าทีมหลักจากในฟอร์มงาน (เดโม่อนุมัติ 10 มิ.ย. · parity เดสก์ท็อป v1.0.83)
+function toggleTeamAddForm(show) {
+  const f = document.getElementById('team-add-form');
+  if (!f) return;
+  f.style.display = show ? '' : 'none';
+  if (show) { const n = document.getElementById('team-add-name'); if (n) { n.value = ''; n.focus(); } }
+}
+function saveNewTeamMemberFromForm() {
+  const name = (document.getElementById('team-add-name').value || '').trim();
+  const role = (document.getElementById('team-add-role').value || '').trim();
+  const wage = Math.max(0, parseFloat(document.getElementById('team-add-wage').value) || 0);
+  if (!name) { toast('กรอกชื่อก่อนครับ'); return; }
+  if (TEAM.some(t => t && t.name === name)) { toast('มีชื่อ "' + name + '" ในทีมอยู่แล้ว · เลือกจาก chip ได้เลย'); return; }
+  const _palette = ['#e05d7a', '#3b82f6', '#22c55e', '#a855f7', '#f59e0b', '#14b8a6', '#f97316', '#6366f1'];
+  const entry = {
+    id: (typeof genTeamId === 'function') ? genTeamId() : ('tm_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)),
+    name: name, role: role, rate: wage,
+    color: _palette[TEAM.length % _palette.length]
+  };
+  TEAM.push(entry);
+  PHOTOGRAPHER_COLORS[name] = entry.color;
+  ADD_TEAM.add(name);
+  ADD_TEAM_WAGES[name] = wage;
+  saveData(); // เข้าทีมหลักถาวรทันที (id ถาวร · ซิงค์ทุกเครื่อง) · ไม่ต้องรอบันทึกงาน
+  toggleTeamAddForm(false);
+  const _r = document.getElementById('team-add-role'); if (_r) _r.value = '';
+  const _w = document.getElementById('team-add-wage'); if (_w) _w.value = '';
+  renderAddJobScreen();
+  toast('✓ เพิ่ม "' + name + '" เข้าทีม + เลือกเข้างานนี้แล้ว');
 }
 
 // v2.5.54 · Toggle visual state of team-final box · checked = green (ครบแล้ว) · unchecked = amber (ยังไม่ครบ)

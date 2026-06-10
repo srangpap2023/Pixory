@@ -2964,12 +2964,22 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.82';
+const PIXORY_DESKTOP_VERSION = '1.0.83';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.83': {
+    date: '2026-06-10',
+    title: '👥 จัดทีมในงานสะดวกขึ้น · เปลี่ยนตัวได้ทันที',
+    subtitle: 'ตรงกับมือถือ v2.9.10 ทุกอย่าง',
+    items: [
+      { icon: '❌', title: 'ปุ่มเอาคนออกจากงาน ตรงแถวค่าแรง', desc: 'เปลี่ยนตัวทีมงานได้ในฟอร์มงานเลย · ค่าแรงรวมคำนวณใหม่ทันที (คนที่เอาออกยังอยู่ในทีมหลัก)' },
+      { icon: '➕', title: 'เพิ่มคนใหม่เข้าทีมจากในฟอร์มงาน', desc: 'กด "+ เพิ่มคนใหม่" กรอกชื่อ+ค่าแรง ระบบบันทึกเข้าทีมหลักและเลือกเข้างานให้ทันที' },
+      { icon: '🗂️', title: 'การ์ดทีมงานแยกชัดเจน', desc: 'หน้ารายละเอียดงาน — "ทีมงาน · ค่าแรง" เฉพาะทีม · สถานที่/Source/ติดต่อ แยกการ์ด "📍 สถานที่ · ติดต่อ"' }
+    ]
+  },
   '1.0.82': {
     date: '2026-06-10',
     title: '🛡️ เปิดแอปเสถียรขึ้น + มัดจำแม่นขึ้น',
@@ -11558,6 +11568,20 @@ function renderJobOnlyTeamSection(j) {
       <div class="form-section-title">👥 ทีมงาน</div>
       <div id="add-team-chips" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
       <div id="add-team-wages" style="margin-top:8px;"></div>
+      <!-- v1.0.83 · เพิ่มคนใหม่เข้าทีมหลักจากในฟอร์ม (parity มือถือ v2.9.10 · เดโม่อนุมัติ) -->
+      <div id="add-team-addform" style="display:none;background:rgba(217,119,87,0.06);border:1px solid var(--brand);border-radius:12px;padding:12px 14px;margin-top:10px;">
+        <strong style="font-size:13px;">➕ เพิ่มคนใหม่เข้าทีม</strong>
+        <div class="form-row" style="margin-top:8px;">
+          <div class="form-field"><label>ชื่อ *</label><input type="text" id="add-team-new-name" placeholder="เช่น เบนซ์ ตากล้องเสริม" /></div>
+          <div class="form-field"><label>ตำแหน่ง (ไม่บังคับ)</label><input type="text" id="add-team-new-role" placeholder="เช่น ช่างภาพเสริม" /></div>
+          <div class="form-field"><label>ค่าแรงงานนี้ (บาท)</label><input type="number" id="add-team-new-wage" min="0" placeholder="0" /></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button type="button" class="btn btn-primary" onclick="saveNewTeamMemberDesktop()">บันทึก + เลือกเข้างานนี้</button>
+          <button type="button" class="btn btn-ghost" onclick="toggleTeamAddFormDesktop(false)">ยกเลิก</button>
+        </div>
+        <div style="font-size:11px;color:var(--ink-mute);margin-top:8px;">💾 บันทึกเข้า "ทีมงาน" หลักให้อัตโนมัติ · ซิงค์ทุกเครื่อง · งานหน้าเลือกได้เลย</div>
+      </div>
       <label id="add-team-final-box" class="team-final-box ${isFinal ? 'is-checked' : ''}">
         <input type="checkbox" id="add-team-final" ${isFinal ? 'checked' : ''} style="width:18px;height:18px;cursor:pointer;flex-shrink:0;" onchange="onTeamFinalToggleDesktop()">
         <span style="min-width:0;">
@@ -12449,8 +12473,11 @@ function renderTeamUI() {
   const chips = document.getElementById('add-team-chips');
   const wages = document.getElementById('add-team-wages');
   if (!chips || !wages) return;
+  // v1.0.83 · ปุ่มเพิ่มคนใหม่เข้าทีมจากในฟอร์ม (parity มือถือ v2.9.10)
+  const _addChipHtml = `<button type="button" onclick="toggleTeamAddFormDesktop(true)"
+    style="display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;border:1.5px dashed var(--brand);background:transparent;color:var(--brand);font-size:12.5px;font-weight:700;cursor:pointer;">+ เพิ่มคนใหม่</button>`;
   if (TEAM.length === 0) {
-    chips.innerHTML = '<div class="text-mute text-sm">ยังไม่มีทีม · เพิ่มใน <strong style="color:#B85A3D;cursor:pointer;" onclick="closeModal();setTimeout(()=>{navigate(\'settings\');setSettingsTab(\'team\');},100)">⚙️ ตั้งค่า → ผู้ใช้งาน/ทีม</strong></div>';
+    chips.innerHTML = '<div class="text-mute text-sm" style="align-self:center;">ยังไม่มีทีม · เพิ่มคนแรกได้เลย →</div>' + _addChipHtml;
     wages.innerHTML = '';
     return;
   }
@@ -12472,7 +12499,7 @@ function renderTeamUI() {
         + ${escapeHtml(t.name)}
       </button>`;
     }
-  }).join('');
+  }).join('') + _addChipHtml;
   // Wages · แสดงเฉพาะที่ select มีสี dot ด้วย
   const teamList = Array.from(st.team);
   if (teamList.length === 0) { wages.innerHTML = ''; return; }
@@ -12497,9 +12524,44 @@ function renderTeamUI() {
           </label>
         </div>
         <div class="form-field"><label>ค่าตอบแทน (บาท)</label><input type="number" min="0" value="${w}" oninput="updateTeamWage('${escapeHtml(name)}', Number(this.value)||0)" style="${isUnset ? 'border-color:#fbbf24;background:#fefce8;' : ''}" /></div>
+        <div class="form-field" style="flex:0 0 auto;align-self:flex-end;padding-bottom:2px;">
+          <button type="button" onclick="toggleTeamMember('${escapeHtml(name)}')" title="เอาออกจากงานนี้ (ยังอยู่ในทีมหลัก)"
+            style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(220,38,38,0.35);background:rgba(220,38,38,0.08);color:#dc2626;font-size:16px;cursor:pointer;line-height:1;">×</button>
+        </div>
       </div>
     `;
   }).join('');
+}
+
+// v1.0.83 · เพิ่มคนใหม่เข้าทีมหลักจากในฟอร์มงาน (parity มือถือ v2.9.10)
+function toggleTeamAddFormDesktop(show) {
+  const f = document.getElementById('add-team-addform');
+  if (!f) return;
+  f.style.display = show ? '' : 'none';
+  if (show) { const n = document.getElementById('add-team-new-name'); if (n) { n.value = ''; n.focus(); } }
+}
+function saveNewTeamMemberDesktop() {
+  const name = (document.getElementById('add-team-new-name').value || '').trim();
+  const role = (document.getElementById('add-team-new-role').value || '').trim();
+  const wage = Math.max(0, Number(document.getElementById('add-team-new-wage').value) || 0);
+  if (!name) { toast('กรอกชื่อก่อน', 'error'); return; }
+  if (TEAM.some(t => t && t.name === name)) { toast('มีชื่อ "' + name + '" ในทีมอยู่แล้ว · เลือกจาก chip ได้เลย', 'error'); return; }
+  const _palette = ['#e05d7a', '#3b82f6', '#22c55e', '#a855f7', '#f59e0b', '#14b8a6', '#f97316', '#6366f1'];
+  TEAM.push({
+    id: (typeof genTeamId === 'function') ? genTeamId() : ('tm_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)),
+    name, role, rate: wage,
+    color: _palette[TEAM.length % _palette.length]
+  });
+  const st = FORM_STATE.add;
+  st.team.add(name);
+  st.teamWages[name] = wage;
+  saveData(); // เข้าทีมหลักถาวรทันที · ซิงค์ทุกเครื่อง
+  toggleTeamAddFormDesktop(false);
+  const _r = document.getElementById('add-team-new-role'); if (_r) _r.value = '';
+  const _w = document.getElementById('add-team-new-wage'); if (_w) _w.value = '';
+  renderTeamUI();
+  if (typeof updateFormSummary === 'function') { try { updateFormSummary('add'); } catch (e) {} }
+  toast('✓ เพิ่ม "' + name + '" เข้าทีม + เลือกเข้างานนี้แล้ว', 'success');
 }
 
 function toggleTeamMember(name) {
@@ -12969,9 +13031,9 @@ function renderJobDetailHtml(j) {
         </div>
       ` : ''}
 
-      <!-- 👥 ทีมงาน + สถานที่ + Source -->
+      <!-- v1.0.83 · แยกการ์ด (parity มือถือ v2.9.10): การ์ดทีม = ทีม·ค่าแรงล้วน · สถานที่/Source/ติดต่อ แยกการ์ดถัดไป -->
       <div class="form-section">
-        <div class="form-section-title">👥 ทีม + สถานที่</div>
+        <div class="form-section-title">👥 ทีมงาน · ค่าแรง</div>
         ${(j.team && j.team.length > 0) ? `
           <div style="margin-bottom:10px;">
             ${j.team.map(n => {
@@ -12992,6 +13054,11 @@ function renderJobDetailHtml(j) {
             </div>
           </div>
         ` : '<div class="text-mute text-sm" style="margin-bottom:10px;">ไม่มีทีมร่วมงาน</div>'}
+      </div>
+
+      <!-- 📍 สถานที่ · ติดต่อ (แยกจากการ์ดทีม · v1.0.83) -->
+      <div class="form-section">
+        <div class="form-section-title">📍 สถานที่ · ติดต่อ</div>
         <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;">
           <span class="text-mute">สถานที่หลัก</span>
           <span>${escapeHtml(_effectiveLoc(j, (j.sessions || [])[0]) || '—')}</span>
