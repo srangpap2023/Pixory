@@ -119,6 +119,32 @@
     return s;
   }
 
+  // v2.9.8 · A1 fix · แก้ "มัดจำ" ในหน้าแก้งานแล้ว payments[] ต้องตามไปด้วย
+  // เหตุผล: payments[] = ฐานยอดยื่นภาษีเกณฑ์เงินสด (cashReceivedInYear) · เดิมแก้ scalar j.deposit
+  // อย่างเดียว → เงินส่วนต่างหาย/เกินจากชีต "เงินรับจริง ยอดยื่น" เงียบๆ
+  // กติกา: j.deposit = ยอดรับสะสม (ไม่รวม payment type 'balance' ที่บันทึกตอนปิดยอดใบเรียกเก็บ)
+  //   - เคสทั่วไป (มีรายการมัดจำเดิมรายการเดียว) → แก้ amount ที่รายการเดิม คงวันที่เดิม (ไม่ย้ายปีภาษี)
+  //   - เคสอื่น (หลายงวด/ลดยอดเกินรายการเดิม) → บันทึกรายการ type 'adjust' ลงวันที่มัดจำเดิม
+  // คืน true ถ้ามีการปรับ payments
+  function reconcileDepositPayments(j, oldDeposit, newDeposit) {
+    if (!j) return false;
+    var diff = (Number(newDeposit) || 0) - (Number(oldDeposit) || 0);
+    if (!diff) return false;
+    j.payments = Array.isArray(j.payments) ? j.payments : [];
+    var nonBal = j.payments.filter(function (p) { return p && p.type !== 'balance'; });
+    if (nonBal.length === 1 && nonBal[0].type === 'deposit' && (Number(nonBal[0].amount) || 0) + diff > 0) {
+      nonBal[0].amount = (Number(nonBal[0].amount) || 0) + diff;
+      return true;
+    }
+    j.payments.push({
+      date: String(j.depositPaidDate || j.dateDeposit || new Date().toISOString().slice(0, 10)).slice(0, 10),
+      amount: diff,
+      type: 'adjust',
+      note: 'ปรับยอดรับ · จากการแก้ไขงาน'
+    });
+    return true;
+  }
+
   // ===== ทีมงาน · ID คงที่ (v2.9.7) ===========================================
   // โมเดล: TEAM แต่ละคนมี id ถาวร · งานเก็บ j.teamMembers=[{id,name,wage}] (canonical)
   // คงฟิลด์เดิม j.team (ชื่อ) + j.teamWages (ชื่อ→ค่าแรง) + j.teamCost (รวม) ไว้แบบ "derived"
@@ -228,6 +254,7 @@
   g.renameTeamMember = renameTeamMember;
   g.renameListRef = renameListRef;
 
+  g.reconcileDepositPayments = reconcileDepositPayments;
   g.jobInvExtra = jobInvExtra;
   g.cashReceivedInYear = cashReceivedInYear;
   g.cashRowsForYear = cashRowsForYear;

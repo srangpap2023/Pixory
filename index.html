@@ -717,6 +717,31 @@
   body.dark-theme .tax-note .tax-note-title, body.luxe-theme .tax-note .tax-note-title,
   body.dark-theme .tax-note strong, body.luxe-theme .tax-note strong { color:#ecdcc0; }
 
+  /* v2.9.8 · A3 · การ์ดวันเกิดลูกค้าหน้าแรก (เลิก hardcode สี inline · คุมครบ 3 ธีม ตามกฎ §17) */
+  .bday-card { display:flex; align-items:center; gap:12px; margin:0 16px 8px; padding:12px 14px; background:linear-gradient(135deg,#fef3c7 0%,#fff 70%); border-radius:12px; border:0.5px solid #fde68a; }
+  .bday-avatar { width:36px; height:36px; background:#fef3c7; color:#7c2d12; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .bday-main { flex:1; min-width:0; }
+  .bday-name { font-size:14px; font-weight:600; color:#3a2f25; }
+  .bday-name .sub { color:#7c7066; font-weight:400; font-size:12px; }
+  .bday-days { font-size:12px; color:#7c2d12; margin-top:2px; font-weight:600; }
+  .bday-days.today { color:#b91c1c; }
+  .bday-line-btn { background:#06c755; color:#fff; border:0; padding:8px 12px; border-radius:100px; font-size:11px; font-weight:700; cursor:pointer; flex-shrink:0; }
+  .bday-noline { color:#a89a8c; font-size:11px; }
+  body.dark-theme .bday-card { background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.10); }
+  body.dark-theme .bday-avatar { background:rgba(253,230,138,0.14); color:#fcd34d; }
+  body.dark-theme .bday-name { color:#e5e7eb; }
+  body.dark-theme .bday-name .sub { color:#9ca3af; }
+  body.dark-theme .bday-days { color:#fcd34d; }
+  body.dark-theme .bday-days.today { color:#fca5a5; }
+  body.dark-theme .bday-noline { color:#9ca3af; }
+  body.luxe-theme .bday-card { background:rgba(28,28,34,0.85) !important; border-color:rgba(184,133,74,0.55) !important; }
+  body.luxe-theme .bday-avatar { background:rgba(212,160,86,0.18) !important; color:#D4A056 !important; }
+  body.luxe-theme .bday-name { color:#F2E0BA !important; }
+  body.luxe-theme .bday-name .sub { color:rgba(242,224,186,0.65) !important; }
+  body.luxe-theme .bday-days { color:#D4A056 !important; }
+  body.luxe-theme .bday-days.today { color:#fca5a5 !important; }
+  body.luxe-theme .bday-noline { color:rgba(242,224,186,0.55) !important; }
+
   /* Quick-Start type cards (S3) */
   .qs-type-card {
     display: flex; align-items: center; gap: 12px;
@@ -5593,9 +5618,14 @@
                 <label>บริจาค <span style="color:#a89a8c; font-size:11px;">(max 10% เงินได้)</span></label>
                 <input type="number" id="pit-donation" min="0" value="0" oninput="refreshPITCalc()">
               </div>
-              <div class="form-group" style="margin: 0;">
+              <div class="form-group" style="margin: 0 0 10px;">
                 <label>ดอกเบี้ยกู้บ้าน <span style="color:#a89a8c; font-size:11px;">(max ฿100,000)</span></label>
                 <input type="number" id="pit-mortgage" min="0" value="0" oninput="refreshPITCalc()">
+              </div>
+              <!-- v2.9.9 · A4 · ลดหย่อนอื่นรวม (lump) · parity กับเดสก์ท็อป (pf-pit-deductions → PROFILE.pit.lumpDeductions) -->
+              <div class="form-group" style="margin: 0;">
+                <label>ลดหย่อนอื่นๆ รวม <span style="color:#a89a8c; font-size:11px;">(ที่ไม่เข้าหมวดข้างบน เช่น ประกันสังคม · พ่อแม่)</span></label>
+                <input type="number" id="pit-lump" min="0" value="0" oninput="refreshPITCalc()">
               </div>
             </div>
           </details>
@@ -8487,6 +8517,27 @@ function escapeHtml(s) {
 // ===== v2.5.72 · money/date helpers · SINGLE SOURCE = pixory-helpers.js (โหลดใน <head> ก่อนแล้ว) =====
 // ⛔ ห้ามแก้สูตรที่นี่ · แก้ที่ pixory-helpers.js ที่เดียว (ทั้งมือถือ+คอมใช้ร่วมกัน)
 // บล็อกล่างเป็น FALLBACK เฉพาะกรณีไฟล์โหลดไม่ติด/ลืม push เท่านั้น (กันแอปพัง) · ต้องตรงกับ pixory-helpers.js
+// v2.9.8 · A1 · fallback แยกบล็อก (กันเคสโหลด helpers เวอร์ชันเก่าที่มี jobRevenue แล้วแต่ยังไม่มีตัวนี้)
+if (typeof window.reconcileDepositPayments !== 'function') {
+  window.reconcileDepositPayments = function (j, oldDeposit, newDeposit) {
+    if (!j) return false;
+    var diff = (Number(newDeposit) || 0) - (Number(oldDeposit) || 0);
+    if (!diff) return false;
+    j.payments = Array.isArray(j.payments) ? j.payments : [];
+    var nonBal = j.payments.filter(function (p) { return p && p.type !== 'balance'; });
+    if (nonBal.length === 1 && nonBal[0].type === 'deposit' && (Number(nonBal[0].amount) || 0) + diff > 0) {
+      nonBal[0].amount = (Number(nonBal[0].amount) || 0) + diff;
+      return true;
+    }
+    j.payments.push({
+      date: String(j.depositPaidDate || j.dateDeposit || new Date().toISOString().slice(0, 10)).slice(0, 10),
+      amount: diff,
+      type: 'adjust',
+      note: 'ปรับยอดรับ · จากการแก้ไขงาน'
+    });
+    return true;
+  };
+}
 if (typeof window.jobRevenue !== 'function') {
   window.jobInvExtra = function (j) { if (!j || !j.invoice) return 0; var e = Number(j.invoice.extraTime) || 0; var a = Array.isArray(j.invoice.addOns) ? j.invoice.addOns.reduce(function (s, x) { return s + (Number(x && x.price) || 0); }, 0) : 0; return e + a; };
   window.jobRevenue = function (j) { if (jobCancelled(j)) return 0; return (Number(j && j.sell) || 0) + window.jobInvExtra(j); };
@@ -8761,7 +8812,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.7';
+const PIXORY_VERSION = '2.9.9';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8772,6 +8823,16 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.9': {
+    date: '2026-06-10',
+    title: '🧾 ภาษีแม่นขึ้น · แก้มัดจำแล้วประวัติรับเงินปรับตาม',
+    subtitle: 'รวมของ v2.9.8-2.9.9 · ยอดยื่นภาษีไม่คลาดเคลื่อน + ลดหย่อนครบ',
+    items: [
+      { icon: '💰', title: 'แก้ยอดมัดจำในหน้าแก้งาน → ประวัติรับเงินปรับตามทันที', desc: 'เดิมแก้มัดจำแล้วรายการรับเงิน (ฐานยอดยื่นภาษี) ไม่ขยับตาม ทำให้ชีต "เงินรับจริง ยอดยื่น" คลาดเคลื่อนเงียบๆ — ตอนนี้ระบบปรับให้เองทุกครั้ง' },
+      { icon: '🧮', title: 'ช่อง "ลดหย่อนอื่นๆ รวม" ในผู้ช่วยภาษี', desc: 'ใส่ลดหย่อนที่ไม่เข้าหมวดหลัก (ประกันสังคม · ดูแลพ่อแม่ ฯลฯ) ได้แล้ว · ตรงกับฝั่งคอมพิวเตอร์ · ใช้ค่าเดียวกันทั้ง 2 เครื่อง' },
+      { icon: '🎂', title: 'การ์ดวันเกิดลูกค้าอ่านชัดทุกธีม', desc: 'ปรับการ์ดแจ้งวันเกิดหน้าแรกให้เข้ากับธีมมืดและธีมทอง + เพิ่มความปลอดภัยในการแสดงชื่อลูกค้า' }
+    ]
+  },
   '2.9.0': {
     date: '2026-06-08',
     title: '💙 หน้าหลักใหม่ · รายได้คาดการณ์ + รายรับจริง + ยกเลิกงาน',
@@ -19084,11 +19145,15 @@ function saveAddJob() {
     if (idx >= 0) {
       // Preserve existing fields not in form (like payments history)
       const existing = JOBS[idx];
+      const _oldDeposit = Number(existing.deposit) || 0; // v2.9.8 · A1
       JOBS[idx] = {
         ...existing,
         ...data,
         code: existing.code,  // never change code
       };
+      // v2.9.8 · A1 fix · มัดจำเปลี่ยนตอนแก้งาน → ปรับ payments[] ตามด้วย
+      // (payments[] = ฐานยอดยื่นภาษีเกณฑ์เงินสด · เดิมแก้แค่ scalar → เงินส่วนต่างหายจากชีตยอดยื่นเงียบๆ)
+      try { window.reconcileDepositPayments(JOBS[idx], _oldDeposit, Number(JOBS[idx].deposit) || 0); } catch (e) { console.warn('reconcileDeposit:', e); }
     }
     saveData();
     toast('บันทึกการแก้ไขแล้ว');
@@ -23407,10 +23472,12 @@ function computePIT(year, opts) {
   // v2.8.6 FIX (H7c) · กลุ่มเกษียณเพิ่มเพดาน 30% ของรายได้พึงประเมิน — กันลดหย่อนเกินสำหรับผู้มีรายได้น้อย
   const rmfSsf = Math.min(200000, 0.30 * revenue, Number(opts.rmfSsf) || 0);
   const mortgage = Math.min(100000, Number(opts.mortgageInterest) || 0);
+  // v2.9.9 · A4 · ลดหย่อนอื่นรวม (lump) · parity กับเดสก์ท็อป _computePIT (สูตรเดียวกันเป๊ะ)
+  const lumpDeductions = Math.max(0, Number(opts.lumpDeductions) || 0);
 
   // M9 · Donation cap 10% of income after all OTHER deductions
   const rawDonation = Math.max(0, Number(opts.donation) || 0);
-  const allowancesBeforeDonation = personalAllowance + spouseAllowance + childAllowance + lifeIns + healthIns + rmfSsf + mortgage;
+  const allowancesBeforeDonation = personalAllowance + spouseAllowance + childAllowance + lifeIns + healthIns + rmfSsf + mortgage + lumpDeductions;
   const taxableBeforeDonation = Math.max(0, incomeAfterExpense - allowancesBeforeDonation);
   const donation = Math.min(rawDonation, taxableBeforeDonation * 0.10);
 
@@ -23448,7 +23515,7 @@ function computePIT(year, opts) {
       children: childAllowance,
       childrenPre2018,
       children2018Plus,
-      lifeIns, healthIns, rmfSsf, donation, mortgage,
+      lifeIns, healthIns, rmfSsf, donation, mortgage, lumpDeductions,
       donationRaw: rawDonation,
       donationCapped: rawDonation > donation,
       total: totalDeductions
@@ -23502,6 +23569,7 @@ function renderPITHelper() {
   setVal('pit-rmf-ssf', pit.rmfSsf || 0);
   setVal('pit-donation', pit.donation || 0);
   setVal('pit-mortgage', pit.mortgageInterest || 0);
+  setVal('pit-lump', pit.lumpDeductions || 0); // v2.9.9 · A4
   // Expense mode toggle visual
   const isFlat = (pit.expenseMode || 'flat60') === 'flat60';
   const tFlat = document.getElementById('pit-mode-flat');
@@ -23546,6 +23614,7 @@ function refreshPITCalc() {
   PROFILE.pit.rmfSsf = getNum('pit-rmf-ssf');
   PROFILE.pit.donation = getNum('pit-donation');
   PROFILE.pit.mortgageInterest = getNum('pit-mortgage');
+  PROFILE.pit.lumpDeductions = Math.max(0, getNum('pit-lump')); // v2.9.9 · A4 · ฟิลด์เดียวกับเดสก์ท็อป
   // v2.5.59 · guard against initial-render saveData spam
   if (!_pitSkipSave && typeof saveData === 'function') saveData();
 
@@ -23581,6 +23650,7 @@ function refreshPITCalc() {
   if (r.deductions.rmfSsf > 0)    html += '<div class="pit-row"><span>− กองทุน RMF/SSF</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.rmfSsf) + '</strong></div>';
   if (r.deductions.donation > 0)  html += '<div class="pit-row"><span>− บริจาค' + (r.deductions.donationCapped ? ' <span style="font-size:10px; color:#b91c1c;">(จำกัด 10%)</span>' : '') + '</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.donation) + '</strong></div>';
   if (r.deductions.mortgage > 0)  html += '<div class="pit-row"><span>− ดอกเบี้ยกู้บ้าน</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.mortgage) + '</strong></div>';
+  if (r.deductions.lumpDeductions > 0) html += '<div class="pit-row"><span>− ลดหย่อนอื่นๆ รวม</span><strong style="color:#b91c1c;">−฿' + fmt(r.deductions.lumpDeductions) + '</strong></div>'; // v2.9.9 · A4
   html += '<div class="pit-row pit-row-divider"><span><strong>รายได้สุทธิที่ต้องเสียภาษี</strong></span><strong style="font-size:15px;">฿' + fmt(r.netTaxable) + '</strong></div>';
   html += '<div class="pit-row pit-row-divider"><span>📊 ภาษีตามขั้นบันได</span><strong style="font-size:15px;">฿' + fmt(r.taxOwed) + '</strong></div>';
   if (r.taxBrackets.length > 0) {
@@ -23659,6 +23729,7 @@ function exportPITExcel() {
     ['  กองทุน RMF/SSF', -r.deductions.rmfSsf],
     ['  บริจาค', -r.deductions.donation],
     ['  ดอกเบี้ยกู้บ้าน', -r.deductions.mortgage],
+    ['  ลดหย่อนอื่นๆ รวม (lump)', -(r.deductions.lumpDeductions || 0)],
     ['รวมค่าลดหย่อน', -r.deductions.total],
     [],
     ['4. รายได้สุทธิที่ต้องเสียภาษี', r.netTaxable],
@@ -25827,20 +25898,23 @@ function renderHomeBirthdays() {
   list.innerHTML = '';
   upcoming.forEach(c => {
     const row = document.createElement('div');
-    row.style.cssText = 'display:flex; align-items:center; gap:12px; margin: 0 16px 8px; padding: 12px 14px; background: linear-gradient(135deg, #fef3c7 0%, #fff 70%); border-radius: 12px; border: 0.5px solid #fde68a;';
+    // v2.9.8 · A3 fix · (1) escapeHtml ชื่อ/ชื่อเล่นก่อนลง innerHTML (เดิมไม่ escape = stored XSS)
+    //                  (2) เลิก hardcode สี inline → class .bday-* คุมครบ 3 ธีม
+    row.className = 'bday-card';
     const daysLabel = c.daysUntil === 0 ? t('time.todayBang') : c.daysUntil === 1 ? t('time.tomorrow') : t('time.inXDays').replace('{x}', c.daysUntil);
-    const labelColor = c.daysUntil === 0 ? '#b91c1c' : '#7c2d12';
-    const safeName = c.name.replace(/'/g, "\\'");
+    const safeName = escapeHtml(String(c.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
     const hasLine = !!c.line;
+    const dispName = escapeHtml(c.nickname || c.name);
+    const subName = (c.nickname && c.nickname !== c.name) ? ' <span class="sub">(' + escapeHtml(c.name) + ')</span>' : '';
     row.innerHTML =
-      '<div style="width:36px; height:36px; background:#fef3c7; color:#7c2d12; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">🎂</div>' +
-      '<div style="flex:1; min-width:0;">' +
-        '<div style="font-size:14px; font-weight:600; color:#3a2f25;">' + (c.nickname || c.name) + (c.nickname && c.nickname !== c.name ? ' <span style="color:#7c7066; font-weight:400; font-size:12px;">(' + c.name + ')</span>' : '') + '</div>' +
-        '<div style="font-size:12px; color:' + labelColor + '; margin-top:2px; font-weight:600;">' + daysLabel + ' · อายุ ' + c.age + ' ปี</div>' +
+      '<div class="bday-avatar">🎂</div>' +
+      '<div class="bday-main">' +
+        '<div class="bday-name">' + dispName + subName + '</div>' +
+        '<div class="bday-days' + (c.daysUntil === 0 ? ' today' : '') + '">' + daysLabel + ' · อายุ ' + c.age + ' ปี</div>' +
       '</div>' +
       (hasLine
-        ? '<button onclick="event.stopPropagation(); copyBirthdayGreeting(\'' + safeName + '\')" style="background:#06c755; color:white; border:0; padding:8px 12px; border-radius:100px; font-size:11px; font-weight:700; cursor:pointer; flex-shrink:0;">📩 ส่งคำอวยพร</button>'
-        : '<span style="color:#a89a8c; font-size:11px;">ไม่มี LINE</span>');
+        ? '<button class="bday-line-btn" onclick="event.stopPropagation(); copyBirthdayGreeting(\'' + safeName + '\')">📩 ส่งคำอวยพร</button>'
+        : '<span class="bday-noline">ไม่มี LINE</span>');
     list.appendChild(row);
   });
 }

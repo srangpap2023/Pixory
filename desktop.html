@@ -56,6 +56,16 @@
     });
   }
 </script>
+<script>
+  // v1.0.82 · A2 (C4-desktop) · global error net — pattern เดียวกับมือถือ (index.html v2.6.8)
+  // error ตอนบูต/รันไทม์จะไม่หายเงียบอีก · อย่างน้อยมี log ให้ตามรอย
+  window.addEventListener('error', function (e) {
+    try { console.error('[pixory-desktop:error]', (e && (e.error || e.message)) || e); } catch (_) {}
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    try { console.error('[pixory-desktop:promise]', e && e.reason); } catch (_) {}
+  });
+</script>
 <style>
   /* ===================================================================
      PIXORY DESKTOP v2.0
@@ -2953,12 +2963,21 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.81';
+const PIXORY_DESKTOP_VERSION = '1.0.82';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.82': {
+    date: '2026-06-10',
+    title: '🛡️ เปิดแอปเสถียรขึ้น + มัดจำแม่นขึ้น',
+    subtitle: 'เน็ตสะดุดตอนเปิดแอปไม่ค้างหน้าเปล่าอีก',
+    items: [
+      { icon: '💰', title: 'แก้ยอดมัดจำในหน้าแก้งาน → ประวัติรับเงินปรับตาม', desc: 'ตรงกับฝั่งมือถือ · ยอดยื่นภาษี (เงินรับจริง) ไม่คลาดเคลื่อนจากการแก้มัดจำอีก' },
+      { icon: '🛡️', title: 'เปิดแอปตอนเน็ตสะดุด มีปุ่ม "โหลดใหม่"', desc: 'เดิมถ้าโหลดระบบไม่สำเร็จจะค้างหน้าเปล่า — ตอนนี้ระบบรอให้เองสูงสุด 3 วินาที และถ้ายังไม่สำเร็จจะแจ้งชัดเจนพร้อมปุ่มโหลดใหม่' }
+    ]
+  },
   '1.0.65': {
     date: '2026-06-06',
     title: '✨ หน้าภาพรวมโฉมใหม่',
@@ -3221,6 +3240,27 @@ const EQUIPMENT_CATEGORIES = [];
 // ===== v1.0.47 · money/date helpers · SINGLE SOURCE = pixory-helpers.js (โหลดใน <head> ก่อนแล้ว) =====
 // ⛔ ห้ามแก้สูตรที่นี่ · แก้ที่ pixory-helpers.js ที่เดียว (ทั้งมือถือ+คอมใช้ร่วมกัน)
 // บล็อกล่างเป็น FALLBACK เฉพาะกรณีไฟล์โหลดไม่ติด/ลืม push เท่านั้น (กันแอปพัง) · ต้องตรงกับ pixory-helpers.js
+// v1.0.82 · A1 · fallback แยกบล็อก (กันเคสโหลด helpers เวอร์ชันเก่าที่มี jobRevenue แล้วแต่ยังไม่มีตัวนี้)
+if (typeof window.reconcileDepositPayments !== 'function') {
+  window.reconcileDepositPayments = function (j, oldDeposit, newDeposit) {
+    if (!j) return false;
+    var diff = (Number(newDeposit) || 0) - (Number(oldDeposit) || 0);
+    if (!diff) return false;
+    j.payments = Array.isArray(j.payments) ? j.payments : [];
+    var nonBal = j.payments.filter(function (p) { return p && p.type !== 'balance'; });
+    if (nonBal.length === 1 && nonBal[0].type === 'deposit' && (Number(nonBal[0].amount) || 0) + diff > 0) {
+      nonBal[0].amount = (Number(nonBal[0].amount) || 0) + diff;
+      return true;
+    }
+    j.payments.push({
+      date: String(j.depositPaidDate || j.dateDeposit || new Date().toISOString().slice(0, 10)).slice(0, 10),
+      amount: diff,
+      type: 'adjust',
+      note: 'ปรับยอดรับ · จากการแก้ไขงาน'
+    });
+    return true;
+  };
+}
 if (typeof window.jobRevenue !== 'function') {
   window.jobInvExtra = function (j) { if (!j || !j.invoice) return 0; var e = Number(j.invoice.extraTime) || 0; var a = Array.isArray(j.invoice.addOns) ? j.invoice.addOns.reduce(function (s, x) { return s + (Number(x && x.price) || 0); }, 0) : 0; return e + a; };
   window.jobRevenue = function (j) { if (jobCancelled(j)) return 0; return (Number(j && j.sell) || 0) + window.jobInvExtra(j); };
@@ -3778,7 +3818,12 @@ async function finishAuthAndStart() {
   document.getElementById('user-avatar').textContent = (CURRENT_USER.email || '?').charAt(0).toUpperCase();
   // Pull data from cloud
   setSyncState('syncing', 'กำลังโหลดข้อมูล...');
-  await pullFromCloudAndMerge();
+  // v1.0.82 · A2 (C3-desktop) · pull พังต้องไม่ฆ่าทั้งบูต — ใช้ข้อมูลในเครื่องไปก่อน
+  try { await pullFromCloudAndMerge(); }
+  catch (e) {
+    console.error('pullFromCloudAndMerge failed:', e);
+    try { toast('โหลดข้อมูลจากคลาวด์ไม่สำเร็จ · ใช้ข้อมูลในเครื่องก่อน', 'error'); } catch (_) {}
+  }
   // v1.0.3 · Auto-fill PROFILE from signup metadata (first-time signup only)
   // Persist consent + studio + phone + LINE + genres if user just signed up via desktop form
   try {
@@ -3824,13 +3869,14 @@ async function finishAuthAndStart() {
     }
   } catch(e) {}
   // Show dashboard
-  if (!_landedSetup) navigate('dashboard');
+  // v1.0.82 · A2 (C3-desktop) · แยก try/catch รายขั้น — 1 ตัวพังต้องไม่ลากตัวถัดไปตาย (pattern _safe มือถือ)
+  try { if (!_landedSetup) navigate('dashboard'); } catch (e) { console.error('navigate(dashboard):', e); }
   // Start realtime sync (Sprint 2E)
-  startRealtimeSync();
-  loadMyBadge();  // v1.0.61 · ตรา Founding Tester · fire-and-forget
-  initDeskChat(); // v1.0.62 · แชทติดต่อแอดมิน · fire-and-forget
+  try { startRealtimeSync(); } catch (e) { console.error('startRealtimeSync:', e); }
+  try { loadMyBadge(); } catch (e) { console.warn('loadMyBadge:', e); }   // v1.0.61 · ตรา Founding Tester · fire-and-forget
+  try { initDeskChat(); } catch (e) { console.warn('initDeskChat:', e); } // v1.0.62 · แชทติดต่อแอดมิน · fire-and-forget
   // v1.0.50 · auto-sync poll · refreshes data by itself if realtime misses an event
-  startAutoSyncPoll();
+  try { startAutoSyncPoll(); } catch (e) { console.error('startAutoSyncPoll:', e); }
   // v1.0.40 · show What's New if version changed since last seen
   try { checkVersionUpdate(); } catch(e) { console.warn('checkVersionUpdate:', e); }
   // v1.0.45 · then check for unread announcements (delayed so it doesn't fight What's New)
@@ -12634,7 +12680,13 @@ async function saveJob() {
 
   if (st.editing) {
     const idx = JOBS.findIndex(j => j.code === st.editing);
-    if (idx >= 0) JOBS[idx] = job;
+    if (idx >= 0) {
+      JOBS[idx] = job;
+      // v1.0.82 · A1 fix (parity มือถือ) · มัดจำเปลี่ยนตอนแก้งาน → ปรับ payments[] ตามด้วย
+      // (payments[] = ฐานยอดยื่นภาษีเกณฑ์เงินสด · เดิมแก้แค่ scalar → เงินส่วนต่างหายจากชีตยอดยื่นเงียบๆ)
+      const _oldDeposit = Number(existing && existing.deposit) || 0;
+      try { window.reconcileDepositPayments(job, _oldDeposit, Number(job.deposit) || 0); } catch (e) { console.warn('reconcileDeposit:', e); }
+    }
   } else {
     JOBS.push(job);
   }
@@ -15469,15 +15521,36 @@ function onRealtimeUpdate(payload) {
 // BOOT
 // ===================================================================
 
-window.addEventListener('DOMContentLoaded', async () => {
-  // Apply user preferences IMMEDIATELY (before login) · localStorage based
+// v1.0.82 · A2 (C2-desktop) · บูตแบบมีเพดานรอ CDN — pattern เดียวกับมือถือ (_bootTries < 30)
+// เดิม: supabase-js โหลดไม่ติด → initSupabase() คืน false → toast แล้วจบ (ผู้ใช้ค้างหน้าตาย ไม่มีทางไปต่อ)
+let _dtBootTries = 0;
+window.addEventListener('DOMContentLoaded', () => { _desktopBoot(); });
+
+async function _desktopBoot() {
+  // Apply user preferences IMMEDIATELY (before login) · localStorage based · idempotent (รันซ้ำได้)
   try { applyTheme(); } catch(e) {}
   try { applyLang(); } catch(e) {}
   try { applyFontSize(); } catch(e) {}
   try { applyWallpaper(); } catch(e) {}
 
+  // รอ supabase-js จาก CDN สูงสุด ~3 วิ (30 × 100ms) ก่อนยอมแพ้
+  if (typeof window.supabase === 'undefined' && _dtBootTries++ < 30) {
+    setTimeout(_desktopBoot, 100);
+    return;
+  }
+
   if (!initSupabase()) {
-    toast('ไม่สามารถเชื่อมต่อ Supabase ได้', 'error');
+    try { toast('ไม่สามารถเชื่อมต่อ Supabase ได้', 'error'); } catch(e) {}
+    // v1.0.82 · บอกผู้ใช้ชัดๆ พร้อมปุ่มโหลดใหม่ (เดิม return เงียบ = หน้าตาย)
+    try {
+      document.body.insertAdjacentHTML('beforeend',
+        '<div id="boot-fail-overlay" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);z-index:99999;">' +
+          '<div style="background:#fff;color:#3a2f25;padding:24px 28px;border-radius:14px;max-width:380px;text-align:center;font-size:14px;line-height:1.7;">' +
+            '⚠️ โหลดระบบไม่สำเร็จ (อินเทอร์เน็ตอาจสะดุดตอนเปิดแอป)<br>กรุณาเช็คการเชื่อมต่อแล้วลองอีกครั้ง<br><br>' +
+            '<button onclick="location.reload()" style="padding:10px 20px;border:0;border-radius:10px;background:#D97757;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">โหลดใหม่</button>' +
+          '</div>' +
+        '</div>');
+    } catch(e) {}
     return;
   }
   // Try to resume session
@@ -15491,7 +15564,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   } catch(e) { console.warn('Session resume:', e); }
   // Otherwise show login
   showAuthOverlay();
-});
+}
 
 // M17 · Global Search
 function openGlobalSearch() {
