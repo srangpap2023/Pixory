@@ -2953,7 +2953,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.80';
+const PIXORY_DESKTOP_VERSION = '1.0.81';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -3891,6 +3891,8 @@ function applyDataBlob(blob) {
   if (Array.isArray(blob.EQUIPMENT_CATEGORIES)) { EQUIPMENT_CATEGORIES.length = 0; EQUIPMENT_CATEGORIES.push(...blob.EQUIPMENT_CATEGORIES); }
   if (blob._meta && typeof blob._meta.version === 'number') DATA_VERSION = blob._meta.version;
 
+  // === Migration v2.9.7 · team ID คงที่ · ใส่ id ให้ทีม + สร้าง j.teamMembers (canonical) จาก legacy ===
+  if (typeof migrateJobsTeam === 'function') { try { migrateJobsTeam(JOBS, TEAM); } catch(e) { console.warn('team-id migrate:', e); } }
   // === FIX C · Migrate · ensure PROFILE.jobStatuses รวม custom labels จาก JOBS ===
   // ตรงกับ mobile v2.5.12 · ป้องกัน dropdown สถานะงาน reset ค่าเดิมตอน edit
   try { _ensureProfileJobStatuses(); } catch(e) { console.warn('jobStatuses migration:', e); }
@@ -8771,8 +8773,17 @@ async function saveTeam(idx) {
   const rate = Number(document.getElementById('tm-rate').value) || 0;
   const color = document.getElementById('tm-color').value || '#D97757';
   if (!name) { toast('ใส่ชื่อก่อน', 'error'); return; }
-  const entry = { name, role, rate, color };
-  if (idx >= 0) TEAM[idx] = entry; else TEAM.push(entry);
+  // v2.9.7 · team ID คงที่ · เก็บ id เดิมตอนแก้ (เดิม TEAM[idx]=entry ทำ id หาย) + propagate rename
+  const isEdit = idx >= 0 && TEAM[idx];
+  const oldName = isEdit ? TEAM[idx].name : null;
+  const id = isEdit ? (TEAM[idx].id || (typeof genTeamId === 'function' ? genTeamId() : undefined))
+                    : (typeof genTeamId === 'function' ? genTeamId() : undefined);
+  const entry = { id, name, role, rate, color };
+  if (isEdit) TEAM[idx] = entry; else TEAM.push(entry);
+  if (isEdit && oldName !== name && id && typeof renameTeamMember === 'function') {
+    const n = renameTeamMember(JOBS, TEAM, id, name);
+    if (n > 0) console.log('[team] renamed "' + oldName + '" → "' + name + '" · updated ' + n + ' job(s)');
+  }
   await saveData();
   closeModal();
   toast('✓ บันทึกทีมแล้ว', 'success');
@@ -9170,6 +9181,11 @@ async function renameStringItem(key, idx) {
   if (!trimmed || trimmed === oldVal) return;
   if (arr.includes(trimmed)) { toast('ชื่อนี้มีอยู่แล้ว', 'warn'); return; }
   arr[idx] = trimmed;
+  // v2.9.7 · rename-propagation → เขียนทับงาน/ค่าใช้จ่ายที่อ้างชื่อเดิม (ไม่มี migration)
+  if (typeof renameListRef === 'function') {
+    const _kind = { JOB_TYPES: 'jobtype', SOURCES: 'source', EXPENSE_CATS: 'expcat' }[key];
+    if (_kind) { const _m = renameListRef(JOBS, EXPENSES, _kind, oldVal, trimmed); if (_m > 0) console.log('[list] renamed "' + oldVal + '" → "' + trimmed + '" · updated ' + _m + ' ref(s)'); }
+  }
   await saveData();
   renderSettings(document.getElementById('main'));
 }
@@ -10128,6 +10144,7 @@ async function importBackupFromFile(event) {
     if (Array.isArray(data.PKG_VIDEO))  { PKG_VIDEO.length = 0; PKG_VIDEO.push(...data.PKG_VIDEO); }
     if (Array.isArray(data.PKG_PRE))    { PKG_PRE.length = 0; PKG_PRE.push(...data.PKG_PRE); }
     if (Array.isArray(data.EQUIPMENT_CATEGORIES)) { EQUIPMENT_CATEGORIES.length = 0; EQUIPMENT_CATEGORIES.push(...data.EQUIPMENT_CATEGORIES); }
+    if (typeof migrateJobsTeam === 'function') { try { migrateJobsTeam(JOBS, TEAM); } catch(e) { console.warn('team-id migrate (restore):', e); } }
 
     // === FIX C3 · Stamp version+1000 บังคับให้ "ใหม่กว่า cloud" ป้องกัน realtime sync ทับ ===
     // ตรงกับ mobile's reset_transaction pattern
@@ -12523,6 +12540,12 @@ async function saveJob() {
 
   const code = st.editing || generateJobCode();
   const existing = st.editing ? JOBS.find(x => x.code === st.editing) : null;
+  // v2.9.7 · canonical team (id-based) · map ชื่อ→id จาก TEAM master · เก็บ id เดิมของ orphan
+  const teamMembers = team.map(function (n) {
+    var master = TEAM.find(function (x) { return x && x.name === n; });
+    var old = (existing && Array.isArray(existing.teamMembers)) ? existing.teamMembers.find(function (e) { return e && e.name === n; }) : null;
+    return { id: master ? master.id : (old ? old.id : null), name: n, wage: Number(teamWages[n]) || 0 };
+  });
   const remain = Math.max(0, c.sell - deposit);
   let payStatus = 'รอมัดจำ';
   if (remain === 0 && c.sell > 0) payStatus = 'ชำระครบ';
@@ -12570,7 +12593,7 @@ async function saveJob() {
     delivery: existing?.delivery || 'ยังไม่ถ่าย',
     source: (document.getElementById('add-source')?.value) || (SOURCES[SOURCES.length - 1] || 'อื่นๆ'),
     fromQuote: existing?.fromQuote,
-    team, teamWages, teamCost,
+    team, teamWages, teamCost, teamMembers,
     // v1.0.35 · Team finalization status from checkbox
     teamStatus: (FORM_STATE.add.teamFinal ? 'finalized' : 'incomplete'),
     travelCost: existing?.travelCost || 0,

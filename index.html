@@ -8761,7 +8761,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.6';
+const PIXORY_VERSION = '2.9.7';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -13252,6 +13252,8 @@ function loadData() {
       Object.keys(PHOTOGRAPHER_COLORS).forEach(k => delete PHOTOGRAPHER_COLORS[k]);
       TEAM.forEach(t => PHOTOGRAPHER_COLORS[t.name] = t.color);
     }
+    // === Migration v2.9.7: team ID คงที่ · ใส่ id ให้ทีม + สร้าง j.teamMembers (canonical) จาก legacy ===
+    if (typeof migrateJobsTeam === 'function') { try { migrateJobsTeam(JOBS, TEAM); } catch (e) { console.warn('team-id migrate failed', e); } }
     // === Migration: backfill payments[] for jobs created before payment-log feature ===
     migrateBackfillPayments();
     // v2.8.7 · backfill key ให้บริการเสริมที่สร้างก่อน fix (ไม่มี key/ซ้ำ) · deterministic เพื่อ sync ไม่ชนกัน
@@ -15105,6 +15107,15 @@ function saveEditItem() {
   });
   if (!valid) { toast(t('toast.errName')); return; }
 
+  // v2.9.7 · team rename: เก็บชื่อ/id เดิมก่อนแก้ เพื่อ propagate ไปทุกงานที่อ้าง id นี้
+  var _teamOldName = null, _teamOldId = null;
+  if (EDIT_CTX.type === 'team' && EDIT_CTX.index >= 0 && list[EDIT_CTX.index]) {
+    _teamOldName = list[EDIT_CTX.index].name;
+    _teamOldId = list[EDIT_CTX.index].id;
+  }
+  // v2.9.7 · ลิสต์และแท็ก (jobtype/source/expcat) เป็นชื่อล้วน → เก็บชื่อเดิมไว้ propagate
+  var _listOldName = (schema.isString && EDIT_CTX.index >= 0) ? list[EDIT_CTX.index] : null;
+
   if (schema.isString) {
     if (EDIT_CTX.index < 0) list.push(data.name);
     else list[EDIT_CTX.index] = data.name;
@@ -15117,10 +15128,25 @@ function saveEditItem() {
     if (EDIT_CTX.index < 0) list.push(data);
     else Object.assign(list[EDIT_CTX.index], data);
   }
-  // Special: team color map
+  // Special: team — ensure id + propagate rename + rebuild color map
   if (EDIT_CTX.type === 'team') {
+    var _saved = (EDIT_CTX.index < 0) ? list[list.length - 1] : list[EDIT_CTX.index];
+    if (_saved && !_saved.id && typeof genTeamId === 'function') _saved.id = genTeamId();
+    // เปลี่ยนชื่อ → อัปเดตทุกงานที่อ้าง id นี้ (canonical teamMembers) + re-derive legacy
+    if (_teamOldId && _saved && _saved.name !== _teamOldName && typeof renameTeamMember === 'function') {
+      const _n = renameTeamMember(JOBS, TEAM, _teamOldId, _saved.name);
+      if (_n > 0) console.log('[team] renamed "' + _teamOldName + '" → "' + _saved.name + '" · updated ' + _n + ' job(s)');
+    }
     Object.keys(PHOTOGRAPHER_COLORS).forEach(k => delete PHOTOGRAPHER_COLORS[k]);
     TEAM.forEach(t => PHOTOGRAPHER_COLORS[t.name] = t.color);
+  }
+  // v2.9.7 · lists rename-propagation → เขียนทับงาน/ค่าใช้จ่ายที่อ้างชื่อเดิม (ไม่มี migration)
+  if (schema.isString && _listOldName != null && _listOldName !== data.name && typeof renameListRef === 'function') {
+    const _kind = { jobtype: 'jobtype', source: 'source', expcat: 'expcat' }[EDIT_CTX.type];
+    if (_kind) {
+      const _m = renameListRef(JOBS, EXPENSES, _kind, _listOldName, data.name);
+      if (_m > 0) console.log('[list] renamed "' + _listOldName + '" → "' + data.name + '" · updated ' + _m + ' ref(s)');
+    }
   }
   saveData();
   rerenderAll();
@@ -19019,6 +19045,15 @@ function collectAddFormData() {
     end: parseInt(endTime.split(':')[0], 10),
     team: Array.from(ADD_TEAM),
     teamWages: {...ADD_TEAM_WAGES},
+    // v2.9.7 · canonical team (id-based) · map ชื่อ→id จาก TEAM master · เก็บ id เดิมของ orphan ไว้
+    teamMembers: (function () {
+      var prev = (window._currentJob && Array.isArray(window._currentJob.teamMembers)) ? window._currentJob.teamMembers : [];
+      return Array.from(ADD_TEAM).map(function (nm) {
+        var master = TEAM.find(function (x) { return x && x.name === nm; });
+        var old = prev.find(function (e) { return e && e.name === nm; });
+        return { id: master ? master.id : (old ? old.id : null), name: nm, wage: Number(ADD_TEAM_WAGES[nm]) || 0 };
+      });
+    })(),
     // v2.5.54 · Team finalization status · save from checkbox state
     teamStatus: (document.getElementById('addTeamFinal') && document.getElementById('addTeamFinal').checked) ? 'finalized' : 'incomplete',
     selectedServices: {...ADD_SELECTED},
@@ -24895,6 +24930,21 @@ function renderTeamWages() {
     `;
     wrap.appendChild(row);
   });
+  // v2.9.7 · orphan: คนที่ถูกเลือกในงานแต่ไม่อยู่ในทีมแล้ว (โดนลบ/เปลี่ยนชื่อ) · ให้ลบออก/เปลี่ยนตัวได้
+  Array.from(ADD_TEAM).filter(n => !TEAM.some(t => t && t.name === n)).forEach(name => {
+    const wage = Number(ADD_TEAM_WAGES[name]) || 0;
+    total += wage;
+    const row = document.createElement('div');
+    row.className = 'wage-row';
+    row.innerHTML = `
+      <span class="wage-dot" style="background:#b8a98f"></span>
+      <span class="wage-name">${escapeHtml(name)} <span style="font-size:10.5px;color:#b91c1c;">· ไม่อยู่ในทีมแล้ว</span></span>
+      <span class="wage-currency">฿</span>
+      <input type="number" value="${wage}" data-wage-name="${escapeHtml(name)}">
+      <button type="button" data-rm-name="${escapeHtml(name)}" title="เอาออก" style="margin-left:6px;border:none;background:none;color:#b91c1c;font-size:20px;cursor:pointer;line-height:1;padding:0 4px;">×</button>
+    `;
+    wrap.appendChild(row);
+  });
   const sumRow = document.createElement('div');
   sumRow.className = 'wage-total';
   sumRow.innerHTML = `<span class="wt-label">รวมค่าแรงทีม (${ADD_TEAM.size} คน)</span><span class="wt-val" id="wage-sum">${fmt(total)}</span>`;
@@ -24908,6 +24958,14 @@ function renderTeamWages() {
       const name = inp.dataset.wageName;
       ADD_TEAM_WAGES[name] = parseFloat(inp.value) || 0;
       recalcTeamWage();
+    });
+  });
+  // v2.9.7 · ปุ่มเอา orphan ออก
+  wl.querySelectorAll('button[data-rm-name]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const name = btn.dataset.rmName;
+      ADD_TEAM.delete(name); delete ADD_TEAM_WAGES[name];
+      renderTeamWages();
     });
   });
 }

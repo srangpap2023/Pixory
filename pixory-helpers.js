@@ -119,6 +119,115 @@
     return s;
   }
 
+  // ===== ทีมงาน · ID คงที่ (v2.9.7) ===========================================
+  // โมเดล: TEAM แต่ละคนมี id ถาวร · งานเก็บ j.teamMembers=[{id,name,wage}] (canonical)
+  // คงฟิลด์เดิม j.team (ชื่อ) + j.teamWages (ชื่อ→ค่าแรง) + j.teamCost (รวม) ไว้แบบ "derived"
+  //   → จุดที่อ่านข้อมูลเดิมทั้งหมดยังทำงานได้ · เปลี่ยนชื่อแล้วอัปเดตทุกงานผ่าน id
+  function genTeamId() { return 'tm_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+  // id แบบ deterministic จากชื่อ (มือถือ/คอม migrate แยกกันได้ id ตรงกัน · กันชนข้ามเครื่อง)
+  function _detIdFromName(prefix, s) {
+    s = String(s || '');
+    var h = 0; for (var i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) | 0; }
+    return prefix + (h >>> 0).toString(36);
+  }
+
+  // ใส่ id ให้คนที่ยังไม่มี · ใช้ id จากชื่อ (deterministic) + กันซ้ำภายใน TEAM
+  function ensureTeamIds(team) {
+    var used = {};
+    (team || []).forEach(function (m) { if (m && m.id) used[m.id] = true; });
+    (team || []).forEach(function (m) {
+      if (m && !m.id) {
+        var base = _detIdFromName('tm_', m.name || ''), id = base, k = 1;
+        while (used[id]) id = base + '_' + (k++);
+        m.id = id; used[id] = true;
+      }
+    });
+    return team;
+  }
+
+  // rename-propagation สำหรับ "ลิสต์และแท็ก" (ไม่มี id · เขียนทับชื่ออ้างอิงตอนเปลี่ยนชื่อ)
+  // kind: 'jobtype' | 'source' | 'status' | 'expcat'
+  function renameListRef(jobs, expenses, kind, oldName, newName) {
+    if (oldName == null || oldName === newName) return 0;
+    var n = 0;
+    (jobs || []).forEach(function (j) {
+      if (!j) return;
+      if (kind === 'jobtype' && j.type === oldName) { j.type = newName; n++; }
+      else if (kind === 'source' && j.source === oldName) { j.source = newName; n++; }
+      else if (kind === 'status' && j.jobStatus === oldName) { j.jobStatus = newName; n++; }
+      if (kind === 'expcat') {
+        (j.costItems || []).forEach(function (c) { if (c && c.category === oldName) { c.category = newName; n++; } });
+        (j.billableCosts || []).forEach(function (c) { if (c && c.category === oldName) { c.category = newName; n++; } });
+      }
+    });
+    if (kind === 'expcat') (expenses || []).forEach(function (e) { if (e && e.cat === oldName) { e.cat = newName; n++; } });
+    return n;
+  }
+
+  function teamNameById(team, id) {
+    var m = (team || []).find(function (x) { return x && x.id === id; });
+    return m ? m.name : '';
+  }
+
+  // คืน j.teamMembers (สร้างจาก legacy ถ้ายังไม่มี · idempotent) + refresh ชื่อจาก master ตาม id
+  function normalizeJobTeam(j, team) {
+    if (!j) return [];
+    team = team || (typeof TEAM !== 'undefined' ? TEAM : []);
+    if (!Array.isArray(j.teamMembers)) {
+      var names = Array.isArray(j.team) ? j.team : [];
+      var wages = (j.teamWages && typeof j.teamWages === 'object') ? j.teamWages : {};
+      j.teamMembers = names.map(function (nm) {
+        var master = team.find(function (x) { return x && x.name === nm; });
+        return { id: master ? master.id : null, name: nm, wage: Number(wages[nm]) || 0 };
+      });
+    }
+    j.teamMembers.forEach(function (e) {
+      if (e && e.id) { var m = team.find(function (x) { return x && x.id === e.id; }); if (m) e.name = m.name; }
+    });
+    return j.teamMembers;
+  }
+
+  // เขียนฟิลด์ legacy กลับจาก teamMembers (back-compat กับจุดอ่านเดิม + sync)
+  function deriveLegacyTeam(j) {
+    if (!j) return;
+    var tm = Array.isArray(j.teamMembers) ? j.teamMembers : [];
+    j.team = tm.map(function (e) { return e.name; });
+    j.teamWages = {}; var tot = 0;
+    tm.forEach(function (e) { j.teamWages[e.name] = Number(e.wage) || 0; tot += Number(e.wage) || 0; });
+    j.teamCost = tot;
+  }
+
+  // migrate ทุกงาน (idempotent) · เรียกตอนโหลดข้อมูล
+  function migrateJobsTeam(jobs, team) {
+    ensureTeamIds(team);
+    (jobs || []).forEach(function (j) { normalizeJobTeam(j, team); deriveLegacyTeam(j); });
+  }
+
+  // เปลี่ยนชื่อทีม · อัปเดต master + ทุกงานที่อ้าง id นี้ + re-derive legacy
+  function renameTeamMember(jobs, team, id, newName) {
+    if (!id) return 0;
+    var m = (team || []).find(function (x) { return x && x.id === id; });
+    if (m) m.name = newName;
+    var n = 0;
+    (jobs || []).forEach(function (j) {
+      if (!Array.isArray(j.teamMembers)) return;
+      var changed = false;
+      j.teamMembers.forEach(function (e) { if (e && e.id === id) { e.name = newName; changed = true; } });
+      if (changed) { deriveLegacyTeam(j); n++; }
+    });
+    return n;
+  }
+
+  g.genTeamId = genTeamId;
+  g.ensureTeamIds = ensureTeamIds;
+  g.teamNameById = teamNameById;
+  g.normalizeJobTeam = normalizeJobTeam;
+  g.deriveLegacyTeam = deriveLegacyTeam;
+  g.migrateJobsTeam = migrateJobsTeam;
+  g.renameTeamMember = renameTeamMember;
+  g.renameListRef = renameListRef;
+
   g.jobInvExtra = jobInvExtra;
   g.cashReceivedInYear = cashReceivedInYear;
   g.cashRowsForYear = cashRowsForYear;
