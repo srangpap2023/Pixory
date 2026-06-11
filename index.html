@@ -910,6 +910,29 @@
   .action-grid .act .ico { font-size: 22px; display: block; margin-bottom: 4px; }
   /* v2.5.85 · Joe: ตัวหนังสือปุ่ม action เล็ก+มืด อ่านยาก → 10px→12px + เพิ่ม override luxe (เดิมมีแค่ dark) */
   .action-grid .act .lbl { font-size: 12px; font-weight: 500; color: #4b5563; }
+  /* v2.9.14 · หน้างาน: 4 ใบ (เพิ่ม ยกเลิกงาน/กู้คืนงาน) + ถังขยะหัวจอไร้พื้นหลัง สีชัดทุกธีม (Joe เคาะ) */
+  #screen-job .action-grid { grid-template-columns: repeat(4, 1fr); }
+  #screen-job .action-grid .act .lbl { font-size: 11px; }
+  .hd-del { background: none !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; padding: 4px !important; color: #dc2626 !important; }
+  body.dark-theme .hd-del, body.luxe-theme .hd-del { color: #fca5a5 !important; }
+  /* modal ยกเลิกงาน · แทน confirm "ตกลง/ยกเลิก" ที่ตีความผิดได้ */
+  .cjm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 99990; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .cjm-box { width: 100%; max-width: 360px; background: #fffdf9; border-radius: 18px; padding: 20px 18px 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.35); }
+  .cjm-title { font-size: 17px; font-weight: 800; color: #3a2f25; line-height: 1.4; }
+  .cjm-sub { font-size: 13.5px; color: #7c7066; margin: 6px 0 14px; line-height: 1.55; }
+  .cjm-btn { display: block; width: 100%; text-align: left; border-radius: 14px; padding: 12px 14px; font-size: 15px; font-weight: 800; cursor: pointer; margin-bottom: 10px; border: 1.5px solid transparent; font-family: inherit; }
+  .cjm-btn small { display: block; font-size: 11.5px; font-weight: 500; margin-top: 3px; opacity: 0.85; line-height: 1.45; }
+  .cjm-btn.refund { background: #fff5f5; border-color: rgba(220,38,38,0.35); color: #b91c1c; }
+  .cjm-btn.forfeit { background: #f6f2ea; border-color: #e0d6c4; color: #6b4e16; }
+  .cjm-back { display: block; width: 100%; text-align: center; background: none; border: none; color: #7c7066; font-size: 14px; font-weight: 700; padding: 10px; cursor: pointer; font-family: inherit; }
+  .cjm-note { font-size: 11.5px; color: #a89a8c; text-align: center; margin-top: 2px; line-height: 1.5; }
+  body.dark-theme .cjm-box, body.luxe-theme .cjm-box { background: rgba(28,28,34,0.97) !important; border: 1px solid rgba(212,160,86,0.35); }
+  body.dark-theme .cjm-title, body.luxe-theme .cjm-title { color: #FDF1E0 !important; }
+  body.dark-theme .cjm-sub, body.luxe-theme .cjm-sub { color: rgba(242,224,186,0.6) !important; }
+  body.dark-theme .cjm-btn.refund, body.luxe-theme .cjm-btn.refund { background: rgba(185,28,28,0.16) !important; border-color: rgba(252,165,165,0.4) !important; color: #fca5a5 !important; }
+  body.dark-theme .cjm-btn.forfeit, body.luxe-theme .cjm-btn.forfeit { background: rgba(212,160,86,0.12) !important; border-color: rgba(184,133,74,0.5) !important; color: #D4A056 !important; }
+  body.dark-theme .cjm-back, body.luxe-theme .cjm-back { color: rgba(242,224,186,0.6) !important; }
+  body.dark-theme .cjm-note, body.luxe-theme .cjm-note { color: rgba(242,224,186,0.45) !important; }
 
   .toast {
     position: fixed; bottom: 100px; left: 50%;
@@ -4865,6 +4888,17 @@
 <body>
 
 <!-- v2.5.77 · PERF · หน้า loading ระหว่างบูต (กันจอขาว) · ซ่อนตัวเองเมื่อแอปพร้อม + failsafe 8 วิ -->
+<!-- v2.9.14 · modal ยกเลิกงาน · แทน confirm "ตกลง/ยกเลิก" ที่ตีความผิดได้ (Joe report 11 มิ.ย.) · top-level fixed นอกคอลัมน์จอ (กฎ H1) -->
+<div id="cancel-job-modal" class="cjm-overlay" style="display:none;" onclick="if(event.target===this)closeCancelJobModal()">
+  <div class="cjm-box">
+    <div class="cjm-title">🚫 ยกเลิกงาน<br><span id="cjm-code" style="font-size:14px;font-weight:600;opacity:.8;"></span></div>
+    <div class="cjm-sub" id="cjm-sub"></div>
+    <button type="button" class="cjm-btn refund" onclick="_cancelModalChoose(true)">💸 คืนเงินให้ลูกค้า <span id="cjm-amt"></span><small>ระบบบันทึกรายการคืนเงินให้อัตโนมัติ · รายรับปีนี้ลดลงตามจริง</small></button>
+    <button type="button" class="cjm-btn forfeit" onclick="_cancelModalChoose(false)">🔒 ริบมัดจำ (ไม่คืนเงิน)<small>เงินที่รับมาแล้วยังนับเป็นรายรับตามเดิม</small></button>
+    <button type="button" class="cjm-back" onclick="closeCancelJobModal()">ไม่ยกเลิกแล้ว · กลับ</button>
+    <div class="cjm-note">💡 งานที่ยกเลิกจะถูกตัดจากยอดขาย/ค้างเก็บ · ประวัติยังอยู่ · กู้คืนได้ทุกเมื่อ</div>
+  </div>
+</div>
 <div id="boot-splash" style="position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#0A0A0E;font-family:'Inter','IBM Plex Sans Thai',sans-serif;transition:opacity .35s ease;">
   <div style="width:74px;height:74px;border-radius:22px;background:rgba(212,188,130,.08);border:1px solid #6f5a34;display:flex;align-items:center;justify-content:center;">
     <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#ECDAA6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h2l1.5-2h7L17 7h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.5"/></svg>
@@ -5725,10 +5759,9 @@
       <div class="header">
         <button class="back" onclick="goTo('jobs')">‹</button>
         <h1 data-i18n="job.detailTitle">รายละเอียดงาน</h1>
+        <!-- v2.9.14 · Joe เคาะ: ถอดดินสอซ้ำ (มีปุ่ม "แก้ไขงาน" ใน action grid) · ย้าย "ยกเลิกงาน" ลง action grid (ใบที่ 4 มีป้ายชื่อชัด) · เหลือถังขยะตัวเดียว ไร้พื้นหลัง สีชัดทุกธีม -->
         <div style="display:flex; gap:14px; align-items:center;">
-          <button class="icon-btn" onclick="editCurrentJob()" style="color:#C9954F;" data-i18n-attr="title" data-i18n="btn.edit" title="แก้ไข"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
-          <button class="icon-btn" onclick="cancelCurrentJob()" style="color:#9a6a16;" title="ยกเลิกงาน"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg></button>
-          <button class="icon-btn" onclick="deleteCurrentJob()" style="color:#dc2626;" data-i18n-attr="title" data-i18n="btn.delete" title="ลบ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+          <button class="icon-btn hd-del" onclick="deleteCurrentJob()" data-i18n-attr="title" data-i18n="btn.delete" title="ลบ"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
       </div>
 
@@ -5766,6 +5799,8 @@
         <div class="act" onclick="editCurrentJob()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-home)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 60 L50 32 L58 40 L30 68 L20 70 Z" fill="#fff"/><path d="M54 28 L60 22 Q64 18 68 22 L66 24 Q70 28 66 32 L62 36 Z" fill="#fff"/></svg></span><span class="lbl" data-i18n="job.editJob">แก้ไขงาน</span></div>
         <div class="act" onclick="openAddExpenseForJob()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-cal-header)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><path d="M22 16 L66 16 L66 72 L58 66 L50 72 L44 66 L38 72 L30 66 L22 72 Z" fill="#fff"/><line x1="30" y1="32" x2="58" y2="32" stroke="#d92020" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="42" x2="50" y2="42" stroke="#d92020" stroke-width="3" stroke-linecap="round" opacity="0.8"/><line x1="30" y1="52" x2="58" y2="52" stroke="#d92020" stroke-width="3" stroke-linecap="round" opacity="0.7"/></svg></span><span class="lbl" data-i18n="job.recordExpense">บันทึกค่าใช้จ่าย</span></div>
         <div class="act" onclick="openReceivePayment()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="url(#ic-rep)"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="22" fill="#fff"/><text x="44" y="55" fill="#1a9d6a" font-size="32" font-weight="800" text-anchor="middle" font-family="-apple-system,Inter,sans-serif">฿</text></svg></span><span class="lbl" data-i18n="job.receivePayment">รับเงิน</span></div>
+        <!-- v2.9.14 · ใบที่ 4 · ยกเลิกงาน (Joe เคาะ: ย้ายจากไอคอนหัวจอที่หาไม่เจอ) · สลับเป็น "กู้คืนงาน" เมื่องานถูกยกเลิก -->
+        <div class="act" id="job-act-cancel" onclick="cancelCurrentJob()"><span class="ico svg-icon"><svg viewBox="0 0 88 88"><rect x="6" y="6" width="76" height="76" rx="22" fill="#c2403f" id="job-act-cancel-bg"/><rect x="6" y="6" width="76" height="40" rx="22" fill="url(#ic-hi)"/><circle cx="44" cy="44" r="19" fill="none" stroke="#fff" stroke-width="7"/><line x1="31" y1="31" x2="57" y2="57" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg></span><span class="lbl" id="job-act-cancel-lbl">ยกเลิกงาน</span></div>
       </div>
 
       <!-- v2.5.78 · เพิ่มลงปฏิทิน (.ics) → Google / ปฏิทินมือถือ / Apple · ใช้สไตล์ secondary (เข้าธีม · ไม่ hardcode สี) -->
@@ -8853,7 +8888,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.13';
+const PIXORY_VERSION = '2.9.14';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8864,6 +8899,17 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.14': {
+    date: '2026-06-11',
+    title: '🚫 ยกเลิกงานชัดเจนขึ้น · ไม่กดพลาดอีก',
+    subtitle: 'รวมของ v2.9.13 (ลบบัญชี PDPA) ด้วย',
+    items: [
+      { icon: '🚫', title: 'ปุ่ม "ยกเลิกงาน" ย้ายมาอยู่แถวปุ่มหลัก', desc: 'อยู่ข้างปุ่มรับเงินในหน้างาน มีชื่อกำกับชัด ไม่ต้องเดาไอคอนอีก · เมื่องานถูกยกเลิก ปุ่มเดียวกันเปลี่ยนเป็น "กู้คืนงาน" สีเขียว' },
+      { icon: '💸', title: 'เลือก "คืนเงิน / ริบมัดจำ" จากปุ่มชื่อตรงๆ', desc: 'เลิกใช้กล่อง ตกลง/ยกเลิก ที่งง — ตอนนี้เป็นปุ่ม "คืนเงินให้ลูกค้า" กับ "ริบมัดจำ" พร้อมคำอธิบายว่าตัวเลขจะขยับยังไง' },
+      { icon: '🧹', title: 'หัวหน้างานสะอาดขึ้น', desc: 'ถอดปุ่มดินสอที่ซ้ำกับ "แก้ไขงาน" ออก · ถังขยะไร้พื้นหลัง มองชัดทุกธีม' },
+      { icon: '🔒', title: 'ลบบัญชีถาวรด้วยตัวเองได้จริง (PDPA)', desc: 'ลบข้อมูลทุกอย่าง + บัญชี ด้วยตัวเองทันที มีขั้นยืนยันหลายชั้นกันลบพลาด' }
+    ]
+  },
   '2.9.13': {
     date: '2026-06-11',
     title: '🔒 ลบบัญชีด้วยตัวเองได้จริงแล้ว (PDPA)',
@@ -16254,6 +16300,11 @@ function openJob(code) {
   // v2.9.0 · ป้ายงานยกเลิก
   const _cxBanner = document.getElementById('job-cancelled-banner');
   if (_cxBanner) _cxBanner.style.display = jobCancelled(j) ? 'flex' : 'none';
+  // v2.9.14 · ใบที่ 4 สลับ ยกเลิกงาน ↔ กู้คืนงาน ตามสถานะ (สีแดง ↔ เขียว)
+  const _cxLbl = document.getElementById('job-act-cancel-lbl');
+  if (_cxLbl) _cxLbl.textContent = jobCancelled(j) ? 'กู้คืนงาน' : 'ยกเลิกงาน';
+  const _cxBg = document.getElementById('job-act-cancel-bg');
+  if (_cxBg) _cxBg.setAttribute('fill', jobCancelled(j) ? '#1a9d6a' : '#c2403f');
 
   // v2.5.54 · Show team warning banner if teamStatus === 'incomplete' (legacy jobs silent)
   const _twBanner = document.getElementById('job-team-warn-banner');
@@ -19391,15 +19442,35 @@ function cancelCurrentJob() {
     return;
   }
   const received = (j.payments || []).reduce((s, p) => s + (Number(p && p.amount) || 0), 0);
+  // v2.9.14 · มีเงินรับแล้ว → modal 3 ปุ่มชัดๆ (เดิมใช้ confirm "ตกลง=คืน / ยกเลิก=ริบ" คนตีความผิด · Joe report)
+  if (received > 0) { openCancelJobModal(j, received); return; }
   if (!confirm('ยกเลิกงาน "' + (j.customer || '') + '" (' + j.code + ')?\n\n• งานจะถูกตัดออกจาก "รายได้คาดการณ์" และ "ค้างเก็บ"\n• ยังเก็บประวัติไว้ (ไม่ลบทิ้ง) · กู้คืนได้ภายหลัง')) return;
-  let refunded = false;
-  if (received > 0) {
-    refunded = confirm('ลูกค้าจ่ายมาแล้ว ' + fmt(received) + '\n\nจะคืนเงินให้ลูกค้าไหม?\n\n• กด "ตกลง" = คืนเงิน (หักออกจากรายรับ)\n• กด "ยกเลิก" = ริบไว้ (ยังนับเป็นรายได้)');
-  }
+  _performCancelJob(j, false, 0);
+}
+
+// v2.9.14 · modal ยกเลิกงาน (คืน/ริบ/กลับ)
+function openCancelJobModal(j, received) {
+  window._cjmJob = j; window._cjmReceived = received;
+  const c = document.getElementById('cjm-code'); if (c) c.textContent = (j.customer || '') + ' · ' + j.code;
+  const s = document.getElementById('cjm-sub'); if (s) s.textContent = 'งานนี้รับเงินมาแล้ว ' + fmt(received) + ' บาท — จะจัดการเงินก้อนนี้ยังไง?';
+  const a = document.getElementById('cjm-amt'); if (a) a.textContent = fmt(received);
+  const m = document.getElementById('cancel-job-modal'); if (m) m.style.display = 'flex';
+}
+function closeCancelJobModal() {
+  const m = document.getElementById('cancel-job-modal'); if (m) m.style.display = 'none';
+  window._cjmJob = null;
+}
+function _cancelModalChoose(refund) {
+  const j = window._cjmJob; const received = window._cjmReceived || 0;
+  closeCancelJobModal();
+  if (!j) return;
+  _performCancelJob(j, refund, received);
+}
+function _performCancelJob(j, refunded, received) {
   j.cancelled = true;
   j._cancelledAt = new Date().toISOString();
   j.jobStatus = 'ยกเลิก';
-  if (refunded) {
+  if (refunded && received > 0) {
     j.payments = j.payments || [];
     j.payments.push({ date: new Date().toISOString().slice(0, 10), amount: -received, type: 'refund', note: 'คืนเงิน (ยกเลิกงาน)', _autoCancelRefund: true });
     j.depositRefunded = true;

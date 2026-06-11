@@ -2707,6 +2707,17 @@
 <!-- ===================================================================
      AUTH OVERLAY
      =================================================================== -->
+<!-- v1.0.87 · modal ยกเลิกงาน (parity มือถือ v2.9.14) · แทน confirm ตกลง/ยกเลิก ที่ตีความผิดได้ -->
+<div id="cancel-job-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:99990; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeCancelJobModal()">
+  <div class="cjm-box" style="width:100%; max-width:380px; border-radius:18px; padding:22px 20px 14px; background:var(--card, #fffdf9); border:1px solid var(--border, rgba(0,0,0,0.08)); box-shadow:0 20px 60px rgba(0,0,0,0.35);">
+    <div style="font-size:17px; font-weight:800; line-height:1.4;">🚫 ยกเลิกงาน<br><span id="cjm-code" style="font-size:14px; font-weight:600; opacity:.8;"></span></div>
+    <div id="cjm-sub" style="font-size:13.5px; color:var(--ink-mute); margin:6px 0 14px; line-height:1.55;"></div>
+    <button type="button" onclick="_cancelModalChooseD(true)" style="display:block; width:100%; text-align:left; border-radius:14px; padding:12px 14px; font-size:15px; font-weight:800; cursor:pointer; margin-bottom:10px; font-family:inherit; background:rgba(220,38,38,0.10); border:1.5px solid rgba(220,38,38,0.4); color:#dc2626;">💸 คืนเงินให้ลูกค้า <span id="cjm-amt"></span><small style="display:block; font-size:11.5px; font-weight:500; margin-top:3px; opacity:.85;">ระบบบันทึกรายการคืนเงินให้อัตโนมัติ · รายรับปีนี้ลดลงตามจริง</small></button>
+    <button type="button" onclick="_cancelModalChooseD(false)" style="display:block; width:100%; text-align:left; border-radius:14px; padding:12px 14px; font-size:15px; font-weight:800; cursor:pointer; margin-bottom:10px; font-family:inherit; background:rgba(212,160,86,0.12); border:1.5px solid rgba(184,133,74,0.5); color:var(--brand);">🔒 ริบมัดจำ (ไม่คืนเงิน)<small style="display:block; font-size:11.5px; font-weight:500; margin-top:3px; opacity:.85;">เงินที่รับมาแล้วยังนับเป็นรายรับตามเดิม</small></button>
+    <button type="button" onclick="closeCancelJobModal()" style="display:block; width:100%; text-align:center; background:none; border:none; color:var(--ink-mute); font-size:14px; font-weight:700; padding:10px; cursor:pointer; font-family:inherit;">ไม่ยกเลิกแล้ว · กลับ</button>
+    <div style="font-size:11.5px; color:var(--ink-mute); text-align:center; margin-top:2px; line-height:1.5; opacity:.8;">💡 งานที่ยกเลิกถูกตัดจากยอดขาย/ค้างเก็บ · ประวัติยังอยู่ · กู้คืนได้ทุกเมื่อ</div>
+  </div>
+</div>
 <div id="auth-overlay" class="auth-overlay show">
   <!-- Brand header · matches mobile · camera SVG + pixory + tagline · all white on orange -->
   <div class="auth-brand-header">
@@ -2964,12 +2975,21 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.86';
+const PIXORY_DESKTOP_VERSION = '1.0.87';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.87': {
+    date: '2026-06-11',
+    title: '🚫 ยกเลิกงานชัดเจนขึ้น + ลบบัญชี PDPA',
+    subtitle: 'ตรงกับมือถือ v2.9.14',
+    items: [
+      { icon: '💸', title: 'เลือก "คืนเงิน / ริบมัดจำ" จากปุ่มชื่อตรงๆ', desc: 'เลิกใช้กล่อง ตกลง/ยกเลิก ที่งง — ปุ่มบอกชัดพร้อมผลของแต่ละทาง' },
+      { icon: '🔒', title: 'ลบบัญชีถาวรด้วยตัวเองได้จริง (PDPA)', desc: 'ยืนยันหลายชั้น + แนะนำ Export Backup ก่อน' }
+    ]
+  },
   '1.0.86': {
     date: '2026-06-11',
     title: '🔒 ลบบัญชีด้วยตัวเองได้จริงแล้ว (PDPA)',
@@ -13998,11 +14018,37 @@ async function cancelJob(code) {
     await saveData(); closeModal(); toast('✓ กู้คืนงาน ' + code + ' แล้ว', 'success'); navigate('jobs'); return;
   }
   const received = (j.payments || []).reduce((s, p) => s + (Number(p && p.amount) || 0), 0);
+  // v1.0.87 · มีเงินรับแล้ว → modal 3 ปุ่มชัดๆ (parity มือถือ v2.9.14 · เดิม confirm ตกลง=คืน/ยกเลิก=ริบ คนตีความผิด)
+  if (received > 0) { openCancelJobModalD(code, received); return; }
   if (!confirm('ยกเลิกงาน ' + code + ' (' + (j.customer || '') + ') ?\n\n• ตัดออกจาก "รายได้คาดการณ์" และ "ค้างเก็บ"\n• เก็บประวัติไว้ (ไม่ลบทิ้ง) · กู้คืนได้ภายหลัง')) return;
-  let refunded = false;
-  if (received > 0) refunded = confirm('ลูกค้าจ่ายมาแล้ว ' + fmtTHB(received) + '\n\nจะคืนเงินให้ลูกค้าไหม?\n\n• ตกลง = คืนเงิน (หักออกจากรายรับ)\n• ยกเลิก = ริบไว้ (ยังนับเป็นรายได้)');
+  await _performCancelJobD(code, false, 0);
+}
+
+// v1.0.87 · modal ยกเลิกงาน (คืน/ริบ/กลับ)
+function openCancelJobModalD(code, received) {
+  const j = JOBS.find(x => x.code === code);
+  if (!j) return;
+  window._cjmCode = code; window._cjmReceived = received;
+  const c = document.getElementById('cjm-code'); if (c) c.textContent = (j.customer || '') + ' · ' + code;
+  const s = document.getElementById('cjm-sub'); if (s) s.textContent = 'งานนี้รับเงินมาแล้ว ' + fmtTHB(received) + ' — จะจัดการเงินก้อนนี้ยังไง?';
+  const a = document.getElementById('cjm-amt'); if (a) a.textContent = fmtTHB(received);
+  const m = document.getElementById('cancel-job-modal'); if (m) m.style.display = 'flex';
+}
+function closeCancelJobModal() {
+  const m = document.getElementById('cancel-job-modal'); if (m) m.style.display = 'none';
+  window._cjmCode = null;
+}
+async function _cancelModalChooseD(refund) {
+  const code = window._cjmCode; const received = window._cjmReceived || 0;
+  closeCancelJobModal();
+  if (!code) return;
+  await _performCancelJobD(code, refund, received);
+}
+async function _performCancelJobD(code, refunded, received) {
+  const j = JOBS.find(x => x.code === code);
+  if (!j) return;
   j.cancelled = true; j._cancelledAt = new Date().toISOString(); j.jobStatus = 'ยกเลิก';
-  if (refunded) {
+  if (refunded && received > 0) {
     j.payments = j.payments || [];
     j.payments.push({ date: TODAY_ISO(), amount: -received, type: 'refund', note: 'คืนเงิน (ยกเลิกงาน)', _autoCancelRefund: true });
     j.depositRefunded = true;
