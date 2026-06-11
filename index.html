@@ -8853,7 +8853,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.12';
+const PIXORY_VERSION = '2.9.13';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8864,6 +8864,14 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.13': {
+    date: '2026-06-11',
+    title: '🔒 ลบบัญชีด้วยตัวเองได้จริงแล้ว (PDPA)',
+    subtitle: 'สิทธิ์ในข้อมูลของคุณ ครบถ้วนตามที่สัญญา',
+    items: [
+      { icon: '🗑️', title: 'ปุ่ม "ลบบัญชีถาวร" ทำงานจริงสมบูรณ์', desc: 'ลบข้อมูลทุกอย่างทั้งใน Cloud และตัวบัญชี ด้วยตัวเองทันที ไม่ต้องรอติดต่อทีมงาน · มีขั้นยืนยันหลายชั้นกันลบพลาด และแนะนำให้ Export Backup เก็บไว้ก่อนเสมอ' }
+    ]
+  },
   '2.9.12': {
     date: '2026-06-10',
     title: '📈 เส้นกราฟหน้าหลักเล่าเรื่องทั้งปีแล้ว',
@@ -12456,39 +12464,56 @@ async function doLogout() {
 // v1.9.39 · PDPA · Delete account permanently (right to be forgotten)
 // Steps: 1) suggest export backup · 2) confirm twice · 3) delete cloud row · 4) clear local · 5) sign out
 async function deleteAccountConfirm() {
-  // Step 1 · Offer backup
+  // v2.9.13 · ลบบัญชีถาวร "จริง" ผ่าน Edge delete_account
+  //   เดิม: ลบแค่ user_data + เครื่อง → บัญชี login / push / ตรา / แชท ค้างอยู่ (PDPA ไม่ครบ)
+  //   ใหม่: เซิร์ฟเวอร์ลบทุกตาราง + ตัวบัญชี · ลบไม่สำเร็จ = ข้อมูลอยู่ครบ ไม่ล้างเครื่อง
+  if (!CURRENT_USER || !SUPABASE) { alert('ยังไม่ได้เข้าสู่ระบบ'); return; }
+  // 🛡 กันแอดมินเผลอลบตัวเอง (เซิร์ฟเวอร์กันซ้ำอีกชั้น)
+  if (CURRENT_USER.isAdmin) { alert('🛡 บัญชีแอดมินลบผ่านแอปไม่ได้ (กันลบพลาด)'); return; }
+
+  // Step 1 · เสนอ backup ก่อน
   const offerBackup = confirm(
     '🗑 ลบบัญชีถาวร\n\n' +
     'ข้อมูลทั้งหมดจะถูกลบ · กู้คืนไม่ได้\n\n' +
-    'แนะนำให้กด "Export Backup" ใน Settings ก่อน\n' +
+    'แนะนำให้กด "Export Backup" ใน ตั้งค่า → สำรองข้อมูล ก่อน\n' +
     'เพื่อเก็บข้อมูลไว้\n\n' +
     'กด OK เพื่อทำต่อ · กด Cancel เพื่อยกเลิก'
   );
   if (!offerBackup) return;
-  // Step 2 · Final confirm
+  // Step 2 · ยืนยันรอบสุดท้าย
   const really = confirm(
     '⚠️ ยืนยันลบบัญชีถาวร?\n\n' +
     'รายการที่จะถูกลบ:\n' +
-    '✗ ข้อมูลใน Cloud (Supabase)\n' +
-    '✗ ข้อมูลในเครื่อง (localStorage)\n' +
+    '✗ ข้อมูลใน Cloud ทั้งหมด (งาน · ใบเสนอ · ลูกค้า · แชท · ตรา)\n' +
+    '✗ ข้อมูลในเครื่อง\n' +
     '✗ บัญชี Login\n\n' +
     'การกระทำนี้ "ไม่สามารถกู้คืนได้"\n' +
     'กด OK เพื่อยืนยัน'
   );
   if (!really) return;
+  // Step 3 · ต้องพิมพ์คำยืนยันเอง (กันกดผ่านรัวๆ)
+  const typed = prompt('พิมพ์คำว่า  ลบถาวร  เพื่อยืนยันครั้งสุดท้าย');
+  if (typed !== 'ลบถาวร') { if (typed !== null) toast('พิมพ์ไม่ตรง · ยกเลิกการลบ'); return; }
 
-  // Step 3 · Stop heartbeat to prevent re-sync
+  // Step 4 · หยุดระบบพื้นหลัง กัน re-sync ระหว่างลบ
   try { if (typeof stopPresenceHeartbeat === 'function') stopPresenceHeartbeat(); } catch(e) {}
+  try { if (typeof stopRealtimeSync === 'function') stopRealtimeSync(); } catch(e) {}
 
-  // Step 4 · Delete cloud row
-  if (CURRENT_USER && SUPABASE) {
-    try {
-      const { error } = await SUPABASE.from('user_data').delete().eq('user_id', CURRENT_USER.id);
-      if (error) console.warn('cloud delete failed:', error);
-    } catch(e) { console.warn('cloud delete error:', e); }
+  // Step 5 · เซิร์ฟเวอร์ลบทุกอย่าง (ทุกตาราง + ตัวบัญชี) · ต้องสำเร็จก่อนถึงล้างเครื่อง
+  toast('⏳ กำลังลบบัญชี...');
+  try {
+    const { data, error } = await SUPABASE.functions.invoke('delete_account', { body: { confirm: 'ลบถาวร' } });
+    if (error || (data && data.error)) {
+      const msg = (data && data.error) || (error && error.message) || 'เกิดข้อผิดพลาด';
+      alert('❌ ลบบัญชีไม่สำเร็จ\n\n' + msg + '\n\nข้อมูลของคุณยังอยู่ครบ · ลองใหม่อีกครั้ง\nหรือติดต่อแอดมิน: ตั้งค่า → ติดต่อแอดมิน');
+      return; // ❗ ไม่ล้างเครื่อง ไม่ logout · บัญชียังใช้ได้ปกติ
+    }
+  } catch (e) {
+    alert('❌ ลบบัญชีไม่สำเร็จ: ' + ((e && e.message) || e) + '\n\nข้อมูลของคุณยังอยู่ครบ · ติดต่อแอดมิน: ตั้งค่า → ติดต่อแอดมิน');
+    return;
   }
 
-  // Step 5 · Clear local storage (everything related to Pixory)
+  // Step 6 · cloud ลบครบแล้ว → ล้างข้อมูลในเครื่อง
   try {
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
@@ -12500,12 +12525,12 @@ async function deleteAccountConfirm() {
     keysToRemove.forEach(k => localStorage.removeItem(k));
   } catch(e) { console.warn('local clear error:', e); }
 
-  // Step 6 · Sign out
+  // Step 7 · Sign out (token ค้าง · ตัวบัญชีถูกลบไปแล้ว)
   try {
     if (SUPABASE) await SUPABASE.auth.signOut();
   } catch(e) {}
 
-  alert('✓ ลบบัญชีและข้อมูลทั้งหมดแล้ว\n\nเรารักษาความเป็นส่วนตัวของคุณ');
+  alert('✓ ลบบัญชีและข้อมูลทั้งหมดเรียบร้อย\n\nขอบคุณที่เคยใช้ Pixory · เรารักษาความเป็นส่วนตัวของคุณเสมอ');
   CURRENT_USER = null;
   location.reload();
 }

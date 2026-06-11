@@ -2964,12 +2964,20 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.85';
+const PIXORY_DESKTOP_VERSION = '1.0.86';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.86': {
+    date: '2026-06-11',
+    title: '🔒 ลบบัญชีด้วยตัวเองได้จริงแล้ว (PDPA)',
+    subtitle: 'ตรงกับมือถือ v2.9.13',
+    items: [
+      { icon: '🗑️', title: 'ปุ่ม "ลบบัญชีถาวร" ทำงานจริงสมบูรณ์', desc: 'ลบข้อมูลทุกอย่างทั้งใน Cloud และตัวบัญชี ด้วยตัวเองทันที · ยืนยันหลายชั้นกันลบพลาด + แนะนำ Export Backup ก่อน' }
+    ]
+  },
   '1.0.85': {
     date: '2026-06-10',
     title: '📈 เส้นกราฟหน้าหลักเล่าเรื่องทั้งปีแล้ว',
@@ -3636,7 +3644,7 @@ async function doLogin() {
       btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ';
       return;
     }
-    CURRENT_USER = { id: data.user.id, email: data.user.email };
+    CURRENT_USER = { id: data.user.id, email: data.user.email, isAdmin: !!(data.user.app_metadata && data.user.app_metadata.role === 'admin') }; // v1.0.86
     await finishAuthAndStart();
   } catch(e) {
     setAuthMsg('login', 'error', 'เกิดข้อผิดพลาด: ' + (e.message || e));
@@ -3754,6 +3762,7 @@ async function doSignup() {
       CURRENT_USER = {
         id: data.user.id,
         email: data.user.email,
+        isAdmin: !!(data.user.app_metadata && data.user.app_metadata.role === 'admin'), // v1.0.86
         signupStudio: studio,
         signupPhone: phone,
         signupLine: line,
@@ -10399,8 +10408,62 @@ async function logoutDesktop() {
   location.reload();
 }
 
-function deleteAccountDesktop() {
-  alert('ติดต่อสนับสนุนเพื่อลบบัญชี · srangpap2026@gmail.com\n\nหรือ Export Backup ก่อน · แล้วลบข้อมูล local จาก Settings → Backup → ล้างข้อมูล');
+async function deleteAccountDesktop() {
+  // v1.0.86 · ลบบัญชีถาวร "จริง" ผ่าน Edge delete_account (parity มือถือ v2.9.13)
+  //   เดิม: stub บอกให้ติดต่อสนับสนุน — ผิดคำสัญญา PDPA ที่เขียนไว้บนปุ่ม
+  if (!CURRENT_USER || !SUPABASE) { alert('ยังไม่ได้เข้าสู่ระบบ'); return; }
+  // 🛡 กันแอดมินเผลอลบตัวเอง (เซิร์ฟเวอร์กันซ้ำอีกชั้น)
+  if (CURRENT_USER.isAdmin) { alert('🛡 บัญชีแอดมินลบผ่านแอปไม่ได้ (กันลบพลาด)'); return; }
+
+  const offerBackup = confirm(
+    '🗑 ลบบัญชีถาวร\n\nข้อมูลทั้งหมดจะถูกลบ · กู้คืนไม่ได้\n\n' +
+    'แนะนำให้กด "Export Backup" ใน ตั้งค่า → สำรองข้อมูล ก่อน\n\n' +
+    'กด OK เพื่อทำต่อ · กด Cancel เพื่อยกเลิก'
+  );
+  if (!offerBackup) return;
+  const really = confirm(
+    '⚠️ ยืนยันลบบัญชีถาวร?\n\nรายการที่จะถูกลบ:\n' +
+    '✗ ข้อมูลใน Cloud ทั้งหมด (งาน · ใบเสนอ · ลูกค้า · แชท · ตรา)\n✗ ข้อมูลในเครื่อง\n✗ บัญชี Login\n\n' +
+    'การกระทำนี้ "ไม่สามารถกู้คืนได้"'
+  );
+  if (!really) return;
+  const typed = prompt('พิมพ์คำว่า  ลบถาวร  เพื่อยืนยันครั้งสุดท้าย');
+  if (typed !== 'ลบถาวร') { if (typed !== null) toast('พิมพ์ไม่ตรง · ยกเลิกการลบ', 'warn'); return; }
+
+  // หยุดระบบพื้นหลังกัน re-sync
+  try { if (typeof stopAutoSyncPoll === 'function') stopAutoSyncPoll(); } catch(e) {}
+  try { if (typeof stopRealtimeSync === 'function') stopRealtimeSync(); } catch(e) {}
+  try { if (_dtPresenceTimer) { clearInterval(_dtPresenceTimer); _dtPresenceTimer = null; } } catch(e) {}
+
+  toast('⏳ กำลังลบบัญชี...', 'warn');
+  try {
+    const { data, error } = await SUPABASE.functions.invoke('delete_account', { body: { confirm: 'ลบถาวร' } });
+    if (error || (data && data.error)) {
+      const msg = (data && data.error) || (error && error.message) || 'เกิดข้อผิดพลาด';
+      alert('❌ ลบบัญชีไม่สำเร็จ\n\n' + msg + '\n\nข้อมูลของคุณยังอยู่ครบ · ลองใหม่อีกครั้ง หรือทักแชทแอดมิน (ปุ่ม 💬 มุมขวาล่าง)');
+      return; // ❗ ไม่ล้างเครื่อง ไม่ logout
+    }
+  } catch (e) {
+    alert('❌ ลบบัญชีไม่สำเร็จ: ' + ((e && e.message) || e) + '\n\nข้อมูลของคุณยังอยู่ครบ · ทักแชทแอดมินได้ (ปุ่ม 💬 มุมขวาล่าง)');
+    return;
+  }
+
+  // cloud ลบครบแล้ว → ล้างเครื่อง
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith('srangpap_wedding_data') || k.startsWith('pixory.') || k === DATA_STORAGE_KEY || k === AUTH_STORAGE_KEY)) {
+        keysToRemove.push(k);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+  } catch(e) { console.warn('local clear error:', e); }
+  try { if (SUPABASE) await SUPABASE.auth.signOut(); } catch(e) {}
+
+  alert('✓ ลบบัญชีและข้อมูลทั้งหมดเรียบร้อย\n\nขอบคุณที่เคยใช้ Pixory · เรารักษาความเป็นส่วนตัวของคุณเสมอ');
+  CURRENT_USER = null;
+  location.reload();
 }
 
 // ===== Theme · ธีม (v1.0.5 · added Luxe Gold · default) =====
@@ -15685,7 +15748,7 @@ async function _desktopBoot() {
   try {
     const { data } = await SUPABASE.auth.getSession();
     if (data && data.session && data.session.user) {
-      CURRENT_USER = { id: data.session.user.id, email: data.session.user.email };
+      CURRENT_USER = { id: data.session.user.id, email: data.session.user.email, isAdmin: !!(data.session.user.app_metadata && data.session.user.app_metadata.role === 'admin') }; // v1.0.86
       await finishAuthAndStart();
       return;
     }
