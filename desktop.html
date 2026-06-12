@@ -14374,6 +14374,16 @@ function openInvoiceEditor(code) {
         <div class="form-field"><textarea id="inv-edit-message" rows="3">${escapeHtml(inv.message || '')}</textarea></div>
       </div>
 
+      ${(PROMPTPAY && PROMPTPAY.id && PROMPTPAY.onInvoice !== false) ? `
+      <!-- v1.0.88 · สวิตช์ QR พร้อมเพย์รายใบ (parity มือถือ) -->
+      <div class="form-section">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input type="checkbox" id="inv-edit-pp" ${inv.ppHide ? '' : 'checked'} style="width:18px;height:18px;accent-color:var(--brand);" />
+          <span>🔳 แสดง QR พร้อมเพย์บนใบนี้</span>
+          <span class="hint" style="margin-left:auto;">ปิดได้รายใบ เช่น ลูกค้าบริษัทที่ต้องโอนผ่านบัญชีบริษัท</span>
+        </label>
+      </div>` : ''}
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" onclick="deleteInvoice('${escapeHtml(code)}')" title="ลบใบเรียกเก็บ · ข้อมูล Job ไม่เสียหาย">🗑 ลบใบเรียกเก็บ</button>
@@ -14444,6 +14454,9 @@ async function saveInvoiceFromEditor(code, alsoPrint) {
   j.invoice.dateDue = (document.getElementById('inv-edit-due').value || '').trim();
   j.invoice.extraTime = Number(document.getElementById('inv-edit-extratime').value) || 0;
   j.invoice.message = (document.getElementById('inv-edit-message').value || '').trim();
+  // v1.0.88 · สวิตช์ QR พร้อมเพย์รายใบ (มี element เฉพาะเมื่อตั้งค่าพร้อมเพย์ไว้)
+  const ppCb = document.getElementById('inv-edit-pp');
+  if (ppCb) j.invoice.ppHide = !ppCb.checked;
   // addOns already updated in-place by editor
   // Filter empty addOns
   j.invoice.addOns = (j.invoice.addOns || []).filter(a => (a.name || '').trim() || (Number(a.price) || 0) > 0);
@@ -14541,7 +14554,7 @@ function _preparePromptPayQr(j, done) {
     const tot = calcInvoiceTotals(j);
     const amount = Number(tot.balanceDue) || 0;
     const usable = PROMPTPAY && PROMPTPAY.id && PROMPTPAY.onInvoice !== false
-      && !(j.invoice && j.invoice.balancePaid) && amount > 0
+      && !(j.invoice && j.invoice.balancePaid) && !(j.invoice && j.invoice.ppHide) && amount > 0
       && typeof window.buildPromptPayPayload === 'function';
     const payload = usable ? window.buildPromptPayPayload(PROMPTPAY.id, amount) : null;
     if (!payload) { done(); return; }

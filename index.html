@@ -6633,6 +6633,12 @@
           <textarea rows="4" id="inv-edit-message" data-i18n-attr="placeholder" data-i18n="inv.editMessagePlaceholder" placeholder="เช่น ขอบคุณที่ให้เราเก็บความทรงจำของวันสำคัญ..." onchange="saveInvoiceField('message', this.value)"></textarea>
           <div style="font-size:11px; color:#7c7066; margin-top:4px;" data-i18n="inv.editMessageHint">ปรับข้อความเองได้ สามารถใส่ขึ้นบรรทัดใหม่ได้</div>
         </div>
+
+        <!-- v2.9.15 · สวิตช์ QR พร้อมเพย์รายใบ (เช่น ลูกค้าบริษัทที่ต้องโอนผ่านบัญชีบริษัทเท่านั้น) -->
+        <label id="inv-edit-pp-row" style="display:none; align-items:center; justify-content:space-between; gap:10px; padding:10px 2px 0; cursor:pointer; border-top:0.5px dashed rgba(124,112,102,.35); margin-top:12px;">
+          <span style="font-size:13.5px;">🔳 แสดง QR พร้อมเพย์บนใบนี้</span>
+          <input type="checkbox" id="inv-edit-pp" onchange="saveInvoiceField('ppHide', this.checked ? false : true)" style="width:20px; height:20px; accent-color:#D4A056;">
+        </label>
       </div>
 
       <div style="display:flex; gap:8px; padding: 0 16px 16px; flex-wrap:wrap;">
@@ -22533,8 +22539,8 @@ function renderInvoicePDF(job) {
   } else {
     bankBlock.style.display = 'none';
   }
-  // v2.9.15 · PromptPay QR · แสดงเมื่อ: ตั้งค่าแล้ว + เปิดใช้ + ยังไม่ปิดยอด + มียอด > 0
-  renderInvoicePromptPay(tot.balanceDue, !!inv.balancePaid);
+  // v2.9.15 · PromptPay QR · แสดงเมื่อ: ตั้งค่าแล้ว + เปิดใช้ + ยังไม่ปิดยอด + มียอด > 0 + ไม่ได้ปิดรายใบ
+  renderInvoicePromptPay(tot.balanceDue, !!inv.balancePaid, !!inv.ppHide);
   // Custom message
   document.getElementById('inv-foot-message').textContent = inv.message || '';
   // Status pill + actions
@@ -22552,11 +22558,11 @@ function renderInvoicePDF(job) {
   }
 }
 
-// v2.9.15 · PromptPay QR บนใบเรียกเก็บ · ปิดยอดแล้ว/ไม่ตั้งค่า/ยอด 0 = ซ่อนเงียบๆ
-function renderInvoicePromptPay(amount, paid) {
+// v2.9.15 · PromptPay QR บนใบเรียกเก็บ · ปิดยอดแล้ว/ไม่ตั้งค่า/ยอด 0/ปิดรายใบ = ซ่อนเงียบๆ
+function renderInvoicePromptPay(amount, paid, ppHide) {
   const block = document.getElementById('inv-pp-block');
   if (!block) return;
-  const payload = (PROMPTPAY && PROMPTPAY.id && PROMPTPAY.onInvoice !== false && !paid && amount > 0 && typeof window.buildPromptPayPayload === 'function')
+  const payload = (PROMPTPAY && PROMPTPAY.id && PROMPTPAY.onInvoice !== false && !paid && !ppHide && amount > 0 && typeof window.buildPromptPayPayload === 'function')
     ? window.buildPromptPayPayload(PROMPTPAY.id, amount) : null;
   if (!payload) { block.style.display = 'none'; window._ppQrCache = null; return; }
   _ppQrToDataUrl(payload, function (url) {
@@ -22608,6 +22614,13 @@ function renderInvoiceEditor(job) {
   document.getElementById('inv-edit-due').value = inv.dateDue || '';
   document.getElementById('inv-edit-extratime').value = inv.extraTime || 0;
   document.getElementById('inv-edit-message').value = inv.message || '';
+  // v2.9.15 · สวิตช์ QR พร้อมเพย์รายใบ · โชว์เฉพาะเมื่อตั้งค่าพร้อมเพย์ไว้แล้ว
+  const ppRow = document.getElementById('inv-edit-pp-row');
+  if (ppRow) {
+    ppRow.style.display = (PROMPTPAY && PROMPTPAY.id && PROMPTPAY.onInvoice !== false) ? 'flex' : 'none';
+    const cb = document.getElementById('inv-edit-pp');
+    if (cb) cb.checked = !inv.ppHide;
+  }
   renderInvoiceAddOnsList(job);
 }
 
