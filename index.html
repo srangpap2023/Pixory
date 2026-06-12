@@ -6634,8 +6634,15 @@
           <div style="font-size:11px; color:#7c7066; margin-top:4px;" data-i18n="inv.editMessageHint">ปรับข้อความเองได้ สามารถใส่ขึ้นบรรทัดใหม่ได้</div>
         </div>
 
+        <!-- v2.9.15 · เลือกบัญชีรับโอนรายใบ (เดิมใบเรียกเก็บโชว์บัญชีเฉพาะงานที่ผูกบัญชีไว้ → งานส่วนใหญ่ไม่มีเลขบัญชีบนบิล · Joe report) -->
+        <div class="form-group" style="margin: 12px 0 0; padding-top:10px; border-top:0.5px dashed rgba(124,112,102,.35);">
+          <label>🏦 บัญชีรับโอนบนใบนี้</label>
+          <select id="inv-edit-bank" onchange="saveInvoiceField('bankIdx', this.value === '' ? null : parseInt(this.value, 10))"></select>
+          <div style="font-size:11px; color:#7c7066; margin-top:4px;">ไม่เลือก = ใช้บัญชีของงาน หรือบัญชีแรกอัตโนมัติ (เหมือนใบเสนอราคา)</div>
+        </div>
+
         <!-- v2.9.15 · สวิตช์ QR พร้อมเพย์รายใบ (เช่น ลูกค้าบริษัทที่ต้องโอนผ่านบัญชีบริษัทเท่านั้น) -->
-        <label id="inv-edit-pp-row" style="display:none; align-items:center; justify-content:space-between; gap:10px; padding:10px 2px 0; cursor:pointer; border-top:0.5px dashed rgba(124,112,102,.35); margin-top:12px;">
+        <label id="inv-edit-pp-row" style="display:none; align-items:center; justify-content:space-between; gap:10px; padding:10px 2px 0; cursor:pointer; margin-top:12px;">
           <span style="font-size:13.5px;">🔳 แสดง QR พร้อมเพย์บนใบนี้</span>
           <input type="checkbox" id="inv-edit-pp" onchange="saveInvoiceField('ppHide', this.checked ? false : true)" style="width:20px; height:20px; accent-color:#D4A056;">
         </label>
@@ -8951,7 +8958,8 @@ const RELEASE_NOTES = {
     items: [
       { icon: '🔳', title: 'QR พร้อมเพย์ระบุยอดอัตโนมัติ', desc: 'ใบเรียกเก็บยอดชำระเพิ่มเติมมี QR ให้ลูกค้าสแกนจ่ายด้วยแอปธนาคารใดก็ได้ ยอดคงเหลือขึ้นเองไม่ต้องพิมพ์ · เก็บเงินได้เร็วขึ้น โอนผิดยอดเป็นศูนย์' },
       { icon: '⚙️', title: 'ตั้งค่าง่าย ครั้งเดียวจบ', desc: 'ไปที่ ตั้งค่า → บัญชีรับโอน → ใส่เบอร์พร้อมเพย์ (เบอร์มือถือหรือเลขบัตรประชาชน) · QR จะขึ้นทุกใบโดยอัตโนมัติ ทั้งบนจอ รูป JPEG และ PDF' },
-      { icon: '✅', title: 'ฉลาดพอที่จะหายเอง', desc: 'ปิดยอดแล้ว/ไม่มียอดค้าง = QR ไม่แสดง กันลูกค้าสแกนจ่ายซ้ำ' }
+      { icon: '✅', title: 'ฉลาดพอที่จะหายเอง', desc: 'ปิดยอดแล้ว/ไม่มียอดค้าง = QR ไม่แสดง กันลูกค้าสแกนจ่ายซ้ำ · และปิด QR ได้รายใบ (เช่น ลูกค้าบริษัท)' },
+      { icon: '🏦', title: 'ใบเรียกเก็บเลือกบัญชีรับโอนได้แล้ว', desc: 'เดิมบิลโชว์บัญชีเฉพาะงานที่ผูกบัญชีไว้ — ตอนนี้เลือกได้ทุกบัญชีในส่วนปรับแต่งใบ · ไม่เลือก = ใช้บัญชีแรกอัตโนมัติเหมือนใบเสนอ' }
     ]
   },
   '2.9.14': {
@@ -21668,7 +21676,10 @@ function v2pdf_getPrintCtx(args) {
       }).join('')
     : (eventDate ? `<div>${v2pdf_fmtDateTH(eventDate)}</div>` : '<div>-</div>');
 
-  const bank = (doc.bankIdx != null && BANKS[doc.bankIdx]) ? BANKS[doc.bankIdx] : null;
+  // v2.9.15 · ใบเรียกเก็บ: บัญชีเลือกรายใบ > ตามงาน > บัญชีแรก (resolveInvoiceBank) · ใบเสนอ: ตาม doc.bankIdx เดิม
+  const bank = inv
+    ? (typeof resolveInvoiceBank === 'function' ? resolveInvoiceBank(doc) : null)
+    : ((doc.bankIdx != null && BANKS[doc.bankIdx]) ? BANKS[doc.bankIdx] : null);
   const studioName = PROFILE.shop || 'Pixory Studio';
   const studioTagline = PROFILE.tagline || '';
   const studioPhone = PROFILE.phone || '';
@@ -22528,13 +22539,13 @@ function renderInvoicePDF(job) {
     document.getElementById('inv-balance-due-text').textContent = window.t('inv.balancePleasePay') + ' ' + dd.getDate() + ' ' + _msb[dd.getMonth()] + ' ' + displayYear(dd.getFullYear());
   }
   document.getElementById('inv-balance-v').textContent = fmt(tot.balanceDue);
-  // Bank
+  // Bank · v2.9.15 · เลือกรายใบได้ + ไม่เลือก = ตามงาน/บัญชีแรกอัตโนมัติ (เหมือนใบเสนอ · เดิมงานไม่ผูกบัญชี = บิลไม่มีเลขบัญชีเลย)
   const bankBlock = document.getElementById('inv-bank-block');
-  if (job.bankIdx != null && job.bankIdx !== '' && BANKS[job.bankIdx]) {
-    const b = BANKS[job.bankIdx];
-    document.getElementById('inv-bank-name').textContent = b.bank || '—';
-    document.getElementById('inv-bank-acc').textContent = b.acc || '—';
-    document.getElementById('inv-bank-holder').textContent = b.name || '—';
+  const invBank = resolveInvoiceBank(job);
+  if (invBank) {
+    document.getElementById('inv-bank-name').textContent = invBank.bank || '—';
+    document.getElementById('inv-bank-acc').textContent = invBank.acc || '—';
+    document.getElementById('inv-bank-holder').textContent = invBank.holder || invBank.name || '—';
     bankBlock.style.display = '';
   } else {
     bankBlock.style.display = 'none';
@@ -22556,6 +22567,16 @@ function renderInvoicePDF(job) {
     pill.textContent = window.t('inv.statusWaiting');
     actions.innerHTML = `<button class="btn" style="margin:0; padding:6px 12px; font-size:11px; width:auto; background:#10b981;" onclick="toggleInvoiceBalancePaid()">${window.t('inv.markPaid')}</button>`;
   }
+}
+
+// v2.9.15 · บัญชีที่แสดงบนใบเรียกเก็บ: เลือกรายใบ (inv.bankIdx) > ตามงาน (j.bankIdx) > บัญชีแรก (เหมือนใบเสนอ) · -1 = ไม่แสดง
+function resolveInvoiceBank(j) {
+  const inv = (j && j.invoice) || {};
+  const ib = inv.bankIdx;
+  if (ib === -1 || ib === '-1') return null;
+  if (ib != null && ib !== '' && BANKS[ib]) return BANKS[ib];
+  if (j && j.bankIdx != null && j.bankIdx !== '' && BANKS[j.bankIdx]) return BANKS[j.bankIdx];
+  return BANKS.length > 0 ? BANKS[0] : null;
 }
 
 // v2.9.15 · PromptPay QR บนใบเรียกเก็บ · ปิดยอดแล้ว/ไม่ตั้งค่า/ยอด 0/ปิดรายใบ = ซ่อนเงียบๆ
@@ -22614,6 +22635,17 @@ function renderInvoiceEditor(job) {
   document.getElementById('inv-edit-due').value = inv.dateDue || '';
   document.getElementById('inv-edit-extratime').value = inv.extraTime || 0;
   document.getElementById('inv-edit-message').value = inv.message || '';
+  // v2.9.15 · ช่องเลือกบัญชีรับโอนรายใบ
+  const bankSel = document.getElementById('inv-edit-bank');
+  if (bankSel) {
+    let opts = '<option value="">อัตโนมัติ (ตามงาน / บัญชีแรก)</option>';
+    BANKS.forEach((b, i) => {
+      opts += `<option value="${i}">${(b.bank || b.name || '?')} · ${(b.acc || '')} · ${(b.holder || '')}</option>`;
+    });
+    opts += '<option value="-1">— ไม่แสดงเลขบัญชี —</option>';
+    bankSel.innerHTML = opts;
+    bankSel.value = (inv.bankIdx == null || inv.bankIdx === '') ? '' : String(inv.bankIdx);
+  }
   // v2.9.15 · สวิตช์ QR พร้อมเพย์รายใบ · โชว์เฉพาะเมื่อตั้งค่าพร้อมเพย์ไว้แล้ว
   const ppRow = document.getElementById('inv-edit-pp-row');
   if (ppRow) {

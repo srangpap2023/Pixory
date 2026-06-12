@@ -2987,7 +2987,8 @@ const RELEASE_NOTES = {
     subtitle: 'ตรงกับมือถือ v2.9.15 · ลูกค้าสแกนจ่าย ยอดขึ้นอัตโนมัติ',
     items: [
       { icon: '🔳', title: 'QR พร้อมเพย์ระบุยอดอัตโนมัติบน PDF ใบเรียกเก็บ', desc: 'ลูกค้าสแกนด้วยแอปธนาคารใดก็ได้ ยอดคงเหลือขึ้นเอง · ปิดยอดแล้ว QR หายเอง กันจ่ายซ้ำ' },
-      { icon: '⚙️', title: 'ตั้งค่าที่ ตั้งค่า → บัญชีรับโอน', desc: 'ใส่เบอร์พร้อมเพย์ครั้งเดียว ใช้ได้ทั้งมือถือและคอม (ซิงค์ให้อัตโนมัติ)' }
+      { icon: '⚙️', title: 'ตั้งค่าที่ ตั้งค่า → บัญชีรับโอน', desc: 'ใส่เบอร์พร้อมเพย์ครั้งเดียว ใช้ได้ทั้งมือถือและคอม (ซิงค์ให้อัตโนมัติ) · ปิด QR ได้รายใบ' },
+      { icon: '🏦', title: 'ใบเรียกเก็บเลือกบัญชีรับโอนได้แล้ว', desc: 'เลือกได้ทุกบัญชีในหน้าแก้ไขใบ · ไม่เลือก = ใช้บัญชีแรกอัตโนมัติเหมือนใบเสนอ' }
     ]
   },
   '1.0.87': {
@@ -14374,15 +14375,25 @@ function openInvoiceEditor(code) {
         <div class="form-field"><textarea id="inv-edit-message" rows="3">${escapeHtml(inv.message || '')}</textarea></div>
       </div>
 
-      ${(PROMPTPAY && PROMPTPAY.id && PROMPTPAY.onInvoice !== false) ? `
-      <!-- v1.0.88 · สวิตช์ QR พร้อมเพย์รายใบ (parity มือถือ) -->
+      <!-- v1.0.88 · การรับเงินบนใบนี้ · เลือกบัญชีรายใบ (เดิมโชว์เฉพาะงานที่ผูกบัญชี → บิลส่วนใหญ่ไม่มีเลขบัญชี · Joe report) -->
       <div class="form-section">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+        <div class="form-section-title">🏦 การรับเงินบนใบนี้</div>
+        <div class="form-field" style="max-width:420px;">
+          <label>บัญชีรับโอน</label>
+          <select id="inv-edit-bank">
+            <option value="">อัตโนมัติ (ตามงาน / บัญชีแรก)</option>
+            ${BANKS.map((b, i) => `<option value="${i}" ${(inv.bankIdx != null && inv.bankIdx !== '' && Number(inv.bankIdx) === i) ? 'selected' : ''}>${escapeHtml(b.bank || b.name || '?')} · ${escapeHtml(b.acc || '')} · ${escapeHtml(b.holder || '')}</option>`).join('')}
+            <option value="-1" ${(inv.bankIdx === -1 || inv.bankIdx === '-1') ? 'selected' : ''}>— ไม่แสดงเลขบัญชี —</option>
+          </select>
+          <div class="hint">ไม่เลือก = ใช้บัญชีของงาน หรือบัญชีแรกอัตโนมัติ (เหมือนใบเสนอราคา)</div>
+        </div>
+        ${(PROMPTPAY && PROMPTPAY.id && PROMPTPAY.onInvoice !== false) ? `
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-top:10px;">
           <input type="checkbox" id="inv-edit-pp" ${inv.ppHide ? '' : 'checked'} style="width:18px;height:18px;accent-color:var(--brand);" />
           <span>🔳 แสดง QR พร้อมเพย์บนใบนี้</span>
           <span class="hint" style="margin-left:auto;">ปิดได้รายใบ เช่น ลูกค้าบริษัทที่ต้องโอนผ่านบัญชีบริษัท</span>
-        </label>
-      </div>` : ''}
+        </label>` : ''}
+      </div>
 
     </div>
     <div class="modal-footer">
@@ -14454,6 +14465,9 @@ async function saveInvoiceFromEditor(code, alsoPrint) {
   j.invoice.dateDue = (document.getElementById('inv-edit-due').value || '').trim();
   j.invoice.extraTime = Number(document.getElementById('inv-edit-extratime').value) || 0;
   j.invoice.message = (document.getElementById('inv-edit-message').value || '').trim();
+  // v1.0.88 · บัญชีรับโอนรายใบ ('' = อัตโนมัติ · -1 = ไม่แสดง · เลข = บัญชีที่เลือก)
+  const bankSel = document.getElementById('inv-edit-bank');
+  if (bankSel) j.invoice.bankIdx = (bankSel.value === '') ? null : parseInt(bankSel.value, 10);
   // v1.0.88 · สวิตช์ QR พร้อมเพย์รายใบ (มี element เฉพาะเมื่อตั้งค่าพร้อมเพย์ไว้)
   const ppCb = document.getElementById('inv-edit-pp');
   if (ppCb) j.invoice.ppHide = !ppCb.checked;
@@ -14572,6 +14586,16 @@ function _preparePromptPayQr(j, done) {
       }, 60);
     }).catch(() => done());
   } catch (e) { done(); }
+}
+
+// v1.0.88 · บัญชีที่แสดงบนใบเรียกเก็บ: เลือกรายใบ (inv.bankIdx) > ตามงาน (j.bankIdx) > บัญชีแรก (เหมือนใบเสนอ) · -1 = ไม่แสดง
+function resolveInvoiceBank(j) {
+  const inv = (j && j.invoice) || {};
+  const ib = inv.bankIdx;
+  if (ib === -1 || ib === '-1') return null;
+  if (ib != null && ib !== '' && BANKS[ib]) return BANKS[ib];
+  if (j && j.bankIdx != null && j.bankIdx !== '' && BANKS[j.bankIdx]) return BANKS[j.bankIdx];
+  return BANKS.length > 0 ? BANKS[0] : null;
 }
 
 // บล็อก QR พร้อมเพย์ใน print templates (ใช้ cache ที่เตรียมไว้ · ไม่มี = ข้ามเงียบๆ)
@@ -14723,8 +14747,10 @@ function getPrintCtx(args) {
       }).join('')
     : (eventDate ? `<div>${fmtDateTH(eventDate)}</div>` : '<div>-</div>');
 
-  // Bank
-  const bank = (doc.bankIdx != null && BANKS[doc.bankIdx]) ? BANKS[doc.bankIdx] : null;
+  // Bank · v1.0.88 · ใบเรียกเก็บ: เลือกรายใบ > ตามงาน > บัญชีแรก (parity มือถือ resolveInvoiceBank) · ใบเสนอ: ตามเดิม
+  const bank = (!isQuote && typeof resolveInvoiceBank === 'function')
+    ? resolveInvoiceBank(doc)
+    : ((doc.bankIdx != null && BANKS[doc.bankIdx]) ? BANKS[doc.bankIdx] : null);
 
   // Studio info
   const studioName = PROFILE.shop || 'Pixory Studio';
