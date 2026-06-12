@@ -2975,12 +2975,21 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.87';
+const PIXORY_DESKTOP_VERSION = '1.0.88';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.88': {
+    date: '2026-06-12',
+    title: '🔳 พร้อมเพย์ QR บนใบเรียกเก็บ',
+    subtitle: 'ตรงกับมือถือ v2.9.15 · ลูกค้าสแกนจ่าย ยอดขึ้นอัตโนมัติ',
+    items: [
+      { icon: '🔳', title: 'QR พร้อมเพย์ระบุยอดอัตโนมัติบน PDF ใบเรียกเก็บ', desc: 'ลูกค้าสแกนด้วยแอปธนาคารใดก็ได้ ยอดคงเหลือขึ้นเอง · ปิดยอดแล้ว QR หายเอง กันจ่ายซ้ำ' },
+      { icon: '⚙️', title: 'ตั้งค่าที่ ตั้งค่า → บัญชีรับโอน', desc: 'ใส่เบอร์พร้อมเพย์ครั้งเดียว ใช้ได้ทั้งมือถือและคอม (ซิงค์ให้อัตโนมัติ)' }
+    ]
+  },
   '1.0.87': {
     date: '2026-06-11',
     title: '🚫 ยกเลิกงานชัดเจนขึ้น + ลบบัญชี PDPA',
@@ -3275,6 +3284,8 @@ let EXPENSES = [];
 let CUSTOMER_INFO = {};
 let PROFILE = {};
 let BANKS = [];
+// v1.0.88 · พร้อมเพย์ · sync schema เดียวกับมือถือ (PROMPTPAY ใน blob)
+let PROMPTPAY = { id: '', onInvoice: true, onQuote: false };
 let TEAM = [];
 // v1.0.5 · NOTES feature · sticky board (sync schema with mobile)
 let NOTES = []; // [{id, title, body, color, category, pinned, done, doneAt, createdAt, updatedAt}]
@@ -3317,6 +3328,22 @@ if (typeof window.reconcileDepositPayments !== 'function') {
       note: 'ปรับยอดรับ · จากการแก้ไขงาน'
     });
     return true;
+  };
+}
+// v1.0.88 · PromptPay QR payload · fallback แยกบล็อก (ต้องตรงกับ pixory-helpers.js)
+if (typeof window.buildPromptPayPayload !== 'function') {
+  window.ppCrc16 = function (s) { var c = 0xFFFF; for (var i = 0; i < s.length; i++) { c ^= s.charCodeAt(i) << 8; for (var j = 0; j < 8; j++) { c = (c & 0x8000) ? ((c << 1) ^ 0x1021) : (c << 1); c &= 0xFFFF; } } return c.toString(16).toUpperCase(); };
+  window.buildPromptPayPayload = function (rawId, amount) {
+    var tlv = function (id, v) { v = String(v); return id + String(v.length).padStart(2, '0') + v; };
+    var d = String(rawId || '').replace(/\D/g, '');
+    if (d.length !== 10 && d.length !== 13) return null;
+    var acct = (d.length === 13) ? tlv('02', d) : tlv('01', ('0066' + d.replace(/^0/, '')).padStart(13, '0'));
+    var p = tlv('00', '01') + tlv('01', '12') + tlv('29', tlv('00', 'A000000677010111') + acct) + tlv('53', '764');
+    var amt = Number(amount) || 0;
+    if (amt > 0) p += tlv('54', amt.toFixed(2));
+    p += tlv('58', 'TH') + '6304';
+    var crc = window.ppCrc16(p); while (crc.length < 4) crc = '0' + crc;
+    return p + crc;
   };
 }
 if (typeof window.jobRevenue !== 'function') {
@@ -3965,6 +3992,7 @@ async function finishAuthAndStart() {
 function resetAppState() {
   JOBS = []; QUOTES = []; EXPENSES = []; CUSTOMER_INFO = {};
   PROFILE = {}; BANKS = []; TEAM = [];
+  PROMPTPAY = { id: '', onInvoice: true, onQuote: false };  // v1.0.88
   // QUOTE_TEMPLATE · sync กับมือถือ (top-level)
   if (typeof QUOTE_TEMPLATE !== 'undefined') {
     QUOTE_TEMPLATE.title = 'ใบเสนอราคา / Quotation';
@@ -3991,6 +4019,9 @@ function applyDataBlob(blob) {
   if (blob.CUSTOMER_INFO && typeof blob.CUSTOMER_INFO === 'object') CUSTOMER_INFO = blob.CUSTOMER_INFO;
   if (blob.PROFILE && typeof blob.PROFILE === 'object') PROFILE = blob.PROFILE;
   if (Array.isArray(blob.BANKS)) BANKS = blob.BANKS;
+  // v1.0.88 · PromptPay · reset เป็น default ก่อนค่อย apply (กันค่าค้างข้ามบัญชี)
+  PROMPTPAY = Object.assign({ id: '', onInvoice: true, onQuote: false },
+    (blob.PROMPTPAY && typeof blob.PROMPTPAY === 'object') ? blob.PROMPTPAY : {});
   if (Array.isArray(blob.TEAM)) TEAM = blob.TEAM;
   if (Array.isArray(blob.JOB_TYPES) && blob.JOB_TYPES.length) JOB_TYPES = blob.JOB_TYPES;
   if (Array.isArray(blob.SOURCES) && blob.SOURCES.length) SOURCES = blob.SOURCES;
@@ -4072,7 +4103,7 @@ function _ensureProfileJobStatuses() {
 function buildDataBlob() {
   return {
     JOBS, QUOTES, EXPENSES, CUSTOMER_INFO, PROFILE,
-    BANKS, TEAM, JOB_TYPES, SOURCES, EXPENSE_CATS, EQUIPMENT, SERVICES, ADDONS,
+    BANKS, PROMPTPAY, TEAM, JOB_TYPES, SOURCES, EXPENSE_CATS, EQUIPMENT, SERVICES, ADDONS,
     QUOTE_TEMPLATE,
     NOTES, // v1.0.5 · sync NOTES
     // FIX C1 · preserve mobile fields (Desktop ไม่มี UI · แต่ต้องไม่ลบ)
@@ -8761,6 +8792,23 @@ async function saveProfile() {
 
 function renderSettingsBanks() {
   return `
+    <!-- v1.0.88 · PromptPay QR รับเงิน -->
+    <div class="glass-card" style="margin-bottom:16px;">
+      <div class="form-section-title" style="border:none;padding:0;margin:0 0 10px;">🔳 พร้อมเพย์ · QR รับเงิน</div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>เบอร์พร้อมเพย์ (มือถือ 10 หลัก หรือบัตรประชาชน 13 หลัก)</label>
+          <input type="text" id="pp-id-d" maxlength="13" value="${escapeHtml(PROMPTPAY.id || '')}" placeholder="เช่น 0812345678" onchange="savePromptPayDesktop(true)" />
+        </div>
+        <div class="form-field" style="display:flex;align-items:flex-end;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding-bottom:8px;">
+            <input type="checkbox" id="pp-on-invoice-d" ${PROMPTPAY.onInvoice !== false ? 'checked' : ''} onchange="savePromptPayDesktop(false)" style="width:18px;height:18px;accent-color:var(--brand);" />
+            <span>แสดง QR ระบุยอดบนใบเรียกเก็บ</span>
+          </label>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">ลูกค้าสแกนด้วยแอปธนาคารใดก็ได้ · ยอดคงเหลือขึ้นอัตโนมัติ ไม่ต้องพิมพ์เอง</div>
+    </div>
     <div class="glass-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div class="form-section-title" style="border:none;padding:0;margin:0;">🏦 บัญชีรับโอน · ${BANKS.length} บัญชี</div>
@@ -8784,6 +8832,19 @@ function renderSettingsBanks() {
       }
     </div>
   `;
+}
+
+// v1.0.88 · บันทึกตั้งค่าพร้อมเพย์ (parity กับ savePromptPay มือถือ)
+async function savePromptPayDesktop(fromIdField) {
+  const raw = (document.getElementById('pp-id-d').value || '').replace(/\D/g, '');
+  if (raw && raw.length !== 10 && raw.length !== 13) {
+    toast('เบอร์พร้อมเพย์ต้องเป็นเบอร์มือถือ 10 หลัก หรือเลขบัตรประชาชน 13 หลัก', 'error');
+    return;
+  }
+  PROMPTPAY.id = raw;
+  PROMPTPAY.onInvoice = !!document.getElementById('pp-on-invoice-d').checked;
+  await saveData();
+  if (fromIdField && raw) toast('✓ บันทึกพร้อมเพย์แล้ว · QR จะขึ้นบนใบเรียกเก็บอัตโนมัติ', 'success');
 }
 
 function openBankEdit(idx) {
@@ -10251,6 +10312,7 @@ async function importBackupFromFile(event) {
     if (data.EXPENSES)       EXPENSES = data.EXPENSES;
     if (data.CUSTOMER_INFO)  CUSTOMER_INFO = data.CUSTOMER_INFO;
     if (data.BANKS)          BANKS = data.BANKS;
+    if (data.PROMPTPAY)      PROMPTPAY = Object.assign({ id:'', onInvoice:true, onQuote:false }, data.PROMPTPAY); // v1.0.88
     if (data.TEAM)           TEAM = data.TEAM;
     if (data.JOB_TYPES)      JOB_TYPES = data.JOB_TYPES;
     if (data.SOURCES)        SOURCES = data.SOURCES;
@@ -10344,6 +10406,7 @@ async function hardResetDesktop() {
   // Reset all in-memory state
   JOBS = []; QUOTES = []; EXPENSES = []; CUSTOMER_INFO = {};
   TEAM = []; BANKS = [];
+  PROMPTPAY = { id: '', onInvoice: true, onQuote: false };  // v1.0.88
   Object.assign(PROFILE, { shop: '', tagline: '', phone: '', line: '', ig: '', fb: '', address: '', wizardDone: false });
 
   // Clear localStorage entirely
@@ -14443,15 +14506,73 @@ async function deleteInvoice(code) {
 }
 
 // Print PDF from invoice (uses j.invoice data + customer-type template)
+// v1.0.88 · เปิดหน้าต่างก่อน (กัน popup-block) → เตรียม QR พร้อมเพย์ (async) → ค่อยเขียนเอกสาร
 function printInvoicePdf(code) {
   const j = JOBS.find(x => x.code === code);
   if (!j) { toast('ไม่พบงาน', 'error'); return; }
   ensureJobInvoice(j);
-  const html = buildPrintDocHtml({ type: 'invoice', doc: j });
   const w = window.open('', '_blank', 'width=900,height=1200');
   if (!w) { toast('เบราว์เซอร์บล็อก popup · อนุญาต popup ของไซต์นี้ก่อน', 'error'); return; }
-  w.document.write(html);
-  w.document.close();
+  _preparePromptPayQr(j, function () {
+    const html = buildPrintDocHtml({ type: 'invoice', doc: j });
+    w.document.write(html);
+    w.document.close();
+  });
+}
+
+// v1.0.88 · PromptPay QR · โหลดไลบรารีแบบ lazy (แพทเทิร์นเดียวกับ _ensurePdfLibs)
+function _ensureQrLib() {
+  if (typeof QRCode !== 'undefined') return Promise.resolve();
+  if (window._qrLibLoading) return window._qrLibLoading;
+  window._qrLibLoading = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s.onload = () => resolve();
+    s.onerror = () => { window._qrLibLoading = null; reject(new Error('โหลดไลบรารี QR ไม่สำเร็จ')); };
+    document.head.appendChild(s);
+  });
+  return window._qrLibLoading;
+}
+
+// เตรียม QR dataURL ของใบเรียกเก็บ → window._ppQrCache · เรียก done() เสมอ (ไม่มี QR บิลก็เปิดได้)
+function _preparePromptPayQr(j, done) {
+  window._ppQrCache = null;
+  try {
+    const tot = calcInvoiceTotals(j);
+    const amount = Number(tot.balanceDue) || 0;
+    const usable = PROMPTPAY && PROMPTPAY.id && PROMPTPAY.onInvoice !== false
+      && !(j.invoice && j.invoice.balancePaid) && amount > 0
+      && typeof window.buildPromptPayPayload === 'function';
+    const payload = usable ? window.buildPromptPayPayload(PROMPTPAY.id, amount) : null;
+    if (!payload) { done(); return; }
+    _ensureQrLib().then(() => {
+      const tmp = document.createElement('div');
+      tmp.style.cssText = 'position:absolute; left:-9999px; top:0;';
+      document.body.appendChild(tmp);
+      new QRCode(tmp, { text: payload, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.M });
+      setTimeout(() => {
+        const cv = tmp.querySelector('canvas');
+        const url = cv ? cv.toDataURL('image/png') : ((tmp.querySelector('img') || {}).src || null);
+        document.body.removeChild(tmp);
+        if (url) window._ppQrCache = { url: url, amount: amount };
+        done();
+      }, 60);
+    }).catch(() => done());
+  } catch (e) { done(); }
+}
+
+// บล็อก QR พร้อมเพย์ใน print templates (ใช้ cache ที่เตรียมไว้ · ไม่มี = ข้ามเงียบๆ)
+function promptPayBlockHtml() {
+  try {
+    const c = window._ppQrCache;
+    if (!c || !c.url) return '';
+    return `<div style="margin-top:12px; text-align:center; padding:14px 12px 10px; border:1px solid #e5e7eb; border-radius:10px; background:#ffffff;">
+      <div style="display:inline-block; background:#113366; color:#ffffff; font-size:10px; font-weight:700; padding:2px 12px; border-radius:4px; letter-spacing:.5px;">PromptPay</div>
+      <div style="margin:8px 0 4px;"><img src="${c.url}" alt="PromptPay QR" style="width:150px; height:150px;"></div>
+      <div style="font-size:10.5px; color:#374151;">สแกนจ่ายยอดคงเหลือ ฿${(Number(c.amount) || 0).toLocaleString('th-TH')} ด้วยแอปธนาคารใดก็ได้ · ยอดขึ้นอัตโนมัติ</div>
+      <div style="font-size:8px; color:#9ca3af; margin-top:2px;">QR สร้างโดย Pixory · srangpap2023.github.io/Pixory</div>
+    </div>`;
+  } catch (e) { return ''; }
 }
 
 // ===================================================================
@@ -14867,6 +14988,8 @@ ${printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
       </div>
     ` : ''}
 
+    ${ctx.inv ? promptPayBlockHtml() : ''}
+
     ${(ctx.inv && ctx.invMessage) ? `<div class="note-box"><strong>📝 ข้อความจากร้าน</strong>${escapeHtml(ctx.invMessage)}</div>` : (doc.note ? `<div class="note-box"><strong>📝 หมายเหตุ</strong>${escapeHtml(doc.note)}</div>` : '')}
 
   </div>
@@ -15099,6 +15222,8 @@ ${printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
     <div class="val">${escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + escapeHtml(bank.acc) : ''}</div>
     <div class="sub">${escapeHtml(bank.holder || '')}</div>
   </div></div>` : ''}
+
+  ${ctx.inv ? promptPayBlockHtml() : ''}
 
   ${(ctx.inv && ctx.invMessage) ? `<div class="notes" style="background:#fff9ec;border-left-color:#ca8a04;color:#7c2d12;"><strong style="color:#92400e;">📝 ข้อความจากร้าน:</strong> ${escapeHtml(ctx.invMessage)}</div>` : ''}
 
@@ -15359,6 +15484,8 @@ ${printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
       <div class="holder">${escapeHtml(bank.holder || '')}</div>
     </div>
   </div>` : ''}
+
+  ${ctx.inv ? promptPayBlockHtml() : ''}
 
   ${(ctx.inv && ctx.invMessage) ? `<div style="margin-bottom:14px;padding:8px 12px;background:#fff9ec;border:1px solid #fbbf24;border-radius:4px;font-size:10.5px;color:#7c2d12;"><strong style="color:#92400e;">📝 ข้อความ:</strong> ${escapeHtml(ctx.invMessage)}</div>` : ''}
 

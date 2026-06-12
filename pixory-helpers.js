@@ -245,6 +245,45 @@
     return n;
   }
 
+  // ===== PromptPay QR (v2.9.15) ==============================================
+  // สร้าง payload มาตรฐาน EMVCo Merchant-Presented QR (Tag 29 · AID พร้อมเพย์)
+  // รองรับ: เบอร์มือถือ 10 หลัก (แปลงเป็น 0066xxxxxxxxx) หรือเลขบัตร ปชช. 13 หลัก
+  // dynamic QR (Tag 01 = 12) + ระบุยอด (Tag 54) → แอปธนาคารขึ้นยอดอัตโนมัติ
+  function ppCrc16(s) {
+    var crc = 0xFFFF;
+    for (var i = 0; i < s.length; i++) {
+      crc ^= s.charCodeAt(i) << 8;
+      for (var j = 0; j < 8; j++) {
+        crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+        crc &= 0xFFFF;
+      }
+    }
+    return crc.toString(16).toUpperCase();
+    // padStart กันเลขสั้น (เช่น CRC ขึ้นต้นด้วย 0)
+  }
+  function _ppTlv(id, val) { val = String(val); return id + String(val.length).padStart(2, '0') + val; }
+  // คืน payload string พร้อมสแกน หรือ null ถ้าเบอร์/เลขไม่ถูกรูปแบบ
+  function buildPromptPayPayload(rawId, amount) {
+    var d = String(rawId || '').replace(/\D/g, '');
+    if (d.length !== 10 && d.length !== 13) return null;
+    var acct = (d.length === 13)
+      ? _ppTlv('02', d)                                            // เลขบัตรประชาชน
+      : _ppTlv('01', ('0066' + d.replace(/^0/, '')).padStart(13, '0')); // เบอร์มือถือ
+    var p = _ppTlv('00', '01')                                     // payload format
+          + _ppTlv('01', '12')                                     // dynamic (ใช้ครั้งเดียว/ยอดเฉพาะ)
+          + _ppTlv('29', _ppTlv('00', 'A000000677010111') + acct)  // PromptPay AID + บัญชี
+          + _ppTlv('53', '764');                                   // สกุลเงิน THB
+    var amt = Number(amount) || 0;
+    if (amt > 0) p += _ppTlv('54', amt.toFixed(2));                // ยอดเงิน
+    p += _ppTlv('58', 'TH') + '6304';                              // ประเทศ + CRC header
+    var crc = ppCrc16(p);
+    while (crc.length < 4) crc = '0' + crc;
+    return p + crc;
+  }
+
+  g.ppCrc16 = ppCrc16;
+  g.buildPromptPayPayload = buildPromptPayPayload;
+
   g.genTeamId = genTeamId;
   g.ensureTeamIds = ensureTeamIds;
   g.teamNameById = teamNameById;
