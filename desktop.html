@@ -643,7 +643,7 @@
     --glass-shadow-lg: 0 12px 48px rgba(0,0,0,0.50), 0 4px 16px rgba(0,0,0,0.30);
 
     /* Brand stays · adjust brand-light + brand-bg for dark */
-    --brand: #E88869;
+    --brand: #D4A056;
     --brand-dark: #D4A056;
     --brand-light: #B8854A;
     --brand-bg: rgba(212,160,86,0.16);
@@ -1299,7 +1299,7 @@
     z-index: 100;
     padding: 40px 24px;
     overflow-y: auto;
-    background: linear-gradient(160deg, #f9c5a3 0%, #f4a36a 38%, #D4A056 100%) !important;
+    background: linear-gradient(160deg, #f9c5a3 0%, #E8C77E 38%, #D4A056 100%) !important;
   }
   .auth-overlay.show { display: flex; }
 
@@ -1395,7 +1395,7 @@
     font-size: 15px;
     font-weight: 700;
     color: #fff;
-    background: linear-gradient(135deg, #f4a36a, #D4A056) !important;
+    background: linear-gradient(135deg, #E8C77E, #D4A056) !important;
     border: none !important;
     border-radius: 12px;
     cursor: pointer;
@@ -1474,13 +1474,13 @@
     white-space: nowrap;
   }
   .dt-genre-chip:hover {
-    background: #fef3eb;
-    border-color: #f4a36a;
+    background: #FBF3E0;
+    border-color: #E8C77E;
     color: #b85a36;
     transform: translateY(-1px);
   }
   .dt-genre-chip.active {
-    background: linear-gradient(135deg, #f4a36a, #D4A056);
+    background: linear-gradient(135deg, #E8C77E, #D4A056);
     color: #ffffff;
     border-color: transparent;
     font-weight: 700;
@@ -2123,7 +2123,7 @@
     color: var(--ink-soft);
   }
   html[data-theme="dark"] .date-chip.primary {
-    background: linear-gradient(135deg, #E88869, #D4A056);
+    background: linear-gradient(135deg, #D4A056, #D4A056);
     color: white;
   }
   html[data-theme="dark"] .date-chips .date-suffix { color: var(--ink-mute); }
@@ -2975,12 +2975,20 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.90';
+const PIXORY_DESKTOP_VERSION = '1.0.91';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.91': {
+    date: '2026-06-13',
+    title: '✨ เก็บสีส้มตกค้างให้เป็นทอง',
+    subtitle: 'ตรงกับมือถือ v2.9.19',
+    items: [
+      { icon: '🎨', title: 'โทนทองหรูเดียวกันทั้งแอป', desc: 'ปรับสีคอรัล/พีชที่หลงเหลือบนธีมมืดให้เป็นทองแชมเปญเดียวกับมือถือ' }
+    ]
+  },
   '1.0.90': {
     date: '2026-06-12',
     title: '🧹 เก็บรายละเอียดเล็กน้อย',

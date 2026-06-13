@@ -603,7 +603,7 @@
     font-weight: 600;
   }
   .pit-brackets {
-    background: #fef3eb;
+    background: #FBF3E0;
     border-radius: 8px;
     padding: 8px 10px;
     margin: 4px 0;
@@ -788,7 +788,7 @@
     margin-bottom: 5px;
     cursor: pointer;
   }
-  .qs-match-row:hover { background: #fef3eb; border-color: #D4A056; }
+  .qs-match-row:hover { background: #FBF3E0; border-color: #D4A056; }
   .qs-match-row:active { transform: scale(.99); }
   .qs-match-row .qm-name { flex: 1; font-size: 13px; font-weight: 600; color: #3a2f25; }
   .qs-match-row .qm-meta { font-size: 11px; color: #7c7066; }
@@ -1239,7 +1239,7 @@
   body.dark-theme .notif-master { background: #1c1c1c; border-color: rgba(212,160,86,.2); }
   .nm-icon {
     width: 42px; height: 42px;
-    background: linear-gradient(135deg, #fef3eb, #fbe0cc);
+    background: linear-gradient(135deg, #FBF3E0, #F2E2C0);
     border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
   }
   body.dark-theme .nm-icon { background: rgba(212,160,86,.15); }
@@ -1255,7 +1255,7 @@
     width: 48px; height: 28px; background: #e5e0d8; border-radius: 14px;
     position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0;
   }
-  .notif-toggle-md.on { background: linear-gradient(180deg, #e87f5a, #D4A056); }
+  .notif-toggle-md.on { background: linear-gradient(180deg, #D4A056, #D4A056); }
   .notif-toggle-md::after {
     content: ''; width: 24px; height: 24px; background: white; border-radius: 50%;
     position: absolute; top: 2px; left: 2px; transition: transform .2s; box-shadow: 0 2px 6px rgba(0,0,0,.2);
@@ -1269,7 +1269,7 @@
   }
   body.dark-theme .preview-card { background: #1c1c1c; border-color: rgba(212,160,86,.2); }
   .preview-mock {
-    padding: 16px; background: linear-gradient(180deg, #fef3eb 0%, #fdf8f3 100%);
+    padding: 16px; background: linear-gradient(180deg, #FBF3E0 0%, #FBF7EF 100%);
     border-bottom: 1px solid #f0ebe3; display: flex; align-items: flex-start; gap: 12px;
   }
   body.dark-theme .preview-mock {
@@ -1278,7 +1278,7 @@
   }
   .preview-card.disabled .preview-mock { opacity: .45; filter: grayscale(60%); }
   .preview-app-icon {
-    width: 36px; height: 36px; background: linear-gradient(135deg, #e87f5a, #D4A056);
+    width: 36px; height: 36px; background: linear-gradient(135deg, #D4A056, #D4A056);
     border-radius: 10px; display: flex; align-items: center; justify-content: center;
     color: white; font-size: 18px; flex-shrink: 0;
     box-shadow: 0 2px 6px rgba(212,160,86,.3);
@@ -1298,11 +1298,11 @@
   .pref-label { flex: 1; font-size: 13.5px; color: #2a1f17; font-weight: 500; min-width: 0; }
   body.dark-theme .pref-label { color: #e5e5e5; }
   .pref-time-input {
-    background: #fef3eb; color: #D4A056; padding: 6px 12px; border-radius: 10px;
+    background: #FBF3E0; color: #D4A056; padding: 6px 12px; border-radius: 10px;
     font-size: 13px; font-weight: 700; font-family: "SF Mono", Menlo, monospace;
-    border: 1px solid #f4d4b8; cursor: pointer; outline: none;
+    border: 1px solid #E8D5A8; cursor: pointer; outline: none;
   }
-  body.dark-theme .pref-time-input { background: rgba(212,160,86,.15); border-color: rgba(212,160,86,.3); color: #f4a36a; }
+  body.dark-theme .pref-time-input { background: rgba(212,160,86,.15); border-color: rgba(212,160,86,.3); color: #E8C77E; }
   .pref-stepper {
     display: flex; align-items: center; gap: 4px;
     background: #fafaf7; padding: 4px; border-radius: 10px; border: 1px solid #e5e0d8;
@@ -1314,7 +1314,7 @@
     display: flex; align-items: center; justify-content: center;
   }
   .pref-btn:active { transform: scale(0.92); }
-  body.dark-theme .pref-btn { background: #1c1c1c; color: #f4a36a; }
+  body.dark-theme .pref-btn { background: #1c1c1c; color: #E8C77E; }
   .pref-num { min-width: 22px; text-align: center; font-weight: 700; color: #2a1f17; font-size: 13px; }
   body.dark-theme .pref-num { color: #f5f5f5; }
   .notif-toggle-mini {
@@ -1339,17 +1339,17 @@
   .balance-chip:hover { border-color: #D4A056; color: #D4A056; }
   .balance-chip.active {
     background: linear-gradient(135deg, #D4A056, #B8854A); color: white;
-    border-color: transparent; box-shadow: 0 2px 8px rgba(216,119,87,.3);
+    border-color: transparent; box-shadow: 0 2px 8px rgba(212,160,86,.3);
   }
   .balance-chip.disabled-soon {
     opacity: .55; cursor: not-allowed; font-style: italic;
   }
   .balance-chip.disabled-soon:hover { border-color: #e8e1d2; color: #7c7066; }
   body.dark-theme .balance-chip { background: #2a2a2a; border-color: #3a3a3a; color: #c9bfb1; }
-  body.dark-theme .balance-chip:hover { color: #e87f5a; border-color: #e87f5a; }
+  body.dark-theme .balance-chip:hover { color: #D4A056; border-color: #D4A056; }
   .notif-test-btn {
     margin: 18px 16px 0; width: calc(100% - 32px); padding: 16px;
-    background: linear-gradient(180deg, #e87f5a, #D4A056); color: white;
+    background: linear-gradient(180deg, #D4A056, #D4A056); color: white;
     border: none; border-radius: 16px; font-size: 14.5px; font-weight: 700;
     cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
     box-shadow: 0 6px 18px rgba(212,160,86,.3);
@@ -1367,7 +1367,7 @@
   .notif-other-row:last-child { border-bottom: none; }
   body.dark-theme .notif-other-row { border-bottom-color: #2a2a2a; }
   .notif-other-icon {
-    width: 34px; height: 34px; background: #fef3eb;
+    width: 34px; height: 34px; background: #FBF3E0;
     border-radius: 11px; display: flex; align-items: center; justify-content: center;
     font-size: 16px; flex-shrink: 0;
   }
@@ -2244,6 +2244,39 @@
   body.luxe-theme .notif-other-meta  { color: #A1A1AA !important; }
   body.dark-theme .notif-other-meta  { color: #b8a99a !important; }
 
+  /* v2.9.19 · หน้าแจ้งเตือน · เก็บ Luxe override ที่ตกหล่น (ตัวหนังสือมืดอ่านไม่ออก + การ์ดในขาว + ไอคอนพีช) */
+  body.luxe-theme .nm-title,
+  body.luxe-theme .preview-app-name,
+  body.luxe-theme .preview-title       { color: #F4F4F5 !important; }
+  body.luxe-theme .notif-group-title   { color: #E8C77E !important; }
+  body.luxe-theme .pref-label,
+  body.luxe-theme .pref-num            { color: #EAE0CC !important; }
+  body.luxe-theme .preview-body        { color: #c9c2b4 !important; }
+  body.luxe-theme .preview-time,
+  body.luxe-theme .nm-status.off,
+  body.luxe-theme .notif-subhead       { color: #9a8f7a !important; }
+  /* การ์ดแจ้งเตือนด้านใน = กระจกดำสไตล์ iOS โหมดมืด (แทนกระดาษครีม) */
+  body.luxe-theme .preview-mock {
+    background: rgba(255,255,255,0.055) !important;
+    border-bottom-color: rgba(255,255,255,0.07) !important;
+  }
+  /* ไอคอนแอปในพรีวิว/master = ทองแชมเปญ · time chip + stepper + toggle อ่านง่ายบน Luxe */
+  body.luxe-theme .preview-app-icon {
+    background: linear-gradient(135deg,#D4A056,#B8854A) !important; color:#1a1206 !important;
+  }
+  body.luxe-theme .nm-icon {
+    background: linear-gradient(135deg, rgba(212,160,86,.28), rgba(184,133,74,.18)) !important;
+  }
+  body.luxe-theme .pref-time-input {
+    background: rgba(212,160,86,.15) !important; border-color: rgba(212,160,86,.32) !important; color:#E8C77E !important;
+  }
+  body.luxe-theme .pref-stepper { background: rgba(255,255,255,.05) !important; border-color: rgba(212,160,86,.18) !important; }
+  body.luxe-theme .pref-btn { background: rgba(28,28,34,.9) !important; color:#E8C77E !important; }
+  body.luxe-theme .notif-toggle-mini,
+  body.luxe-theme .notif-toggle-md { background: rgba(255,255,255,.14) !important; }
+  body.luxe-theme .notif-toggle-mini.on { background: #D4A056 !important; }
+  body.luxe-theme .notif-toggle-md.on { background: linear-gradient(180deg,#D4A056,#B8854A) !important; }
+
   /* Settings · stacked rows inside ONE rounded section card */
   body.luxe-theme .settings-section {
     background: rgba(28,28,34,0.85) !important;
@@ -2737,7 +2770,7 @@
   }
   .cal-day.has-jobs {
     background: rgba(253, 213, 173, .55) !important;
-    border-color: rgba(232, 154, 118, .4) !important;
+    border-color: rgba(212,160,86, .4) !important;
     color: #8a4708 !important;
   }
   .cal-day.has-jobs.today,
@@ -2754,7 +2787,7 @@
   }
   body.dark-theme .cal-day.has-jobs {
     background: rgba(200, 140, 60, .25) !important;
-    border-color: rgba(232, 154, 118, .25) !important;
+    border-color: rgba(212,160,86, .25) !important;
     color: #f5b97a !important;
   }
   body.dark-theme .cal-day.today,
@@ -3284,7 +3317,7 @@
     background: linear-gradient(135deg, rgba(60,55,55,.85), rgba(40,35,40,.65));
     border-color: rgba(255,255,255,.1);
     box-shadow:
-      0 0 60px 8px rgba(232, 154, 118, .25),
+      0 0 60px 8px rgba(212,160,86, .25),
       inset 0 2px 2px rgba(255,255,255,.1),
       0 8px 32px rgba(0,0,0,.4);
   }
@@ -3424,10 +3457,10 @@
   .wiz-pp-pain {
     font-size: 13px; line-height: 1.6; color: #7a6f5e;
     font-style: italic;
-    padding-left: 12px; border-left: 2px solid rgba(255,153,102,.6);
+    padding-left: 12px; border-left: 2px solid rgba(212,160,86,.6);
     margin-bottom: 12px;
   }
-  body.dark-theme .wiz-pp-pain { color: #b8a89a; border-left-color: rgba(255,153,102,.5); }
+  body.dark-theme .wiz-pp-pain { color: #b8a89a; border-left-color: rgba(212,160,86,.5); }
   .wiz-pp-pain .line { display: block; margin-bottom: 2px; }
   .wiz-pp-pain .x { color: #cc7755; margin-right: 4px; font-style: normal; }
   .wiz-pp-solution { font-size: 13.5px; line-height: 1.5; }
@@ -3698,7 +3731,7 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: linear-gradient(160deg, #f9c5a3 0%, #f4a36a 38%, #D4A056 100%);
+    background: linear-gradient(160deg, #f9c5a3 0%, #E8C77E 38%, #D4A056 100%);
     z-index: 9000;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -3809,7 +3842,7 @@
   .auth-btn {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(180deg, #e87f5a, #D4A056);
+    background: linear-gradient(180deg, #D4A056, #D4A056);
     color: #fff;
     border: none;
     border-radius: 12px;
@@ -3829,7 +3862,7 @@
     gap: 10px;
     margin: 14px 0 6px;
     padding: 12px;
-    background: #fdf8f3;
+    background: #FBF7EF;
     border: 1px solid #ead9c9;
     border-radius: 10px;
     font-size: 13px;
@@ -3860,7 +3893,7 @@
     font-weight: 500;
     cursor: pointer;
   }
-  body.dark-theme .auth-consent a { color: #f4a36a; }
+  body.dark-theme .auth-consent a { color: #E8C77E; }
   /* v2.3.1 · Genre chips multi-select */
   .genre-wrap { margin-bottom: 14px; }
   .genre-label {
@@ -3890,13 +3923,13 @@
     white-space: nowrap;
   }
   .genre-chip:hover {
-    background: #fef3eb;
-    border-color: #f4a36a;
+    background: #FBF3E0;
+    border-color: #E8C77E;
     color: #b85a36;
     transform: translateY(-1px);
   }
   .genre-chip.active {
-    background: linear-gradient(135deg, #f4a36a, #D4A056);
+    background: linear-gradient(135deg, #E8C77E, #D4A056);
     border-color: transparent;
     color: #ffffff;
     font-weight: 700;
@@ -3905,13 +3938,13 @@
   /* Dark theme · same readable pattern */
   body.dark-theme .genre-chips { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.10); }
   body.dark-theme .genre-chip { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); color: #f5f5f5; }
-  body.dark-theme .genre-chip:hover { background: rgba(244,163,106,.18); border-color: rgba(244,163,106,.45); color: #f4a36a; }
+  body.dark-theme .genre-chip:hover { background: rgba(244,163,106,.18); border-color: rgba(244,163,106,.45); color: #E8C77E; }
   body.dark-theme .genre-chip.active { color: #fff; }
   /* Auth screen lives on white card always · keep light readable regardless of luxe theme */
   body.luxe-theme .auth-card .genre-chips { background: #faf7f2 !important; border-color: #ece3d4 !important; }
   body.luxe-theme .auth-card .genre-chip { background: #ffffff !important; border-color: #e0d4c0 !important; color: #3a2f25 !important; }
-  body.luxe-theme .auth-card .genre-chip:hover { background: #fef3eb !important; border-color: #f4a36a !important; color: #b85a36 !important; }
-  body.luxe-theme .auth-card .genre-chip.active { background: linear-gradient(135deg, #f4a36a, #D4A056) !important; color: #fff !important; border-color: transparent !important; }
+  body.luxe-theme .auth-card .genre-chip:hover { background: #FBF3E0 !important; border-color: #E8C77E !important; color: #b85a36 !important; }
+  body.luxe-theme .auth-card .genre-chip.active { background: linear-gradient(135deg, #E8C77E, #D4A056) !important; color: #fff !important; border-color: transparent !important; }
   .genre-other-input {
     width: 100%; margin-top: 8px;
     padding: 10px 14px; border-radius: 10px;
@@ -3962,7 +3995,7 @@
   .lt-pill:active { transform: scale(0.97); }
   .lt-pill .lt-ico { font-size: 13px; line-height: 1; }
   .lt-pill.is-active {
-    background: linear-gradient(135deg, #f4a36a 0%, #D4A056 100%);
+    background: linear-gradient(135deg, #E8C77E 0%, #D4A056 100%);
     color: #ffffff;
     box-shadow: 0 2px 6px rgba(212,160,86,0.30);
   }
@@ -3991,7 +4024,7 @@
     box-shadow: none;
     margin-top: 10px;
   }
-  body.dark-theme .auth-btn.secondary { color: #f4a36a; border-color: #f4a36a; }
+  body.dark-theme .auth-btn.secondary { color: #E8C77E; border-color: #E8C77E; }
   .auth-btn.secondary:hover { background: rgba(212,160,86,.05); box-shadow: none; }
   .auth-error {
     font-size: 13px;
@@ -4038,7 +4071,7 @@
     font-weight: 600;
     cursor: pointer;
   }
-  body.dark-theme .auth-links a { color: #f4a36a; }
+  body.dark-theme .auth-links a { color: #E8C77E; }
   .auth-links a:hover { text-decoration: underline; }
   .auth-divider {
     height: 1px;
@@ -4085,7 +4118,7 @@
   #pwa-install-banner .pwa-icon {
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, #f4a36a, #D4A056);
+    background: linear-gradient(135deg, #E8C77E, #D4A056);
     border-radius: 9px;
     display: flex;
     align-items: center;
@@ -4109,7 +4142,7 @@
   }
   body.dark-theme #pwa-install-banner .pwa-sub { color: #b8b0a4; }
   #pwa-install-banner .pwa-btn {
-    background: linear-gradient(180deg, #e87f5a, #D4A056);
+    background: linear-gradient(180deg, #D4A056, #D4A056);
     color: #fff;
     border: none;
     padding: 7px 12px;
@@ -4207,7 +4240,7 @@
   }
   #pwa-ios-modal .pwa-modal-ok {
     width: 100%;
-    background: linear-gradient(180deg, #e87f5a, #D4A056);
+    background: linear-gradient(180deg, #D4A056, #D4A056);
     color: #fff;
     border: none;
     padding: 13px;
@@ -4260,7 +4293,7 @@
     to { transform: scale(1) translateY(0); opacity: 1; }
   }
   .wn-modal .wn-header {
-    background: linear-gradient(165deg, #f9c5a3 0%, #f4a36a 50%, #D4A056 100%);
+    background: linear-gradient(165deg, #f9c5a3 0%, #E8C77E 50%, #D4A056 100%);
     padding: 28px 24px 22px;
     text-align: center;
     position: relative;
@@ -4353,7 +4386,7 @@
     flex-shrink: 0;
     width: 32px;
     height: 32px;
-    background: linear-gradient(135deg, #fef3eb, #fbe2cd);
+    background: linear-gradient(135deg, #FBF3E0, #fbe2cd);
     border-radius: 9px;
     display: flex;
     align-items: center;
@@ -4392,7 +4425,7 @@
   }
   .wn-modal .wn-primary {
     width: 100%;
-    background: linear-gradient(180deg, #e87f5a, #D4A056);
+    background: linear-gradient(180deg, #D4A056, #D4A056);
     color: #fff;
     border: none;
     padding: 13px;
@@ -4443,7 +4476,7 @@
     margin-bottom: 8px;
   }
   .tax-fields-inline.gov .tf-title { color: #0f6e56; }
-  body.dark-theme .tax-fields-inline .tf-title { color: #f4a36a; }
+  body.dark-theme .tax-fields-inline .tf-title { color: #E8C77E; }
   body.dark-theme .tax-fields-inline.gov .tf-title { color: #6ee7b7; }
   .tax-fields-inline .form-group { margin: 0 0 8px !important; }
   .tax-fields-inline .form-group:last-child { margin-bottom: 0 !important; }
@@ -4489,11 +4522,11 @@
   body.dark-theme .pkg-dd-row.unselected .pkg-dd-pkg { color: #807870; }
   .pkg-dd-row .pkg-dd-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
   .pkg-dd-row .pkg-dd-price { font-size: 13px; color: #D4A056; font-weight: 700; }
-  body.dark-theme .pkg-dd-row .pkg-dd-price { color: #f4a36a; }
+  body.dark-theme .pkg-dd-row .pkg-dd-price { color: #E8C77E; }
   .pkg-dd-row .pkg-dd-chev { font-size: 12px; color: #7c7066; transition: transform .2s ease; }
   body.dark-theme .pkg-dd-row .pkg-dd-chev { color: #b8b0a4; }
   .pkg-dd-row.open .pkg-dd-chev { transform: rotate(180deg); color: #D4A056; }
-  body.dark-theme .pkg-dd-row.open .pkg-dd-chev { color: #f4a36a; }
+  body.dark-theme .pkg-dd-row.open .pkg-dd-chev { color: #E8C77E; }
 
   .pkg-dd-menu {
     background: #fff;
@@ -4508,7 +4541,7 @@
   body.dark-theme .pkg-dd-option { color: #f5f0e8; }
   .pkg-dd-option:hover { background: rgba(212,160,86,0.06); }
   body.dark-theme .pkg-dd-option:hover { background: rgba(244,163,106,0.08); }
-  .pkg-dd-option.selected { background: linear-gradient(135deg,#f4a36a,#D4A056); color: #fff; font-weight: 700; }
+  .pkg-dd-option.selected { background: linear-gradient(135deg,#E8C77E,#D4A056); color: #fff; font-weight: 700; }
   .pkg-dd-option.selected .pkg-dd-opt-price { color: rgba(255,255,255,0.95); }
   .pkg-dd-option.clear { color: #a89a8c; font-style: italic; }
   body.dark-theme .pkg-dd-option.clear { color: #807870; }
@@ -4626,7 +4659,7 @@
   }
   body.dark-theme .form-tab { color: #b8b0a4; }
   .form-tab.active {
-    background: linear-gradient(135deg, #f4a36a, #D4A056);
+    background: linear-gradient(135deg, #E8C77E, #D4A056);
     color: #fff;
     box-shadow: 0 2px 8px -2px rgba(212, 160, 86, 0.4);
   }
@@ -4685,7 +4718,7 @@
     flex: 1;
     padding: 11px;
     border-radius: 11px;
-    background: linear-gradient(135deg, #f4a36a, #D4A056);
+    background: linear-gradient(135deg, #E8C77E, #D4A056);
     border: 0;
     color: #fff;
     font-size: 13.5px;
@@ -4816,7 +4849,7 @@
     transition: background .15s ease;
   }
   body.dark-theme .custom-items-header .arrow {
-    color: #f4a36a;
+    color: #E8C77E;
     background: rgba(212, 160, 86, 0.2);
   }
   .custom-items-header .arrow .arrow-open { display: none; }
@@ -6477,7 +6510,7 @@
           </div>
 
           <!-- v1.9.16 · หมายเหตุ จากฟอร์ม nq-note -->
-          <div id="q-note-block" style="display:none; margin-top:6px; padding:6px 10px; background:#fef3eb; border-radius:6px; border-left:3px solid #D4A056;">
+          <div id="q-note-block" style="display:none; margin-top:6px; padding:6px 10px; background:#FBF3E0; border-radius:6px; border-left:3px solid #D4A056;">
             <div style="font-size:10px; color:#7c2d12; font-weight:700; margin-bottom:2px;">📝 หมายเหตุ</div>
             <div style="font-size:10.5px; color:#3a2f25; line-height:1.5; white-space:pre-wrap;" id="q-note-text">—</div>
           </div>
@@ -8988,7 +9021,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.18';
+const PIXORY_VERSION = '2.9.19';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8999,6 +9032,16 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.19': {
+    date: '2026-06-13',
+    title: '✨ หน้าการแจ้งเตือน เข้าโทนทองหรู',
+    subtitle: 'เก็บสีส้ม/ขาวที่หลุดธีม · ตัวอักษรอ่านง่ายขึ้น',
+    items: [
+      { icon: '🔔', title: 'การ์ดตัวอย่างแจ้งเตือนเข้าธีมมืด', desc: 'เปลี่ยนจากการ์ดขาวเป็นกระจกดำแบบแจ้งเตือนจริง · ไอคอนและสวิตช์เป็นโทนทองแชมเปญ' },
+      { icon: '🔤', title: 'อ่านง่ายขึ้นบนธีมหรู', desc: 'หัวข้อและคำกำกับ (เวลาส่ง · เตือนล่วงหน้า ฯลฯ) ที่เคยจางมืด ปรับให้ชัดเจน' },
+      { icon: '🎨', title: 'เก็บสีส้มตกค้างทั่วแอป', desc: 'ปรับโทนคอรัล/พีชที่หลงเหลือให้เป็นทองเดียวกันทั้งแอป' }
+    ]
+  },
   '2.9.18': {
     date: '2026-06-12',
     title: '🌙 ธีมดำ/ธีมหรู คมชัดทั่วทั้งแอป',
@@ -15220,7 +15263,7 @@ const WP_LIB_KEY = 'pixory_wallpaper_library_v1';
 
 // === Pixory Preset Wallpapers (3 designs, on-brand) ===
 // A · Warm Studio Glow — CSS gradient (small, crisp at any size)
-const WP_A_WARM = "radial-gradient(circle at 78% 18%, rgba(255,250,235,0.7) 0%, rgba(255,250,235,0) 55%), linear-gradient(180deg, #fde2ce 0%, #f4a36a 50%, #c4623c 100%)";
+const WP_A_WARM = "radial-gradient(circle at 78% 18%, rgba(255,250,235,0.7) 0%, rgba(255,250,235,0) 55%), linear-gradient(180deg, #fde2ce 0%, #E8C77E 50%, #c4623c 100%)";
 
 // B · Picasso Camera Lines — SVG data URL with line-art elements
 const WP_B_PICASSO_SVG = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 844' preserveAspectRatio='xMidYMid slice'><defs><linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23fdf6ea'/><stop offset='1' stop-color='%23f3e5d0'/></linearGradient></defs><rect width='100%' height='100%' fill='url(%23bg)'/><g stroke='%23D4A056' stroke-width='2.2' fill='none' opacity='0.13' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(30,80) scale(0.85) rotate(-12)'><path d='M 0 25 Q 0 5 20 5 L 30 5 L 42 -10 Q 46 -15 52 -15 L 68 -15 Q 74 -15 78 -10 L 90 5 L 100 5 Q 120 5 120 25 L 120 90 Q 120 105 105 105 L 15 105 Q 0 105 0 90 Z'/><circle cx='60' cy='58' r='28'/><circle cx='60' cy='58' r='14' stroke-width='2'/><circle cx='98' cy='22' r='4' fill='%23D4A056'/></g><g transform='translate(310,290)'><circle cx='0' cy='0' r='40'/><circle cx='0' cy='0' r='25'/><path d='M -28 -12 L 28 12 M -28 12 L 28 -12 M 0 -28 L 0 28'/></g><g transform='translate(60,480) scale(0.6) rotate(20)'><path d='M 0 25 Q 0 5 20 5 L 30 5 L 42 -10 Q 46 -15 52 -15 L 68 -15 Q 74 -15 78 -10 L 90 5 L 100 5 Q 120 5 120 25 L 120 90 Q 120 105 105 105 L 15 105 Q 0 105 0 90 Z'/><circle cx='60' cy='58' r='28'/><circle cx='60' cy='58' r='14' stroke-width='2'/></g><g transform='translate(290,650)'><circle cx='0' cy='0' r='50'/><circle cx='0' cy='0' r='32'/><circle cx='0' cy='0' r='16'/></g><g transform='translate(80,720) scale(0.55) rotate(-8)'><path d='M 0 25 Q 0 5 20 5 L 30 5 L 42 -10 Q 46 -15 52 -15 L 68 -15 Q 74 -15 78 -10 L 90 5 L 100 5 Q 120 5 120 25 L 120 90 Q 120 105 105 105 L 15 105 Q 0 105 0 90 Z'/><circle cx='60' cy='58' r='28'/></g><g transform='translate(195,160)'><path d='M 0 -10 L 0 10 M -10 0 L 10 0'/></g><g transform='translate(340,150)'><path d='M 0 -7 L 0 7 M -7 0 L 7 0'/></g><g transform='translate(50,360)'><path d='M 0 -6 L 0 6 M -6 0 L 6 0'/></g></g></svg>`;
@@ -15233,7 +15276,7 @@ const WP_C_BOKEH = "url(\"data:image/svg+xml;utf8," + WP_C_BOKEH_SVG + "\") cent
 // All Pixory presets — order matters in the picker UI
 const PIXORY_PRESETS = [
   { id: 'pixory-warm', name: 'Warm Studio Glow', tag: 'Default', value: WP_A_WARM,
-    thumb: "radial-gradient(circle at 78% 18%, rgba(255,250,235,0.7) 0%, rgba(255,250,235,0) 55%), linear-gradient(180deg, #fde2ce 0%, #f4a36a 50%, #c4623c 100%)" },
+    thumb: "radial-gradient(circle at 78% 18%, rgba(255,250,235,0.7) 0%, rgba(255,250,235,0) 55%), linear-gradient(180deg, #fde2ce 0%, #E8C77E 50%, #c4623c 100%)" },
   { id: 'pixory-picasso', name: 'Picasso Camera Lines', tag: 'Artistic', value: WP_B_PICASSO,
     thumb: WP_B_PICASSO },
   { id: 'pixory-bokeh', name: 'Bokeh Memory', tag: 'Cinematic', value: WP_C_BOKEH,
@@ -17036,7 +17079,7 @@ function syncVatToggleStyle() {
   const chk = document.getElementById('tax-vat-registered');
   if (!chk) return;
   // visual toggle look (CSS-only checkbox)
-  chk.style.background = chk.checked ? 'linear-gradient(180deg, #e87f5a, #D4A056)' : '#d1d5db';
+  chk.style.background = chk.checked ? 'linear-gradient(180deg, #D4A056, #D4A056)' : '#d1d5db';
   // simulate knob with pseudo (using box-shadow trick)
   chk.style.boxShadow = chk.checked
     ? 'inset 22px 0 0 -2px #fff'
