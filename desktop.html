@@ -7,7 +7,7 @@
 
 <!-- PWA · manifest + theme -->
 <link rel="manifest" href="./manifest-desktop.json"/>
-<meta name="theme-color" content="#D4A056"/>
+<meta name="theme-color" content="#D97757"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Pixory Desktop"/>
@@ -16,7 +16,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png"/>
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png"/>
 <link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
-<link rel="mask-icon" href="./pixory-icon.svg" color="#D4A056"/>
+<link rel="mask-icon" href="./pixory-icon.svg" color="#D97757"/>
 
 <!-- v1.0.82 · เพิ่ม defer (ตรงกับมือถือ) — เลิก render-blocking · _desktopBoot รอ window.supabase พร้อมเพดาน 3 วิอยู่แล้ว -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
@@ -70,7 +70,7 @@
 <style>
   /* ===================================================================
      PIXORY DESKTOP v2.0
-     Liquid Glass · Crail Orange #D4A056 · Warm tones
+     Liquid Glass · Crail Orange #D97757 · Warm tones
      100% mobile schema parity (sync via user_data Supabase table)
      =================================================================== */
 
@@ -89,12 +89,12 @@
     --glass-strong: rgba(255,255,255,0.75);
     --glass-soft: rgba(255,255,255,0.35);
     --glass-border: rgba(255,255,255,0.7);
-    --glass-shadow: 0 8px 32px rgba(212,160,86,0.08), 0 2px 8px rgba(0,0,0,0.04);
-    --glass-shadow-lg: 0 12px 48px rgba(212,160,86,0.12), 0 4px 16px rgba(0,0,0,0.06);
+    --glass-shadow: 0 8px 32px rgba(217,119,87,0.08), 0 2px 8px rgba(0,0,0,0.04);
+    --glass-shadow-lg: 0 12px 48px rgba(217,119,87,0.12), 0 4px 16px rgba(0,0,0,0.06);
 
     /* === Brand · Crail Orange === */
-    --brand: #D4A056;
-    --brand-dark: #B8854A;
+    --brand: #D97757;
+    --brand-dark: #B85A3D;
     --brand-light: #F5B89E;
     --brand-bg: #FDF1E8;
 
@@ -145,7 +145,7 @@
   }
 
   /* ===================================================================
-     LUXE GOLD · default theme (v1.0.5) · #B8854A · high contrast text
+     LUXE GOLD · default theme (v1.0.5) · #B85A3D · high contrast text
      Dark obsidian + champagne gold · readable for business decisions
      =================================================================== */
   html[data-theme="luxe"] {
@@ -163,10 +163,10 @@
     --glass-shadow-lg: 0 24px 60px -16px rgba(0,0,0,0.7), 0 4px 16px rgba(0,0,0,0.4);
 
     /* Brand · Antique Gold (Joe's pick) */
-    --brand: #B8854A;
+    --brand: #B85A3D;
     --brand-dark: #9C7340;
-    --brand-light: #D4A056;
-    --brand-bg: rgba(184,133,74,0.12);
+    --brand-light: #D97757;
+    --brand-bg: rgba(184,90,61,0.12);
 
     /* TEXT · BRIGHT & HIGH CONTRAST (Joe's requirement) */
     --ink: #F4F4F5;        /* primary · pure bright white */
@@ -193,8 +193,8 @@
   /* Luxe · body bg with subtle gold glow */
   html[data-theme="luxe"] body {
     background:
-      radial-gradient(ellipse 800px 600px at 80% 0%, rgba(184,133,74,0.10) 0%, transparent 60%),
-      radial-gradient(ellipse 600px 800px at 0% 100%, rgba(184,133,74,0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 800px 600px at 80% 0%, rgba(184,90,61,0.10) 0%, transparent 60%),
+      radial-gradient(ellipse 600px 800px at 0% 100%, rgba(184,90,61,0.05) 0%, transparent 70%),
       linear-gradient(180deg, var(--bg-a) 0%, var(--bg-b) 100%) !important;
     color: var(--ink);
   }
@@ -212,38 +212,38 @@
   html[data-theme="luxe"] select:focus,
   html[data-theme="luxe"] textarea:focus {
     border-color: var(--brand);
-    box-shadow: 0 0 0 4px rgba(184,133,74,0.15);
+    box-shadow: 0 0 0 4px rgba(184,90,61,0.15);
   }
   /* Luxe · table */
   html[data-theme="luxe"] .data-table thead th { background: rgba(255,255,255,0.03); color: var(--ink-soft); font-weight:500; letter-spacing:0.06em; }
   html[data-theme="luxe"] .data-table tbody tr { color: var(--ink); }
-  html[data-theme="luxe"] .data-table tbody tr:hover { background: rgba(184,133,74,0.06); }
+  html[data-theme="luxe"] .data-table tbody tr:hover { background: rgba(184,90,61,0.06); }
   /* Luxe · scrollbar */
   html[data-theme="luxe"] ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); background-clip: padding-box; }
-  html[data-theme="luxe"] ::-webkit-scrollbar-thumb:hover { background: rgba(184,133,74,0.4); background-clip: padding-box; }
+  html[data-theme="luxe"] ::-webkit-scrollbar-thumb:hover { background: rgba(184,90,61,0.4); background-clip: padding-box; }
   /* Luxe · sidebar */
   html[data-theme="luxe"] .sidebar {
     background: linear-gradient(180deg, rgba(10,10,14,0.7) 0%, rgba(19,19,24,0.5) 100%);
     border-right-color: rgba(255,255,255,0.06);
   }
   html[data-theme="luxe"] .nav-item { color: var(--ink-soft); }
-  html[data-theme="luxe"] .nav-item:hover { background: rgba(184,133,74,0.08); color: var(--ink); }
+  html[data-theme="luxe"] .nav-item:hover { background: rgba(184,90,61,0.08); color: var(--ink); }
   html[data-theme="luxe"] .nav-item.active {
-    background: linear-gradient(135deg, rgba(184,133,74,0.18), rgba(184,133,74,0.08));
+    background: linear-gradient(135deg, rgba(184,90,61,0.18), rgba(184,90,61,0.08));
     color: var(--brand-light) !important;
-    box-shadow: 0 0 0 1px rgba(184,133,74,0.20) inset;
+    box-shadow: 0 0 0 1px rgba(184,90,61,0.20) inset;
   }
   /* Luxe · primary buttons · gold gradient */
   html[data-theme="luxe"] .btn-primary {
     background: linear-gradient(135deg, var(--brand-light), var(--brand-dark));
     color: #0A0A0E !important;
     font-weight: 600;
-    box-shadow: 0 8px 24px rgba(184,133,74,0.2), 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 24px rgba(184,90,61,0.2), 0 1px 2px rgba(0,0,0,0.3);
     border-color: transparent;
   }
   html[data-theme="luxe"] .btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 12px 32px rgba(184,133,74,0.3), 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 12px 32px rgba(184,90,61,0.3), 0 1px 2px rgba(0,0,0,0.3);
   }
   /* Luxe · secondary buttons */
   html[data-theme="luxe"] .btn-secondary {
@@ -274,7 +274,7 @@
   html[data-theme="luxe"] .pill { background: rgba(255,255,255,0.06); color: var(--ink); border-color: var(--border); }
   html[data-theme="luxe"] .pill-pending { background: rgba(96,165,250,0.15); color: #93c5fd; }
   html[data-theme="luxe"] .pill-approved { background: rgba(74,222,128,0.15); color: #86efac; }
-  html[data-theme="luxe"] .pill-converted { background: rgba(184,133,74,0.18); color: var(--brand-light); }
+  html[data-theme="luxe"] .pill-converted { background: rgba(184,90,61,0.18); color: var(--brand-light); }
   html[data-theme="luxe"] .pill-rejected { background: rgba(248,113,113,0.15); color: #fca5a5; }
   /* Luxe · form labels */
   html[data-theme="luxe"] label { color: var(--ink-soft); font-weight: 500; }
@@ -291,7 +291,7 @@
     border-color: rgba(255,255,255,0.06);
   }
   html[data-theme="luxe"] .settings-sidebar::before {
-    background: linear-gradient(to right, transparent, rgba(184,133,74,0.30), transparent);
+    background: linear-gradient(to right, transparent, rgba(184,90,61,0.30), transparent);
   }
   html[data-theme="luxe"] .ss-search {
     background: rgba(255,255,255,0.04);
@@ -300,9 +300,9 @@
   }
   html[data-theme="luxe"] .ss-section { color: var(--brand-light); }
   html[data-theme="luxe"] .ss-item { color: var(--ink-soft); }
-  html[data-theme="luxe"] .ss-item:hover { background: rgba(184,133,74,0.10); color: var(--ink); }
+  html[data-theme="luxe"] .ss-item:hover { background: rgba(184,90,61,0.10); color: var(--ink); }
   html[data-theme="luxe"] .ss-item.active {
-    background: linear-gradient(135deg, rgba(184,133,74,0.20), rgba(184,133,74,0.08)) !important;
+    background: linear-gradient(135deg, rgba(184,90,61,0.20), rgba(184,90,61,0.08)) !important;
     color: var(--brand-light) !important;
   }
   html[data-theme="luxe"] .ss-item .ss-count {
@@ -336,7 +336,7 @@
   html[data-theme="luxe"] .toggle-switch input:checked + .track {
     background: var(--brand);
   }
-  html[data-theme="luxe"] .toggle-switch:hover .track { box-shadow: 0 0 0 4px rgba(184,133,74,0.15); }
+  html[data-theme="luxe"] .toggle-switch:hover .track { box-shadow: 0 0 0 4px rgba(184,90,61,0.15); }
   /* Luxe · service rows + list items inside settings panels */
   html[data-theme="luxe"] .service-row,
   html[data-theme="luxe"] .list-item-row,
@@ -353,7 +353,7 @@
   html[data-theme="luxe"] .list-item-row:hover,
   html[data-theme="luxe"] .bank-row:hover,
   html[data-theme="luxe"] .team-row:hover {
-    background: rgba(184,133,74,0.08) !important;
+    background: rgba(184,90,61,0.08) !important;
   }
   /* Luxe · PIT helper mode buttons */
   html[data-theme="luxe"] .pit-mode-btn {
@@ -362,14 +362,14 @@
     color: var(--ink);
   }
   html[data-theme="luxe"] .pit-mode-btn.active {
-    background: rgba(184,133,74,0.15);
+    background: rgba(184,90,61,0.15);
     border-color: var(--brand);
     color: var(--brand-light);
   }
   /* Luxe · plate · color-coded category badges (preserve color but tone text) */
   html[data-theme="luxe"] .pill-pending,
   html[data-theme="luxe"] .pill-shoot { background: rgba(96,165,250,0.18); color: #93c5fd; }
-  html[data-theme="luxe"] .pill-deliver { background: rgba(184,133,74,0.18); color: var(--brand-light); }
+  html[data-theme="luxe"] .pill-deliver { background: rgba(184,90,61,0.18); color: var(--brand-light); }
   html[data-theme="luxe"] .pill-closed { background: rgba(74,222,128,0.15); color: #86efac; }
   /* Luxe · Hero card · "next shoot" in dashboard · catch hardcoded cream */
   html[data-theme="luxe"] [style*="background:linear-gradient(135deg, #FBE5C8"],
@@ -429,12 +429,12 @@
   html[data-theme="luxe"] .topbar .search-input,
   html[data-theme="luxe"] .topbar input { background: rgba(255,255,255,0.04); color: var(--ink); border-color: rgba(255,255,255,0.10); }
   html[data-theme="luxe"] .user-chip { background: rgba(255,255,255,0.04); color: var(--ink); border-color: rgba(255,255,255,0.10); }
-  html[data-theme="luxe"] .user-chip:hover { background: rgba(184,133,74,0.10); border-color: var(--brand); }
+  html[data-theme="luxe"] .user-chip:hover { background: rgba(184,90,61,0.10); border-color: var(--brand); }
   /* Luxe · FAB Quick create */
   html[data-theme="luxe"] .fab-quick {
     background: linear-gradient(135deg, var(--brand-light), var(--brand-dark)) !important;
     color: #0A0A0E !important;
-    box-shadow: 0 8px 28px rgba(184,133,74,0.4) !important;
+    box-shadow: 0 8px 28px rgba(184,90,61,0.4) !important;
   }
   /* Luxe · ใบเสนอ tab + filter chips · already in tab-btn but reinforce */
   html[data-theme="luxe"] .count.text-mute { color: var(--ink-mute); }
@@ -482,9 +482,9 @@
   }
   /* Luxe · Calendar · keep dates readable */
   html[data-theme="luxe"] .cal-day { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); color: var(--ink); }
-  html[data-theme="luxe"] .cal-day.today { background: rgba(184,133,74,0.15); border-color: var(--brand); color: var(--brand-light); }
+  html[data-theme="luxe"] .cal-day.today { background: rgba(184,90,61,0.15); border-color: var(--brand); color: var(--brand-light); }
   html[data-theme="luxe"] .cal-day .cal-num { color: var(--ink); }
-  html[data-theme="luxe"] .cal-day .cal-job-chip { background: rgba(184,133,74,0.2); color: var(--brand-light); }
+  html[data-theme="luxe"] .cal-day .cal-job-chip { background: rgba(184,90,61,0.2); color: var(--brand-light); }
   /* Luxe · Dashboard hero text */
   html[data-theme="luxe"] .home-hero h1, html[data-theme="luxe"] .home-hero h2 { color: var(--ink) !important; }
   html[data-theme="luxe"] .home-hero p { color: var(--ink-soft) !important; }
@@ -548,7 +548,7 @@
   }
   /* Luxe · Reports Hero decorative circle · ทำให้ไม่ดูขาวทั้งใบ */
   html[data-theme="luxe"] .hero-deco-circle {
-    background: radial-gradient(circle, rgba(184,133,74,0.20), transparent 70%) !important;
+    background: radial-gradient(circle, rgba(184,90,61,0.20), transparent 70%) !important;
     filter: blur(10px);
   }
   /* Luxe · Reports Hero KPI 4 cards · background:rgba(255,255,255,0.7) frosted white → obsidian */
@@ -563,8 +563,8 @@
     border-color: rgba(255,255,255,0.10) !important;
   }
   /* Luxe · Reports Hero gradient text · #2A1F18 → brand · was invisible on dark */
-  html[data-theme="luxe"] [style*="linear-gradient(135deg,#2A1F18,#B8854A)"],
-  html[data-theme="luxe"] [style*="linear-gradient(135deg, #2A1F18, #B8854A)"] {
+  html[data-theme="luxe"] [style*="linear-gradient(135deg,#2A1F18,#B85A3D)"],
+  html[data-theme="luxe"] [style*="linear-gradient(135deg, #2A1F18, #B85A3D)"] {
     background: linear-gradient(135deg, var(--brand-light), var(--brand)) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
@@ -589,7 +589,7 @@
   html[data-theme="luxe"] [style*="background:white;font-size:11px"][style*="color:#1e40af"],
   html[data-theme="luxe"] [style*="background:white;font-size:11px"][style*="color:#92400e"],
   html[data-theme="luxe"] [style*="background:white;font-size:11px"][style*="color:#15803d"] {
-    background: rgba(184,133,74,0.18) !important;
+    background: rgba(184,90,61,0.18) !important;
     color: var(--brand-light) !important;
   }
   /* Luxe · Dashboard todo items · catch pastel gradients · #fee2e2/#fef2f2/#fef9c3/etc */
@@ -606,8 +606,8 @@
   html[data-theme="luxe"] [style*="color:#0d7b5a"] { color: #86efac !important; }
   html[data-theme="luxe"] [style*="color:#1e40af"] { color: #93c5fd !important; }
   html[data-theme="luxe"] [style*="color:#15803d"] { color: #86efac !important; }
-  html[data-theme="luxe"] [style*="color:#B8854A"],
-  html[data-theme="luxe"] [style*="color: #B8854A"] { color: var(--brand-light) !important; }
+  html[data-theme="luxe"] [style*="color:#B85A3D"],
+  html[data-theme="luxe"] [style*="color: #B85A3D"] { color: var(--brand-light) !important; }
   /* Luxe · catch icon circles + dismiss buttons that have background:white */
   html[data-theme="luxe"] [style*="background:white;display:flex"],
   html[data-theme="luxe"] [style*="background:white;color:var(--green)"] {
@@ -620,7 +620,7 @@
   /* Luxe · borders to invisible muted */
   html[data-theme="luxe"] [style*="border:1px solid #e5e7eb"],
   html[data-theme="luxe"] [style*="border:1px solid #ebd9c0"],
-  html[data-theme="luxe"] [style*="border:1px solid rgba(212,160,86"],
+  html[data-theme="luxe"] [style*="border:1px solid rgba(217,119,87"],
   html[data-theme="luxe"] [style*="border-color:#e5e7eb"] {
     border-color: rgba(255,255,255,0.08) !important;
   }
@@ -643,10 +643,10 @@
     --glass-shadow-lg: 0 12px 48px rgba(0,0,0,0.50), 0 4px 16px rgba(0,0,0,0.30);
 
     /* Brand stays · adjust brand-light + brand-bg for dark */
-    --brand: #D4A056;
-    --brand-dark: #D4A056;
-    --brand-light: #B8854A;
-    --brand-bg: rgba(212,160,86,0.16);
+    --brand: #D97757;
+    --brand-dark: #D97757;
+    --brand-light: #B85A3D;
+    --brand-bg: rgba(217,119,87,0.16);
 
     /* Text · invert */
     --ink: #F5F0E8;
@@ -674,8 +674,8 @@
   /* Dark · global body background */
   html[data-theme="dark"] body {
     background:
-      radial-gradient(ellipse at top left, rgba(212,160,86,0.10) 0%, transparent 60%),
-      radial-gradient(ellipse at bottom right, rgba(184,133,74,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at top left, rgba(217,119,87,0.10) 0%, transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(184,90,61,0.12) 0%, transparent 50%),
       linear-gradient(180deg, var(--bg-a) 0%, var(--bg-b) 100%) !important;
     color: var(--ink);
   }
@@ -793,7 +793,7 @@
   .topbar-brand img, .topbar-brand .topbar-brand-icon {
     width: 48px; height: 48px;
     color: var(--brand);
-    filter: drop-shadow(0 2px 8px rgba(212,160,86,0.35));
+    filter: drop-shadow(0 2px 8px rgba(217,119,87,0.35));
     transition: transform 0.2s;
     flex-shrink: 0;
   }
@@ -897,7 +897,7 @@
   .nav-item.active {
     background: var(--brand);
     color: white;
-    box-shadow: 0 4px 12px rgba(212,160,86,0.3);
+    box-shadow: 0 4px 12px rgba(217,119,87,0.3);
   }
   .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
 
@@ -989,7 +989,7 @@
   .btn-primary {
     background: var(--brand);
     color: white;
-    box-shadow: 0 4px 12px rgba(212,160,86,0.25);
+    box-shadow: 0 4px 12px rgba(217,119,87,0.25);
   }
   .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
   .btn-primary:disabled { background: var(--ink-faint); cursor: not-allowed; transform: none; box-shadow: none; }
@@ -1074,7 +1074,7 @@
   #jobs-table-card .data-table tbody td { border-top: 1px solid var(--border) !important; border-bottom: 1px solid var(--border) !important; padding-top: 14px !important; padding-bottom: 14px !important; }
   #jobs-table-card .data-table tbody td:first-child { border-left: 1px solid var(--border) !important; border-radius: 12px 0 0 12px !important; }
   #jobs-table-card .data-table tbody td:last-child { border-right: 1px solid var(--border) !important; border-radius: 0 12px 12px 0 !important; }
-  #jobs-table-card .data-table tbody tr:hover { background: rgba(184,133,74,0.08) !important; }
+  #jobs-table-card .data-table tbody tr:hover { background: rgba(184,90,61,0.08) !important; }
 
   /* v1.0.58 · Quote detail quick actions · คุมโทนทุกธีม (Joe: เดิม pastel ธีมสว่าง hardcode โดดในธีมมืด) */
   .qd-act { padding: 14px 8px; border-radius: 14px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; font-weight: 600; font-size: 12px; transition: all .15s; }
@@ -1082,11 +1082,11 @@
   .qd-act .qa-ico { font-size: 22px; }
   .qd-act-edit    { background: linear-gradient(135deg,#dbeafe,#bfdbfe); border: 1px solid #3b82f6; color: #1e40af; }
   .qd-act-pdf     { background: linear-gradient(135deg,#fef3c7,#fde68a); border: 1px solid #fbbf24; color: #7c2d12; }
-  .qd-act-convert { background: linear-gradient(135deg,#FBE5C8,#F5A87E); border: 1px solid #B8854A; color: #7c2d12; }
+  .qd-act-convert { background: linear-gradient(135deg,#FBE5C8,#F5A87E); border: 1px solid #B85A3D; color: #7c2d12; }
   .qd-act-reject  { background: linear-gradient(135deg,#fee2e2,#fecaca); border: 1px solid #dc2626; color: #b91c1c; }
   html[data-theme="dark"] .qd-act-edit,    html[data-theme="luxe"] .qd-act-edit    { background: rgba(59,130,246,0.10) !important; border-color: rgba(59,130,246,0.35) !important; color: #93c5fd !important; }
-  html[data-theme="dark"] .qd-act-pdf,     html[data-theme="luxe"] .qd-act-pdf     { background: rgba(212,160,86,0.12) !important; border-color: rgba(212,160,86,0.40) !important; color: #E8B870 !important; }
-  html[data-theme="dark"] .qd-act-convert, html[data-theme="luxe"] .qd-act-convert { background: linear-gradient(135deg,#D4A056,#B8854A) !important; border-color: transparent !important; color: #0A0A0E !important; }
+  html[data-theme="dark"] .qd-act-pdf,     html[data-theme="luxe"] .qd-act-pdf     { background: rgba(217,119,87,0.12) !important; border-color: rgba(217,119,87,0.40) !important; color: #E8B870 !important; }
+  html[data-theme="dark"] .qd-act-convert, html[data-theme="luxe"] .qd-act-convert { background: linear-gradient(135deg,#D97757,#B85A3D) !important; border-color: transparent !important; color: #0A0A0E !important; }
   html[data-theme="dark"] .qd-act-reject,  html[data-theme="luxe"] .qd-act-reject  { background: rgba(239,68,68,0.10) !important; border-color: rgba(239,68,68,0.35) !important; color: #f87171 !important; }
 
   /* View toggle (list/card) */
@@ -1138,7 +1138,7 @@
   }
   .item-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 22px rgba(212,160,86,0.18);
+    box-shadow: 0 8px 22px rgba(217,119,87,0.18);
   }
   .item-card.wait_shoot { border-left-color: var(--blue); }
   .item-card.wait_deliver { border-left-color: var(--yellow); }
@@ -1223,13 +1223,13 @@
   .team-warn-banner.is-final .tw-title { color:#065f46; }
   .team-warn-banner.is-final .tw-hint { color:#0d7355; }
   /* Luxe theme overrides · warm gold tones · ไม่ใช้แอมเบอร์เย็น · match Crail palette */
-  html[data-theme="luxe"] .pill-team-warn { background:rgba(216,160,86,0.18) !important; color:#F2E0BA !important; }
-  html[data-theme="luxe"] .team-final-box { background:rgba(216,160,86,0.10) !important; border-color:rgba(216,160,86,0.30) !important; border-left-color:#D4A056 !important; }
+  html[data-theme="luxe"] .pill-team-warn { background:rgba(217,119,87,0.18) !important; color:#F2E0BA !important; }
+  html[data-theme="luxe"] .team-final-box { background:rgba(217,119,87,0.10) !important; border-color:rgba(217,119,87,0.30) !important; border-left-color:#D97757 !important; }
   html[data-theme="luxe"] .team-final-box .tfb-title { color:#F2E0BA !important; }
   html[data-theme="luxe"] .team-final-box .tfb-hint { color:#A89A8C !important; }
   html[data-theme="luxe"] .team-final-box.is-checked { background:rgba(134,239,172,0.10) !important; border-color:rgba(134,239,172,0.30) !important; border-left-color:#86efac !important; }
   html[data-theme="luxe"] .team-final-box.is-checked .tfb-title { color:#86efac !important; }
-  html[data-theme="luxe"] .team-warn-banner { background:rgba(216,160,86,0.10) !important; border-left-color:#D4A056 !important; }
+  html[data-theme="luxe"] .team-warn-banner { background:rgba(217,119,87,0.10) !important; border-left-color:#D97757 !important; }
   html[data-theme="luxe"] .team-warn-banner .tw-title { color:#F2E0BA !important; }
   html[data-theme="luxe"] .team-warn-banner .tw-hint { color:#A89A8C !important; }
   html[data-theme="luxe"] .team-warn-banner.is-final { background:rgba(134,239,172,0.10) !important; border-left-color:#86efac !important; }
@@ -1299,7 +1299,7 @@
     z-index: 100;
     padding: 40px 24px;
     overflow-y: auto;
-    background: linear-gradient(160deg, #f9c5a3 0%, #E8C77E 38%, #D4A056 100%) !important;
+    background: linear-gradient(160deg, #f9c5a3 0%, #E89B7A 38%, #D97757 100%) !important;
   }
   .auth-overlay.show { display: flex; }
 
@@ -1383,8 +1383,8 @@
   }
   .auth-card .auth-field input:focus {
     outline: none !important;
-    border-color: #D4A056 !important;
-    box-shadow: 0 0 0 3px rgba(212,160,86,.15) !important;
+    border-color: #D97757 !important;
+    box-shadow: 0 0 0 3px rgba(217,119,87,.15) !important;
   }
   .auth-card .auth-field input::placeholder { color: #a89a8c; }
 
@@ -1395,15 +1395,15 @@
     font-size: 15px;
     font-weight: 700;
     color: #fff;
-    background: linear-gradient(135deg, #E8C77E, #D4A056) !important;
+    background: linear-gradient(135deg, #E89B7A, #D97757) !important;
     border: none !important;
     border-radius: 12px;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(212,160,86,.3) !important;
+    box-shadow: 0 4px 14px rgba(217,119,87,.3) !important;
     margin-top: 6px;
     transition: all .15s;
   }
-  .auth-card .auth-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(212,160,86,.4) !important; }
+  .auth-card .auth-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(217,119,87,.4) !important; }
   .auth-card .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   /* Links + divider */
@@ -1414,7 +1414,7 @@
     color: #7c7066;
   }
   .auth-card .auth-links a {
-    color: #D4A056 !important;
+    color: #D97757 !important;
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
@@ -1474,17 +1474,17 @@
     white-space: nowrap;
   }
   .dt-genre-chip:hover {
-    background: #FBF3E0;
-    border-color: #E8C77E;
+    background: #fef3eb;
+    border-color: #E89B7A;
     color: #b85a36;
     transform: translateY(-1px);
   }
   .dt-genre-chip.active {
-    background: linear-gradient(135deg, #E8C77E, #D4A056);
+    background: linear-gradient(135deg, #E89B7A, #D97757);
     color: #ffffff;
     border-color: transparent;
     font-weight: 700;
-    box-shadow: 0 3px 10px rgba(212,160,86,0.35);
+    box-shadow: 0 3px 10px rgba(217,119,87,0.35);
   }
   /* Genre chips container · compact tidy */
   #dt-signup-genre-chips {
@@ -1502,8 +1502,8 @@
     color: #3a2f25 !important;
   }
   #dt-signup-genre-other:focus {
-    border-color: #D4A056 !important;
-    box-shadow: 0 0 0 3px rgba(212,160,86,0.15) !important;
+    border-color: #D97757 !important;
+    box-shadow: 0 0 0 3px rgba(217,119,87,0.15) !important;
   }
   /* v1.0.3 · PDPA consent row */
   .dt-auth-consent {
@@ -1592,7 +1592,7 @@
   .auth-field input:focus {
     outline: none;
     border-color: var(--brand);
-    box-shadow: 0 0 0 3px rgba(212,160,86,0.12);
+    box-shadow: 0 0 0 3px rgba(217,119,87,0.12);
   }
   .auth-msg {
     padding: 10px 12px;
@@ -1611,7 +1611,7 @@
     border-radius: var(--r-md);
     font-weight: 600;
     font-size: 14px;
-    box-shadow: 0 4px 12px rgba(212,160,86,0.25);
+    box-shadow: 0 4px 12px rgba(217,119,87,0.25);
     transition: all 0.15s;
   }
   .auth-btn:hover:not(:disabled) { background: var(--brand-dark); }
@@ -1698,15 +1698,15 @@
     padding: 18px 20px;
     box-shadow:
       0 1px 0 rgba(255,255,255,0.9) inset,
-      0 4px 16px -4px rgba(212,160,86,0.10),
-      0 2px 6px rgba(184,133,74,0.06);
+      0 4px 16px -4px rgba(217,119,87,0.10),
+      0 2px 6px rgba(184,90,61,0.06);
     transition: box-shadow 0.2s;
   }
   .form-section:hover {
     box-shadow:
       0 1px 0 rgba(255,255,255,0.9) inset,
-      0 6px 22px -4px rgba(212,160,86,0.16),
-      0 3px 10px rgba(184,133,74,0.08);
+      0 6px 22px -4px rgba(217,119,87,0.16),
+      0 3px 10px rgba(184,90,61,0.08);
   }
   html[data-theme="dark"] .form-section {
     background: linear-gradient(180deg, rgba(40,30,25,0.80) 0%, rgba(40,30,25,0.65) 100%);
@@ -1722,7 +1722,7 @@
     color: var(--brand-dark);
     margin-bottom: var(--gap-3);
     padding-bottom: 10px;
-    border-bottom: 1px solid rgba(184,133,74,0.16);
+    border-bottom: 1px solid rgba(184,90,61,0.16);
     letter-spacing: 0.02em;
     display: flex;
     align-items: center;
@@ -1761,7 +1761,7 @@
   }
   .toggle-switch input:checked + .track { background: var(--brand); }
   .toggle-switch input:checked + .track .thumb { transform: translateX(22px); }
-  .toggle-switch:hover .track { box-shadow: 0 0 0 4px rgba(212,160,86,0.10); }
+  .toggle-switch:hover .track { box-shadow: 0 0 0 4px rgba(217,119,87,0.10); }
 
   .toggle-switch.small { font-size: 13px; gap: 8px; font-weight: 500; }
   .toggle-switch.small .track { width: 38px; height: 22px; }
@@ -1795,7 +1795,7 @@
   .tax-card-wrap .tax-row {
     display: flex; align-items: center; justify-content: space-between;
     padding: 10px 0;
-    border-bottom: 1px solid rgba(212,160,86,0.18);
+    border-bottom: 1px solid rgba(217,119,87,0.18);
   }
   .tax-card-wrap .tax-row:last-of-type { border-bottom: none; }
   .tax-card-wrap .tax-row .rate-input {
@@ -1838,7 +1838,7 @@
     border-color: var(--brand);
     border-style: solid;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(212,160,86,0.25);
+    box-shadow: 0 4px 12px rgba(217,119,87,0.25);
   }
   .btn-add-row .plus { font-size: 18px; font-weight: 700; line-height: 1; }
   .form-row {
@@ -1895,7 +1895,7 @@
   .form-field textarea:focus {
     outline: none;
     border-color: var(--brand);
-    box-shadow: 0 0 0 3px rgba(212,160,86,0.10);
+    box-shadow: 0 0 0 3px rgba(217,119,87,0.10);
   }
   .form-field textarea { resize: vertical; min-height: 56px; height: auto; }
   .form-field .hint { font-size: 11px; color: var(--ink-mute); margin-top: 2px; }
@@ -2034,7 +2034,7 @@
     display: flex; align-items: center; justify-content: center;
     font-weight: 700;
   }
-  .cal-day.weekend:not(.out-month) { background: rgba(212,160,86,0.04); }
+  .cal-day.weekend:not(.out-month) { background: rgba(217,119,87,0.04); }
   .cal-day:nth-child(7n) { border-right: none; }
   .cal-daynum {
     font-size: 11px;
@@ -2092,7 +2092,7 @@
     align-items: center;
     gap: 4px;
     background: rgba(255,255,255,0.85);
-    border: 1px solid rgba(184,133,74,0.20);
+    border: 1px solid rgba(184,90,61,0.20);
     padding: 3px 9px;
     border-radius: 8px;
     font-family: 'Inter', sans-serif;
@@ -2104,11 +2104,11 @@
     line-height: 1.4;
   }
   .date-chip.primary {
-    background: linear-gradient(135deg, #D4A056, #B8854A);
+    background: linear-gradient(135deg, #D97757, #B85A3D);
     color: white;
-    border-color: #B8854A;
+    border-color: #B85A3D;
     font-weight: 700;
-    box-shadow: 0 2px 6px rgba(212,160,86,0.20);
+    box-shadow: 0 2px 6px rgba(217,119,87,0.20);
   }
   .date-chips .date-suffix {
     font-size: 11px;
@@ -2123,7 +2123,7 @@
     color: var(--ink-soft);
   }
   html[data-theme="dark"] .date-chip.primary {
-    background: linear-gradient(135deg, #D4A056, #D4A056);
+    background: linear-gradient(135deg, #D97757, #D97757);
     color: white;
   }
   html[data-theme="dark"] .date-chips .date-suffix { color: var(--ink-mute); }
@@ -2154,9 +2154,9 @@
     border: 1px solid rgba(255,255,255,0.58);
     box-shadow:
       0 1px 0 rgba(255,255,255,0.90) inset,
-      0 -1px 0 rgba(212,160,86,0.06) inset,
-      0 20px 50px -10px rgba(212,160,86,0.20),
-      0 4px 14px rgba(184,133,74,0.10);
+      0 -1px 0 rgba(217,119,87,0.06) inset,
+      0 20px 50px -10px rgba(217,119,87,0.20),
+      0 4px 14px rgba(184,90,61,0.10);
   }
   .settings-sidebar::before {
     content: '';
@@ -2171,7 +2171,7 @@
     position: absolute;
     bottom: -40%; left: -10%; right: -10%;
     height: 60%;
-    background: radial-gradient(ellipse at center top, rgba(212,160,86,0.10) 0%, transparent 70%);
+    background: radial-gradient(ellipse at center top, rgba(217,119,87,0.10) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
   }
@@ -2187,15 +2187,15 @@
     margin: 4px 4px 14px;
     box-shadow:
       0 1px 0 rgba(255,255,255,0.85) inset,
-      0 2px 6px rgba(184,133,74,0.08);
+      0 2px 6px rgba(184,90,61,0.08);
     transition: all 0.2s;
   }
   .ss-search:focus-within {
-    border-color: rgba(212,160,86,0.4);
+    border-color: rgba(217,119,87,0.4);
     box-shadow:
       0 1px 0 rgba(255,255,255,0.85) inset,
-      0 0 0 3px rgba(212,160,86,0.10),
-      0 4px 12px rgba(184,133,74,0.12);
+      0 0 0 3px rgba(217,119,87,0.10),
+      0 4px 12px rgba(184,90,61,0.12);
   }
   .ss-search input {
     border: none; background: transparent; outline: none;
@@ -2203,12 +2203,12 @@
     color: var(--ink);
   }
   .ss-search input::placeholder { color: #a89a8c; }
-  .ss-search .ss-search-icon { color: #B8854A; font-size: 14px; font-weight: 700; }
+  .ss-search .ss-search-icon { color: #B85A3D; font-size: 14px; font-weight: 700; }
 
   .ss-group-label {
     font-family: 'Inter', sans-serif;
     font-size: 10px; font-weight: 700;
-    color: #B8854A;
+    color: #B85A3D;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     padding: 14px 14px 8px;
@@ -2218,7 +2218,7 @@
     content: '';
     flex: 1;
     height: 1px;
-    background: linear-gradient(to right, rgba(184,133,74,0.25), transparent);
+    background: linear-gradient(to right, rgba(184,90,61,0.25), transparent);
   }
 
   .ss-item {
@@ -2240,26 +2240,26 @@
     transform: translateX(2px);
     box-shadow:
       0 1px 0 rgba(255,255,255,0.85) inset,
-      0 2px 8px rgba(184,133,74,0.10);
+      0 2px 8px rgba(184,90,61,0.10);
   }
   .ss-item.active {
-    background: linear-gradient(135deg, #D4A056 0%, #B8854A 100%);
+    background: linear-gradient(135deg, #D97757 0%, #B85A3D 100%);
     color: white;
     font-weight: 600;
     transform: translateX(0);
     box-shadow:
       0 1px 0 rgba(255,255,255,0.35) inset,
       0 -1px 0 rgba(0,0,0,0.10) inset,
-      0 4px 16px rgba(212,160,86,0.35),
-      0 8px 24px -4px rgba(184,133,74,0.25);
+      0 4px 16px rgba(217,119,87,0.35),
+      0 8px 24px -4px rgba(184,90,61,0.25);
   }
   .ss-item.active:hover {
     transform: translateX(2px);
     box-shadow:
       0 1px 0 rgba(255,255,255,0.4) inset,
       0 -1px 0 rgba(0,0,0,0.12) inset,
-      0 6px 20px rgba(212,160,86,0.42),
-      0 10px 30px -4px rgba(184,133,74,0.30);
+      0 6px 20px rgba(217,119,87,0.42),
+      0 10px 30px -4px rgba(184,90,61,0.30);
   }
   .ss-item.active::before {
     content: '';
@@ -2277,17 +2277,17 @@
     border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
     font-size: 15px;
-    background: linear-gradient(135deg, rgba(212,160,86,0.16) 0%, rgba(212,160,86,0.08) 100%);
-    color: #B8854A;
-    border: 1px solid rgba(212,160,86,0.18);
+    background: linear-gradient(135deg, rgba(217,119,87,0.16) 0%, rgba(217,119,87,0.08) 100%);
+    color: #B85A3D;
+    border: 1px solid rgba(217,119,87,0.18);
     box-shadow:
       0 1px 0 rgba(255,255,255,0.7) inset,
-      0 1px 3px rgba(184,133,74,0.10);
+      0 1px 3px rgba(184,90,61,0.10);
     flex-shrink: 0;
     transition: all 0.2s;
   }
   .ss-item:hover .ss-ico {
-    background: linear-gradient(135deg, rgba(212,160,86,0.22) 0%, rgba(212,160,86,0.12) 100%);
+    background: linear-gradient(135deg, rgba(217,119,87,0.22) 0%, rgba(217,119,87,0.12) 100%);
     transform: scale(1.05);
   }
   .ss-item.active .ss-ico {
@@ -2312,7 +2312,7 @@
     text-align: center;
     box-shadow:
       0 1px 0 rgba(255,255,255,0.8) inset,
-      0 1px 2px rgba(184,133,74,0.06);
+      0 1px 2px rgba(184,90,61,0.06);
   }
   .ss-item.active .ss-count {
     background: linear-gradient(180deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.18) 100%);
@@ -2334,7 +2334,7 @@
     color: #7c6856;
     box-shadow: 0 1px 0 rgba(255,255,255,0.7) inset;
   }
-  .ss-footer strong { color: #B8854A; font-family: 'Inter', sans-serif; font-weight: 700; }
+  .ss-footer strong { color: #B85A3D; font-family: 'Inter', sans-serif; font-weight: 700; }
 
   /* === Settings content panel · v1.0.13 · no inner scroll === */
   .settings-content {
@@ -2345,8 +2345,8 @@
     padding: 28px 32px;
     box-shadow:
       0 1px 0 rgba(255,255,255,0.9) inset,
-      0 8px 30px -8px rgba(212,160,86,0.18),
-      0 4px 14px rgba(184,133,74,0.08);
+      0 8px 30px -8px rgba(217,119,87,0.18),
+      0 4px 14px rgba(184,90,61,0.08);
   }
   .settings-content > .glass-card:first-child { margin-top: 0; }
 
@@ -2360,9 +2360,9 @@
     padding: 14px 18px;
     border-radius: 16px;
     background:
-      radial-gradient(ellipse at top right, rgba(212,160,86,0.16) 0%, transparent 70%),
-      linear-gradient(135deg, rgba(184,133,74,0.08) 0%, rgba(184,133,74,0.02) 100%);
-    border: 1px solid rgba(184,133,74,0.22);
+      radial-gradient(ellipse at top right, rgba(217,119,87,0.16) 0%, transparent 70%),
+      linear-gradient(135deg, rgba(184,90,61,0.08) 0%, rgba(184,90,61,0.02) 100%);
+    border: 1px solid rgba(184,90,61,0.22);
   }
   .lt-intro-title {
     font-size: 15px; font-weight: 700;
@@ -2383,13 +2383,13 @@
     display: flex; flex-wrap: wrap; gap: 8px;
     padding: 6px;
     background: rgba(255,255,255,0.55);
-    border: 1px solid rgba(184,133,74,0.18);
+    border: 1px solid rgba(184,90,61,0.18);
     border-radius: 14px;
     backdrop-filter: blur(8px);
   }
   html[data-theme="luxe"] .lt-tabs {
     background: rgba(28,28,34,0.6) !important;
-    border-color: rgba(212,160,86,0.22) !important;
+    border-color: rgba(217,119,87,0.22) !important;
   }
   html[data-theme="dark"] .lt-tabs {
     background: rgba(255,255,255,0.04) !important;
@@ -2412,25 +2412,25 @@
     min-width: 0;
   }
   .lt-tab:hover {
-    background: rgba(184,133,74,0.10);
+    background: rgba(184,90,61,0.10);
     color: var(--ink);
   }
   .lt-tab.is-active {
-    background: linear-gradient(135deg, #D4A056 0%, #B8854A 100%);
+    background: linear-gradient(135deg, #D97757 0%, #B85A3D 100%);
     color: white;
     box-shadow:
       0 1px 0 rgba(255,255,255,0.30) inset,
       0 -1px 0 rgba(0,0,0,0.10) inset,
-      0 4px 12px rgba(212,160,86,0.30);
+      0 4px 12px rgba(217,119,87,0.30);
   }
   html[data-theme="luxe"] .lt-tab { color: #C7B89E !important; }
-  html[data-theme="luxe"] .lt-tab:hover { background: rgba(212,160,86,0.14) !important; color: #F4F4F5 !important; }
+  html[data-theme="luxe"] .lt-tab:hover { background: rgba(217,119,87,0.14) !important; color: #F4F4F5 !important; }
   html[data-theme="luxe"] .lt-tab.is-active {
-    background: linear-gradient(135deg, #D4A056 0%, #B8854A 100%) !important;
+    background: linear-gradient(135deg, #D97757 0%, #B85A3D 100%) !important;
     color: #1c1c22 !important;
     box-shadow:
       0 1px 0 rgba(255,255,255,0.25) inset,
-      0 4px 14px rgba(212,160,86,0.35) !important;
+      0 4px 14px rgba(217,119,87,0.35) !important;
   }
   html[data-theme="dark"] .lt-tab { color: var(--ink-soft) !important; }
   html[data-theme="dark"] .lt-tab:hover { background: rgba(255,255,255,0.06) !important; color: var(--ink) !important; }
@@ -2446,7 +2446,7 @@
     font-size: 10.5px; font-weight: 700;
     padding: 1px 7px;
     border-radius: 999px;
-    background: rgba(184,133,74,0.15);
+    background: rgba(184,90,61,0.15);
     color: #7c6856;
     min-width: 20px; text-align: center;
   }
@@ -2454,7 +2454,7 @@
     background: rgba(255,255,255,0.25);
     color: white;
   }
-  html[data-theme="luxe"] .lt-tab-count { background: rgba(212,160,86,0.16) !important; color: #C7B89E !important; }
+  html[data-theme="luxe"] .lt-tab-count { background: rgba(217,119,87,0.16) !important; color: #C7B89E !important; }
   html[data-theme="luxe"] .lt-tab.is-active .lt-tab-count { background: rgba(28,28,34,0.25) !important; color: #1c1c22 !important; }
   html[data-theme="dark"] .lt-tab-count { background: rgba(255,255,255,0.06) !important; color: var(--ink-soft) !important; }
 
@@ -2479,9 +2479,9 @@
   /* v1.0.24 · A2 Refined Shop Setup Overview · theme-aware */
   .dt-shop-hero {
     background:
-      radial-gradient(ellipse at top right, rgba(212,160,86,0.20) 0%, transparent 60%),
-      linear-gradient(135deg, rgba(184,133,74,0.10) 0%, rgba(255,255,255,0.04) 100%);
-    border: 1px solid rgba(184,133,74,0.30);
+      radial-gradient(ellipse at top right, rgba(217,119,87,0.20) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(184,90,61,0.10) 0%, rgba(255,255,255,0.04) 100%);
+    border: 1px solid rgba(184,90,61,0.30);
     border-radius: 22px;
     padding: 24px 26px;
     position: relative;
@@ -2490,28 +2490,28 @@
   }
   html[data-theme="luxe"] .dt-shop-hero {
     background:
-      radial-gradient(ellipse at top right, rgba(212,160,86,0.22) 0%, transparent 60%),
-      linear-gradient(135deg, rgba(184,133,74,0.10) 0%, rgba(28,28,34,0.92) 50%, rgba(28,28,34,0.95) 100%) !important;
+      radial-gradient(ellipse at top right, rgba(217,119,87,0.22) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(184,90,61,0.10) 0%, rgba(28,28,34,0.92) 50%, rgba(28,28,34,0.95) 100%) !important;
   }
   .dt-shop-hero::after {
     content:''; position:absolute; bottom:0; left:10%; right:10%; height:1px;
-    background: linear-gradient(90deg, transparent, rgba(212,160,86,0.30), transparent);
+    background: linear-gradient(90deg, transparent, rgba(217,119,87,0.30), transparent);
   }
   .dt-shop-kicker {
     display: inline-flex; align-items: center; gap: 6px;
     font-size: 10.5px; font-weight: 700;
-    color: #B8854A; letter-spacing: 0.16em; text-transform: uppercase;
+    color: #B85A3D; letter-spacing: 0.16em; text-transform: uppercase;
     padding: 5px 10px;
-    background: rgba(184,133,74,0.12);
-    border: 1px solid rgba(184,133,74,0.25);
+    background: rgba(184,90,61,0.12);
+    border: 1px solid rgba(184,90,61,0.25);
     border-radius: 999px;
     margin-bottom: 12px;
   }
-  html[data-theme="luxe"] .dt-shop-kicker { color: #D4A056 !important; }
+  html[data-theme="luxe"] .dt-shop-kicker { color: #D97757 !important; }
   .dt-shop-kicker .dot {
     width: 5px; height: 5px; border-radius: 50%;
     background: #E8B870;
-    box-shadow: 0 0 6px rgba(232,184,112,0.7);
+    box-shadow: 0 0 6px rgba(232,155,122,0.7);
     animation: dtShopPulse 2s ease-in-out infinite;
   }
   @keyframes dtShopPulse { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
@@ -2524,7 +2524,7 @@
     letter-spacing: -0.01em;
   }
   .dt-shop-title .accent {
-    background: linear-gradient(135deg, #E8B870 0%, #B8854A 100%);
+    background: linear-gradient(135deg, #E8B870 0%, #B85A3D 100%);
     -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -2541,24 +2541,24 @@
   }
   html[data-theme="luxe"] .dt-shop-bar { background: rgba(255,255,255,0.08) !important; }
   .dt-shop-fill {
-    height:100%; background: linear-gradient(90deg, #B8854A, #D4A056);
-    border-radius:6px; box-shadow: 0 0 6px rgba(212,160,86,0.4);
+    height:100%; background: linear-gradient(90deg, #B85A3D, #D97757);
+    border-radius:6px; box-shadow: 0 0 6px rgba(217,119,87,0.4);
     transition: width .3s ease;
   }
   .dt-shop-num {
     font-family: 'Inter',sans-serif; font-weight: 700;
-    font-size: 13px; color: #B8854A; white-space: nowrap;
+    font-size: 13px; color: #B85A3D; white-space: nowrap;
   }
-  html[data-theme="luxe"] .dt-shop-num { color: #D4A056 !important; }
+  html[data-theme="luxe"] .dt-shop-num { color: #D97757 !important; }
   .dt-shop-cta {
     display: inline-flex; align-items: center; gap: 8px;
-    background: linear-gradient(135deg, #E8B870, #B8854A);
+    background: linear-gradient(135deg, #E8B870, #B85A3D);
     color: #0A0A0E;
     padding: 11px 20px;
     border-radius: 12px;
     font-weight: 800; font-size: 13.5px;
     border: none; cursor: pointer;
-    box-shadow: 0 6px 16px rgba(184,133,74,0.30), inset 0 1px 0 rgba(255,255,255,0.25);
+    box-shadow: 0 6px 16px rgba(184,90,61,0.30), inset 0 1px 0 rgba(255,255,255,0.25);
     transition: transform .15s;
   }
   .dt-shop-cta:hover { transform: translateY(-1px); }
@@ -2581,15 +2581,15 @@
   .dt-shop-card:hover { background: var(--card-strong, rgba(28,28,34,0.95)); border-color: rgba(255,255,255,0.12); }
   .dt-shop-card.is-done { border-color: rgba(134,239,172,0.20); }
   .dt-shop-card.is-next {
-    border-color: rgba(184,133,74,0.55);
-    background: linear-gradient(135deg, rgba(184,133,74,0.06) 0%, var(--card) 60%);
-    box-shadow: 0 0 0 1px rgba(184,133,74,0.55), 0 8px 20px -8px rgba(212,160,86,0.30);
+    border-color: rgba(184,90,61,0.55);
+    background: linear-gradient(135deg, rgba(184,90,61,0.06) 0%, var(--card) 60%);
+    box-shadow: 0 0 0 1px rgba(184,90,61,0.55), 0 8px 20px -8px rgba(217,119,87,0.30);
   }
   .dt-shop-card-icon {
     width: 42px; height: 42px;
     border-radius: 11px;
-    background: linear-gradient(135deg, rgba(184,133,74,0.12), rgba(184,133,74,0.04));
-    border: 1px solid rgba(184,133,74,0.15);
+    background: linear-gradient(135deg, rgba(184,90,61,0.12), rgba(184,90,61,0.04));
+    border: 1px solid rgba(184,90,61,0.15);
     display: flex; align-items: center; justify-content: center;
     font-size: 19px; flex-shrink: 0;
   }
@@ -2598,10 +2598,10 @@
     border-color: rgba(134,239,172,0.20);
   }
   .dt-shop-card.is-next .dt-shop-card-icon {
-    background: linear-gradient(135deg, #E8B870, #B8854A);
+    background: linear-gradient(135deg, #E8B870, #B85A3D);
     color: #0A0A0E;
     border-color: transparent;
-    box-shadow: 0 4px 12px rgba(184,133,74,0.30);
+    box-shadow: 0 4px 12px rgba(184,90,61,0.30);
   }
   .dt-shop-card-body { flex: 1; min-width: 0; }
   .dt-shop-card-title { font-size: 14px; font-weight: 700; color: var(--ink); }
@@ -2623,11 +2623,11 @@
   }
   html[data-theme="luxe"] .dt-shop-badge-todo { color: #fcd34d !important; }
   .dt-shop-badge-next {
-    background: linear-gradient(135deg, #E8B870, #B8854A);
+    background: linear-gradient(135deg, #E8B870, #B85A3D);
     color: #0A0A0E;
     padding: 6px 12px; border-radius: 999px;
     font-size: 11px; font-weight: 800; letter-spacing: 0.04em;
-    box-shadow: 0 3px 10px rgba(184,133,74,0.30);
+    box-shadow: 0 3px 10px rgba(184,90,61,0.30);
   }
   .dt-shop-hero--done {
     border-color: rgba(134,239,172,0.30);
@@ -2713,7 +2713,7 @@
     <div style="font-size:17px; font-weight:800; line-height:1.4;">🚫 ยกเลิกงาน<br><span id="cjm-code" style="font-size:14px; font-weight:600; opacity:.8;"></span></div>
     <div id="cjm-sub" style="font-size:13.5px; color:var(--ink-mute); margin:6px 0 14px; line-height:1.55;"></div>
     <button type="button" onclick="_cancelModalChooseD(true)" style="display:block; width:100%; text-align:left; border-radius:14px; padding:12px 14px; font-size:15px; font-weight:800; cursor:pointer; margin-bottom:10px; font-family:inherit; background:rgba(220,38,38,0.10); border:1.5px solid rgba(220,38,38,0.4); color:#dc2626;">💸 คืนเงินให้ลูกค้า <span id="cjm-amt"></span><small style="display:block; font-size:11.5px; font-weight:500; margin-top:3px; opacity:.85;">ระบบบันทึกรายการคืนเงินให้อัตโนมัติ · รายรับปีนี้ลดลงตามจริง</small></button>
-    <button type="button" onclick="_cancelModalChooseD(false)" style="display:block; width:100%; text-align:left; border-radius:14px; padding:12px 14px; font-size:15px; font-weight:800; cursor:pointer; margin-bottom:10px; font-family:inherit; background:rgba(212,160,86,0.12); border:1.5px solid rgba(184,133,74,0.5); color:var(--brand);">🔒 ริบมัดจำ (ไม่คืนเงิน)<small style="display:block; font-size:11.5px; font-weight:500; margin-top:3px; opacity:.85;">เงินที่รับมาแล้วยังนับเป็นรายรับตามเดิม</small></button>
+    <button type="button" onclick="_cancelModalChooseD(false)" style="display:block; width:100%; text-align:left; border-radius:14px; padding:12px 14px; font-size:15px; font-weight:800; cursor:pointer; margin-bottom:10px; font-family:inherit; background:rgba(217,119,87,0.12); border:1.5px solid rgba(184,90,61,0.5); color:var(--brand);">🔒 ริบมัดจำ (ไม่คืนเงิน)<small style="display:block; font-size:11.5px; font-weight:500; margin-top:3px; opacity:.85;">เงินที่รับมาแล้วยังนับเป็นรายรับตามเดิม</small></button>
     <button type="button" onclick="closeCancelJobModal()" style="display:block; width:100%; text-align:center; background:none; border:none; color:var(--ink-mute); font-size:14px; font-weight:700; padding:10px; cursor:pointer; font-family:inherit;">ไม่ยกเลิกแล้ว · กลับ</button>
     <div style="font-size:11.5px; color:var(--ink-mute); text-align:center; margin-top:2px; line-height:1.5; opacity:.8;">💡 งานที่ยกเลิกถูกตัดจากยอดขาย/ค้างเก็บ · ประวัติยังอยู่ · กู้คืนได้ทุกเมื่อ</div>
   </div>
@@ -2882,13 +2882,13 @@
         onfocus="this.placeholder='พิมพ์อย่างน้อย 2 ตัว...';openGlobalSearch();"
         onblur="setTimeout(()=>{closeGlobalSearch();this.placeholder='ค้นหา · งาน · ใบเสนอ · ลูกค้า · (กด Ctrl+K)';},200)"
         oninput="renderGlobalSearchResults(this.value)"
-        style="width:100%;padding:9px 14px 9px 36px;border-radius:999px;border:1px solid rgba(184,133,74,0.20);background:rgba(255,255,255,0.7);font:inherit;font-size:13px;outline:none;" />
-      <div id="global-search-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border-radius:14px;margin-top:6px;box-shadow:0 12px 40px rgba(212,160,86,0.20),0 2px 8px rgba(0,0,0,0.08);max-height:60vh;overflow-y:auto;z-index:100;border:1px solid rgba(184,133,74,0.18);"></div>
+        style="width:100%;padding:9px 14px 9px 36px;border-radius:999px;border:1px solid rgba(184,90,61,0.20);background:rgba(255,255,255,0.7);font:inherit;font-size:13px;outline:none;" />
+      <div id="global-search-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border-radius:14px;margin-top:6px;box-shadow:0 12px 40px rgba(217,119,87,0.20),0 2px 8px rgba(0,0,0,0.08);max-height:60vh;overflow-y:auto;z-index:100;border:1px solid rgba(184,90,61,0.18);"></div>
     </div>
     <div class="topbar-spacer"></div>
     <button id="announce-bell" onclick="openAnnounceInbox()" title="ประกาศจาก Pixory" aria-label="ประกาศ" style="position:relative; background:transparent; border:none; cursor:pointer; font-size:19px; padding:4px 8px; line-height:1; margin-right:4px;">
       📣
-      <span id="announce-bell-badge" style="display:none; position:absolute; top:-2px; right:0; min-width:16px; height:16px; padding:0 4px; background:var(--red,#D4A056); color:#fff; border-radius:999px; font-size:10px; line-height:16px; font-weight:700; box-sizing:border-box;"></span>
+      <span id="announce-bell-badge" style="display:none; position:absolute; top:-2px; right:0; min-width:16px; height:16px; padding:0 4px; background:var(--red,#D97757); color:#fff; border-radius:999px; font-size:10px; line-height:16px; font-weight:700; box-sizing:border-box;"></span>
     </button>
     <div id="sync-pill" class="sync-pill" title="สถานะการเชื่อมต่อข้อมูล">
       <span class="sync-dot"></span>
@@ -2956,7 +2956,7 @@
     <button onclick="closeFabMenu();openJobModal()" style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1e40af;border:1.5px solid #3b82f6;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.10);">💼 งานใหม่</button>
   </div>
   <button id="fab-btn" onclick="toggleFabMenu()" title="สร้างใหม่"
-    style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#D4A056,#B8854A);color:white;border:none;cursor:pointer;font-size:32px;font-weight:300;box-shadow:0 0 0 4px rgba(184,133,74,0.22),0 8px 22px rgba(212,160,86,0.4);transition:transform 0.2s;display:flex;align-items:center;justify-content:center;line-height:1;">
+    style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#D97757,#B85A3D);color:white;border:none;cursor:pointer;font-size:32px;font-weight:300;box-shadow:0 0 0 4px rgba(184,90,61,0.22),0 8px 22px rgba(217,119,87,0.4);transition:transform 0.2s;display:flex;align-items:center;justify-content:center;line-height:1;">
     <span id="fab-icon" style="transition:transform 0.2s;">+</span>
   </button>
 </div>
@@ -2975,12 +2975,20 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.91';
+const PIXORY_DESKTOP_VERSION = '1.0.92';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.92': {
+    date: '2026-06-13',
+    title: '🧡 สีแบรนด์กลับเป็นส้มสีโลโก้',
+    subtitle: 'ตรงกับมือถือ v2.9.21',
+    items: [
+      { icon: '🧡', title: 'ทั้งแอปเป็นส้มสีโลโก้', desc: 'ปุ่ม ไอคอน กราฟ และเอกสาร กลับมาใช้ส้มอบอุ่นเหมือนสัญลักษณ์แอป' }
+    ]
+  },
   '1.0.91': {
     date: '2026-06-13',
     title: '✨ เก็บสีส้มตกค้างให้เป็นทอง',
@@ -3552,7 +3560,7 @@ function _renderJobDateChips(j) {
     });
   }
   if (moreCount > 0) {
-    html += `<span class="date-suffix" style="color:#B8854A; font-weight:700;">+${moreCount} วัน</span>`;
+    html += `<span class="date-suffix" style="color:#B85A3D; font-weight:700;">+${moreCount} วัน</span>`;
   }
   html += '</div>';
   return html;
@@ -4801,7 +4809,7 @@ function renderDashboard(root) {
         <div style="font-size:12px;color:#E8B870;letter-spacing:0.4px;margin-top:2px;">Your studio, in your pocket</div>
       </div>
       <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
-        ${(window._MY_BADGE) ? `<span style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:#E8B870;border:1px solid rgba(212,160,86,0.5);border-radius:6px;padding:3px 9px;">🏅 FOUNDING TESTER</span>` : ''}
+        ${(window._MY_BADGE) ? `<span style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:#E8B870;border:1px solid rgba(217,119,87,0.5);border-radius:6px;padding:3px 9px;">🏅 FOUNDING TESTER</span>` : ''}
         <div style="display:flex;gap:8px;">
           <button class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,0.28);background:rgba(255,255,255,0.08);" onclick="openQuoteModal()">📝 ใบเสนอใหม่</button>
           <button class="btn btn-primary" onclick="openJobModal()">+ งานใหม่</button>
@@ -4884,7 +4892,7 @@ function renderDashboard(root) {
             <div style="font-size:28px;font-weight:800;color:var(--ink);">${waitShootCount}</div>
             <div style="font-size:12.5px;color:var(--blue);margin-top:3px;">รอถ่าย</div>
           </div>
-          <div style="background:rgba(232,184,112,0.12);border-radius:10px;padding:12px 6px;text-align:center;cursor:pointer;" onclick="goToJobsTab('wait_deliver')">
+          <div style="background:rgba(232,155,122,0.12);border-radius:10px;padding:12px 6px;text-align:center;cursor:pointer;" onclick="goToJobsTab('wait_deliver')">
             <div style="font-size:28px;font-weight:800;color:var(--ink);">${waitDeliverCount}</div>
             <div style="font-size:12.5px;color:#a06a16;margin-top:3px;">รอส่งงาน</div>
           </div>
@@ -4914,7 +4922,7 @@ function renderDashboard(root) {
       </div>
 
       <!-- UPCOMING SHOOTS (span 7) -->
-      <div style="grid-column:span 7;background:white;border-radius:18px;padding:16px 20px;box-shadow:0 4px 14px rgba(212,160,86,0.08);">
+      <div style="grid-column:span 7;background:white;border-radius:18px;padding:16px 20px;box-shadow:0 4px 14px rgba(217,119,87,0.08);">
         <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:12px;">📅 งานที่กำลังจะมาถึง</div>
         ${_upcomingRest.length === 0
           ? `<div style="text-align:center;padding:20px 0;color:var(--ink-mute);font-size:12.5px;">ยังไม่มีงานอื่นในคิว</div>`
@@ -4942,7 +4950,7 @@ function renderDashboard(root) {
       </div>
 
       <!-- TODO LIST span 6 -->
-      <div style="grid-column:span 6;background:white;border-radius:18px;padding:20px 22px;box-shadow:0 4px 14px rgba(212,160,86,0.08);display:flex;flex-direction:column;">
+      <div style="grid-column:span 6;background:white;border-radius:18px;padding:20px 22px;box-shadow:0 4px 14px rgba(217,119,87,0.08);display:flex;flex-direction:column;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <div style="font-size:13px;font-weight:800;color:var(--ink);">✅ To Do · ต้องทำต่อ</div>
           <div style="font-size:11px;color:var(--ink-mute);">${todos.length} รายการ</div>
@@ -4960,7 +4968,7 @@ function renderDashboard(root) {
       </div>
 
       <!-- v1.0.34 · QUOTES PIPELINE 6x1 · replaces 7-day chart (Joe report 30 พ.ค. "lumpy + +0% noise") -->
-      <div style="grid-column:span 6;background:white;border-radius:18px;padding:18px 22px;box-shadow:0 4px 14px rgba(212,160,86,0.08);cursor:pointer;" onclick="navigate('quotes')">
+      <div style="grid-column:span 6;background:white;border-radius:18px;padding:18px 22px;box-shadow:0 4px 14px rgba(217,119,87,0.08);cursor:pointer;" onclick="navigate('quotes')">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
           <div>
             <div style="font-size:11px;font-weight:700;color:var(--ink-mute);text-transform:uppercase;letter-spacing:0.1em;">📝 ใบเสนอ · รอตอบ + ใกล้หมดอายุ</div>
@@ -5278,7 +5286,7 @@ function renderCalendar(root) {
                 ? `<span style="display:inline-block; background:linear-gradient(135deg, #FBE5C8, #F5A87E); color:#7c2d12; font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px;">${escapeHtml(sess.label || ('Session ' + (sessIdx + 1)))} · ${sessIdx + 1}/${totalSess}</span>`
                 : '';
               return `
-                <div onclick="openJobDetail('${escapeHtml(j.code)}')" style="background:white;border-radius:14px;padding:16px;border-left:4px solid ${stageColor};box-shadow:0 2px 8px rgba(0,0,0,0.04);cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 18px rgba(212,160,86,0.15)';" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)';">
+                <div onclick="openJobDetail('${escapeHtml(j.code)}')" style="background:white;border-radius:14px;padding:16px;border-left:4px solid ${stageColor};box-shadow:0 2px 8px rgba(0,0,0,0.04);cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 18px rgba(217,119,87,0.15)';" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)';">
                   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;">
                     <div style="flex:1;min-width:0;">
                       <div style="font-weight:700;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(j.customer || '-')}${sessBadge}</div>
@@ -5987,12 +5995,12 @@ function _buildDonutSvg(slices, totalLabel, subLabel) {
   }).join('');
   return `
     <div style="position:relative; width:220px; height:220px; flex-shrink:0;">
-      <div style="position:absolute;left:50%;bottom:-12px;width:160px;height:28px;transform:translateX(-50%);background:radial-gradient(ellipse at center,rgba(212,160,86,0.35),transparent 70%);filter:blur(12px);"></div>
+      <div style="position:absolute;left:50%;bottom:-12px;width:160px;height:28px;transform:translateX(-50%);background:radial-gradient(ellipse at center,rgba(217,119,87,0.35),transparent 70%);filter:blur(12px);"></div>
       <svg viewBox="0 0 240 240" style="position:relative;z-index:2;width:100%;height:100%;filter:drop-shadow(0 14px 18px rgba(0,0,0,0.12));">
         ${segs}
       </svg>
       <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:3;">
-        <div style="font-weight:800;font-size:22px;color:var(--ink);line-height:1;background:linear-gradient(135deg,#2A1F18,#B8854A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${escapeHtml(totalLabel)}</div>
+        <div style="font-weight:800;font-size:22px;color:var(--ink);line-height:1;background:linear-gradient(135deg,#2A1F18,#B85A3D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${escapeHtml(totalLabel)}</div>
         <div style="font-size:10px;color:var(--ink-mute);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">${escapeHtml(subLabel || '')}</div>
       </div>
     </div>
@@ -6094,7 +6102,7 @@ function renderReportsOverview() {
     const _ie = jobInvExtra(j);
     if (_ie > 0) svcMap[fallback] = (svcMap[fallback] || 0) + _ie;
   });
-  const svcColors = ['#D4A056', '#1D9E75', '#5e7ce4', '#fbbf24', '#a855f7', '#ec4899', '#888780'];
+  const svcColors = ['#D97757', '#1D9E75', '#5e7ce4', '#fbbf24', '#a855f7', '#ec4899', '#888780'];
   const svcEntries = Object.entries(svcMap).sort((a, b) => b[1] - a[1]).map((e, i) => ({ name: e[0], val: e[1], color: svcColors[i % svcColors.length] }));
   const svcTotal = svcEntries.reduce((s, e) => s + e.val, 0);
 
@@ -6116,7 +6124,7 @@ function renderReportsOverview() {
     const cat = e.cat || 'อื่นๆ';
     expMap[cat] = (expMap[cat] || 0) + (Number(e.amount) || 0);
   });
-  const expColors = ['#D4A056', '#1D9E75', '#5e7ce4', '#fbbf24', '#a855f7', '#ec4899', '#888780', '#0d7b5a', '#7c2d12'];
+  const expColors = ['#D97757', '#1D9E75', '#5e7ce4', '#fbbf24', '#a855f7', '#ec4899', '#888780', '#0d7b5a', '#7c2d12'];
   const expEntries = Object.entries(expMap).filter(([_, v]) => v > 0).sort((a, b) => b[1] - a[1]).map((e, i) => ({ name: e[0], val: e[1], color: expColors[i % expColors.length] }));
   const expCatTotal = expEntries.reduce((s, e) => s + e.val, 0);
 
@@ -6141,10 +6149,10 @@ function renderReportsOverview() {
     srcMap[s] = (srcMap[s] || 0) + 1;
   });
   // Map known sources to brand colors
-  const srcColorMap = { 'Facebook': '#1877F2', 'Instagram': '#E1306C', 'LINE': '#06C755', 'เว็บไซต์': '#15803d', 'เพื่อนแนะนำ': '#D4A056', 'อื่นๆ': '#888780' };
+  const srcColorMap = { 'Facebook': '#1877F2', 'Instagram': '#E1306C', 'LINE': '#06C755', 'เว็บไซต์': '#15803d', 'เพื่อนแนะนำ': '#D97757', 'อื่นๆ': '#888780' };
   const srcEntries = Object.entries(srcMap).sort((a, b) => b[1] - a[1]).map((e, i) => ({
     name: e[0], val: e[1],
-    color: srcColorMap[e[0]] || ['#D4A056', '#1D9E75', '#5e7ce4', '#fbbf24', '#a855f7'][i % 5]
+    color: srcColorMap[e[0]] || ['#D97757', '#1D9E75', '#5e7ce4', '#fbbf24', '#a855f7'][i % 5]
   }));
   const srcTotal = srcEntries.reduce((s, e) => s + e.val, 0);
 
@@ -6173,7 +6181,7 @@ function renderReportsOverview() {
   const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 
   // Rank colors for top customers
-  const rankColors = ['#D4A056', '#1D9E75', '#5e7ce4', '#a855f7', '#fbbf24'];
+  const rankColors = ['#D97757', '#1D9E75', '#5e7ce4', '#a855f7', '#fbbf24'];
 
   return `
     <!-- HERO -->
@@ -6184,7 +6192,7 @@ function renderReportsOverview() {
           <div style="font-size:11px;font-weight:700;color:var(--brand-dark);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:10px;">รายรับรวม · ปี ${REPORTS_YEAR + 543}</div>
           <div style="display:flex;align-items:baseline;gap:18px;">
             <span style="font-family:'Inter',sans-serif;font-size:clamp(22px, 1.95vw, 36px);font-weight:600;color:var(--brand-dark);line-height:1;">฿</span>
-            <span style="font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(30px, 2.65vw, 48px);line-height:1;letter-spacing:-0.02em;background:linear-gradient(135deg,#2A1F18,#B8854A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${(Number(income) || 0).toLocaleString('en-US')}</span>
+            <span style="font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(30px, 2.65vw, 48px);line-height:1;letter-spacing:-0.02em;background:linear-gradient(135deg,#2A1F18,#B85A3D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${(Number(income) || 0).toLocaleString('en-US')}</span>
           </div>
           <div style="font-size:13px;color:var(--ink-mute);margin-top:8px;font-weight:500;">${yJobs.length} งาน · เฉลี่ย ${fmtTHB(avgJob)} ต่องาน · ปิดดีล ${closeRate}%</div>
         </div>
@@ -6263,7 +6271,7 @@ function renderReportsOverview() {
         { icon: '🎯', lbl: 'อัตราการปิดดีล', val: closeRate + '%', sub: quotesSent + ' ใบ → ' + quotesApproved + ' ปิด', cl: 's5' },
         { icon: '👥', lbl: 'ลูกค้า Active', val: activeCust.size, sub: 'รวม ' + Object.keys(CUSTOMER_INFO).length + ' ราย', cl: 's6' }
       ].map(s => `
-        <div style="background:white;border-radius:18px;padding:22px 24px;box-shadow:0 4px 16px rgba(212,160,86,0.08);position:relative;">
+        <div style="background:white;border-radius:18px;padding:22px 24px;box-shadow:0 4px 16px rgba(217,119,87,0.08);position:relative;">
           <div style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;position:absolute;top:18px;right:18px;background:linear-gradient(135deg,var(--brand-bg),var(--brand-light));">${s.icon}</div>
           <div style="font-size:11px;color:var(--ink-mute);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">${escapeHtml(s.lbl)}</div>
           <div style="font-size:28px;font-weight:800;margin-top:6px;line-height:1;color:var(--ink);">${escapeHtml(String(s.val))}</div>
@@ -6367,7 +6375,7 @@ function renderReportsOverview() {
           return `
             <div style="display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;">
               <div style="flex:1;display:flex;align-items:flex-end;gap:3px;width:100%;justify-content:center;">
-                <div title="รายรับ ${fmtTHB(v)}" style="width:16px;height:${inH}px;background:linear-gradient(180deg,#D4A056,#B8854A);border-radius:6px 6px 0 0;transition:all 0.3s;cursor:pointer;"></div>
+                <div title="รายรับ ${fmtTHB(v)}" style="width:16px;height:${inH}px;background:linear-gradient(180deg,#D97757,#B85A3D);border-radius:6px 6px 0 0;transition:all 0.3s;cursor:pointer;"></div>
                 <div title="ค่าใช้จ่าย ${fmtTHB(monthlyOut[i])}" style="width:16px;height:${outH}px;background:linear-gradient(180deg,#fbbf24,#d97706);border-radius:6px 6px 0 0;transition:all 0.3s;cursor:pointer;"></div>
               </div>
               <div style="font-size:10px;color:var(--ink-mute);font-weight:600;">${months[i]}</div>
@@ -6376,7 +6384,7 @@ function renderReportsOverview() {
         }).join('')}
       </div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
-        <span style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--brand-bg);font-size:12px;font-weight:600;"><span style="width:10px;height:10px;border-radius:3px;background:#D4A056;"></span>รายรับ</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--brand-bg);font-size:12px;font-weight:600;"><span style="width:10px;height:10px;border-radius:3px;background:#D97757;"></span>รายรับ</span>
         <span style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--brand-bg);font-size:12px;font-weight:600;"><span style="width:10px;height:10px;border-radius:3px;background:#fbbf24;"></span>ค่าใช้จ่าย</span>
       </div>
     </div>
@@ -7730,7 +7738,7 @@ function renderCustomers(root) {
     <div style="display:flex; gap:12px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
       <div style="flex:1; min-width:260px; position:relative;">
         <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#a89a8c; font-size:16px; pointer-events:none;">⌕</span>
-        <input type="text" id="cust-search" placeholder="ค้นหา · ชื่อ · เบอร์ · LINE · บริษัท · email" value="${escapeHtml(CUSTOMER_SEARCH)}" oninput="setCustomerSearch(this.value)" style="width:100%; padding:11px 14px 11px 38px; border-radius:12px; border:1px solid rgba(184,133,74,0.20); background:rgba(255,255,255,0.85); font:inherit; font-size:13.5px;" />
+        <input type="text" id="cust-search" placeholder="ค้นหา · ชื่อ · เบอร์ · LINE · บริษัท · email" value="${escapeHtml(CUSTOMER_SEARCH)}" oninput="setCustomerSearch(this.value)" style="width:100%; padding:11px 14px 11px 38px; border-radius:12px; border:1px solid rgba(184,90,61,0.20); background:rgba(255,255,255,0.85); font:inherit; font-size:13.5px;" />
       </div>
       <div style="display:flex; gap:6px; align-items:center;">
         <span style="font-size:11.5px; color:#7c6856;">เรียงตาม:</span>
@@ -8610,7 +8618,7 @@ function renderSettingsPane() {
   }
   // v1.0.56 · ปุ่มกลับ เมื่อเข้าหน้าย่อยจากเช็กลิสต์ "ตั้งร้านของคุณ" (Joe: กดเข้าไปแล้วไม่มีทางกลับ)
   const _backBar = (SETTINGS_FROM_OVERVIEW && SETTINGS_TAB !== 'overview')
-    ? `<div onclick="setSettingsTab('overview')" style="display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;padding:8px 16px;border:1px solid var(--border);border-radius:999px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--brand-light, #D4A056);background:rgba(184,133,74,0.08);" onmouseover="this.style.background='rgba(184,133,74,0.16)'" onmouseout="this.style.background='rgba(184,133,74,0.08)'">‹ กลับไปหน้าตั้งค่าร้าน</div>`
+    ? `<div onclick="setSettingsTab('overview')" style="display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;padding:8px 16px;border:1px solid var(--border);border-radius:999px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--brand-light, #D97757);background:rgba(184,90,61,0.08);" onmouseover="this.style.background='rgba(184,90,61,0.16)'" onmouseout="this.style.background='rgba(184,90,61,0.08)'">‹ กลับไปหน้าตั้งค่าร้าน</div>`
     : '';
   switch (SETTINGS_TAB) {
     case 'overview':      pane.innerHTML = renderSettingsOverview(); break;
@@ -8675,8 +8683,8 @@ function renderSettingsOverview() {
   };
 
   const rows = items.map((it, i) => `
-    <div onclick="setSettingsTab('${it.goTo}', true)" style="display:flex;align-items:flex-start;gap:14px;padding:14px 16px;margin-bottom:10px;background:rgba(255,255,255,0.03);border:1px solid ${(!it.done && next && next.key === it.key) ? 'rgba(184,133,74,0.45)' : 'var(--border)'};border-radius:12px;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(184,133,74,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
-      <div style="width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;margin-top:1px;${it.done ? 'background:rgba(16,185,129,0.14);color:var(--green);' : 'background:rgba(184,133,74,0.14);color:var(--brand-light, #D4A056);'}">${it.done ? '✓' : (i + 1)}</div>
+    <div onclick="setSettingsTab('${it.goTo}', true)" style="display:flex;align-items:flex-start;gap:14px;padding:14px 16px;margin-bottom:10px;background:rgba(255,255,255,0.03);border:1px solid ${(!it.done && next && next.key === it.key) ? 'rgba(184,90,61,0.45)' : 'var(--border)'};border-radius:12px;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(184,90,61,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
+      <div style="width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;margin-top:1px;${it.done ? 'background:rgba(16,185,129,0.14);color:var(--green);' : 'background:rgba(184,90,61,0.14);color:var(--brand-light, #D97757);'}">${it.done ? '✓' : (i + 1)}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:13.5px;font-weight:600;color:${it.done ? 'var(--ink-soft)' : 'var(--ink)'};">${it.icon} ${escapeHtml(it.label)}</div>
         <div style="font-size:11.5px;color:var(--ink-mute);margin-top:2px;line-height:1.45;">${STEP_DESC[it.key] || ''}</div>
@@ -8684,7 +8692,7 @@ function renderSettingsOverview() {
       ${it.done
         ? '<span style="font-size:11px;color:var(--green);font-weight:600;flex-shrink:0;margin-top:6px;">ตั้งค่าแล้ว</span>'
         : (next && next.key === it.key
-            ? '<span style="font-size:11.5px;font-weight:700;color:#0A0A0E;background:linear-gradient(135deg,#E8B870,#B8854A);padding:6px 16px;border-radius:999px;flex-shrink:0;margin-top:3px;">เริ่มข้อนี้ →</span>'
+            ? '<span style="font-size:11.5px;font-weight:700;color:#0A0A0E;background:linear-gradient(135deg,#E8B870,#B85A3D);padding:6px 16px;border-radius:999px;flex-shrink:0;margin-top:3px;">เริ่มข้อนี้ →</span>'
             : '<span style="font-size:11px;color:var(--ink-mute);flex-shrink:0;margin-top:6px;">รอตั้งค่า</span>')}
     </div>
   `).join('');
@@ -8694,7 +8702,7 @@ function renderSettingsOverview() {
     : 'แนะนำตั้งค่าตามลำดับด้านล่าง — ครบทุกข้อเมื่อไร ระบบพร้อมใช้งานเต็มรูปแบบทันที';
 
   return `
-    <div class="glass-card" style="padding:22px 26px;margin-bottom:16px;border-left:3px solid var(--brand-light, #D4A056);">
+    <div class="glass-card" style="padding:22px 26px;margin-bottom:16px;border-left:3px solid var(--brand-light, #D97757);">
       <div style="font-size:18px;font-weight:700;margin-bottom:6px;">🏪 หน้านี้คือ "หลังร้าน" ของคุณ — ตั้งครั้งเดียว ใช้ได้ตลอด</div>
       <div style="font-size:13.5px;color:var(--ink-mute);margin-bottom:14px;">ทุกอย่างที่ตั้งในหน้านี้ แอปจะนำไปใช้ต่อให้อัตโนมัติ</div>
       <div style="display:flex;flex-direction:column;gap:9px;font-size:14px;color:var(--ink-soft);line-height:1.6;">
@@ -8702,15 +8710,15 @@ function renderSettingsOverview() {
         <div style="display:flex;gap:10px;"><span style="flex-shrink:0;">📦</span><span><b>แพ็คเกจและราคา</b> → ออกใบเสนอได้ในไม่กี่คลิก ไม่ต้องพิมพ์ใหม่</span></div>
         <div style="display:flex;gap:10px;"><span style="flex-shrink:0;">📊</span><span><b>หมวดรายรับรายจ่ายและภาษี</b> → สรุปกำไรและภาษีสิ้นปีถูกต้องโดยไม่ต้องคำนวณเอง</span></div>
       </div>
-      <div style="font-size:13.5px;font-weight:600;color:var(--brand-light, #D4A056);margin-top:14px;">${heroSub}</div>
+      <div style="font-size:13.5px;font-weight:600;color:var(--brand-light, #D97757);margin-top:14px;">${heroSub}</div>
     </div>
     <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:16px;align-items:start;">
       <div class="glass-card" style="padding:20px 22px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <div style="font-size:14.5px;font-weight:700;">เช็กลิสต์ตั้งร้าน · ทำตามลำดับ</div>
-          <span class="text-mono" style="font-size:12px;font-weight:700;color:var(--brand-light, #D4A056);">${doneCount}/${total}</span>
+          <span class="text-mono" style="font-size:12px;font-weight:700;color:var(--brand-light, #D97757);">${doneCount}/${total}</span>
         </div>
-        <div style="height:6px;border-radius:6px;background:rgba(255,255,255,0.08);overflow:hidden;margin-bottom:10px;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#B8854A,#E8B870);border-radius:6px;"></div></div>
+        <div style="height:6px;border-radius:6px;background:rgba(255,255,255,0.08);overflow:hidden;margin-bottom:10px;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#B85A3D,#E8B870);border-radius:6px;"></div></div>
         ${rows}
         ${allDone ? '<div style="text-align:right;margin-top:14px;"><button class="btn btn-primary" onclick="navigate(\'dashboard\')">เริ่มงาน →</button></div>' : ''}
       </div>
@@ -8735,7 +8743,7 @@ function renderSettingsProfile() {
     <div class="glass-card">
       <div class="form-section-title">🖼 โลโก้ร้าน</div>
       <div style="display:flex;gap:18px;align-items:center;">
-        <div id="pf-logo-preview" style="width:100px;height:100px;border-radius:14px;background:${PROFILE.logoDataUrl ? `url('${PROFILE.logoDataUrl}') center/contain no-repeat` : 'linear-gradient(135deg,#FBE5C8,#F5A87E)'};border:2px dashed rgba(212,160,86,0.30);display:flex;align-items:center;justify-content:center;font-size:32px;color:#B8854A;">
+        <div id="pf-logo-preview" style="width:100px;height:100px;border-radius:14px;background:${PROFILE.logoDataUrl ? `url('${PROFILE.logoDataUrl}') center/contain no-repeat` : 'linear-gradient(135deg,#FBE5C8,#F5A87E)'};border:2px dashed rgba(217,119,87,0.30);display:flex;align-items:center;justify-content:center;font-size:32px;color:#B85A3D;">
           ${PROFILE.logoDataUrl ? '' : '📸'}
         </div>
         <div style="flex:1;">
@@ -8787,8 +8795,8 @@ function renderSettingsProfile() {
       </div>
     </div>
 
-    <div style="background:rgba(212,160,86,0.06); border:1px solid rgba(212,160,86,0.18); border-radius:12px; padding:12px 16px; margin-top:8px; font-size:12.5px; color:#7c6856;">
-      💡 ตั้งค่าภาษี (VAT · WHT · เลขที่ผู้เสียภาษี · ที่อยู่ออกใบกำกับ) ย้ายไปอยู่ที่หมวด <strong style="color:#B8854A; cursor:pointer;" onclick="setSettingsTab('tax')">📑 ภาษี</strong> แยกเป็นหมวดของตัวเอง
+    <div style="background:rgba(217,119,87,0.06); border:1px solid rgba(217,119,87,0.18); border-radius:12px; padding:12px 16px; margin-top:8px; font-size:12.5px; color:#7c6856;">
+      💡 ตั้งค่าภาษี (VAT · WHT · เลขที่ผู้เสียภาษี · ที่อยู่ออกใบกำกับ) ย้ายไปอยู่ที่หมวด <strong style="color:#B85A3D; cursor:pointer;" onclick="setSettingsTab('tax')">📑 ภาษี</strong> แยกเป็นหมวดของตัวเอง
     </div>
 
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
@@ -8951,7 +8959,7 @@ function renderSettingsTeam() {
 
 function openTeamEdit(idx) {
   const isEdit = (idx >= 0);
-  const t = isEdit ? TEAM[idx] : { name: '', role: '', rate: 0, color: '#D4A056' };
+  const t = isEdit ? TEAM[idx] : { name: '', role: '', rate: 0, color: '#D97757' };
   openModalWithHtml(`
     <div class="modal-header">
       <div><div class="modal-title">${isEdit ? 'แก้ไขทีม' : 'เพิ่มทีมใหม่'}</div></div>
@@ -8965,7 +8973,7 @@ function openTeamEdit(idx) {
         </div>
         <div class="form-row">
           <div class="form-field"><label>ค่าตอบแทนปกติต่องาน (บาท)</label><input type="number" id="tm-rate" min="0" value="${t.rate || 0}" /></div>
-          <div class="form-field"><label>สี</label><input type="color" id="tm-color" value="${escapeHtml(t.color || '#D4A056')}" style="height:40px;padding:2px;" /></div>
+          <div class="form-field"><label>สี</label><input type="color" id="tm-color" value="${escapeHtml(t.color || '#D97757')}" style="height:40px;padding:2px;" /></div>
         </div>
       </div>
     </div>
@@ -8980,7 +8988,7 @@ async function saveTeam(idx) {
   const name = (document.getElementById('tm-name').value || '').trim();
   const role = (document.getElementById('tm-role').value || '').trim();
   const rate = Number(document.getElementById('tm-rate').value) || 0;
-  const color = document.getElementById('tm-color').value || '#D4A056';
+  const color = document.getElementById('tm-color').value || '#D97757';
   if (!name) { toast('ใส่ชื่อก่อน', 'error'); return; }
   // v2.9.7 · team ID คงที่ · เก็บ id เดิมตอนแก้ (เดิม TEAM[idx]=entry ทำ id หาย) + propagate rename
   const isEdit = idx >= 0 && TEAM[idx];
@@ -9552,7 +9560,7 @@ function renderSettingsAbout() {
     <div class="glass-card">
       <div class="form-section-title">📋 อะไรใหม่ใน Pixory Desktop</div>
       <div style="font-size:13px; line-height:1.7; color:#56473a;">
-        <strong style="color:#B8854A;">v1.0.0 · Initial Release (พ.ค. 2569)</strong>
+        <strong style="color:#B85A3D;">v1.0.0 · Initial Release (พ.ค. 2569)</strong>
         <ul style="padding-left:18px; margin:6px 0 12px;">
           <li>Feature parity ครบกับเวอชั่นมือถือ · ใช้บัญชีเดียวกัน · sync อัตโนมัติผ่าน Supabase realtime</li>
           <li>Liquid Glass Settings sidebar · 19 menu + Dark Mode + EN</li>
@@ -9566,7 +9574,7 @@ function renderSettingsAbout() {
           <li>PWA install ได้ · cache อิสระจากมือถือ (pixory-desktop-v1.0.0)</li>
           <li>Production Safety: conflict check · NOTIF_SETTINGS sync · import stamp · 4 doc cases PDF · Tax (VAT/WHT/หักเหมา 60%)</li>
         </ul>
-        <a href="./" target="_blank" style="color:#B8854A; text-decoration:underline; font-size:12.5px;">📱 ดูเวอชั่นมือถือ →</a>
+        <a href="./" target="_blank" style="color:#B85A3D; text-decoration:underline; font-size:12.5px;">📱 ดูเวอชั่นมือถือ →</a>
       </div>
     </div>
 
@@ -9666,7 +9674,7 @@ function renderSettingsListsTags() {
         <div class="lt-intro-sub">${escapeHtml(t('lists.subtitle'))}</div>
       </div>
       <div class="lt-tabs" role="tablist">${tabPills}</div>
-      <div style="display:flex;gap:10px;align-items:flex-start;padding:12px 16px;margin:10px 0 4px;background:rgba(184,133,74,0.07);border:1px solid rgba(184,133,74,0.20);border-radius:12px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:12px 16px;margin:10px 0 4px;background:rgba(184,90,61,0.07);border:1px solid rgba(184,90,61,0.20);border-radius:12px;">
         <span style="font-size:15px;flex-shrink:0;">💡</span>
         <div style="font-size:12.5px;line-height:1.65;color:var(--ink-soft);">${active.desc}<br><span style="color:var(--ink-mute);font-size:11.5px;">ตัวอย่าง: ${escapeHtml(active.hint)}</span></div>
       </div>
@@ -9770,7 +9778,7 @@ function renderSettingsTax() {
     <div class="glass-card">
       <div class="form-section-title">🔢 รูปแบบเลขที่เอกสาร</div>
       <div style="background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.20); border-radius:10px; padding:12px 14px; font-size:13px; color:#1e40af; line-height:1.6;">
-        <strong>ระบบใช้รูปแบบ <code style="background:white; padding:2px 8px; border-radius:4px; font-family:'Inter',monospace; color:#B8854A;">TI-YYYY-NNNN</code></strong> (sync กับมือถือ)
+        <strong>ระบบใช้รูปแบบ <code style="background:white; padding:2px 8px; border-radius:4px; font-family:'Inter',monospace; color:#B85A3D;">TI-YYYY-NNNN</code></strong> (sync กับมือถือ)
         <br>เช่น <strong style="font-family:'Inter',sans-serif;">TI-2026-0042</strong> = เอกสารใบที่ 42 ของปี 2026
         <br>ระบบรันเลขอัตโนมัติ · รีเซ็ตทุกปีปฏิทินใหม่
         <br><span style="color:#7c6856; font-size:11.5px;">💡 รูปแบบนี้ตายตัวเพื่อให้เลขไม่ชน กับเอกสารที่ออกจากมือถือ</span>
@@ -9971,7 +9979,7 @@ function renderSettingsNotif() {
       </div>
       <div style="display:flex; align-items:center; gap:14px;">
         <button type="button" onclick="_notifBumpDue(-1)" style="width:36px; height:36px; border-radius:10px; background:var(--glass); border:1px solid var(--border); font-size:18px; font-weight:700; cursor:pointer;">−</button>
-        <div id="nt-balanceDueDisplay" style="min-width:120px; text-align:center; padding:10px 18px; background:linear-gradient(135deg, #D4A056, #B8854A); color:white; border-radius:12px; font-family:'Inter',sans-serif; font-weight:800; font-size:18px; box-shadow:0 4px 12px rgba(212,160,86,0.25);">
+        <div id="nt-balanceDueDisplay" style="min-width:120px; text-align:center; padding:10px 18px; background:linear-gradient(135deg, #D97757, #B85A3D); color:white; border-radius:12px; font-family:'Inter',sans-serif; font-weight:800; font-size:18px; box-shadow:0 4px 12px rgba(217,119,87,0.25);">
           ${s.balanceDueDays} วัน
         </div>
         <button type="button" onclick="_notifBumpDue(+1)" style="width:36px; height:36px; border-radius:10px; background:var(--glass); border:1px solid var(--border); font-size:18px; font-weight:700; cursor:pointer;">+</button>
@@ -10005,10 +10013,10 @@ function _renderNotifChips(type, selected) {
         font-size:13px;
         cursor:pointer;
         transition:all 0.18s;
-        border:1.5px solid ${isActive ? '#B8854A' : 'rgba(212,160,86,0.20)'};
-        background:${isActive ? 'linear-gradient(135deg, #D4A056, #B8854A)' : 'rgba(255,255,255,0.7)'};
+        border:1.5px solid ${isActive ? '#B85A3D' : 'rgba(217,119,87,0.20)'};
+        background:${isActive ? 'linear-gradient(135deg, #D97757, #B85A3D)' : 'rgba(255,255,255,0.7)'};
         color:${isActive ? 'white' : '#56473a'};
-        box-shadow:${isActive ? '0 4px 12px rgba(212,160,86,0.30)' : '0 1px 3px rgba(184,133,74,0.06)'};
+        box-shadow:${isActive ? '0 4px 12px rgba(217,119,87,0.30)' : '0 1px 3px rgba(184,90,61,0.06)'};
       ">${d} วัน${isCustom ? ' ✕' : ''}</button>
     `;
   });
@@ -10017,9 +10025,9 @@ function _renderNotifChips(type, selected) {
     <button type="button" onclick="_notifAddCustom('${type}')" style="
       padding:9px 14px;
       border-radius:999px;
-      border:1.5px dashed rgba(212,160,86,0.40);
+      border:1.5px dashed rgba(217,119,87,0.40);
       background:rgba(255,255,255,0.4);
-      color:#B8854A;
+      color:#B85A3D;
       font-size:12.5px;
       font-weight:600;
       cursor:pointer;
@@ -10041,13 +10049,13 @@ function _renderNotifTimeline(type, selected) {
 
   // Visual timeline
   let html = `
-    <div style="background:linear-gradient(180deg, rgba(212,160,86,0.04), rgba(212,160,86,0.02)); border:1px solid rgba(212,160,86,0.14); border-radius:12px; padding:16px 18px;">
+    <div style="background:linear-gradient(180deg, rgba(217,119,87,0.04), rgba(217,119,87,0.02)); border:1px solid rgba(217,119,87,0.14); border-radius:12px; padding:16px 18px;">
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:12.5px;">
   `;
   if (type === 'before') {
     sorted.forEach((d, i) => {
       html += `
-        <span style="display:inline-flex; align-items:center; gap:6px; background:white; padding:5px 10px; border-radius:999px; border:1px solid rgba(212,160,86,0.16); font-family:'Inter',sans-serif; font-weight:700; color:#B8854A;">
+        <span style="display:inline-flex; align-items:center; gap:6px; background:white; padding:5px 10px; border-radius:999px; border:1px solid rgba(217,119,87,0.16); font-family:'Inter',sans-serif; font-weight:700; color:#B85A3D;">
           <span style="font-size:10px;">⏰</span> ${d} วัน
         </span>
         <span style="color:#a89a8c;">→</span>
@@ -10059,7 +10067,7 @@ function _renderNotifTimeline(type, selected) {
     sorted.reverse().forEach((d, i) => {
       html += `
         <span style="color:#a89a8c;">→</span>
-        <span style="display:inline-flex; align-items:center; gap:6px; background:white; padding:5px 10px; border-radius:999px; border:1px solid rgba(212,160,86,0.16); font-family:'Inter',sans-serif; font-weight:700; color:#B8854A;">
+        <span style="display:inline-flex; align-items:center; gap:6px; background:white; padding:5px 10px; border-radius:999px; border:1px solid rgba(217,119,87,0.16); font-family:'Inter',sans-serif; font-weight:700; color:#B85A3D;">
           <span style="font-size:10px;">⏰</span> +${d} วัน
         </span>
       `;
@@ -10267,7 +10275,7 @@ function renderSettingsBackup() {
         <div class="kpi"><div class="kpi-label">ค่าใช้จ่าย</div><div class="kpi-value">${stats.expenses}</div></div>
       </div>
       <div style="margin-top:14px; font-size:12.5px; color:#7c6856;">
-        🕐 Backup ล่าสุด: <strong style="color:#B8854A;">${escapeHtml(lastBackupStr)}</strong>
+        🕐 Backup ล่าสุด: <strong style="color:#B85A3D;">${escapeHtml(lastBackupStr)}</strong>
       </div>
     </div>
 
@@ -10597,11 +10605,11 @@ function _themeOption(value, icon, label, desc, current) {
   return `
     <div onclick="setTheme('${value}')" style="
       cursor:pointer; padding:18px; border-radius:14px; text-align:center;
-      background:${active ? 'linear-gradient(135deg, #D4A056, #B8854A)' : 'rgba(255,255,255,0.6)'};
+      background:${active ? 'linear-gradient(135deg, #D97757, #B85A3D)' : 'rgba(255,255,255,0.6)'};
       color:${active ? 'white' : '#2A1F18'};
-      border:2px solid ${active ? '#B8854A' : 'rgba(212,160,86,0.15)'};
+      border:2px solid ${active ? '#B85A3D' : 'rgba(217,119,87,0.15)'};
       transition:all 0.2s;
-      box-shadow:${active ? '0 6px 20px rgba(212,160,86,0.3)' : '0 2px 8px rgba(184,133,74,0.06)'};
+      box-shadow:${active ? '0 6px 20px rgba(217,119,87,0.3)' : '0 2px 8px rgba(184,90,61,0.06)'};
     ">
       <div style="font-size:32px; margin-bottom:8px;">${icon}</div>
       <div style="font-weight:700; font-size:15px;">${label}</div>
@@ -10646,10 +10654,10 @@ function _langOption(value, flag, label, desc, current) {
   return `
     <div onclick="setLang('${value}')" style="
       cursor:pointer; padding:18px; border-radius:14px; text-align:center;
-      background:${active ? 'linear-gradient(135deg, #D4A056, #B8854A)' : 'rgba(255,255,255,0.6)'};
+      background:${active ? 'linear-gradient(135deg, #D97757, #B85A3D)' : 'rgba(255,255,255,0.6)'};
       color:${active ? 'white' : '#2A1F18'};
-      border:2px solid ${active ? '#B8854A' : 'rgba(212,160,86,0.15)'};
-      box-shadow:${active ? '0 6px 20px rgba(212,160,86,0.3)' : '0 2px 8px rgba(184,133,74,0.06)'};
+      border:2px solid ${active ? '#B85A3D' : 'rgba(217,119,87,0.15)'};
+      box-shadow:${active ? '0 6px 20px rgba(217,119,87,0.3)' : '0 2px 8px rgba(184,90,61,0.06)'};
     ">
       <div style="font-size:36px; margin-bottom:8px;">${flag}</div>
       <div style="font-weight:700; font-size:16px;">${label}</div>
@@ -10716,10 +10724,10 @@ function _fontOption(value, letter, label, desc, current, size) {
   return `
     <div onclick="setFontSize('${value}')" style="
       cursor:pointer; padding:18px; border-radius:14px; text-align:center;
-      background:${active ? 'linear-gradient(135deg, #D4A056, #B8854A)' : 'rgba(255,255,255,0.6)'};
+      background:${active ? 'linear-gradient(135deg, #D97757, #B85A3D)' : 'rgba(255,255,255,0.6)'};
       color:${active ? 'white' : '#2A1F18'};
-      border:2px solid ${active ? '#B8854A' : 'rgba(212,160,86,0.15)'};
-      box-shadow:${active ? '0 6px 20px rgba(212,160,86,0.3)' : '0 2px 8px rgba(184,133,74,0.06)'};
+      border:2px solid ${active ? '#B85A3D' : 'rgba(217,119,87,0.15)'};
+      box-shadow:${active ? '0 6px 20px rgba(217,119,87,0.3)' : '0 2px 8px rgba(184,90,61,0.06)'};
     ">
       <div style="font-size:${size}px; font-weight:800; margin-bottom:8px; line-height:1;">${letter}</div>
       <div style="font-weight:700; font-size:15px;">${label}</div>
@@ -10763,12 +10771,12 @@ function _wallpaperOption(value, icon, label, desc, current, gradient) {
   return `
     <div onclick="setWallpaper('${value}')" style="
       cursor:pointer; padding:0; border-radius:14px; overflow:hidden;
-      border:3px solid ${active ? '#B8854A' : 'rgba(212,160,86,0.15)'};
-      box-shadow:${active ? '0 6px 20px rgba(212,160,86,0.3)' : '0 2px 8px rgba(184,133,74,0.06)'};
+      border:3px solid ${active ? '#B85A3D' : 'rgba(217,119,87,0.15)'};
+      box-shadow:${active ? '0 6px 20px rgba(217,119,87,0.3)' : '0 2px 8px rgba(184,90,61,0.06)'};
       transition:all 0.2s;
     ">
       <div style="height:80px; background:${gradient};"></div>
-      <div style="padding:12px; background:${active ? 'linear-gradient(135deg, #D4A056, #B8854A)' : 'rgba(255,255,255,0.85)'}; color:${active ? 'white' : '#2A1F18'}; text-align:center;">
+      <div style="padding:12px; background:${active ? 'linear-gradient(135deg, #D97757, #B85A3D)' : 'rgba(255,255,255,0.85)'}; color:${active ? 'white' : '#2A1F18'}; text-align:center;">
         <div style="font-size:18px; margin-bottom:2px;">${icon}</div>
         <div style="font-weight:700; font-size:13px;">${label}</div>
         <div style="font-size:11px; opacity:0.75; margin-top:2px;">${desc}</div>
@@ -10898,7 +10906,7 @@ function showWhatsNewModal(versionKey) {
       <button class="modal-close" onclick="dismissWhatsNew()" aria-label="ปิด">✕</button>
     </div>
     <div class="modal-body" style="padding:20px 24px;">
-      <div style="display:inline-block; font-size:12px; font-weight:600; color:var(--brand); background:var(--brand-bg, rgba(212,160,86,0.12)); padding:3px 10px; border-radius:999px; margin-bottom:10px;">เวอร์ชัน ${escapeHtml(versionKey)}</div>
+      <div style="display:inline-block; font-size:12px; font-weight:600; color:var(--brand); background:var(--brand-bg, rgba(217,119,87,0.12)); padding:3px 10px; border-radius:999px; margin-bottom:10px;">เวอร์ชัน ${escapeHtml(versionKey)}</div>
       <div style="font-family:var(--font-display); font-size:18px; font-weight:600; color:var(--ink); margin-bottom:4px;">${escapeHtml(notes.title || 'อัปเดต Pixory')}</div>
       <div style="font-size:13px; color:var(--ink-mute); margin-bottom:8px;">${escapeHtml(notes.subtitle || '')}</div>
       ${items}
@@ -11028,7 +11036,7 @@ async function openAnnounceInbox() {
       return `<div onclick="openAnnouncementById(${a.id})" style="display:flex; gap:12px; padding:14px 12px; border-bottom:1px solid var(--border); cursor:pointer; border-radius:8px;" onmouseover="this.style.background='var(--glass)'" onmouseout="this.style.background='transparent'">
         <div style="font-size:20px; line-height:1.2; flex-shrink:0;">📣</div>
         <div style="flex:1; min-width:0;">
-          <div style="font-weight:600; color:var(--ink); margin-bottom:2px;">${escapeHtml(a.title || 'ประกาศ')}${unread ? ' <span style="font-size:11px; color:var(--red,#D4A056); font-weight:700;">🆕 ใหม่</span>' : ''}</div>
+          <div style="font-weight:600; color:var(--ink); margin-bottom:2px;">${escapeHtml(a.title || 'ประกาศ')}${unread ? ' <span style="font-size:11px; color:var(--red,#D97757); font-weight:700;">🆕 ใหม่</span>' : ''}</div>
           <div style="font-size:13px; color:var(--ink-mute); line-height:1.5; margin-bottom:3px;">${escapeHtml(preview)}</div>
           <div style="font-size:11px; color:var(--ink-mute);">${escapeHtml(_fmtAnnounceDate(a.created_at))}</div>
         </div>
@@ -11774,7 +11782,7 @@ function renderJobOnlyTeamSection(j) {
       <div id="add-team-chips" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
       <div id="add-team-wages" style="margin-top:8px;"></div>
       <!-- v1.0.83 · เพิ่มคนใหม่เข้าทีมหลักจากในฟอร์ม (parity มือถือ v2.9.10 · เดโม่อนุมัติ) -->
-      <div id="add-team-addform" style="display:none;background:rgba(212,160,86,0.06);border:1px solid var(--brand);border-radius:12px;padding:12px 14px;margin-top:10px;">
+      <div id="add-team-addform" style="display:none;background:rgba(217,119,87,0.06);border:1px solid var(--brand);border-radius:12px;padding:12px 14px;margin-top:10px;">
         <strong style="font-size:13px;">➕ เพิ่มคนใหม่เข้าทีม</strong>
         <div class="form-row" style="margin-top:8px;">
           <div class="form-field"><label>ชื่อ *</label><input type="text" id="add-team-new-name" placeholder="เช่น เบนซ์ ตากล้องเสริม" /></div>
@@ -12319,14 +12327,14 @@ function updateFormSummary(ctx) {
       const profitIcon = c.profit > 0 ? '💰' : c.profit < 0 ? '⚠️' : '➖';
       summary.innerHTML = `
         <!-- BLOCK 1: ยอดขาย (ลูกค้าจ่าย) -->
-        <div style="background:rgba(212,160,86,0.04); border:1px solid rgba(212,160,86,0.18); border-radius:10px; padding:12px 14px; margin-bottom:12px;">
-          <div style="font-size:11px; font-weight:700; color:#B8854A; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px;">🛒 ยอดขาย (ลูกค้าจ่าย)</div>
+        <div style="background:rgba(217,119,87,0.04); border:1px solid rgba(217,119,87,0.18); border-radius:10px; padding:12px 14px; margin-bottom:12px;">
+          <div style="font-size:11px; font-weight:700; color:#B85A3D; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px;">🛒 ยอดขาย (ลูกค้าจ่าย)</div>
           ${c.svcTotal > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px;"><span>บริการ</span><span class="text-mono">${fmtTHB(c.svcTotal)}</span></div>` : ''}
           ${c.addonsTotal > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px;"><span>บริการเสริม</span><span class="text-mono">${fmtTHB(c.addonsTotal)}</span></div>` : ''}
           ${c.customTotal > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px;"><span>แพคเกจกำหนดเอง</span><span class="text-mono">${fmtTHB(c.customTotal)}</span></div>` : ''}
           ${c.extraTime > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px;"><span>Extra time</span><span class="text-mono">${fmtTHB(c.extraTime)}</span></div>` : ''}
           ${c.discount > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:4px;color:var(--red);font-size:13px;"><span>ส่วนลด</span><span class="text-mono">−${fmtTHB(c.discount)}</span></div>` : ''}
-          <hr style="margin:8px 0;border:none;border-top:1px solid rgba(184,133,74,0.20);" />
+          <hr style="margin:8px 0;border:none;border-top:1px solid rgba(184,90,61,0.20);" />
           <div style="display:flex;justify-content:space-between;font-weight:700;font-size:16px;color:var(--brand-dark);"><span>ราคาขาย</span><span class="text-mono">${fmtTHB(c.sell)}</span></div>
         </div>
 
@@ -12699,7 +12707,7 @@ function renderTeamUI() {
     } else {
       // Inactive · ขาวโปร่ง + dot สีทีม
       return `<button type="button" onclick="toggleTeamMember('${escapeHtml(t.name)}')"
-        style="display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;border:1.5px solid rgba(184,133,74,0.20);background:rgba(255,255,255,0.7);color:#56473a;font-size:12.5px;font-weight:500;cursor:pointer;transition:all 0.15s;">
+        style="display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;border:1.5px solid rgba(184,90,61,0.20);background:rgba(255,255,255,0.7);color:#56473a;font-size:12.5px;font-weight:500;cursor:pointer;transition:all 0.15s;">
         <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};"></span>
         + ${escapeHtml(t.name)}
       </button>`;
@@ -13110,7 +13118,7 @@ function renderJobDetailHtml(j) {
           const dotColor = isCurrent ? sc.label : isPast ? 'var(--green)' : '#d1d5db';
           const borderColor = isCurrent ? sc.label : isPast ? 'var(--green)' : '#e5e5e5';
           const nameColor = isFuture ? 'var(--ink-faint)' : 'var(--ink)';
-          const dotShadow = isCurrent ? `box-shadow:0 0 0 3px ${sc.label.includes('var(') ? 'rgba(202,138,4,0.2)' : 'rgba(212,160,86,0.2)'};` : '';
+          const dotShadow = isCurrent ? `box-shadow:0 0 0 3px ${sc.label.includes('var(') ? 'rgba(202,138,4,0.2)' : 'rgba(217,119,87,0.2)'};` : '';
           return `
             <div style="display:flex;gap:10px;padding:6px 0;border-left:2px solid ${borderColor};padding-left:12px;margin-left:6px;">
               <span style="width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-left:-17px;background:${dotColor};align-self:center;${dotShadow}"></span>
@@ -13223,7 +13231,7 @@ function renderJobDetailHtml(j) {
             const tm = (s.start || '?') + ' - ' + (s.end || '?');
             const loc = _effectiveLoc(j, s);
             return `
-              <div style="padding:10px 12px;background:rgba(212,160,86,0.04);border-left:3px solid var(--brand);border-radius:8px;margin-bottom:6px;">
+              <div style="padding:10px 12px;background:rgba(217,119,87,0.04);border-left:3px solid var(--brand);border-radius:8px;margin-bottom:6px;">
                 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">
                   <strong style="color:var(--brand-dark);font-size:13.5px;">${escapeHtml(s.label || ('Session ' + (idx + 1)))}</strong>
                   <span class="text-mono text-sm" style="color:var(--ink-mute);">${escapeHtml(tm)}</span>
@@ -13663,7 +13671,7 @@ function renderQuoteDetailHtml(q) {
             const tm = (s.start || '?') + ' - ' + (s.end || '?');
             const loc = _effectiveLoc(q, s);
             return `
-              <div style="padding:10px 12px;background:rgba(212,160,86,0.04);border-left:3px solid var(--brand);border-radius:8px;margin-bottom:6px;">
+              <div style="padding:10px 12px;background:rgba(217,119,87,0.04);border-left:3px solid var(--brand);border-radius:8px;margin-bottom:6px;">
                 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">
                   <strong style="color:var(--brand-dark);font-size:13.5px;">${escapeHtml(s.label || ('Session ' + (idx + 1)))}</strong>
                   <span class="text-mono text-sm" style="color:var(--ink-mute);">${escapeHtml(tm)}</span>
@@ -14855,7 +14863,7 @@ const PRINT_COMMON_CSS = `
   * { margin:0; padding:0; box-sizing:border-box; }
   html, body { background:#e9e3d8; color:#1a1a1a; font-size:12px; line-height:1.55; }
   .toolbar { position:sticky; top:0; padding:10px 20px; background:white; border-bottom:1px solid #ddd; display:flex; gap:10px; align-items:center; z-index:10; box-shadow:0 2px 6px rgba(0,0,0,0.05); font-family:'Sarabun', sans-serif; }
-  .toolbar button { padding:8px 16px; border-radius:8px; background:#D4A056; color:white; border:none; cursor:pointer; font-weight:600; font-size:13px; }
+  .toolbar button { padding:8px 16px; border-radius:8px; background:#D97757; color:white; border:none; cursor:pointer; font-weight:600; font-size:13px; }
   .toolbar button.ghost { background:#f0f0f0; color:#333; }
   .toolbar .label { font-weight:700; margin-right:auto; }
   .toolbar .hint { font-size:11px; color:#666; }
@@ -14913,15 +14921,15 @@ function buildPdfModern(ctx) {
   .h-bar .brand img { width:46px; height:46px; border-radius:10px; background:white; padding:5px; }
   .h-bar .brand .name { font-size:22px; font-weight:700; letter-spacing:-0.02em; }
   .h-bar .brand .sub { font-size:11px; opacity:0.7; margin-top:2px; font-weight:400; }
-  .h-bar .doc-pill { background:#D4A056; color:white; padding:8px 16px; border-radius:999px; font-weight:600; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; }
+  .h-bar .doc-pill { background:#D97757; color:white; padding:8px 16px; border-radius:999px; font-weight:600; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; }
   .meta-bar { background:#FBF7EE; padding:14px 28px; display:flex; gap:32px; border-bottom:1px solid #ebe2d2; flex-wrap:wrap; }
   .meta-bar .item .k { font-size:9.5px; font-weight:700; color:#9a8a78; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:2px; }
   .meta-bar .item .v { font-size:13px; font-weight:600; color:#1a1a1a; font-family:'Inter', monospace; }
-  .meta-bar .item .v.warn { color:#D4A056; }
+  .meta-bar .item .v.warn { color:#D97757; }
   .body { padding:24px 28px; }
   .pp-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; }
   .pp-card { padding:14px 16px; border-radius:10px; background:#fafaf9; border:1px solid #ebe6dd; }
-  .pp-card .head { font-size:10px; font-weight:700; color:#D4A056; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px; }
+  .pp-card .head { font-size:10px; font-weight:700; color:#D97757; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px; }
   .pp-card .name { font-size:15px; font-weight:700; color:#1a1a1a; margin-bottom:2px; }
   .pp-card .row { font-size:11.5px; color:#56473a; line-height:1.6; }
   .pp-card .row .mute { color:#9a8a78; }
@@ -14944,11 +14952,11 @@ function buildPdfModern(ctx) {
   .totals .row.grand { margin-top:6px; padding:8px 10px; background:#1a1a1a; color:white; border-radius:6px; font-size:14px; font-weight:800; }
   .totals .row.grand .v { color:white; }
   .totals .row.wht .v { color:#dc2626; }
-  .totals .row.net { margin-top:4px; padding:8px 10px; background:linear-gradient(135deg, #D4A056, #B8854A); color:white; border-radius:6px; font-size:14px; font-weight:800; }
+  .totals .row.net { margin-top:4px; padding:8px 10px; background:linear-gradient(135deg, #D97757, #B85A3D); color:white; border-radius:6px; font-size:14px; font-weight:800; }
   .totals .row.net .v { color:white; }
   .pay-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:22px; }
   .pay-card { padding:14px 16px; border-radius:10px; }
-  .pay-card.dep { background:#fdf1e0; border-left:4px solid #D4A056; }
+  .pay-card.dep { background:#fdf1e0; border-left:4px solid #D97757; }
   .pay-card.bank { background:#eff6ff; border-left:4px solid #3b82f6; }
   .pay-card .label { font-size:10px; font-weight:700; color:#7c6856; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:4px; }
   .pay-card .val { font-size:18px; font-weight:800; color:#1a1a1a; font-family:'Inter', monospace; }
@@ -14957,7 +14965,7 @@ function buildPdfModern(ctx) {
   .note-box { padding:12px 14px; border-radius:10px; background:#fff9ec; border-left:3px solid #ca8a04; font-size:11px; color:#7c2d12; line-height:1.55; margin-bottom:18px; white-space:pre-wrap; }
   .note-box strong { color:#92400e; display:block; margin-bottom:3px; }
   .thanks { text-align:center; padding:20px 28px 6px; font-size:13px; color:#56473a; }
-  .thanks strong { color:#D4A056; font-weight:700; }
+  .thanks strong { color:#D97757; font-weight:700; }
   .foot { margin-top:30px; padding:18px 28px; background:#fafaf9; border-top:1px solid #ebe6dd; display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#56473a; }
   .foot .left { display:flex; align-items:center; gap:10px; }
   .foot .right { font-family:'Inter', monospace; color:#9a8a78; font-size:10px; letter-spacing:0.05em; }
@@ -15108,7 +15116,7 @@ function buildPdfCorporate(ctx) {
   .h-top .doc { text-align:right; }
   .h-top .doc .title { font-size:20px; font-weight:800; color:#1a1a1a; letter-spacing:0.02em; border:2px solid #1a1a1a; padding:6px 14px; display:inline-block; }
   .h-top .doc .sub { font-size:11px; color:#7c6856; margin-top:6px; text-transform:uppercase; letter-spacing:0.1em; }
-  .h-top .doc .code { font-family:'Inter', monospace; font-size:13px; color:#D4A056; font-weight:700; margin-top:4px; }
+  .h-top .doc .code { font-family:'Inter', monospace; font-size:13px; color:#D97757; font-weight:700; margin-top:4px; }
   .h-top .doc .tax-no { font-family:'Inter', monospace; font-size:10.5px; color:#15803d; font-weight:700; margin-top:2px; }
   .pp { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
   .pp .box { padding:10px 14px; border:1px solid #d4d4d4; border-radius:4px; background:#fafafa; }
@@ -15680,16 +15688,16 @@ function _dcEnsureUI() {
   fab.id = 'dc-fab';
   fab.title = 'ติดต่อแอดมิน';
   // v1.0.62b · ลอยเหนือปุ่ม + (fab-wrap อยู่ bottom:24 right:24 ขนาด ~56px) · ไม่ทับกัน
-  fab.style.cssText = 'position:fixed;right:24px;bottom:94px;width:46px;height:46px;border-radius:50%;border:1px solid rgba(212,160,86,0.5);background:#241b15;color:#E8B870;font-size:19px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:8000;display:flex;align-items:center;justify-content:center;';
+  fab.style.cssText = 'position:fixed;right:24px;bottom:94px;width:46px;height:46px;border-radius:50%;border:1px solid rgba(217,119,87,0.5);background:#241b15;color:#E8B870;font-size:19px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:8000;display:flex;align-items:center;justify-content:center;';
   fab.innerHTML = '💬<span id="dc-dot" style="display:none;position:absolute;top:2px;right:2px;width:12px;height:12px;background:#e0533f;border:2px solid #0E0A08;border-radius:50%;"></span>';
   fab.onclick = toggleDeskChat;
   document.body.appendChild(fab);
 
   const panel = document.createElement('div');
   panel.id = 'dc-panel';
-  panel.style.cssText = 'display:none;position:fixed;right:24px;bottom:150px;width:360px;max-width:calc(100vw - 48px);height:460px;max-height:calc(100vh - 180px);background:linear-gradient(170deg,#1a140d,#0E0A08);border:1px solid rgba(212,160,86,0.4);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.55);z-index:8001;flex-direction:column;overflow:hidden;';
+  panel.style.cssText = 'display:none;position:fixed;right:24px;bottom:150px;width:360px;max-width:calc(100vw - 48px);height:460px;max-height:calc(100vh - 180px);background:linear-gradient(170deg,#1a140d,#0E0A08);border:1px solid rgba(217,119,87,0.4);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.55);z-index:8001;flex-direction:column;overflow:hidden;';
   panel.innerHTML = `
-    <div style="padding:13px 16px 10px;border-bottom:1px solid rgba(212,160,86,0.2);display:flex;align-items:center;gap:10px;background:rgba(212,160,86,0.07);">
+    <div style="padding:13px 16px 10px;border-bottom:1px solid rgba(217,119,87,0.2);display:flex;align-items:center;gap:10px;background:rgba(217,119,87,0.07);">
       <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#E8B870,#C9954F);display:flex;align-items:center;justify-content:center;font-size:16px;">🛟</div>
       <div style="flex:1;">
         <div style="font-size:13.5px;font-weight:800;color:#fff;">ทีมงาน Pixory</div>
@@ -15698,8 +15706,8 @@ function _dcEnsureUI() {
       <button onclick="toggleDeskChat()" style="background:none;border:none;color:#8a7a66;font-size:16px;cursor:pointer;padding:4px;">✕</button>
     </div>
     <div id="dc-msgs" style="flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;"></div>
-    <div style="display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid rgba(212,160,86,0.2);">
-      <input id="dc-input" placeholder="พิมพ์ข้อความ..." autocomplete="off" onkeydown="if(event.key==='Enter')sendDeskChat()" style="flex:1;background:#241b15;border:1px solid rgba(212,160,86,0.3);border-radius:99px;padding:10px 14px;color:#EDE3D0;font-size:13px;font-family:inherit;outline:none;min-width:0;">
+    <div style="display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid rgba(217,119,87,0.2);">
+      <input id="dc-input" placeholder="พิมพ์ข้อความ..." autocomplete="off" onkeydown="if(event.key==='Enter')sendDeskChat()" style="flex:1;background:#241b15;border:1px solid rgba(217,119,87,0.3);border-radius:99px;padding:10px 14px;color:#EDE3D0;font-size:13px;font-family:inherit;outline:none;min-width:0;">
       <button onclick="sendDeskChat()" style="width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,#E8B870,#C9954F);color:#1a1208;font-size:16px;cursor:pointer;flex-shrink:0;">➤</button>
     </div>`;
   document.body.appendChild(panel);
@@ -15737,7 +15745,7 @@ function _dcRender() {
   const box = document.getElementById('dc-msgs');
   if (!box) return;
   if (_dcMsgs.length === 0) {
-    box.innerHTML = '<div style="align-self:flex-start;max-width:85%;background:#241b15;border:1px solid rgba(212,160,86,0.25);color:#EDE3D0;padding:9px 13px;border-radius:14px;border-bottom-left-radius:4px;font-size:13px;line-height:1.5;">สวัสดีครับ 🙏 มีอะไรให้ทีมงาน Pixory ช่วยไหมครับ — แจ้งปัญหา สอบถามวิธีใช้ หรือเสนอไอเดียได้เลย</div>';
+    box.innerHTML = '<div style="align-self:flex-start;max-width:85%;background:#241b15;border:1px solid rgba(217,119,87,0.25);color:#EDE3D0;padding:9px 13px;border-radius:14px;border-bottom-left-radius:4px;font-size:13px;line-height:1.5;">สวัสดีครับ 🙏 มีอะไรให้ทีมงาน Pixory ช่วยไหมครับ — แจ้งปัญหา สอบถามวิธีใช้ หรือเสนอไอเดียได้เลย</div>';
     return;
   }
   let html = ''; let lastDay = '';
@@ -15749,7 +15757,7 @@ function _dcRender() {
     const me = m.sender === 'user';
     const st = me
       ? 'align-self:flex-end;background:linear-gradient(135deg,#E8B870,#C9954F);color:#241708;border-bottom-right-radius:4px;'
-      : 'align-self:flex-start;background:#241b15;border:1px solid rgba(212,160,86,0.25);color:#EDE3D0;border-bottom-left-radius:4px;';
+      : 'align-self:flex-start;background:#241b15;border:1px solid rgba(217,119,87,0.25);color:#EDE3D0;border-bottom-left-radius:4px;';
     html += '<div style="max-width:85%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word;' + st + '">' + escapeHtml(m.body) + '<span style="display:block;font-size:8.5px;opacity:.55;margin-top:2px;text-align:right;">' + time + '</span></div>';
   });
   box.innerHTML = html;
@@ -15862,9 +15870,9 @@ function showFoundingBadgeModal() {
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(8,6,4,0.78);z-index:9500;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px);';
   ov.onclick = (e) => { if (e.target === ov) ov.style.display = 'none'; };
   ov.innerHTML = `
-    <div style="max-width:380px;width:100%;background:radial-gradient(ellipse at top, rgba(212,160,86,0.14), transparent 60%), linear-gradient(170deg,#1a140d,#0E0A08);border:1px solid rgba(212,160,86,0.45);border-radius:22px;padding:32px 28px;text-align:center;color:#EDE3D0;">
+    <div style="max-width:380px;width:100%;background:radial-gradient(ellipse at top, rgba(217,119,87,0.14), transparent 60%), linear-gradient(170deg,#1a140d,#0E0A08);border:1px solid rgba(217,119,87,0.45);border-radius:22px;padding:32px 28px;text-align:center;color:#EDE3D0;">
       <div style="font-size:46px;line-height:1;">🏅</div>
-      <div style="font-size:13px;font-weight:800;letter-spacing:3px;color:#E8B870;margin-top:10px;border-bottom:1.5px solid rgba(212,160,86,0.5);display:inline-block;padding-bottom:3px;">FOUNDING TESTER</div>
+      <div style="font-size:13px;font-weight:800;letter-spacing:3px;color:#E8B870;margin-top:10px;border-bottom:1.5px solid rgba(217,119,87,0.5);display:inline-block;padding-bottom:3px;">FOUNDING TESTER</div>
       <div style="font-size:18px;font-weight:700;color:#fff;margin-top:16px;">คุณคือผู้บุกเบิก Pixory</div>
       <div style="font-size:13.5px;color:#B8A994;line-height:1.7;margin-top:10px;">ตรานี้มีจำกัด — มอบให้เฉพาะช่างภาพกลุ่มแรก<br>ที่ร่วมทดสอบ ให้ฟีดแบ็ก และอดทนกับบั๊ก<br>ไปด้วยกันตั้งแต่ Pixory ยังเป็นแอปเล็กๆ<br><br>ทุกฟีเจอร์ที่คุณเห็น มีรอยมือของกลุ่มบุกเบิกอยู่ในนั้น<br>ขอบคุณครับ 🙏</div>
       <div style="font-size:11.5px;color:#8a7a66;margin-top:14px;font-style:italic;">สิทธิพิเศษรุ่นก่อตั้งจะประกาศเมื่อครบ 100 คนแรก</div>
@@ -15974,7 +15982,7 @@ async function _desktopBoot() {
         '<div id="boot-fail-overlay" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);z-index:99999;">' +
           '<div style="background:#fff;color:#3a2f25;padding:24px 28px;border-radius:14px;max-width:380px;text-align:center;font-size:14px;line-height:1.7;">' +
             '⚠️ โหลดระบบไม่สำเร็จ (อินเทอร์เน็ตอาจสะดุดตอนเปิดแอป)<br>กรุณาเช็คการเชื่อมต่อแล้วลองอีกครั้ง<br><br>' +
-            '<button onclick="location.reload()" style="padding:10px 20px;border:0;border-radius:10px;background:#D4A056;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">โหลดใหม่</button>' +
+            '<button onclick="location.reload()" style="padding:10px 20px;border:0;border-radius:10px;background:#D97757;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">โหลดใหม่</button>' +
           '</div>' +
         '</div>');
     } catch(e) {}
@@ -16035,30 +16043,30 @@ function renderGlobalSearchResults(q) {
       เจอ ${total} ผลลัพธ์ · กดเลือก
     </div>
     ${hits.jobs.length > 0 ? `
-      <div style="padding:8px 14px 4px;font-size:11px;color:#B8854A;font-weight:700;text-transform:uppercase;letter-spacing:0.10em;">💼 งาน · ${hits.jobs.length}</div>
+      <div style="padding:8px 14px 4px;font-size:11px;color:#B85A3D;font-weight:700;text-transform:uppercase;letter-spacing:0.10em;">💼 งาน · ${hits.jobs.length}</div>
       ${hits.jobs.slice(0, max).map(j => `
-        <div onclick="closeGlobalSearch();openJobDetail('${escapeHtml(j.code)}');document.getElementById('global-search').value='';" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,0.04);display:flex;justify-content:space-between;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(212,160,86,0.06)'" onmouseout="this.style.background=''">
+        <div onclick="closeGlobalSearch();openJobDetail('${escapeHtml(j.code)}');document.getElementById('global-search').value='';" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,0.04);display:flex;justify-content:space-between;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(217,119,87,0.06)'" onmouseout="this.style.background=''">
           <div style="flex:1;min-width:0;"><strong style="font-size:13px;">${escapeHtml(j.customer || '-')}</strong> <span class="text-mono text-sm text-mute">${escapeHtml(j.code)}</span><div style="font-size:11.5px;color:#7c6856;">${fmtDateTH(j.date)} · ${escapeHtml(j.jobStatus || '-')}</div></div>
-          <span class="text-mono" style="font-weight:700;font-size:12.5px;color:#B8854A;">${fmtTHB(j.sell)}</span>
+          <span class="text-mono" style="font-weight:700;font-size:12.5px;color:#B85A3D;">${fmtTHB(j.sell)}</span>
         </div>
       `).join('')}
       ${hits.jobs.length > max ? `<div style="padding:6px 14px;font-size:11px;color:#a89a8c;text-align:center;">+ อีก ${hits.jobs.length - max} งาน · เปิดหน้างานเพื่อกรอง</div>` : ''}
     ` : ''}
     ${hits.quotes.length > 0 ? `
-      <div style="padding:8px 14px 4px;font-size:11px;color:#B8854A;font-weight:700;text-transform:uppercase;letter-spacing:0.10em;">📝 ใบเสนอ · ${hits.quotes.length}</div>
+      <div style="padding:8px 14px 4px;font-size:11px;color:#B85A3D;font-weight:700;text-transform:uppercase;letter-spacing:0.10em;">📝 ใบเสนอ · ${hits.quotes.length}</div>
       ${hits.quotes.slice(0, max).map(q2 => `
-        <div onclick="closeGlobalSearch();openQuoteDetail('${escapeHtml(q2.code)}');document.getElementById('global-search').value='';" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,0.04);display:flex;justify-content:space-between;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(212,160,86,0.06)'" onmouseout="this.style.background=''">
+        <div onclick="closeGlobalSearch();openQuoteDetail('${escapeHtml(q2.code)}');document.getElementById('global-search').value='';" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,0.04);display:flex;justify-content:space-between;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(217,119,87,0.06)'" onmouseout="this.style.background=''">
           <div style="flex:1;min-width:0;"><strong style="font-size:13px;">${escapeHtml(q2.customer || '-')}</strong> <span class="text-mono text-sm text-mute">${escapeHtml(q2.code)}</span><div style="font-size:11.5px;color:#7c6856;">${fmtDateTH(q2.dateEvent)} · ${quoteStatusLabel(q2.status)}</div></div>
-          <span class="text-mono" style="font-weight:700;font-size:12.5px;color:#B8854A;">${fmtTHB(q2.sell)}</span>
+          <span class="text-mono" style="font-weight:700;font-size:12.5px;color:#B85A3D;">${fmtTHB(q2.sell)}</span>
         </div>
       `).join('')}
       ${hits.quotes.length > max ? `<div style="padding:6px 14px;font-size:11px;color:#a89a8c;text-align:center;">+ อีก ${hits.quotes.length - max} ใบเสนอ</div>` : ''}
     ` : ''}
     ${hits.customers.length > 0 ? `
-      <div style="padding:8px 14px 4px;font-size:11px;color:#B8854A;font-weight:700;text-transform:uppercase;letter-spacing:0.10em;">👥 ลูกค้า · ${hits.customers.length}</div>
+      <div style="padding:8px 14px 4px;font-size:11px;color:#B85A3D;font-weight:700;text-transform:uppercase;letter-spacing:0.10em;">👥 ลูกค้า · ${hits.customers.length}</div>
       ${hits.customers.slice(0, max).map(n => {
         const info = CUSTOMER_INFO[n] || {};
-        return `<div onclick="closeGlobalSearch();openCustomerDetail('${escapeHtml(n)}');document.getElementById('global-search').value='';" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,0.04);display:flex;justify-content:space-between;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(212,160,86,0.06)'" onmouseout="this.style.background=''">
+        return `<div onclick="closeGlobalSearch();openCustomerDetail('${escapeHtml(n)}');document.getElementById('global-search').value='';" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,0.04);display:flex;justify-content:space-between;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(217,119,87,0.06)'" onmouseout="this.style.background=''">
           <div style="flex:1;min-width:0;"><strong style="font-size:13px;">${escapeHtml(n)}</strong>${info.nickname ? ` <span class="text-mute text-sm">(${escapeHtml(info.nickname)})</span>` : ''}<div style="font-size:11.5px;color:#7c6856;">${escapeHtml(info.phone || '-')} · ${escapeHtml(info.type || 'B2C')}</div></div>
         </div>`;
       }).join('')}
