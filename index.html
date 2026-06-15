@@ -8266,6 +8266,12 @@
         <h1><span style="margin-right:6px;">📄</span><span data-i18n="header.quoteTpl">เทมเพลตใบเสนอราคา</span></h1>
         <span style="width: 22px;"></span>
       </div>
+      <!-- v2.9.23 · เลือกสไตล์เอกสาร (ค่าเริ่มต้นทุกใบ) -->
+      <div class="settings-section" style="margin: 0 16px 14px;">
+        <div class="sec-title">🎨 สไตล์เอกสาร</div>
+        <div style="font-size:11.5px; color:#7c7066; margin:-2px 0 10px;">ใช้กับใบเสนอราคาและใบเรียกเก็บทุกใบ</div>
+        <div id="qt-style-picker"></div>
+      </div>
       <div class="form-group"><label>หัวข้อใบเสนอราคา</label><input type="text" id="qt-title"></div>
       <div class="form-group"><label>คำขึ้นต้น</label><input type="text" id="qt-greeting"></div>
       <div class="form-group"><label>เงื่อนไขการชำระเงิน</label><textarea id="qt-terms" rows="4"></textarea></div>
@@ -9078,7 +9084,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.22';
+const PIXORY_VERSION = '2.9.23';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -9089,6 +9095,14 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.23': {
+    date: '2026-06-13',
+    title: 'เลือกสไตล์เอกสารได้แล้ว ✦',
+    subtitle: 'ใบเสนอ/ใบเรียกเก็บ มีสไตล์ "หรู" ให้เลือก',
+    items: [
+      { icon: '🎨', title: 'สไตล์ใหม่ "หรู" — งาช้าง ทอง เซริฟ', desc: 'นอกจากสไตล์คลาสสิกเดิม เพิ่มสไตล์หรูแบบมินิมอลให้เลือก · ตั้งค่าเริ่มต้นที่ ตั้งค่า → เทมเพลตใบเสนอราคา → สไตล์เอกสาร' }
+    ]
+  },
   '2.9.22': {
     date: '2026-06-13',
     title: 'อธิบายตัวเลขรายได้ชัดขึ้น',
@@ -18595,6 +18609,39 @@ function populateTemplateForm() {
   document.getElementById('qt-greeting').value = QUOTE_TEMPLATE.greeting || '';
   document.getElementById('qt-terms').value = QUOTE_TEMPLATE.terms || '';
   document.getElementById('qt-footer').value = QUOTE_TEMPLATE.footer || '';
+  renderDocStylePicker();
+}
+// v2.9.23 · การ์ดเลือกสไตล์เอกสาร (มือถือ) · ตั้ง PROFILE.docStyle เป็นค่าเริ่มต้น
+function renderDocStylePicker() {
+  const host = document.getElementById('qt-style-picker');
+  if (!host) return;
+  const ds = (PROFILE && PROFILE.docStyle) || 'classic';
+  const lux = ds === 'luxury';
+  host.innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+      '<div onclick="setDocStyleMobile(\'classic\')" style="cursor:pointer;border:2px solid ' + (!lux?'#D4A056':'rgba(124,112,102,.3)') + ';border-radius:12px;padding:8px;">' +
+        '<div style="height:74px;border-radius:7px;overflow:hidden;background:#2a1f18;">' +
+          '<div style="height:24px;background:linear-gradient(135deg,#2A1F18,#B85A3D);"></div>' +
+          '<div style="padding:7px;"><div style="height:5px;width:55%;background:#caa;border-radius:2px;margin-bottom:4px;"></div><div style="height:13px;background:#3a2e22;border-radius:3px;margin-top:6px;"></div></div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;"><span style="font-size:13px;font-weight:600;">คลาสสิก</span><span style="font-size:17px;color:' + (!lux?'#D4A056':'#b9b1a6') + ';">' + (!lux?'●':'○') + '</span></div>' +
+        '<div style="font-size:10.5px;color:#9a8c7a;margin-top:1px;">อุ่น · โทนส้มแบรนด์</div>' +
+      '</div>' +
+      '<div onclick="setDocStyleMobile(\'luxury\')" style="cursor:pointer;border:2px solid ' + (lux?'#D4A056':'rgba(124,112,102,.3)') + ';border-radius:12px;padding:8px;">' +
+        '<div style="height:74px;border-radius:7px;overflow:hidden;background:#FCFAF6;border:1px solid #eee;">' +
+          '<div style="padding:8px 8px 0;"><div style="height:6px;width:45%;background:#211C17;border-radius:2px;margin-bottom:5px;"></div><div style="height:4px;width:30%;background:#B8894A;border-radius:2px;"></div></div>' +
+          '<div style="padding:6px 8px;"><div style="height:12px;background:#211C17;border-radius:3px;margin-top:6px;width:55%;margin-left:45%;"></div></div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;"><span style="font-size:13px;font-weight:600;">หรู ✦ <span style="font-size:9px;color:#9a7b2f;background:rgba(212,160,86,.18);padding:1px 6px;border-radius:99px;">ใหม่</span></span><span style="font-size:17px;color:' + (lux?'#D4A056':'#b9b1a6') + ';">' + (lux?'●':'○') + '</span></div>' +
+        '<div style="font-size:10.5px;color:#9a8c7a;margin-top:1px;">งาช้าง-ทอง · เซริฟ</div>' +
+      '</div>' +
+    '</div>';
+}
+function setDocStyleMobile(style) {
+  PROFILE.docStyle = (style === 'luxury') ? 'luxury' : 'classic';
+  saveData();
+  renderDocStylePicker();
+  toast('ตั้งสไตล์ ' + (PROFILE.docStyle === 'luxury' ? 'หรู ✦' : 'คลาสสิก') + ' เป็นค่าเริ่มต้นแล้ว');
 }
 function saveQuoteTemplate() {
   QUOTE_TEMPLATE.title = document.getElementById('qt-title').value;
@@ -21788,6 +21835,42 @@ function v2pdf_numToThaiBaht(amount) {
 }
 
 // ===== Get print context (extract all doc data once) =====
+// v2.9.23 · สไตล์ "หรู" ฝั่งมือถือ (คลาสร่วมกับเดสก์ท็อป → CSS เดียวกัน) · กระดาษขาวเสมอ สี hardcode ถูกต้อง
+const V2PDF_LUXURY_CSS = `
+  .page{background:#FCFAF6 !important;}
+  .h-bar{background:#FCFAF6 !important;color:#211C17 !important;border-bottom:1px solid rgba(33,28,23,0.13);}
+  .h-bar .brand .name{font-family:'Fraunces',Georgia,serif !important;letter-spacing:1px;color:#211C17 !important;}
+  .h-bar .brand .sub{color:#9A8C7A !important;letter-spacing:2px;text-transform:uppercase;}
+  .h-bar .doc-pill{background:transparent !important;color:#B8894A !important;border:1px solid rgba(184,137,74,0.55);font-family:'Fraunces',Georgia,serif !important;letter-spacing:3px;}
+  .meta-bar{background:#FCFAF6 !important;border-bottom:1px solid rgba(33,28,23,0.09);}
+  .meta-bar .item .k{color:#A89B89 !important;}
+  .meta-bar .item .v{color:#211C17 !important;}
+  .meta-bar .item .v.warn{color:#9A5B45 !important;}
+  .pp-card{background:#FCFAF6 !important;border:1px solid rgba(33,28,23,0.10) !important;}
+  .pp-card .head{color:#B8894A !important;letter-spacing:2px;}
+  .pp-card .name{color:#211C17 !important;}
+  .items{border:1px solid rgba(33,28,23,0.12) !important;}
+  .items thead th{background:transparent !important;color:#211C17 !important;border-bottom:1.5px solid #211C17;}
+  .items tbody td{border-top:1px solid rgba(33,28,23,0.08) !important;}
+  .items .name{color:#211C17 !important;}
+  .totals{background:transparent !important;border:none !important;border-top:1px solid rgba(33,28,23,0.12) !important;border-radius:0 !important;}
+  .totals .row.discount .v{color:#9A5B45 !important;}
+  .totals .row.grand{background:transparent !important;color:#211C17 !important;border:1px solid #211C17;border-radius:3px;}
+  .totals .row.grand .v{color:#211C17 !important;}
+  .totals .row.net{background:#211C17 !important;border-radius:3px;}
+  .totals .row.net .k{color:#C9A05E !important;letter-spacing:1px;}
+  .totals .row.net .v{color:#F2E0BA !important;font-family:'Fraunces',Georgia,serif !important;}
+  .pay-card.dep,.card.dep{background:#FCFAF6 !important;border-left:2px solid #B8894A !important;}
+  .pay-card.bank,.card.bank,.bank{background:#FCFAF6 !important;border-left:2px solid #B8894A !important;}
+  .pay-card .label,.card .label{color:#B8894A !important;letter-spacing:2px;}
+  .pay-card .val,.card .val{color:#211C17 !important;}
+  .pay-card.bank .val,.card.bank .val{color:#211C17 !important;}
+  .note-box{background:#FCFAF6 !important;border-left:3px solid #B8894A !important;color:#5a5048 !important;}
+  .note-box strong{color:#9A7B2F !important;}
+  .thanks strong{color:#B8894A !important;font-family:'Fraunces',Georgia,serif !important;font-style:italic;font-weight:500;}
+  .foot{background:#FCFAF6 !important;border-top:1px solid rgba(33,28,23,0.12) !important;}
+`;
+
 function v2pdf_getPrintCtx(args) {
   const { type, doc } = args;
   const isQuote = (type === 'quote');
@@ -21895,7 +21978,10 @@ function v2pdf_getPrintCtx(args) {
   const balancePaidDate = inv ? inv.balancePaidDate : null;
   const invMessage = inv ? (inv.message || '') : '';
 
+  const docStyle = (doc.docStyle || (typeof PROFILE!=='undefined' && PROFILE && PROFILE.docStyle) || 'classic');
+  const luxCss = (docStyle === 'luxury' && typeof V2PDF_LUXURY_CSS === 'string') ? V2PDF_LUXURY_CSS : '';
   return {
+    docStyle, luxCss,
     isQuote, doc, phone, lineId, eventDate, issueDate, expireDate,
     docCase, docCode, taxInvNo,
     items, totalItems, discount, sell, deposit, remain,
@@ -22039,7 +22125,7 @@ function v2pdf_buildPdfModern(ctx) {
   .thanks { text-align:center; padding:20px 28px 6px; font-size:13px; color:#56473a; }
   .thanks strong { color:#D97757; font-weight:700; }
   .foot { margin-top:30px; padding:18px 28px; background:#fafaf9; border-top:1px solid #ebe6dd; display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#56473a; }
-</style></head><body>
+${ctx.luxCss}</style></head><body>
 
 ${v2pdf_printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
 
@@ -22213,7 +22299,7 @@ function v2pdf_buildPdfCorporate(ctx) {
   .sig .date { margin-top:6px; font-size:10px; color:#7c6856; }
   .sig .stamp { margin-top:8px; font-size:9.5px; color:#9a8a78; font-style:italic; }
   .foot-meta { margin-top:16px; padding-top:8px; border-top:1px solid #d4d4d4; text-align:center; font-size:10px; color:#7c6856; font-family:'Inter', monospace; letter-spacing:0.05em; }
-</style></head><body>
+${ctx.luxCss}</style></head><body>
 
 ${v2pdf_printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
 
@@ -22423,7 +22509,7 @@ function v2pdf_buildPdfGov(ctx) {
   .sig .date { margin-top:5px; font-size:9.5px; color:#7c6856; }
   .sig .stamp { margin-top:6px; font-size:9px; color:#9a8a78; font-style:italic; }
   .foot-meta { margin-top:14px; padding-top:7px; border-top:1px solid #d4d4d4; text-align:center; font-size:9.5px; color:#7c6856; font-family:'Inter', monospace; }
-</style></head><body>
+${ctx.luxCss}</style></head><body>
 
 ${v2pdf_printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
 
