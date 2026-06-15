@@ -912,7 +912,7 @@
     <div class="panel">
       <div class="panel-title">ℹ เกี่ยวกับ</div>
       <div style="font-size:12px; color: var(--muted); line-height:1.6;">
-        Pixory Admin Monitor · v3.5<br>
+        Pixory Admin Monitor · v3.6<br>
         5 แท็บ · champagne gold · growth monitors<br><br>
         • Realtime sync + polling 10s<br>
         • Live notification toast + sound<br>
@@ -1633,7 +1633,9 @@ function processRows(rows) {
     const studioGenresOther = String(profile.studioGenresOther || '').trim();
     const pushEnabled = !!ns.pushEnabled;
     const hasPayment = jobs.some(j => Array.isArray(j.payments) && j.payments.length > 0);
-    const pdfGenerated = lastAction.type === 'generated_pdf';
+    // v3.6 · เดิมนับเฉพาะ action ล่าสุด=generated_pdf → โดน action ถัดไปทับ ขึ้น 0% เสมอ (บั๊กการนับ)
+    //   ตอนนี้อ่าน flag ถาวร PROFILE.pdfExported (แอปตั้งทุกครั้งที่ออก PDF/JPEG) + เผื่อ lastAction เดิมไว้ด้วย
+    const pdfGenerated = !!profile.pdfExported || lastAction.type === 'generated_pdf';
     if (!map.has(email)) {
       map.set(email, {
         userId: row.user_id,  // v3.2 · ใช้ผูกตรา Founding Tester

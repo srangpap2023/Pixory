@@ -35,16 +35,25 @@
       navigator.serviceWorker.register('./sw-desktop.js', { updateViaCache: 'none' })
         .then((reg) => {
           console.log('[sw-desktop] registered · scope:', reg.scope);
-          if (reg.waiting) console.info('[sw-desktop] update waiting');
+          // v1.0.97 · auto-apply เวอร์ชันใหม่ (parity มือถือ · เดิมแค่ console.info ทำให้ค้างเวอร์ชันเก่า)
+          function _applyWaiting() {
+            if (reg.waiting) { try { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch (e) {} }
+          }
+          try { reg.update(); } catch (e) {}        // เช็คทันทีตอนโหลด
+          if (reg.waiting && navigator.serviceWorker.controller) _applyWaiting();
           reg.addEventListener('updatefound', () => {
             const installing = reg.installing;
             if (!installing) return;
             installing.addEventListener('statechange', () => {
               if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-                console.info('[sw-desktop] new version installed · reload to apply');
+                console.info('[sw-desktop] new version ready · auto-applying');
+                _applyWaiting();  // → controllerchange จะ reload ให้ (เดสก์ autosave อยู่แล้ว)
               }
             });
           });
+          // เช็คเป็นระยะตอนแท็บ visible + ตอนกลับมาโฟกัส
+          setInterval(() => { if (document.visibilityState === 'visible') { try { reg.update(); } catch (e) {} } }, 60 * 1000);
+          document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { try { reg.update(); } catch (e) {} } });
         })
         .catch((err) => console.warn('[sw-desktop] registration failed:', err.message));
     });
@@ -3019,12 +3028,20 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.96';
+const PIXORY_DESKTOP_VERSION = '1.0.97';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.97': {
+    date: '2026-06-13',
+    title: 'อัปเดตเวอร์ชันอัตโนมัติ + ปรับภายใน',
+    subtitle: 'ตรงกับมือถือ v2.9.24',
+    items: [
+      { icon: '🔄', title: 'เดสก์ท็อปอัปเดตเป็นเวอร์ชันใหม่ให้อัตโนมัติ', desc: 'เมื่อมีเวอร์ชันใหม่ ระบบจะอัปเดตและรีโหลดให้เอง ไม่ต้องล้างแคชเอง' }
+    ]
+  },
   '1.0.96': {
     date: '2026-06-13',
     title: 'เลือกสไตล์เอกสารได้แล้ว ✦',
@@ -14387,12 +14404,20 @@ function closeDocPreview() {
   closeModal();
 }
 
+// v1.0.97 · flag ถาวร "เคยออก PDF/JPEG" (เดสก์ไม่มี recordAction · แอดมินเดิมขึ้น 0% เพราะบั๊กการนับ)
+function markPdfExported() {
+  try {
+    if (PROFILE && !PROFILE.pdfExported) { PROFILE.pdfExported = true; if (typeof saveData === 'function') saveData(); }
+  } catch (e) {}
+}
+
 async function downloadPreviewImage(format) {
   const frame = document.getElementById('doc-preview-frame');
   const fdoc = frame && (frame.contentDocument || (frame.contentWindow && frame.contentWindow.document));
   const page = fdoc && fdoc.querySelector('.page');
   if (!page) { toast('ยังโหลดเอกสารไม่เสร็จ · รอสักครู่แล้วลองใหม่', 'error'); return; }
   const code = _previewDocCode || 'document';
+  markPdfExported();  // v1.0.97 · นับ export (flag ถาวร · แอดมิน)
   toast('กำลังเตรียมไฟล์...', 'info');
   try {
     await _ensurePdfLibs();
@@ -14719,6 +14744,7 @@ async function deleteInvoice(code) {
 function printInvoicePdf(code) {
   const j = JOBS.find(x => x.code === code);
   if (!j) { toast('ไม่พบงาน', 'error'); return; }
+  markPdfExported();  // v1.0.97 · นับ export
   ensureJobInvoice(j);
   const w = window.open('', '_blank', 'width=900,height=1200');
   if (!w) { toast('เบราว์เซอร์บล็อก popup · อนุญาต popup ของไซต์นี้ก่อน', 'error'); return; }

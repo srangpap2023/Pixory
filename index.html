@@ -9084,7 +9084,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.23';
+const PIXORY_VERSION = '2.9.24';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -9095,6 +9095,14 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.24': {
+    date: '2026-06-13',
+    title: 'ปรับปรุงภายใน',
+    subtitle: '',
+    items: [
+      { icon: '🔧', title: 'ปรับปรุงการทำงานเบื้องหลัง', desc: 'เก็บสถิติการใช้งานให้แม่นยำขึ้น' }
+    ]
+  },
   '2.9.23': {
     date: '2026-06-13',
     title: 'เลือกสไตล์เอกสารได้แล้ว ✦',
@@ -19046,6 +19054,8 @@ function recordAction(type, code) {
       at: new Date().toISOString(),
       code: String(code || '').slice(0, 30)
     };
+    // v2.9.24 · flag ถาวร "เคยออก PDF/JPEG" (แอดมินเดิมนับจาก lastAction → โดนทับ ขึ้น 0%)
+    if (type === 'generated_pdf') PROFILE.pdfExported = true;
     // Use saveData if available · falls back to silent no-op
     if (typeof saveData === 'function') {
       try { saveData(); } catch (e) {}
@@ -22631,6 +22641,7 @@ function openQuoteNewPdf() {
     if (!w) { toast('เบราว์เซอร์บล็อก popup · อนุญาตก่อน'); return; }
     w.document.write(html);
     w.document.close();
+    if (typeof recordAction === 'function') recordAction('generated_pdf', (c.data && c.data.code) || '');  // v2.9.24
   } catch(e) { console.error(e); toast('สร้าง PDF แบบใหม่ไม่สำเร็จ: ' + (e.message || e)); }
 }
 
@@ -22643,6 +22654,7 @@ function openInvoiceNewPdf() {
     if (!w) { toast('เบราว์เซอร์บล็อก popup · อนุญาตก่อน'); return; }
     w.document.write(html);
     w.document.close();
+    if (typeof recordAction === 'function') recordAction('generated_pdf', (j && j.code) || '');  // v2.9.24
   } catch(e) { console.error(e); toast('สร้าง PDF แบบใหม่ไม่สำเร็จ: ' + (e.message || e)); }
 }
 
@@ -23139,6 +23151,7 @@ function downloadInvoiceJPEG() {
   }
   toast('กำลังสร้างรูป JPEG...');
   const j = window._currentInvoiceJob || {};
+  if (typeof recordAction === 'function') recordAction('generated_pdf', (j.invoice && j.invoice.code) || j.code || '');  // v2.9.24 · นับ export
   const safe = (s) => (s || '').toString().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_').slice(0, 40);
   const fname = (t('inv.fnameInvoice')||'Invoice') + '_' + (safe(j.customer) || safe((j.invoice && j.invoice.code)) || 'invoice') + '.jpg';
   const prevBg = node.style.background;
