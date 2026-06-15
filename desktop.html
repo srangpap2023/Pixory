@@ -861,6 +861,40 @@
   }
   .user-chip button:hover { color: var(--red); background: var(--red-bg); }
 
+  /* ===== v1.0.95 · Premium header refresh (Linear/Mercury/Raycast school) ===== */
+  .topbar-brand .brand-name { font-family: var(--font-display); font-size: 23px; letter-spacing: 3px; }
+  .topbar-brand .topbar-brand-icon { width: 38px; height: 38px; }
+  /* Command-style search */
+  .topbar-search { flex:1; max-width:440px; margin:0 auto; position:relative; display:flex; align-items:center; }
+  .topbar-search .ts-ico { position:absolute; left:14px; color:var(--ink-mute); font-size:15px; pointer-events:none; }
+  .topbar-search input { width:100%; padding:9px 52px 9px 38px; border-radius:12px; border:1px solid var(--glass-border); background:var(--glass); font:inherit; font-size:13px; color:var(--ink); outline:none; transition:border-color .15s, background .15s; }
+  .topbar-search input:focus { border-color:rgba(184,90,61,0.45); background:var(--glass-strong); }
+  .topbar-search .ts-kbd { position:absolute; right:12px; font-size:10.5px; color:var(--ink-mute); border:1px solid var(--glass-border); border-radius:6px; padding:2px 6px; letter-spacing:.5px; pointer-events:none; font-family:var(--font-th); }
+  /* Right cluster */
+  .topbar-right { display:flex; align-items:center; gap:14px; }
+  .topbar-right .tb-divider { width:1px; height:20px; background:var(--glass-border); }
+  .topbar-right .tb-iconbtn { background:transparent; border:none; cursor:pointer; padding:4px; line-height:0; color:var(--ink-soft); position:relative; border-radius:8px; transition:color .15s, background .15s; }
+  .topbar-right .tb-iconbtn:hover { color:var(--brand); background:var(--glass); }
+  /* Sync → subtle dot + muted text (no filled pill) */
+  .sync-pill { background:transparent !important; padding:0 !important; font-size:11.5px; gap:7px; opacity:.92; }
+  .sync-pill #sync-text, .sync-pill [data-i18n] { color:var(--ink-mute); }
+  /* Founding chip → gold hairline membership */
+  #topbar-badge .founding-chip { display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; letter-spacing:1px; color:#D9A441; border:1px solid rgba(217,164,65,0.45); border-radius:999px; padding:4px 11px; white-space:nowrap; }
+  /* User menu dropdown */
+  .user-chip { position:relative; cursor:pointer; gap:8px; }
+  .user-chip .avatar { border:1px solid rgba(184,90,61,0.5); background:var(--glass); color:var(--brand); }
+  .user-chip .uc-chev { color:var(--ink-mute); font-size:0; transition:transform .15s; }
+  .user-chip.open .uc-chev { transform:rotate(180deg); }
+  .user-menu { position:absolute; top:calc(100% + 8px); right:0; width:230px; background:var(--glass-strong); backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%); border:1px solid var(--glass-border); border-radius:14px; box-shadow:var(--glass-shadow); padding:10px 8px; display:none; z-index:200; }
+  .user-chip.open .user-menu { display:block; }
+  .user-menu .um-head { padding:6px 12px 10px; border-bottom:1px solid var(--glass-border); margin-bottom:6px; }
+  .user-menu .um-name { font-size:12.5px; font-weight:600; color:var(--ink); }
+  .user-menu .um-email { font-size:11px; color:var(--ink-mute); margin-top:2px; overflow:hidden; text-overflow:ellipsis; }
+  .user-menu .um-item { display:flex; align-items:center; gap:9px; width:100%; padding:9px 12px; border-radius:8px; font-size:12.5px; color:var(--ink-soft); background:transparent; border:none; cursor:pointer; text-align:left; }
+  .user-menu .um-item:hover { background:var(--glass); }
+  .user-menu .um-item.danger { color:var(--red); }
+  .user-menu .um-item.danger:hover { background:var(--red-bg); }
+
   /* Sidebar */
   .sidebar {
     grid-area: sidebar;
@@ -2871,37 +2905,47 @@
         <circle cx="100" cy="118" r="14" stroke-width="6" />
       </svg>
       <div class="brand-text">
-        <span class="brand-name">Pixory</span>
-        <span class="brand-sub">Studio · Desktop</span>
+        <span class="brand-name">PIXORY</span>
+        <span class="brand-sub" data-i18n="app.tagline">Studio Suite</span>
       </div>
     </div>
-    <!-- M17 · Global Search · ค้นทุกอย่าง (Job/Quote/Customer) -->
-    <div style="flex:1; max-width:420px; margin:0 auto; position:relative;">
-      <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#a89a8c; font-size:16px; pointer-events:none;">⌕</span>
-      <input type="text" id="global-search" placeholder="ค้นหา · งาน · ใบเสนอ · ลูกค้า · (กด Ctrl+K)" aria-label="ค้นหา"
+    <!-- M17 · Global Search · ค้นทุกอย่าง (Job/Quote/Customer) · v1.0.95 · command-style + ⌘K -->
+    <div class="topbar-search">
+      <span class="ts-ico">⌕</span>
+      <input type="text" id="global-search" placeholder="ค้นหางาน ลูกค้า ใบเสนอ…" aria-label="ค้นหา"
         onfocus="this.placeholder='พิมพ์อย่างน้อย 2 ตัว...';openGlobalSearch();"
-        onblur="setTimeout(()=>{closeGlobalSearch();this.placeholder='ค้นหา · งาน · ใบเสนอ · ลูกค้า · (กด Ctrl+K)';},200)"
-        oninput="renderGlobalSearchResults(this.value)"
-        style="width:100%;padding:9px 14px 9px 36px;border-radius:999px;border:1px solid rgba(184,90,61,0.20);background:rgba(255,255,255,0.7);font:inherit;font-size:13px;outline:none;" />
-      <div id="global-search-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border-radius:14px;margin-top:6px;box-shadow:0 12px 40px rgba(217,119,87,0.20),0 2px 8px rgba(0,0,0,0.08);max-height:60vh;overflow-y:auto;z-index:100;border:1px solid rgba(184,90,61,0.18);"></div>
+        onblur="setTimeout(()=>{closeGlobalSearch();this.placeholder='ค้นหางาน ลูกค้า ใบเสนอ…';},200)"
+        oninput="renderGlobalSearchResults(this.value)" />
+      <span class="ts-kbd" id="search-kbd">Ctrl K</span>
+      <div id="global-search-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--glass-strong);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-radius:14px;margin-top:8px;box-shadow:var(--glass-shadow);max-height:60vh;overflow-y:auto;z-index:100;border:1px solid var(--glass-border);"></div>
     </div>
     <div class="topbar-spacer"></div>
-    <button id="announce-bell" onclick="openAnnounceInbox()" title="ประกาศจาก Pixory" aria-label="ประกาศ" style="position:relative; background:transparent; border:none; cursor:pointer; font-size:19px; padding:4px 8px; line-height:1; margin-right:4px;">
-      📣
-      <span id="announce-bell-badge" style="display:none; position:absolute; top:-2px; right:0; min-width:16px; height:16px; padding:0 4px; background:var(--red,#D97757); color:#fff; border-radius:999px; font-size:10px; line-height:16px; font-weight:700; box-sizing:border-box;"></span>
-    </button>
-    <div id="sync-pill" class="sync-pill" title="สถานะการเชื่อมต่อข้อมูล">
-      <span class="sync-dot"></span>
-      <span id="sync-text" data-i18n="app.syncReady">พร้อม</span>
-    </div>
-    <!-- v1.0.61 · ตรา Founding Tester (โหลดจาก user_badges · parity กับมือถือ v2.5.89) -->
-    <span id="topbar-badge" style="display:none; cursor:pointer; margin-right:4px;" onclick="showFoundingBadgeModal()">
-      <span style="font-size:10px; font-weight:800; letter-spacing:2px; color:#C9954F; border-bottom:1.5px solid rgba(201,149,79,0.55); padding-bottom:1px; white-space:nowrap;">🏅 FOUNDING TESTER</span>
-    </span>
-    <div class="user-chip">
-      <div id="user-avatar" class="avatar">?</div>
-      <span id="user-email">--</span>
-      <button onclick="doLogout()" data-i18n="app.logout">ออก</button>
+    <div class="topbar-right">
+      <div id="sync-pill" class="sync-pill" title="สถานะการเชื่อมต่อข้อมูล">
+        <span class="sync-dot"></span>
+        <span id="sync-text" data-i18n="app.syncReady">พร้อม</span>
+      </div>
+      <span class="tb-divider"></span>
+      <button id="announce-bell" class="tb-iconbtn" onclick="openAnnounceInbox()" title="ประกาศจาก Pixory" aria-label="ประกาศ">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span id="announce-bell-badge" style="display:none; position:absolute; top:0; right:0; min-width:15px; height:15px; padding:0 4px; background:var(--red,#D97757); color:#fff; border-radius:999px; font-size:9px; line-height:15px; font-weight:700; box-sizing:border-box;"></span>
+      </button>
+      <!-- v1.0.61 · ตรา Founding Tester (โหลดจาก user_badges · parity กับมือถือ) -->
+      <span id="topbar-badge" style="display:none; cursor:pointer;" onclick="showFoundingBadgeModal()">
+        <span class="founding-chip">♛ FOUNDING</span>
+      </span>
+      <div class="user-chip" id="user-chip" onclick="toggleUserMenu(event)">
+        <div id="user-avatar" class="avatar">?</div>
+        <svg class="uc-chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="font-size:13px;"><path d="M6 9l6 6 6-6"/></svg>
+        <div class="user-menu" id="user-menu" onclick="event.stopPropagation()">
+          <div class="um-head">
+            <div class="um-name">บัญชีของฉัน</div>
+            <div class="um-email" id="user-email">--</div>
+          </div>
+          <button class="um-item" onclick="closeUserMenu();navigate('settings')">⚙ ตั้งค่าบัญชี</button>
+          <button class="um-item danger" onclick="doLogout()" data-i18n="app.logout">⎋ ออกจากระบบ</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2975,12 +3019,36 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.92';
+const PIXORY_DESKTOP_VERSION = '1.0.95';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.0.95': {
+    date: '2026-06-13',
+    title: 'แถบบนสุดโฉมใหม่ ดูพรีเมียม',
+    subtitle: 'จัดระเบียบใหม่แนวแอประดับโลก',
+    items: [
+      { icon: '✨', title: 'หัวแอปสะอาด เป็นระเบียบขึ้น', desc: 'ช่องค้นหาแบบ command (มี Ctrl K / ⌘K) · สถานะซิงค์เป็นจุดเล็กเรียบๆ · ตรา Founding เป็นชิปขอบทอง · อีเมลและปุ่มออกจากระบบย้ายเข้าเมนูใต้รูปโปรไฟล์' }
+    ]
+  },
+  '1.0.94': {
+    date: '2026-06-13',
+    title: 'อธิบายตัวเลขรายได้ชัดขึ้น',
+    subtitle: 'ตรงกับมือถือ v2.9.22',
+    items: [
+      { icon: '💡', title: 'แยกชัด "คาดการณ์" กับ "รายรับรวม"', desc: 'เติมคำอธิบายใต้ตัวเลข — หน้าหลักรวมมัดจำงานล่วงหน้า / หน้าสรุปนับเฉพาะมูลค่างานปีนี้' }
+    ]
+  },
+  '1.0.93': {
+    date: '2026-06-13',
+    title: '\ud83d\udccb \u0e2b\u0e19\u0e49\u0e32\u0e07\u0e32\u0e19\u0e21\u0e35\u0e41\u0e17\u0e47\u0e1a "\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14" \u0e41\u0e25\u0e49\u0e27',
+    subtitle: '\u0e40\u0e1b\u0e34\u0e14\u0e21\u0e32\u0e40\u0e2b\u0e47\u0e19\u0e07\u0e32\u0e19\u0e17\u0e31\u0e49\u0e07\u0e1b\u0e35\u0e44\u0e14\u0e49\u0e17\u0e31\u0e19\u0e17\u0e35 (\u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e21\u0e37\u0e2d\u0e16\u0e37\u0e2d)',
+    items: [
+      { icon: '\ud83d\udccb', title: '\u0e41\u0e17\u0e47\u0e1a "\u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14" \u0e1a\u0e19\u0e40\u0e14\u0e2a\u0e01\u0e4c\u0e17\u0e47\u0e2d\u0e1b', desc: '\u0e40\u0e1b\u0e34\u0e14\u0e2b\u0e19\u0e49\u0e32\u0e07\u0e32\u0e19\u0e21\u0e32\u0e40\u0e2b\u0e47\u0e19\u0e07\u0e32\u0e19\u0e17\u0e31\u0e49\u0e07\u0e1b\u0e35\u0e17\u0e31\u0e19\u0e17\u0e35 \u0e23\u0e27\u0e21\u0e07\u0e32\u0e19\u0e16\u0e48\u0e32\u0e22\u0e41\u0e25\u0e49\u0e27/\u0e1b\u0e34\u0e14\u0e41\u0e25\u0e49\u0e27 \u2014 \u0e44\u0e21\u0e48\u0e15\u0e49\u0e2d\u0e07\u0e44\u0e25\u0e48\u0e2b\u0e32\u0e17\u0e35\u0e25\u0e30\u0e41\u0e17\u0e47\u0e1a \u00b7 \u0e40\u0e23\u0e35\u0e22\u0e07\u0e15\u0e32\u0e21\u0e27\u0e31\u0e19\u0e07\u0e32\u0e19' }
+    ]
+  },
   '1.0.92': {
     date: '2026-06-13',
     title: '🧡 สีแบรนด์กลับเป็นส้มสีโลโก้',
@@ -3918,6 +3986,33 @@ async function doResetPassword() {
   }
 }
 
+// v1.0.95 · เมนูผู้ใช้ (avatar dropdown · ย้ายอีเมล+ออกจากระบบมาไว้ในนี้)
+function toggleUserMenu(e) {
+  if (e) e.stopPropagation();
+  const chip = document.getElementById('user-chip');
+  if (chip) chip.classList.toggle('open');
+}
+function closeUserMenu() {
+  const chip = document.getElementById('user-chip');
+  if (chip) chip.classList.remove('open');
+}
+// ปิดเมนูเมื่อคลิกที่อื่น
+document.addEventListener('click', function (e) {
+  const chip = document.getElementById('user-chip');
+  if (chip && chip.classList.contains('open') && !chip.contains(e.target)) chip.classList.remove('open');
+});
+// v1.0.95 · kbd chip ตามแพลตฟอร์ม (Mac = ⌘K · อื่นๆ = Ctrl K)
+(function () {
+  function setKbd() {
+    const el = document.getElementById('search-kbd');
+    if (!el) return;
+    const isMac = /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent || '');
+    el.textContent = isMac ? '⌘K' : 'Ctrl K';
+  }
+  if (document.readyState !== 'loading') setKbd();
+  else document.addEventListener('DOMContentLoaded', setKbd);
+})();
+
 async function doLogout() {
   if (!confirm('ออกจากระบบ?')) return;
   stopRealtimeSync();
@@ -4825,6 +4920,7 @@ function renderDashboard(root) {
       <div style="grid-column:span 8;background:linear-gradient(135deg, #2A1F18 0%, #15100b 80%);color:white;padding:22px 26px;border-radius:18px;position:relative;overflow:hidden;">
         <div style="position:relative;z-index:1;">
           <div style="font-size:13px;color:rgba(255,255,255,0.6);">รายได้คาดการณ์ทั้งปี · ปี ${yr + 543}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px;">เงินสดรับแล้ว + ค้างเก็บ · รวมมัดจำงานล่วงหน้า</div>
           <div style="display:flex;align-items:baseline;gap:10px;margin-top:2px;">
             <span style="font-family:'Inter',sans-serif;font-weight:800;font-size:42px;line-height:1;letter-spacing:-0.02em;">${fmtTHB(ytdForecast)}</span>
             <span style="color:#6EE0A7;font-size:12.5px;font-weight:700;">${ytdJobsCount} งาน · เฉลี่ย ${fmtTHB(ytdAvg)}/งาน</span>
@@ -5422,7 +5518,7 @@ function openDayDetail(iso) {
 // PAGE · JOBS (read-only · create modal in Sprint 2)
 // ===================================================================
 
-let JOBS_TAB = 'wait_shoot';
+let JOBS_TAB = 'all';  // v1.0.91 · default = ทั้งหมด (parity มือถือ · เดิม wait_shoot ทำงานถ่ายแล้วเหมือนหาย)
 let JOBS_VIEW = 'list';  // 'list' | 'card'
 
 function renderJobs(root) {
@@ -5432,6 +5528,7 @@ function renderJobs(root) {
     return remain > 0 && getStageFromJobStatus(j.jobStatus) !== 'closed';
   };
   const counts = {
+    all: JOBS.length,  // v1.0.91 · ทั้งหมด
     wait_shoot: JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_shoot').length,
     wait_deliver: JOBS.filter(j => getStageFromJobStatus(j.jobStatus) === 'wait_deliver').length,
     unpaid: JOBS.filter(isUnpaid).length,
@@ -5450,6 +5547,7 @@ function renderJobs(root) {
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
       <div class="tab-row" style="margin-bottom:0;">
+        <button class="tab-btn ${JOBS_TAB === 'all' ? 'active' : ''}" onclick="setJobsTab('all')">ทั้งหมด <span class="count">${counts.all}</span></button>
         <button class="tab-btn ${JOBS_TAB === 'wait_shoot' ? 'active' : ''}" onclick="setJobsTab('wait_shoot')">รอถ่าย <span class="count">${counts.wait_shoot}</span></button>
         <button class="tab-btn ${JOBS_TAB === 'wait_deliver' ? 'active' : ''}" onclick="setJobsTab('wait_deliver')">รอส่งงาน <span class="count">${counts.wait_deliver}</span></button>
         <button class="tab-btn ${JOBS_TAB === 'unpaid' ? 'active' : ''}" onclick="setJobsTab('unpaid')" ${counts.unpaid > 0 ? 'style="color:#b91c1c;"' : ''}>💸 ค้างชำระ <span class="count">${counts.unpaid}</span></button>
@@ -5475,6 +5573,10 @@ function setJobsView(v) { JOBS_VIEW = v; renderJobs(document.getElementById('mai
 
 function _filteredJobs() {
   const isClosed = (JOBS_TAB === 'closed');
+  // v1.0.91 · ทั้งหมด · ทุกงานของปี เรียงตามวันงาน เก่า→ใหม่ (รวมงานถ่ายแล้ว/ปิดแล้ว/ยกเลิก)
+  if (JOBS_TAB === 'all') {
+    return JOBS.slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  }
   // FIX H7 · รองรับ tab "unpaid"
   if (JOBS_TAB === 'unpaid') {
     return JOBS.filter(j => {
@@ -6195,6 +6297,7 @@ function renderReportsOverview() {
             <span style="font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(30px, 2.65vw, 48px);line-height:1;letter-spacing:-0.02em;background:linear-gradient(135deg,#2A1F18,#B85A3D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${(Number(income) || 0).toLocaleString('en-US')}</span>
           </div>
           <div style="font-size:13px;color:var(--ink-mute);margin-top:8px;font-weight:500;">${yJobs.length} งาน · เฉลี่ย ${fmtTHB(avgJob)} ต่องาน · ปิดดีล ${closeRate}%</div>
+          <div style="font-size:11.5px;color:var(--ink-mute);margin-top:3px;opacity:.85;">มูลค่างานของปีนี้ · ไม่รวมมัดจำงานปีหน้า</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:12px;padding:14px 16px;border:1px solid rgba(255,255,255,0.9);">
@@ -8116,7 +8219,7 @@ let LISTS_TAGS_TAB = 'jobtypes'; // 'jobtypes' | 'jobstatuses' | 'sources' | 'ex
 const I18N = {
   th: {
     // App chrome
-    'app.tagline':           'STUDIO · DESKTOP',
+    'app.tagline':           'Studio Suite',
     'app.syncReady':         'พร้อม · sync แล้ว',
     'app.syncing':           'กำลัง sync...',
     'app.syncError':         'sync ไม่สำเร็จ',
@@ -8286,7 +8389,7 @@ const I18N = {
   },
 
   en: {
-    'app.tagline':           'STUDIO · DESKTOP',
+    'app.tagline':           'Studio Suite',
     'app.syncReady':         'Ready · synced',
     'app.syncing':           'Syncing...',
     'app.syncError':         'Sync failed',

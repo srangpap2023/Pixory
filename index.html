@@ -5609,6 +5609,7 @@
         <div style="display:flex; align-items:flex-start; gap:8px;">
           <div style="flex:1; min-width:0;">
             <div class="home-hero-label" id="home-hero-label">รายได้รวม (ปี 2026)</div>
+            <div class="home-hero-label" style="font-size:10.5px;opacity:.6;margin-top:1px;">เงินสดรับแล้ว + ค้างเก็บ · รวมมัดจำงานล่วงหน้า</div>
             <div style="display:flex; align-items:center; gap:10px; margin-top:4px; flex-wrap:wrap;">
               <div class="home-hero-amount" id="home-hero-amount">฿0</div>
               <div class="home-hero-delta" id="home-hero-delta">—</div>
@@ -9077,7 +9078,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.21';
+const PIXORY_VERSION = '2.9.22';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -9088,6 +9089,14 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.22': {
+    date: '2026-06-13',
+    title: 'อธิบายตัวเลขรายได้ชัดขึ้น',
+    subtitle: 'กันสับสน "คาดการณ์" กับ "รายรับรวม"',
+    items: [
+      { icon: '💡', title: 'บอกชัดว่าแต่ละตัวเลขนับอะไร', desc: 'หน้าหลัก "รายได้คาดการณ์" = เงินสดรับแล้ว + ค้างเก็บ (รวมมัดจำงานล่วงหน้า) · หน้าสรุป "รายรับรวม" = มูลค่างานของปีนี้เท่านั้น — สองเลขถูกทั้งคู่ แค่วัดคนละมุม' }
+    ]
+  },
   '2.9.21': {
     date: '2026-06-13',
     title: '🧡 สีแบรนด์กลับเป็นส้มสีโลโก้ทั้งแอป',
@@ -26010,6 +26019,7 @@ function renderDashboard() {
   const hDeltaCls = incomeDelta > 0 ? '' : (incomeDelta < 0 ? 'down' : 'neutral');
   html += '<div class="home-hero" style="margin:4px 16px 12px;">' +
     '<div class="home-hero-label">รายได้รวมปี ' + (yr + 543) + '</div>' +
+    '<div class="home-hero-label" style="font-size:10.5px;opacity:.6;margin-top:1px;">มูลค่างานของปีนี้ · ไม่รวมมัดจำงานปีหน้า</div>' +
     '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:2px;">' +
       '<div class="home-hero-amount">' + incomeStr + '</div>' +
       ((incomeDelta !== 0 || prevIncome > 0) ? '<div class="home-hero-delta ' + hDeltaCls + '">' + deltaIcon + ' ' + Math.abs(incomeDelta) + '%</div>' : '') +
