@@ -912,7 +912,7 @@
     <div class="panel">
       <div class="panel-title">ℹ เกี่ยวกับ</div>
       <div style="font-size:12px; color: var(--muted); line-height:1.6;">
-        Pixory Admin Monitor · v3.6<br>
+        Pixory Admin Monitor · v3.7<br>
         5 แท็บ · champagne gold · growth monitors<br><br>
         • Realtime sync + polling 10s<br>
         • Live notification toast + sound<br>
@@ -1310,6 +1310,18 @@ async function loadInbox() {
 
 function _chatUserOf(uid) { return (_lastUsers || []).find(u => u.userId === uid) || null; }
 
+// v3.7 SEC · ตัวตนจริงของผู้ใช้แชท · กันการ "เลียนชื่อ"
+//   ชื่อร้าน (shop) ผู้ใช้ตั้งเองได้ = ปลอมได้ (เคสจริง: ตั้งชื่อร้านเป็นไอดีไลน์แอดมิน ทำให้ดูเหมือนแอดมินเอง)
+//   → โชว์ "อีเมลบัญชีจริง" (จาก auth · ปลอมเป็นคนอื่นไม่ได้) กำกับเสมอเมื่อมีการตั้งชื่อร้านที่ต่างจากอีเมล
+function _chatIdentity(uid) {
+  const u = _chatUserOf(uid);
+  const email = (u && u.email) || '';
+  const shop = (u && u.shop) || '';
+  const name = shop || email || (String(uid).slice(0, 8) + '…');
+  const verify = (shop && email && shop !== email) ? email : '';  // มีชื่อตั้งเอง → กำกับอีเมลจริง
+  return { name, email, shop, verify, uid };
+}
+
 function _convs() {
   const map = {};
   _chatMsgs.forEach(m => { (map[m.user_id] = map[m.user_id] || []).push(m); });
@@ -1336,14 +1348,19 @@ function renderInbox() {
     return;
   }
   list.innerHTML = convs.map(c => {
-    const u = _chatUserOf(c.uid);
-    const name = (u && (u.shop || u.email)) || (c.uid.slice(0, 8) + '…');
+    const id = _chatIdentity(c.uid);
+    const name = id.name;
     const badge = (window._BADGES && window._BADGES[c.uid]) ? ' 🏅' : '';
     const prefix = c.last.sender === 'admin' ? 'คุณ: ' : '';
+    // v3.7 SEC · ถ้าผู้ใช้ตั้งชื่อร้านเอง → โชว์อีเมลบัญชีจริงกำกับ (กันเลียนชื่อ)
+    const verifyLine = id.verify
+      ? `<div style="font-size:10.5px; color:#c98; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px;">🔑 ${escapeHtml(id.verify)}</div>`
+      : '';
     return `<div class="user-row" onclick="openThread('${c.uid}')">
       <div class="conv-av">${escapeHtml((name || '?').charAt(0).toUpperCase())}</div>
       <div style="flex:1; min-width:0;">
         <div style="font-size:13px; font-weight:700; color:#F2E0BA; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(name)}${badge}</div>
+        ${verifyLine}
         <div style="font-size:11.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">${escapeHtml(prefix + c.last.body)}</div>
       </div>
       <div style="text-align:right; flex-shrink:0;">
@@ -1447,10 +1464,11 @@ function _chatSubscribe() {
         renderInbox();
         updateInboxBadge();
         if (m.sender === 'user' && _chatThreadUser !== m.user_id) {
-          const u = _chatUserOf(m.user_id);
-          const name = (u && (u.shop || u.email)) || 'ผู้ใช้';
+          const id = _chatIdentity(m.user_id);
           // v3.3 SEC · escape ทั้ง name + body — m.body เป็นข้อความที่ผู้ใช้พิมพ์เอง (กัน stored XSS เข้า session แอดมิน)
-          showToast({ type: 'signup', title: '💬 ' + escapeHtml(name), body: escapeHtml(m.body.slice(0, 120)), onClick: () => { switchTab('inbox'); openThread(m.user_id); } });
+          // v3.7 SEC · ถ้าตั้งชื่อร้านเอง → กำกับอีเมลจริงในหัวเรื่อง (กันเลียนชื่อแอดมิน/คนอื่น)
+          const toastBody = (id.verify ? '🔑 ' + escapeHtml(id.verify) + '\n' : '') + escapeHtml(m.body.slice(0, 120));
+          showToast({ type: 'signup', title: '💬 ' + escapeHtml(id.name), body: toastBody, onClick: () => { switchTab('inbox'); openThread(m.user_id); } });
         }
       })
       .subscribe();
@@ -1560,7 +1578,7 @@ async function loadDashboard(showLoading) {
       if (!pe) { window._PRESENCE = {}; (pr || []).forEach(p => { window._PRESENCE[p.user_id] = new Date(p.last_seen).getTime(); }); }
     } catch (e) { /* ตารางยังไม่มี · ใช้ updated_at ตามเดิม */ }
     _lastUsers = processRows(Array.from(window._rawRowsCache.values()));
-    renderAll(_lastUsers);
+    renderAll(_lastUsers, { notify: true });   // v3.7 · fetch จริง → เช็คแจ้งเตือนได้
   } catch (e) {
     document.getElementById('activity-feed').innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">Error</div><div style="font-size:11px;margin-top:6px;">${escapeHtml(e.message || e)}</div></div>`;
   }
@@ -1676,14 +1694,18 @@ function processRows(rows) {
 }
 
 // ============ RENDER (all views) ============
-function renderAll(users) {
+function renderAll(users, opts) {
   // v3.1 · กันพังเป็นโดมิโน: render ตัวใด error ห้ามลากตัวอื่นพังตาม
   //        (บทเรียนจริง: renderGrowth error ทำ detectAndNotify ไม่รัน → แจ้งเตือนสมัครใหม่/ใบเสนอหายทั้งระบบ)
   try { renderHome(users); } catch (e) { console.error('renderHome:', e); }
   try { renderUsersView(users); } catch (e) { console.error('renderUsersView:', e); }
   try { renderInsights(users); } catch (e) { console.error('renderInsights:', e); }
   try { renderGrowth(users); } catch (e) { console.error('renderGrowth:', e); }
-  try { detectAndNotify(users); } catch (e) { console.error('detectAndNotify:', e); }
+  // v3.7 · FIX แจ้งเตือนเด้งรัว · detectAndNotify ยิง "เฉพาะ" ตอน fetch ข้อมูลจริง (opts.notify)
+  //   เดิม: tick ทุก 5 วิ + toggle redact เรียก renderAll → detectAndNotify ทุกครั้ง = เด้งซ้ำ
+  if (opts && opts.notify) {
+    try { detectAndNotify(users); } catch (e) { console.error('detectAndNotify:', e); }
+  }
 }
 
 // ============ v3.0 · GROWTH MONITORS (ใหม่) ============
