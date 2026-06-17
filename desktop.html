@@ -2753,13 +2753,15 @@
   html[data-theme="dark"] .danger-zone-inner-title,
   html[data-theme="dark"] .danger-zone-inner-desc { color: var(--ink); }
 
-/* ===== v-LUXURY LOGIN (desktop · dark-gold · style only) ===== */
-html body .auth-overlay{background:radial-gradient(1000px 700px at 50% -5%,#16130e,#070605 72%) !important;color:#f3eee4 !important;}
-html body .auth-overlay .auth-brand-header{color:#ecd49e !important;}
-html body .auth-overlay .auth-brand-header svg{width:90px !important;height:90px !important;color:#ecd49e !important;}
-html body .auth-overlay .auth-wordmark{color:#fcf7ec !important;text-transform:uppercase !important;letter-spacing:12px !important;font-weight:400 !important;}
+/* ===== v-LUXURY LOGIN (desktop split-screen · style only) ===== */
+html body .auth-overlay{background:#070605 !important;color:#f3eee4 !important;}
+html body .auth-overlay.show{display:grid !important;grid-template-columns:46% 54% !important;align-items:stretch !important;min-height:100vh !important;padding:0 !important;}
+html body .auth-overlay .auth-brand-header{display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;gap:34px !important;margin:0 !important;padding:50px 46px !important;color:#ecd49e !important;border-right:1px solid rgba(201,168,106,.18) !important;background:radial-gradient(560px 470px at 50% 38%,#1b170f,#070605 74%) !important;}
+html body .auth-overlay .auth-brand-header svg{width:104px !important;height:104px !important;color:#ecd49e !important;}
+html body .auth-overlay .auth-wordmark{color:#fcf7ec !important;text-transform:uppercase !important;letter-spacing:14px !important;font-weight:400 !important;font-size:40px !important;}
 html body .auth-overlay .auth-tagline{color:#c9a86a !important;text-transform:uppercase !important;letter-spacing:3px !important;font-size:11px !important;opacity:.9 !important;}
-html body .auth-overlay .auth-card{background:transparent !important;box-shadow:none !important;border:none !important;}
+html body .auth-overlay .auth-feats{display:flex !important;flex-direction:column !important;gap:13px !important;color:#9a9183 !important;font-size:13.5px !important;font-weight:300 !important;text-align:left !important;max-width:340px !important;}
+html body .auth-overlay .auth-card{display:flex !important;flex-direction:column !important;justify-content:center !important;max-width:none !important;width:auto !important;margin:0 !important;padding:48px 72px !important;background:#080706 !important;box-shadow:none !important;border:none !important;border-radius:0 !important;overflow-y:auto !important;}
 html body .auth-overlay .auth-title{color:#fcf7ec !important;}
 html body .auth-overlay .auth-sub{color:#9a9183 !important;}
 html body .auth-overlay .auth-field label{color:#c9a86a !important;letter-spacing:1.4px !important;text-transform:uppercase !important;font-size:11px !important;}
@@ -2770,6 +2772,8 @@ html body .auth-overlay .auth-btn{background:linear-gradient(180deg,#ecd49e,#c9a
 html body .auth-overlay .auth-links{color:#9a9183 !important;}
 html body .auth-overlay .auth-links a{color:#ecd49e !important;}
 html body .auth-overlay .auth-divider{background:rgba(201,168,106,.2) !important;}
+html body .auth-overlay .auth-msg{color:#f3eee4 !important;}
+@media(max-width:860px){html body .auth-overlay.show{grid-template-columns:1fr !important;min-height:0 !important;}html body .auth-overlay .auth-brand-header{border-right:none !important;border-bottom:1px solid rgba(201,168,106,.18) !important;padding:34px !important;gap:20px !important;}html body .auth-overlay .auth-brand-header svg{width:74px !important;height:74px !important;}html body .auth-overlay .auth-wordmark{font-size:30px !important;letter-spacing:10px !important;}html body .auth-overlay .auth-feats{display:none !important;}html body .auth-overlay .auth-card{padding:34px !important;}}
 /* ===== /LUXURY LOGIN ===== */
 </style>
 </head>
@@ -2800,6 +2804,11 @@ html body .auth-overlay .auth-divider{background:rgba(201,168,106,.2) !important
     </svg>
     <div class="auth-wordmark">pixory</div>
     <div class="auth-tagline">Studio in your pocket</div>
+    <div class="auth-feats">
+      <div>✓ จัดการงาน · ใบเสนอราคา · ใบแจ้งหนี้ ครบในที่เดียว</div>
+      <div>✓ รายรับ-รายจ่าย + ภาษีอัตโนมัติ</div>
+      <div>✓ เข้ารหัส · ปลอดภัยระดับธนาคาร</div>
+    </div>
   </div>
 
   <div class="auth-card">
@@ -3056,7 +3065,7 @@ html body .auth-overlay .auth-divider{background:rgba(201,168,106,.2) !important
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.99';
+const PIXORY_DESKTOP_VERSION = '1.1.0';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
