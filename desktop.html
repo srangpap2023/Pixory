@@ -3108,7 +3108,7 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.5';
+const PIXORY_DESKTOP_VERSION = '1.1.6';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -3990,7 +3990,9 @@ async function doSignup() {
   try {
     const { data, error } = await SUPABASE.auth.signUp({
       email, password: pw,
-      options: { data: {
+      options: {
+        emailRedirectTo: 'https://srangpap2023.github.io/Pixory/desktop.html',  // v1.1.6 · บังคับเด้งเข้าแอปเดสก์ (กัน redirect ไป root → 404)
+        data: {
         studio_name: studio,
         signup_phone: phone,
         signup_line: line,

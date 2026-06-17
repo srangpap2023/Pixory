@@ -9106,7 +9106,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.26';
+const PIXORY_VERSION = '2.9.27';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -12701,7 +12701,9 @@ async function doSignup() {
   try {
     const { data, error } = await SUPABASE.auth.signUp({
       email, password: pw,
-      options: { data: {
+      options: {
+        emailRedirectTo: 'https://srangpap2023.github.io/Pixory/',  // v2.9.27 · บังคับเด้งเข้าแอป (กัน redirect ไป root → 404)
+        data: {
         studio_name: studio,
         signup_phone: phone,
         signup_line: line,
