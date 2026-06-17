@@ -215,6 +215,53 @@
   #screen-wizard .wiz-car-dot.active { background:#c9a86a !important; }
   #screen-wizard .form-group .req { color:#ecd49e !important; }
 
+  /* ===== v2.9.27 · ธีมดำ-ทอง รอบ1 · accent ส้ม→ทอง (หน้าหลัก/แดชบอร์ด/เมนูล่าง) · ไม่แตะเอกสาร ===== */
+  body.luxe-theme .header .back,
+  body.luxe-theme .icon-btn,
+  body.luxe-theme .kpi.income .value,
+  body.luxe-theme .bottom-nav .tab.active,
+  body.luxe-theme .pdb-kpi-cell.profit .val,
+  body.luxe-theme .pdb-section-head .total,
+  body.luxe-theme .pdb-top5 .val,
+  body.luxe-theme .shop-hero-kicker,
+  body.luxe-theme .shop-progress-text { color:#ecd49e !important; }
+  body.luxe-theme .dash-tab.active { color:#F0E6D2 !important; border-bottom-color:#c9a86a !important; }
+  body.luxe-theme .pill.q-converted { background:rgba(201,168,106,.18) !important; color:#ecd49e !important; }
+
+  /* ===== v2.9.27 · ธีมดำ-ทอง รอบ2 · เก็บ accent ส้ม→ทอง ทั่วแอป (luxe · งาน/เงิน/ภาษี/ตั้งค่า/ปุ่ม+) · ไม่แตะเอกสาร ===== */
+  /* ข้อความ/accent → ทองสว่าง */
+  body.luxe-theme .pit-bracket-row, body.luxe-theme .pit-summary-line, body.luxe-theme .pit-compare-title,
+  body.luxe-theme .pit-cc-label, body.luxe-theme .pit-compare-hint, body.luxe-theme .pit-disclaimer,
+  body.luxe-theme .pit-info-hero, body.luxe-theme .pit-info-note, body.luxe-theme .pit-ded-chev,
+  body.luxe-theme .pit-ded-hint, body.luxe-theme .bday-avatar, body.luxe-theme .bday-days,
+  body.luxe-theme .cjm-btn.forfeit, body.luxe-theme .section-title a, body.luxe-theme .job-row .price,
+  body.luxe-theme .notif-group-title, body.luxe-theme .pref-btn, body.luxe-theme .add-tile,
+  body.luxe-theme #screen-settings-notif .notif-group-title,
+  body.luxe-theme #screen-settings-notif .balance-chip:hover { color:#ecd49e !important; }
+  /* ปุ่ม + (FAB) + ปุ่ม gradient อื่น → ทอง */
+  body.luxe-theme .bottom-nav .tab.fab { background:linear-gradient(180deg,#ecd49e,#c9a86a) !important; color:#241902 !important; box-shadow:0 0 0 4px rgba(201,168,106,.22),0 8px 22px rgba(201,168,106,.4) !important; }
+  body.luxe-theme .pit-export-btn, body.luxe-theme .notif-toggle-md.on,
+  body.luxe-theme .notes-chip.active, body.luxe-theme .auth-card .genre-chip.active { background:linear-gradient(135deg,#ecd49e,#c9a86a) !important; color:#241902 !important; border-color:transparent !important; }
+  body.luxe-theme .notif-toggle-mini.on { background:#c9a86a !important; }
+  /* เส้นขอบ/พื้น rgba ส้ม → ทอง */
+  body.luxe-theme .chip.team-add { color:#ecd49e !important; border-color:#c9a86a !important; background:rgba(201,168,106,.10) !important; }
+  body.luxe-theme .pit-mode-btn.active, body.luxe-theme .pit-final, body.luxe-theme .pit-deductions-summary,
+  body.luxe-theme .team-add-form, body.luxe-theme .add-tile:hover { border-color:#c9a86a !important; }
+  body.luxe-theme .pit-brackets { border-left-color:#c9a86a !important; background:rgba(201,168,106,.10) !important; }
+  body.luxe-theme .team-final-box, body.luxe-theme .team-warn-banner { border-left-color:#c9a86a !important; background:rgba(201,168,106,.10) !important; }
+  body.luxe-theme .msum, body.luxe-theme .pit-compare-card, body.luxe-theme .cjm-box,
+  body.luxe-theme .pref-stepper, body.luxe-theme .lt-tabs-mobile,
+  body.luxe-theme #screen-settings-notif .pref-stepper { border-color:rgba(201,168,106,.22) !important; }
+  body.luxe-theme .cjm-btn.forfeit, body.luxe-theme .bday-avatar, body.luxe-theme .add-tile { background:rgba(201,168,106,.10) !important; }
+  body.luxe-theme .pill.team-warn { background:rgba(201,168,106,.18) !important; }
+  body.luxe-theme .auth-card .genre-chip:hover { background:rgba(201,168,106,.12) !important; border-color:#c9a86a !important; color:#fcf7ec !important; }
+
+  /* ===== v2.9.27 · ธีมดำ-ทอง รอบ3 · ป้ายปี/avatar/ไอคอนเมนูล่าง → ทอง (Joe เลือกทองโทนเดียว) ===== */
+  body.luxe-theme .home-hero-year { background:rgba(201,168,106,.18) !important; color:#ecd49e !important; border-color:rgba(201,168,106,.35) !important; }
+  body.luxe-theme #home-profile-avatar { background:linear-gradient(140deg,#ecd49e,#a87f3e) !important; color:#241902 !important; }
+  body.luxe-theme .bottom-nav .tab:not(.fab) .icon svg { filter:grayscale(1) sepia(1) saturate(2.4) hue-rotate(2deg) brightness(.95) !important; opacity:.62 !important; }
+  body.luxe-theme .bottom-nav .tab.active:not(.fab) .icon svg { filter:grayscale(1) sepia(1) saturate(3.2) brightness(1.18) !important; opacity:1 !important; }
+
   .screen { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: 100px; display: none; }
   .screen.active { display: block; }
 
@@ -18527,10 +18574,10 @@ function renderHomeGoal() {
     <div onclick="goTo('settings-profile')" style="cursor:pointer; display:flex; align-items:center; gap:14px; background:rgba(28,28,34,0.85); border:1px solid rgba(255,255,255,0.10); border-radius:18px; padding:14px 16px;">
       <svg viewBox="0 0 84 84" style="width:72px;height:72px;flex-shrink:0;">
         <g transform="rotate(-90 42 42)">
-          <circle cx="42" cy="42" r="32" fill="none" stroke="rgba(107,138,240,0.16)" stroke-width="9"/>
-          <circle cx="42" cy="42" r="32" fill="none" stroke="#6b8af0" stroke-width="9" stroke-linecap="round" stroke-dasharray="${dash.toFixed(1)} ${(C - dash).toFixed(1)}"/>
+          <circle cx="42" cy="42" r="32" fill="none" stroke="rgba(201,168,106,0.16)" stroke-width="9"/>
+          <circle cx="42" cy="42" r="32" fill="none" stroke="#c9a86a" stroke-width="9" stroke-linecap="round" stroke-dasharray="${dash.toFixed(1)} ${(C - dash).toFixed(1)}"/>
         </g>
-        <text x="42" y="48" text-anchor="middle" fill="#9DB4F0" font-size="17" font-weight="800" font-family="Inter,sans-serif">${goalPct.toFixed(0)}%</text>
+        <text x="42" y="48" text-anchor="middle" fill="#ecd49e" font-size="17" font-weight="800" font-family="Inter,sans-serif">${goalPct.toFixed(0)}%</text>
       </svg>
       <div style="min-width:0;">
         <div style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:700;">🎯 เป้าหมายปี ${yr + 543}</div>
