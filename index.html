@@ -5017,6 +5017,28 @@
   .custom-summary-line .val { color: #3a2f25; font-weight: 700; }
   body.dark-theme .custom-summary-line .lbl { color: #b8b0a4; }
   body.dark-theme .custom-summary-line .val { color: #f5f0e8; }
+
+/* ===== v-LUXURY LOGIN (dark-gold theme override · style only) ===== */
+html body .auth-screen{background:radial-gradient(900px 600px at 50% -5%,#16130e,#070605 70%) !important;color:#f3eee4 !important;}
+html body .auth-screen .auth-card{background:transparent !important;box-shadow:none !important;border:none !important;}
+html body .auth-screen .auth-brand{color:#ecd49e !important;}
+html body .auth-screen .auth-brand svg{width:86px !important;height:86px !important;color:#ecd49e !important;}
+html body .auth-screen .auth-wordmark{color:#fcf7ec !important;text-transform:uppercase !important;letter-spacing:11px !important;font-weight:400 !important;}
+html body .auth-screen .auth-tagline{color:#c9a86a !important;text-transform:uppercase !important;letter-spacing:3px !important;font-size:11px !important;opacity:.9 !important;}
+html body .auth-screen .auth-panel{background:transparent !important;color:#f3eee4 !important;border:none !important;box-shadow:none !important;}
+html body .auth-screen .auth-title{color:#fcf7ec !important;}
+html body .auth-screen .auth-sub{color:#9a9183 !important;}
+html body .auth-screen .auth-field label{color:#c9a86a !important;letter-spacing:1.4px !important;text-transform:uppercase !important;font-size:11px !important;}
+html body .auth-screen .auth-field input{background:rgba(255,255,255,.04) !important;border:1px solid rgba(255,255,255,.12) !important;color:#f3eee4 !important;border-radius:13px !important;}
+html body .auth-screen .auth-field input::placeholder{color:#6f665a !important;}
+html body .auth-screen .auth-field input:focus{border-color:#c9a86a !important;background:rgba(201,168,106,.06) !important;box-shadow:0 0 0 3px rgba(201,168,106,.14) !important;}
+html body .auth-screen .auth-btn{background:linear-gradient(180deg,#ecd49e,#c9a86a) !important;color:#241902 !important;border:none !important;border-radius:13px !important;box-shadow:0 10px 26px rgba(201,168,106,.28) !important;}
+html body .auth-screen .auth-btn.secondary{background:transparent !important;color:#ecd49e !important;border:1px solid rgba(201,168,106,.4) !important;box-shadow:none !important;}
+html body .auth-screen .auth-links{color:#9a9183 !important;}
+html body .auth-screen .auth-links a{color:#ecd49e !important;}
+html body .auth-screen .auth-divider{background:rgba(201,168,106,.2) !important;}
+html body .auth-screen .auth-meta{color:#6f665a !important;}
+/* ===== /LUXURY LOGIN ===== */
 </style>
 </head>
 <body>
@@ -9084,7 +9106,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.24';
+const PIXORY_VERSION = '2.9.25';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,

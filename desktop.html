@@ -2752,6 +2752,25 @@
   html[data-theme="dark"] .danger-zone-inner { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.10); }
   html[data-theme="dark"] .danger-zone-inner-title,
   html[data-theme="dark"] .danger-zone-inner-desc { color: var(--ink); }
+
+/* ===== v-LUXURY LOGIN (desktop · dark-gold · style only) ===== */
+html body .auth-overlay{background:radial-gradient(1000px 700px at 50% -5%,#16130e,#070605 72%) !important;color:#f3eee4 !important;}
+html body .auth-overlay .auth-brand-header{color:#ecd49e !important;}
+html body .auth-overlay .auth-brand-header svg{width:90px !important;height:90px !important;color:#ecd49e !important;}
+html body .auth-overlay .auth-wordmark{color:#fcf7ec !important;text-transform:uppercase !important;letter-spacing:12px !important;font-weight:400 !important;}
+html body .auth-overlay .auth-tagline{color:#c9a86a !important;text-transform:uppercase !important;letter-spacing:3px !important;font-size:11px !important;opacity:.9 !important;}
+html body .auth-overlay .auth-card{background:transparent !important;box-shadow:none !important;border:none !important;}
+html body .auth-overlay .auth-title{color:#fcf7ec !important;}
+html body .auth-overlay .auth-sub{color:#9a9183 !important;}
+html body .auth-overlay .auth-field label{color:#c9a86a !important;letter-spacing:1.4px !important;text-transform:uppercase !important;font-size:11px !important;}
+html body .auth-overlay .auth-field input{background:rgba(255,255,255,.04) !important;border:1px solid rgba(255,255,255,.12) !important;color:#f3eee4 !important;border-radius:13px !important;}
+html body .auth-overlay .auth-field input::placeholder{color:#6f665a !important;}
+html body .auth-overlay .auth-field input:focus{border-color:#c9a86a !important;background:rgba(201,168,106,.06) !important;box-shadow:0 0 0 3px rgba(201,168,106,.14) !important;}
+html body .auth-overlay .auth-btn{background:linear-gradient(180deg,#ecd49e,#c9a86a) !important;color:#241902 !important;border:none !important;border-radius:13px !important;box-shadow:0 10px 26px rgba(201,168,106,.28) !important;}
+html body .auth-overlay .auth-links{color:#9a9183 !important;}
+html body .auth-overlay .auth-links a{color:#ecd49e !important;}
+html body .auth-overlay .auth-divider{background:rgba(201,168,106,.2) !important;}
+/* ===== /LUXURY LOGIN ===== */
 </style>
 </head>
 <body>
@@ -3037,7 +3056,7 @@
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.0.98';
+const PIXORY_DESKTOP_VERSION = '1.0.99';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
