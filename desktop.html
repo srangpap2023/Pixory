@@ -2770,7 +2770,8 @@ html body .auth-overlay .auth-wordmark{position:relative !important;z-index:2 !i
 html body .auth-overlay .auth-tagline{position:relative !important;z-index:2 !important;font-family:'JetBrains Mono',monospace !important;color:#c9a86a !important;text-transform:uppercase !important;letter-spacing:3px !important;font-size:11px !important;opacity:.95 !important;}
 html body .auth-overlay .auth-feats{position:relative !important;z-index:2 !important;display:flex !important;flex-direction:column !important;gap:13px !important;color:#8f8676 !important;font-size:13.5px !important;font-weight:300 !important;text-align:left !important;max-width:340px !important;}
 /* RIGHT · form panel */
-html body .auth-overlay .auth-card{display:flex !important;flex-direction:column !important;justify-content:center !important;max-width:none !important;width:auto !important;margin:0 !important;padding:64px 64px !important;background:#060606 !important;box-shadow:none !important;border:none !important;border-radius:0 !important;overflow-y:auto !important;}
+/* v1.1.3 · safe center · กึ่งกลางตอนพอดีจอ · แต่ชิดบน+เลื่อนได้ตอนเนื้อหายาว (หน้าสมัครสมาชิก) ไม่ให้หัว/ปุ่มหลุดขอบ */
+html body .auth-overlay .auth-card{display:flex !important;flex-direction:column !important;justify-content:safe center !important;max-width:none !important;width:auto !important;margin:0 !important;padding:64px 64px !important;background:#060606 !important;box-shadow:none !important;border:none !important;border-radius:0 !important;overflow-y:auto !important;}
 html body .auth-overlay .auth-title{font-family:'Space Grotesk',sans-serif !important;font-weight:500 !important;font-size:27px !important;color:#fcf7ec !important;}
 html body .auth-overlay .auth-sub{color:#8f8676 !important;font-weight:300 !important;}
 html body .auth-overlay .auth-field label{font-family:'JetBrains Mono',monospace !important;color:#c9a86a !important;letter-spacing:2px !important;text-transform:uppercase !important;font-size:10px !important;}
@@ -3076,7 +3077,7 @@ html body .auth-overlay .dt-genre-chip{color:#cabfa9 !important;border-color:rgb
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.2';
+const PIXORY_DESKTOP_VERSION = '1.1.3';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
