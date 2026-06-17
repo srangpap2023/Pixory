@@ -2755,7 +2755,7 @@
 
 /* ===== v-LUXURY LOGIN (desktop split-screen · style only) ===== */
 html body .auth-overlay{background:#070605 !important;color:#f3eee4 !important;}
-html body .auth-overlay.show{display:grid !important;grid-template-columns:46% 54% !important;align-items:stretch !important;min-height:100vh !important;padding:0 !important;}
+html body .auth-overlay.show{display:grid !important;grid-template-columns:46% 54% !important;grid-template-rows:1fr !important;align-items:stretch !important;height:100vh !important;min-height:100vh !important;padding:0 !important;}
 html body .auth-overlay .auth-brand-header{display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;gap:34px !important;margin:0 !important;padding:50px 46px !important;color:#ecd49e !important;border-right:1px solid rgba(201,168,106,.18) !important;background:radial-gradient(560px 470px at 50% 38%,#1b170f,#070605 74%) !important;}
 html body .auth-overlay .auth-brand-header svg{width:104px !important;height:104px !important;color:#ecd49e !important;}
 html body .auth-overlay .auth-wordmark{color:#fcf7ec !important;text-transform:uppercase !important;letter-spacing:14px !important;font-weight:400 !important;font-size:40px !important;}
@@ -3065,7 +3065,7 @@ html body .auth-overlay .auth-msg{color:#f3eee4 !important;}
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.0';
+const PIXORY_DESKTOP_VERSION = '1.1.1';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
