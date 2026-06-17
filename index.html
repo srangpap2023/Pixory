@@ -198,6 +198,23 @@
   #screen-wizard #wizard-next-btn { background:linear-gradient(135deg,#E89B7A,#D97757) !important; color:#14140F !important; border:none !important; box-shadow:0 8px 20px rgba(212,188,130,.32) !important; font-weight:800 !important; }
   #screen-wizard #wizard-back-btn { background:transparent !important; color:#F2EFE8 !important; border:1.5px solid rgba(212,188,130,.22) !important; font-weight:800 !important; }
 
+  /* ===== v2.9.27 · Wizard · ปรับเป็นโทนดำ-ทองให้คลุมโทนกับ login + เลิกกล่องเทาจาง (CSS override · ไม่แตะ logic) ===== */
+  /* เลิกกล่องขาวโปร่ง → ดำขอบทอง (บังคับทุกธีม) */
+  #screen-wizard .pixory-lockup { background:#100f0d !important; border:1px solid rgba(201,168,106,.22) !important; box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+  #screen-wizard .wiz-section { background:#100f0d !important; border:1px solid rgba(201,168,106,.18) !important; box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+  #screen-wizard .wiz-section input, #screen-wizard .wiz-section textarea { background:rgba(255,255,255,.03) !important; border:1px solid rgba(255,255,255,.10) !important; color:#f3eee4 !important; border-radius:12px !important; }
+  #screen-wizard .wiz-section textarea { min-height:120px !important; line-height:1.7 !important; }
+  /* สีทองแทนส้ม */
+  #screen-wizard .wiz-dot.active, #screen-wizard .wiz-dot.done { background:linear-gradient(90deg,#ecd49e,#c9a86a) !important; }
+  #screen-wizard #wizard-next-btn { background:linear-gradient(180deg,#ecd49e,#c9a86a) !important; color:#241902 !important; box-shadow:0 8px 20px rgba(201,168,106,.30) !important; }
+  #screen-wizard .wiz-done-pri { background:linear-gradient(180deg,#ecd49e,#c9a86a) !important; color:#241902 !important; box-shadow:0 8px 22px rgba(201,168,106,.30) !important; }
+  #screen-wizard .pixory-icon { color:#ecd49e !important; }
+  #screen-wizard .wiz-hero-icon { background:linear-gradient(160deg,rgba(236,212,158,.16),rgba(201,168,106,.04)) !important; box-shadow:0 8px 22px rgba(0,0,0,.5), inset 0 0 0 1.5px rgba(201,168,106,.45) !important; color:#F2EFE8 !important; }
+  #screen-wizard .wiz-tip { color:#cdbf9c !important; }
+  #screen-wizard .wiz-pp-solution strong, #screen-wizard .wiz-mf-quote strong, #screen-wizard .wiz-mf-em, #screen-wizard .wiz-pp-tagline { color:#ecd49e !important; }
+  #screen-wizard .wiz-car-dot.active { background:#c9a86a !important; }
+  #screen-wizard .form-group .req { color:#ecd49e !important; }
+
   .screen { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: 100px; display: none; }
   .screen.active { display: block; }
 
