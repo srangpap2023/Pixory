@@ -1300,8 +1300,8 @@
     border-radius: var(--r-md);
     margin-bottom: var(--gap-4);
     width: fit-content;
-    /* v1.0.45 · ชิดซ้ายเสมอ — override .main>* { margin:auto } ที่จัดกึ่งกลาง */
-    margin-left: 0; margin-right: auto;
+    /* v1.1.5 · จัดกึ่งกลาง (เดิม v1.0.45 ชิดซ้าย) */
+    margin-left: auto; margin-right: auto;
     border: 1px solid var(--border);
   }
   .tab-btn {
@@ -2785,7 +2785,16 @@ html body .auth-overlay .auth-links a{color:#ecd49e !important;}
 html body .auth-overlay .auth-divider{background:rgba(201,168,106,.2) !important;}
 html body .auth-overlay .auth-msg{color:#f3eee4 !important;}
 /* signup genre chips · อ่านออกบนพื้นดำ */
-html body .auth-overlay .dt-genre-chip{color:#cabfa9 !important;border-color:rgba(201,168,106,.25) !important;background:rgba(255,255,255,.03) !important;}
+/* v1.1.5 · หน้าสมัคร (genre chips + อื่นๆ + ยินยอม) ให้เข้าธีมดำ-ทอง ไม่เป็นกล่องขาว */
+html body .auth-overlay #dt-signup-genre-chips{background:rgba(255,255,255,.02) !important;border:1px solid rgba(201,168,106,.18) !important;}
+html body .auth-overlay .dt-genre-chip{background:rgba(255,255,255,.04) !important;border:1px solid rgba(201,168,106,.22) !important;color:#cabfa9 !important;}
+html body .auth-overlay .dt-genre-chip:hover{background:rgba(201,168,106,.12) !important;border-color:#c9a86a !important;color:#fcf7ec !important;}
+html body .auth-overlay .dt-genre-chip.active{background:linear-gradient(180deg,#ecd49e,#c9a86a) !important;color:#241902 !important;border-color:transparent !important;box-shadow:0 3px 10px rgba(201,168,106,.3) !important;}
+html body .auth-overlay #dt-signup-genre-other{background:rgba(255,255,255,.03) !important;border:1px solid rgba(255,255,255,.12) !important;color:#f3eee4 !important;}
+html body .auth-overlay #dt-signup-genre-other:focus{border-color:#c9a86a !important;box-shadow:0 0 0 3px rgba(201,168,106,.14) !important;}
+html body .auth-overlay .dt-auth-consent{background:rgba(201,168,106,.06) !important;border:1px solid rgba(201,168,106,.25) !important;}
+html body .auth-overlay .dt-auth-consent label{color:#cdbf9c !important;}
+html body .auth-overlay .dt-auth-consent a{color:#ecd49e !important;}
 @media(max-width:860px){html body .auth-overlay.show{grid-template-columns:1fr !important;min-height:0 !important;overflow-y:auto !important;}html body .auth-overlay .auth-brand-header{border-right:none !important;border-bottom:1px solid rgba(201,168,106,.18) !important;padding:40px 34px !important;gap:24px !important;}html body .auth-overlay .auth-wordmark{font-size:32px !important;letter-spacing:10px !important;}html body .auth-overlay .auth-feats{display:none !important;}html body .auth-overlay .auth-card{padding:40px 30px !important;}}
 /* v1.1.5 · brand eyebrow บนหัวฟอร์ม (option A) + จำกัดความกว้างฟอร์ม ~360 (กันช่องกรอกใหญ่เกิน) */
 html body .auth-overlay .auth-pane{max-width:360px !important;width:100% !important;margin-left:auto !important;margin-right:auto !important;}
