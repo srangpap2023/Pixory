@@ -9106,7 +9106,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.25';
+const PIXORY_VERSION = '2.9.26';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -27157,6 +27157,32 @@ function updateAccountUI() {
   }
 }
 
+// v2.9.26 · จับ callback จากลิงก์ยืนยันอีเมล · เก็บ hash ตั้งแต่ต้นก่อน supabase ล้าง
+//   → ลงจอ login พร้อมข้อความเสมอ (กันหน้าโล่ง/สับสนตอนลิงก์หมดอายุหรือถูกสแกนไปก่อน)
+var _PIXORY_EMAIL_CB = (function(){ try { return window.location.hash || ''; } catch(e){ return ''; } })();
+function handleEmailCallbackHash() {
+  try {
+    var h = _PIXORY_EMAIL_CB || '';
+    if (h.length < 2) return;
+    var p = new URLSearchParams(h.replace(/^#/, ''));
+    var err = p.get('error') || p.get('error_code');
+    var typ = p.get('type');
+    if (err) {
+      try { hideAuthScreens(); } catch(e){}
+      showAuthScreen('login');
+      var desc = (p.get('error_description') || '') + ' ' + (p.get('error_code') || '');
+      if (/expired|invalid|used/i.test(desc)) {
+        setAuthSuccess('login', '✓ ถ้ายืนยันอีเมลแล้ว เข้าสู่ระบบได้เลย — ลิงก์ยืนยันใช้ได้ครั้งเดียว (ถ้ายังไม่ได้ยืนยัน สมัครใหม่เพื่อรับลิงก์ใหม่)');
+      } else {
+        setAuthError('login', 'ลิงก์ยืนยันไม่ถูกต้องหรือหมดอายุ · ลองสมัคร/ขอลิงก์ใหม่อีกครั้ง');
+      }
+      try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch(e){}
+    } else if (typ === 'signup' && p.get('access_token')) {
+      try { toast('✓ ยืนยันอีเมลสำเร็จ · ยินดีต้อนรับ!', 'info'); } catch(e){}
+    }
+  } catch(e) { console.warn('[auth] emailCb', e); }
+}
+
 // Wait for Supabase to load (v2.5.82: ตัดเงื่อนไข Chart.js ออก — lib ถูกลบแล้ว ไม่มีใครใช้)
 let _bootTries = 0;
 function bootstrap() {
@@ -27168,9 +27194,10 @@ function bootstrap() {
   }
   // init() มี fallback anonymous อยู่แล้วถ้า initSupabase() ล้มเหลว
   try {
-    init().catch(function (e) {
+    init().then(function(){ try { handleEmailCallbackHash(); } catch(_){} }).catch(function (e) {
       console.error('[boot] init() rejected:', e);
       try { if (typeof window.hideBootSplash === 'function') window.hideBootSplash(); } catch (_) {}
+      try { handleEmailCallbackHash(); } catch(_){}
     });
   } catch (e) {
     console.error('[boot] init() threw:', e);
