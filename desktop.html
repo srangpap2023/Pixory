@@ -2775,7 +2775,7 @@ html body .auth-overlay .auth-feats{position:relative !important;z-index:2 !impo
 html body .auth-overlay .auth-card{display:flex !important;flex-direction:column !important;justify-content:safe center !important;max-width:none !important;width:auto !important;margin:0 !important;padding:clamp(22px,3.6vh,64px) clamp(30px,5vw,64px) !important;background:#060606 !important;box-shadow:none !important;border:none !important;border-radius:0 !important;overflow-y:auto !important;}
 html body .auth-overlay .auth-title{font-family:'Space Grotesk',sans-serif !important;font-weight:500 !important;font-size:27px !important;color:#fcf7ec !important;}
 html body .auth-overlay .auth-sub{color:#8f8676 !important;font-weight:300 !important;}
-html body .auth-overlay .auth-field label{font-family:'JetBrains Mono',monospace !important;color:#c9a86a !important;letter-spacing:2px !important;text-transform:uppercase !important;font-size:10px !important;}
+html body .auth-overlay .auth-field label{font-family:'JetBrains Mono',monospace !important;color:#c9a86a !important;letter-spacing:0.5px !important;text-transform:uppercase !important;font-size:13px !important;}
 html body .auth-overlay .auth-field input{background:rgba(255,255,255,.03) !important;border:1px solid rgba(255,255,255,.09) !important;color:#f3eee4 !important;border-radius:11px !important;padding:11px 14px !important;font-size:13.5px !important;}
 html body .auth-overlay .auth-field input::placeholder{color:#5c554a !important;}
 html body .auth-overlay .auth-field input:focus{border-color:#c9a86a !important;background:rgba(201,168,106,.06) !important;box-shadow:0 0 0 3px rgba(201,168,106,.13) !important;}
@@ -2973,6 +2973,21 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
       <div class="auth-divider"></div>
       <div class="auth-links">
         <a onclick="switchAuthPane('login')">‹ กลับหน้าเข้าสู่ระบบ</a>
+      </div>
+    </div>
+
+    <!-- v1.1.6 · หน้า "สมัครเรียบร้อย · ยืนยันอีเมล" (เด้งมาหลังกดสมัครสำเร็จ) -->
+    <div id="auth-pane-verifysent" class="auth-pane">
+      <div style="text-align:center;">
+        <div style="font-size:46px;line-height:1;margin-bottom:12px;">📬</div>
+        <h2 class="auth-title" style="text-align:center;">สมัครเรียบร้อย!</h2>
+        <p class="auth-sub" style="text-align:center;">เราส่งลิงก์ยืนยันไปที่<br><b id="verifysent-email" style="color:#ecd49e;">อีเมลของคุณ</b></p>
+        <div style="text-align:left;background:rgba(201,168,106,.06);border:1px solid rgba(201,168,106,.22);border-radius:12px;padding:14px 16px;margin:18px 0;font-size:13.5px;line-height:1.95;color:#cdbf9c;">
+          1. เปิดอีเมล แล้วกดปุ่ม <b style="color:#ecd49e;">ยืนยันอีเมล</b><br>
+          2. ระบบจะพาเข้าแอปให้อัตโนมัติ<br>
+          3. ไม่เจอเมล? เช็คโฟลเดอร์ <b style="color:#ecd49e;">สแปม / จดหมายขยะ</b>
+        </div>
+        <button class="auth-btn" onclick="switchAuthPane('login')">ไปหน้าเข้าสู่ระบบ</button>
       </div>
     </div>
   </div>
@@ -4027,8 +4042,9 @@ async function doSignup() {
       };
       await finishAuthAndStart();
     } else if (data && data.user && !data.session) {
-      // Email confirmation required
-      setAuthMsg('signup', 'success', '✓ สมัครสำเร็จ! กรุณาตรวจอีเมลของคุณ · กดลิงก์ยืนยัน แล้วกลับมาเข้าสู่ระบบ');
+      // Email confirmation required → เด้งไปหน้า "สมัครเรียบร้อย · เช็คอีเมล" เต็มจอ (v1.1.6)
+      try { var _ve = document.getElementById('verifysent-email'); if (_ve) _ve.textContent = email; } catch(e){}
+      switchAuthPane('verifysent');
       btn.disabled = false; btn.textContent = 'สมัครใหม่';
     } else {
       setAuthMsg('signup', 'error', 'สมัครไม่สำเร็จ · ลองอีกครั้ง');
