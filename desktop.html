@@ -18,6 +18,11 @@
 <link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
 <link rel="mask-icon" href="./pixory-icon.svg" color="#D97757"/>
 
+<!-- v1.1.2 · luxury login fonts (Space Grotesk + JetBrains Mono) · ใช้เฉพาะหน้า login · offline = fallback ฟอนต์ระบบ (ไม่พัง) · sw-desktop ข้าม fonts CDN อยู่แล้ว -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
 <!-- v1.0.82 · เพิ่ม defer (ตรงกับมือถือ) — เลิก render-blocking · _desktopBoot รอ window.supabase พร้อมเพดาน 3 วิอยู่แล้ว -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <!-- v1.0.47 · shared money/date helpers (single source · ต้อง push ไฟล์นี้ด้วยเสมอ) -->
@@ -2753,27 +2758,33 @@
   html[data-theme="dark"] .danger-zone-inner-title,
   html[data-theme="dark"] .danger-zone-inner-desc { color: var(--ink); }
 
-/* ===== v-LUXURY LOGIN (desktop split-screen · style only) ===== */
-html body .auth-overlay{background:#070605 !important;color:#f3eee4 !important;}
-html body .auth-overlay.show{display:grid !important;grid-template-columns:46% 54% !important;grid-template-rows:1fr !important;align-items:stretch !important;height:100vh !important;min-height:100vh !important;padding:0 !important;}
-html body .auth-overlay .auth-brand-header{display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;gap:34px !important;margin:0 !important;padding:50px 46px !important;color:#ecd49e !important;border-right:1px solid rgba(201,168,106,.18) !important;background:radial-gradient(560px 470px at 50% 38%,#1b170f,#070605 74%) !important;}
-html body .auth-overlay .auth-brand-header svg{width:104px !important;height:104px !important;color:#ecd49e !important;}
-html body .auth-overlay .auth-wordmark{color:#fcf7ec !important;text-transform:uppercase !important;letter-spacing:14px !important;font-weight:400 !important;font-size:40px !important;}
-html body .auth-overlay .auth-tagline{color:#c9a86a !important;text-transform:uppercase !important;letter-spacing:3px !important;font-size:11px !important;opacity:.9 !important;}
-html body .auth-overlay .auth-feats{display:flex !important;flex-direction:column !important;gap:13px !important;color:#9a9183 !important;font-size:13.5px !important;font-weight:300 !important;text-align:left !important;max-width:340px !important;}
-html body .auth-overlay .auth-card{display:flex !important;flex-direction:column !important;justify-content:center !important;max-width:none !important;width:auto !important;margin:0 !important;padding:48px 72px !important;background:#080706 !important;box-shadow:none !important;border:none !important;border-radius:0 !important;overflow-y:auto !important;}
-html body .auth-overlay .auth-title{color:#fcf7ec !important;}
-html body .auth-overlay .auth-sub{color:#9a9183 !important;}
-html body .auth-overlay .auth-field label{color:#c9a86a !important;letter-spacing:1.4px !important;text-transform:uppercase !important;font-size:11px !important;}
-html body .auth-overlay .auth-field input{background:rgba(255,255,255,.04) !important;border:1px solid rgba(255,255,255,.12) !important;color:#f3eee4 !important;border-radius:13px !important;}
-html body .auth-overlay .auth-field input::placeholder{color:#6f665a !important;}
-html body .auth-overlay .auth-field input:focus{border-color:#c9a86a !important;background:rgba(201,168,106,.06) !important;box-shadow:0 0 0 3px rgba(201,168,106,.14) !important;}
-html body .auth-overlay .auth-btn{background:linear-gradient(180deg,#ecd49e,#c9a86a) !important;color:#241902 !important;border:none !important;border-radius:13px !important;box-shadow:0 10px 26px rgba(201,168,106,.28) !important;}
-html body .auth-overlay .auth-links{color:#9a9183 !important;}
+/* ===== v-LUXURY LOGIN v1.1.2 (desktop split-screen · match mockup luxury_login_desktop_demo · style only · ไม่แตะ markup/auth fn) ===== */
+html body .auth-overlay{background:#070707 !important;color:#f3eee4 !important;}
+html body .auth-overlay.show{display:grid !important;grid-template-columns:46% 54% !important;grid-template-rows:1fr !important;align-items:stretch !important;height:100vh !important;min-height:100vh !important;padding:0 !important;overflow:hidden !important;}
+/* LEFT · brand panel (gold glow + grid lines) */
+html body .auth-overlay .auth-brand-header{position:relative !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;gap:42px !important;margin:0 !important;padding:54px 48px !important;text-align:center !important;color:#ecd49e !important;border-right:1px solid rgba(201,168,106,.20) !important;background:radial-gradient(560px 460px at 50% 34%,rgba(201,168,106,.20),transparent 62%),radial-gradient(480px 360px at 90% 110%,rgba(184,115,51,.12),transparent 55%),linear-gradient(160deg,#0b0a09,#050505) !important;overflow:hidden !important;}
+html body .auth-overlay .auth-brand-header::before{content:"" !important;position:absolute !important;inset:0 !important;pointer-events:none !important;opacity:.5 !important;background-image:linear-gradient(rgba(201,168,106,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,106,.05) 1px,transparent 1px) !important;background-size:40px 40px !important;-webkit-mask-image:radial-gradient(circle at 30% 25%,#000 35%,transparent 80%) !important;mask-image:radial-gradient(circle at 30% 25%,#000 35%,transparent 80%) !important;}
+/* logo badge: camera svg padded inside rounded gold frame (= mark 88px) */
+html body .auth-overlay .auth-brand-header svg{position:relative !important;z-index:2 !important;box-sizing:content-box !important;width:44px !important;height:44px !important;padding:22px !important;color:#ecd49e !important;border:1px solid rgba(201,168,106,.20) !important;border-radius:24px !important;background:linear-gradient(160deg,rgba(236,212,158,.16),rgba(201,168,106,.03)) !important;box-shadow:0 8px 26px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08) !important;filter:none !important;}
+html body .auth-overlay .auth-wordmark{position:relative !important;z-index:2 !important;font-family:'Space Grotesk',sans-serif !important;color:#fcf7ec !important;text-transform:uppercase !important;letter-spacing:13px !important;text-indent:13px !important;font-weight:400 !important;font-size:40px !important;}
+html body .auth-overlay .auth-tagline{position:relative !important;z-index:2 !important;font-family:'JetBrains Mono',monospace !important;color:#c9a86a !important;text-transform:uppercase !important;letter-spacing:3px !important;font-size:11px !important;opacity:.95 !important;}
+html body .auth-overlay .auth-feats{position:relative !important;z-index:2 !important;display:flex !important;flex-direction:column !important;gap:13px !important;color:#8f8676 !important;font-size:13.5px !important;font-weight:300 !important;text-align:left !important;max-width:340px !important;}
+/* RIGHT · form panel */
+html body .auth-overlay .auth-card{display:flex !important;flex-direction:column !important;justify-content:center !important;max-width:none !important;width:auto !important;margin:0 !important;padding:64px 64px !important;background:#060606 !important;box-shadow:none !important;border:none !important;border-radius:0 !important;overflow-y:auto !important;}
+html body .auth-overlay .auth-title{font-family:'Space Grotesk',sans-serif !important;font-weight:500 !important;font-size:27px !important;color:#fcf7ec !important;}
+html body .auth-overlay .auth-sub{color:#8f8676 !important;font-weight:300 !important;}
+html body .auth-overlay .auth-field label{font-family:'JetBrains Mono',monospace !important;color:#c9a86a !important;letter-spacing:2px !important;text-transform:uppercase !important;font-size:10px !important;}
+html body .auth-overlay .auth-field input{background:rgba(255,255,255,.03) !important;border:1px solid rgba(255,255,255,.09) !important;color:#f3eee4 !important;border-radius:13px !important;}
+html body .auth-overlay .auth-field input::placeholder{color:#5c554a !important;}
+html body .auth-overlay .auth-field input:focus{border-color:#c9a86a !important;background:rgba(201,168,106,.06) !important;box-shadow:0 0 0 3px rgba(201,168,106,.13) !important;}
+html body .auth-overlay .auth-btn{background:linear-gradient(180deg,#ecd49e,#c9a86a) !important;color:#241902 !important;border:none !important;border-radius:13px !important;box-shadow:0 10px 26px rgba(201,168,106,.26),inset 0 1px 0 rgba(255,255,255,.45) !important;}
+html body .auth-overlay .auth-links{color:#8f8676 !important;}
 html body .auth-overlay .auth-links a{color:#ecd49e !important;}
 html body .auth-overlay .auth-divider{background:rgba(201,168,106,.2) !important;}
 html body .auth-overlay .auth-msg{color:#f3eee4 !important;}
-@media(max-width:860px){html body .auth-overlay.show{grid-template-columns:1fr !important;min-height:0 !important;}html body .auth-overlay .auth-brand-header{border-right:none !important;border-bottom:1px solid rgba(201,168,106,.18) !important;padding:34px !important;gap:20px !important;}html body .auth-overlay .auth-brand-header svg{width:74px !important;height:74px !important;}html body .auth-overlay .auth-wordmark{font-size:30px !important;letter-spacing:10px !important;}html body .auth-overlay .auth-feats{display:none !important;}html body .auth-overlay .auth-card{padding:34px !important;}}
+/* signup genre chips · อ่านออกบนพื้นดำ */
+html body .auth-overlay .dt-genre-chip{color:#cabfa9 !important;border-color:rgba(201,168,106,.25) !important;background:rgba(255,255,255,.03) !important;}
+@media(max-width:860px){html body .auth-overlay.show{grid-template-columns:1fr !important;min-height:0 !important;overflow-y:auto !important;}html body .auth-overlay .auth-brand-header{border-right:none !important;border-bottom:1px solid rgba(201,168,106,.18) !important;padding:40px 34px !important;gap:24px !important;}html body .auth-overlay .auth-wordmark{font-size:32px !important;letter-spacing:10px !important;}html body .auth-overlay .auth-feats{display:none !important;}html body .auth-overlay .auth-card{padding:40px 30px !important;}}
 /* ===== /LUXURY LOGIN ===== */
 </style>
 </head>
@@ -3065,7 +3076,7 @@ html body .auth-overlay .auth-msg{color:#f3eee4 !important;}
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.1';
+const PIXORY_DESKTOP_VERSION = '1.1.2';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
