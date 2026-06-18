@@ -5525,15 +5525,15 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
       <div style="text-align:center;">
         <div style="font-size:48px;line-height:1;margin-bottom:12px;">📬</div>
         <h2 class="auth-title" style="text-align:center;">ยืนยันอีเมล</h2>
-        <p class="auth-sub" style="text-align:center;">เราส่งรหัส 6 หลักไปที่<br><b id="otp-email" style="color:#ecd49e;">อีเมลของคุณ</b></p>
+        <p class="auth-sub" style="text-align:center;">เราส่งรหัสยืนยันไปที่<br><b id="otp-email" style="color:#ecd49e;">อีเมลของคุณ</b></p>
       </div>
       <div class="auth-error" id="otp-error"></div>
       <div class="auth-success" id="otp-success"></div>
       <div class="auth-field">
-        <label>รหัสยืนยัน 6 หลัก</label>
-        <input type="text" id="otp-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6"
-          placeholder="______" oninput="this.value=this.value.replace(/[^0-9]/g,'')"
-          style="text-align:center;letter-spacing:12px;font-size:24px;font-weight:700;">
+        <label>รหัสยืนยัน</label>
+        <input type="text" id="otp-code" inputmode="numeric" autocomplete="one-time-code" maxlength="8"
+          placeholder="••••••" oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+          style="text-align:center;letter-spacing:8px;font-size:24px;font-weight:700;">
       </div>
       <button class="auth-btn" id="otp-btn" onclick="verifyEmailOtp()">ยืนยัน · เข้าใช้งาน</button>
       <div style="text-align:center;margin:14px 0 4px;font-size:13.5px;color:#9a9183;line-height:1.9;">
@@ -9155,7 +9155,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.32';
+const PIXORY_VERSION = '2.9.33';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -12844,7 +12844,7 @@ async function verifyEmailOtp() {
   const email = ps.email || '';
   const code = ((document.getElementById('otp-code') || {}).value || '').trim();
   if (!email) { setAuthError('otp', 'เซสชันสมัครหมดอายุ · กรุณาสมัครใหม่'); return; }
-  if (!/^\d{6}$/.test(code)) { setAuthError('otp', 'กรุณากรอกรหัส 6 หลักให้ครบ'); return; }
+  if (!/^\d{6,8}$/.test(code)) { setAuthError('otp', 'กรุณากรอกรหัสยืนยันให้ครบ (6–8 หลัก ตามอีเมล)'); return; }
   if (!SUPABASE) { setAuthError('otp', 'ระบบยังไม่พร้อม · ลองอีกครั้ง'); return; }
   const btn = document.getElementById('otp-btn');
   btn.disabled = true; btn.textContent = 'กำลังยืนยัน...';
@@ -12889,14 +12889,25 @@ async function resendEmailOtp() {
   if (!SUPABASE) { setAuthError('otp', 'ระบบยังไม่พร้อม · ลองอีกครั้ง'); return; }
   const link = document.getElementById('otp-resend');
   if (link) { link.style.pointerEvents = 'none'; link.style.opacity = '0.5'; link.textContent = 'กำลังส่ง...'; }
+  // v2.9.33 · กันค้าง · ถ้า Supabase ไม่ตอบใน 12 วิ (เช่น อีเมลถึงขีดจำกัด) ให้เลิกรอแล้วแจ้งผู้ใช้
   try {
-    const { error } = await SUPABASE.auth.resend({ type: 'signup', email: email });
-    if (error) setAuthError('otp', error.message || 'ส่งรหัสใหม่ไม่สำเร็จ');
-    else setAuthSuccess('otp', '✓ ส่งรหัสใหม่ไปที่อีเมลแล้ว · ตรวจ inbox / สแปม');
+    const result = await Promise.race([
+      SUPABASE.auth.resend({ type: 'signup', email: email }),
+      new Promise(function(_, rej){ setTimeout(function(){ rej(new Error('__timeout__')); }, 12000); })
+    ]);
+    const error = result && result.error;
+    if (error) {
+      const m = error.message || '';
+      if (/rate|too many|after|limit/i.test(m)) setAuthError('otp', 'ขอรหัสถี่เกินไป หรือระบบอีเมลถึงขีดจำกัด · รอสักครู่แล้วลองใหม่');
+      else setAuthError('otp', m || 'ส่งรหัสใหม่ไม่สำเร็จ');
+    } else {
+      setAuthSuccess('otp', '✓ ส่งรหัสใหม่ไปที่อีเมลแล้ว · ตรวจ inbox / สแปม');
+    }
   } catch(e) {
-    setAuthError('otp', 'เกิดข้อผิดพลาด: ' + (e.message || e));
+    if (String(e && e.message) === '__timeout__') setAuthError('otp', 'ส่งไม่สำเร็จ · ระบบอีเมลช้า/ถึงขีดจำกัด · ลองใหม่ใน 1 นาที');
+    else setAuthError('otp', 'เกิดข้อผิดพลาด: ' + (e.message || e));
   }
-  if (link) { setTimeout(function(){ link.style.pointerEvents = ''; link.style.opacity = ''; link.textContent = 'ส่งรหัสใหม่อีกครั้ง'; }, 8000); }
+  if (link) { link.style.pointerEvents = ''; link.style.opacity = ''; link.textContent = 'ส่งรหัสใหม่อีกครั้ง'; }
 }
 
 async function doForgot() {
