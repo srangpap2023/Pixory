@@ -3139,7 +3139,7 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.10';
+const PIXORY_DESKTOP_VERSION = '1.1.11';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -4107,8 +4107,7 @@ async function verifyEmailOtp() {
     const { data, error } = await SUPABASE.auth.verifyOtp({ email: email, token: code, type: 'signup' });
     if (error) {
       const m = error.message || '';
-      if (/expired/i.test(m)) setAuthMsg('otp', 'error', 'รหัสหมดอายุ · กด "ส่งรหัสใหม่" เพื่อรับรหัสใหม่');
-      else if (/invalid|incorrect|token|otp/i.test(m)) setAuthMsg('otp', 'error', 'รหัสไม่ถูกต้อง · ตรวจสอบแล้วลองอีกครั้ง');
+      if (/expired|invalid|incorrect|token|otp/i.test(m)) setAuthMsg('otp', 'error', 'รหัสไม่ถูกต้องหรือหมดอายุ · ใช้รหัสจากอีเมลฉบับล่าสุด แล้วลองใหม่ · หรือกด "ส่งรหัสใหม่"');
       else setAuthMsg('otp', 'error', m);
       btn.disabled = false; btn.textContent = 'ยืนยัน · เข้าใช้งาน';
       return;
