@@ -3003,7 +3003,7 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
       </div>
       <div class="auth-divider"></div>
       <div class="auth-links">
-        <a onclick="switchAuthPane('login')">‹ กลับหน้าเข้าสู่ระบบ</a>
+        <a onclick="_clearPendingOtp();switchAuthPane('login')">‹ กลับหน้าเข้าสู่ระบบ</a>
       </div>
     </div>
   </div>
@@ -3139,7 +3139,7 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.12';
+const PIXORY_DESKTOP_VERSION = '1.1.13';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -4077,6 +4077,7 @@ async function doSignup() {
       // Email confirmation required → v1.1.9 · เด้งไปหน้ากรอกรหัส OTP 6 หลัก (อยู่ในแอปตลอด)
       window._otpMode = 'signup';
       window._pendingSignup = { email: email, studio: studio, phone: phone, line: line, genres: genres, genreOtherClean: genreOtherClean, consentedAt: consentedAt };
+      try { _savePendingOtp('signup'); } catch(e){}
       try { var _oe = document.getElementById('otp-email'); if (_oe) _oe.textContent = email; } catch(e){}
       try { var _oc = document.getElementById('otp-code'); if (_oc) _oc.value = ''; } catch(e){}
       try { document.getElementById('otp-title').textContent = 'ยืนยันอีเมล'; } catch(e){}
@@ -4096,6 +4097,37 @@ async function doSignup() {
 }
 
 // v1.1.9 · ยืนยันอีเมลด้วยรหัส OTP 6 หลัก · อยู่ในแอปตลอด ไม่ต้องเปิดเบราว์เซอร์
+// v1.1.13 · จำสถานะ "รอยืนยัน OTP" ลงเครื่อง → เผลอออกจากแอปแล้วเปิดกลับมา เด้งหน้า OTP เดิม
+var _PENDING_OTP_KEY = 'pixory.pendingOtp';
+function _savePendingOtp(mode) {
+  try {
+    var obj = { mode: mode, ts: Date.now() };
+    if (mode === 'recovery') obj.recovery = window._pendingRecovery || null;
+    else obj.signup = window._pendingSignup || null;
+    localStorage.setItem(_PENDING_OTP_KEY, JSON.stringify(obj));
+  } catch(e) {}
+}
+function _clearPendingOtp() { try { localStorage.removeItem(_PENDING_OTP_KEY); } catch(e) {} }
+function _restorePendingOtp() {
+  try {
+    var raw = localStorage.getItem(_PENDING_OTP_KEY); if (!raw) return false;
+    var obj = JSON.parse(raw); if (!obj || !obj.mode) { _clearPendingOtp(); return false; }
+    if (Date.now() - (obj.ts || 0) > 3600000) { _clearPendingOtp(); return false; }
+    var email = obj.mode === 'recovery' ? (obj.recovery && obj.recovery.email) : (obj.signup && obj.signup.email);
+    if (!email) { _clearPendingOtp(); return false; }
+    window._otpMode = obj.mode;
+    if (obj.mode === 'recovery') window._pendingRecovery = obj.recovery || { email: email };
+    else window._pendingSignup = obj.signup || { email: email };
+    showAuthOverlay();
+    try { document.getElementById('otp-email').textContent = email; } catch(e){}
+    try { document.getElementById('otp-code').value = ''; } catch(e){}
+    try { document.getElementById('otp-title').textContent = obj.mode === 'recovery' ? 'รีเซ็ตรหัสผ่าน' : 'ยืนยันอีเมล'; } catch(e){}
+    try { document.getElementById('otp-btn').textContent = obj.mode === 'recovery' ? 'ยืนยัน · ตั้งรหัสใหม่' : 'ยืนยัน · เข้าใช้งาน'; } catch(e){}
+    switchAuthPane('otp');
+    return true;
+  } catch(e) { return false; }
+}
+
 async function verifyEmailOtp() {
   if ((window._otpMode || 'signup') === 'recovery') { return verifyRecoveryOtp(); }
   setAuthMsg('otp', '', '');
@@ -4129,6 +4161,7 @@ async function verifyEmailOtp() {
       signupConsent: { consentedAt: ps.consentedAt, version: CONSENT_VERSION, terms: true, privacy: true }
     };
     window._pendingSignup = null;
+    try { _clearPendingOtp(); } catch(e){}
     await finishAuthAndStart();
   } catch(e) {
     setAuthMsg('otp', 'error', 'เกิดข้อผิดพลาด: ' + (e.message || e));
@@ -4157,6 +4190,7 @@ async function verifyRecoveryOtp() {
     }
     if (!data || !data.user) { setAuthMsg('otp', 'error', 'ยืนยันไม่สำเร็จ · ลองอีกครั้ง'); btn.disabled = false; btn.textContent = 'ยืนยัน · ตั้งรหัสใหม่'; return; }
     window._otpMode = null; window._pendingRecovery = null;
+    try { _clearPendingOtp(); } catch(e){}
     btn.disabled = false; btn.textContent = 'ยืนยัน · ตั้งรหัสใหม่';
     switchAuthPane('reset');
   } catch(e) {
@@ -4222,6 +4256,7 @@ async function doForgot() {
     // → ไปหน้ากรอกรหัส OTP ในโหมด recovery
     window._otpMode = 'recovery';
     window._pendingRecovery = { email: email };
+    try { _savePendingOtp('recovery'); } catch(e){}
     try { document.getElementById('otp-email').textContent = email; } catch(e){}
     try { document.getElementById('otp-code').value = ''; } catch(e){}
     try { document.getElementById('otp-title').textContent = 'รีเซ็ตรหัสผ่าน'; } catch(e){}
@@ -16478,7 +16513,8 @@ async function _desktopBoot() {
       return;
     }
   } catch(e) { console.warn('Session resume:', e); }
-  // Otherwise show login
+  // v1.1.13 · ถ้ามีสถานะรอยืนยัน OTP ค้าง → กลับหน้า OTP เดิม · ไม่งั้นค่อยขึ้น login
+  try { if (_restorePendingOtp()) return; } catch(e) {}
   showAuthOverlay();
 }
 
