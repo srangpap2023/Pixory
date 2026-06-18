@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <!-- v2.5.77 · PERF · html2canvas / jspdf / xlsx (~1.4MB) ย้ายไป lazy-load เฉพาะตอนกด export (ดู ensureExportLibs) · ไม่ถ่วงการเปิดแอป -->
 <!-- v2.5.82 · ลบ Chart.js (~200KB) — ไม่มีโค้ดส่วนไหนใช้ (กราฟทั้งหมดวาดเองด้วย canvas 2D) · เคยถ่วง bootstrap ตอน CDN ช้า -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7" defer></script>
 <!-- v2.5.72 · shared money/date helpers (single source · ต้อง push ไฟล์นี้ด้วยเสมอ) -->
 <script src="./pixory-helpers.js" defer></script>
 <style>
@@ -9106,7 +9106,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.28';
+const PIXORY_VERSION = '2.9.29';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,

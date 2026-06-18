@@ -912,7 +912,7 @@
     <div class="panel">
       <div class="panel-title">ℹ เกี่ยวกับ</div>
       <div style="font-size:12px; color: var(--muted); line-height:1.6;">
-        Pixory Admin Monitor · v3.7<br>
+        Pixory Admin Monitor · v3.8<br>
         5 แท็บ · champagne gold · growth monitors<br><br>
         • Realtime sync + polling 10s<br>
         • Live notification toast + sound<br>
@@ -984,7 +984,7 @@
 </div>
 
 <!-- ===== Supabase + JS ===== -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7"></script>
 <script>
 // ⛔ STRICT RULE — Silent read-only monitoring tool. No Service Worker, version checks, or update banners.
 
@@ -1891,7 +1891,7 @@ function renderActivityItem(u) {
     <div class="activity-item" onclick='openDmModal(${JSON.stringify(u.email)}, "active")'>
       <div class="activity-icon ${m.cls}">${m.ic}</div>
       <div class="activity-text">
-        <div class="activity-title">${escapeHtml(name)} ${m.text}${isOnline}</div>
+        <div class="activity-title">${escapeHtml(name)} ${escapeHtml(m.text)}${isOnline}</div>
         <div class="activity-sub">${u.lastAction.code ? escapeHtml(u.lastAction.code) + ' · ' : ''}${time}</div>
       </div>
     </div>`;
