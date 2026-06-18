@@ -2775,7 +2775,7 @@ html body .auth-overlay .auth-feats{position:relative !important;z-index:2 !impo
 html body .auth-overlay .auth-card{display:flex !important;flex-direction:column !important;justify-content:safe center !important;max-width:none !important;width:auto !important;margin:0 !important;padding:clamp(22px,3.6vh,64px) clamp(30px,5vw,64px) !important;background:#060606 !important;box-shadow:none !important;border:none !important;border-radius:0 !important;overflow-y:auto !important;}
 html body .auth-overlay .auth-title{font-family:'Space Grotesk',sans-serif !important;font-weight:500 !important;font-size:27px !important;color:#fcf7ec !important;}
 html body .auth-overlay .auth-sub{color:#8f8676 !important;font-weight:300 !important;}
-html body .auth-overlay .auth-field label{font-family:'JetBrains Mono',monospace !important;color:#c9a86a !important;letter-spacing:0.5px !important;text-transform:uppercase !important;font-size:13px !important;}
+html body .auth-overlay .auth-field label{font-family:'JetBrains Mono',monospace !important;color:#c9a86a !important;letter-spacing:0.5px !important;text-transform:uppercase !important;font-size:15px !important;}
 html body .auth-overlay .auth-field input{background:rgba(255,255,255,.03) !important;border:1px solid rgba(255,255,255,.09) !important;color:#f3eee4 !important;border-radius:11px !important;padding:11px 14px !important;font-size:13.5px !important;}
 html body .auth-overlay .auth-field input::placeholder{color:#5c554a !important;}
 html body .auth-overlay .auth-field input:focus{border-color:#c9a86a !important;background:rgba(201,168,106,.06) !important;box-shadow:0 0 0 3px rgba(201,168,106,.13) !important;}
@@ -2891,6 +2891,12 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
       <div class="auth-field">
         <label>รหัสผ่าน <span style="color:var(--ink-mute);font-weight:400;font-size:11px;">* (อย่างน้อย 8 ตัว · มีตัวอักษร+ตัวเลข)</span></label>
         <input type="password" id="signup-password" placeholder="••••••••" autocomplete="new-password" />
+      </div>
+      <!-- v1.1.7 · ยืนยันรหัสผ่าน · กันพิมพ์รหัสผิดตอนสมัคร แล้วล็อกอินไม่ได้ -->
+      <div class="auth-field">
+        <label>ยืนยันรหัสผ่าน <span style="color:var(--ink-mute);font-weight:400;font-size:11px;">* (พิมพ์อีกครั้งให้ตรงกัน)</span></label>
+        <input type="password" id="signup-password-confirm" placeholder="••••••••" autocomplete="new-password" oninput="checkSignupPwMatch()" />
+        <div id="signup-pw-match" style="font-size:14px;margin-top:6px;display:none;"></div>
       </div>
       <div class="auth-field">
         <label>ชื่อสตูดิโอ <span style="color:var(--ink-mute);font-weight:400;font-size:11px;">(ไม่บังคับ)</span></label>
@@ -3938,6 +3944,17 @@ function updateSignupBtnState() {
   if (!cb || !btn) return;
   btn.disabled = !cb.checked;
 }
+// v1.1.7 · แสดงสถานะรหัสผ่านตรง/ไม่ตรงแบบเรียลไทม์ ระหว่างพิมพ์ช่องยืนยัน
+function checkSignupPwMatch() {
+  const pw = (document.getElementById('signup-password') || {}).value || '';
+  const pw2 = (document.getElementById('signup-password-confirm') || {}).value || '';
+  const hint = document.getElementById('signup-pw-match');
+  if (!hint) return;
+  if (!pw2) { hint.style.display = 'none'; hint.textContent = ''; return; }
+  hint.style.display = 'block';
+  if (pw === pw2) { hint.textContent = '✓ รหัสผ่านตรงกัน'; hint.style.color = 'var(--green)'; }
+  else { hint.textContent = '✕ รหัสผ่านยังไม่ตรงกัน'; hint.style.color = 'var(--red)'; }
+}
 function _wireDtGenreChips() {
   const chips = document.querySelectorAll('#dt-signup-genre-chips .dt-genre-chip');
   const otherInput = document.getElementById('dt-signup-genre-other');
@@ -3994,6 +4011,9 @@ async function doSignup() {
   if (!dtIsValidEmail(email)) { setAuthMsg('signup', 'error', 'รูปแบบอีเมลไม่ถูกต้อง · ตัวอย่าง you@example.com'); return; }
   const pwCheck = dtIsStrongPassword(pw);
   if (!pwCheck.ok) { setAuthMsg('signup', 'error', pwCheck.reason); return; }
+  // v1.1.7 · ยืนยันรหัสผ่านต้องตรงกัน · กันพิมพ์ผิดแล้วล็อกอินไม่ได้
+  const pw2 = (document.getElementById('signup-password-confirm') || {}).value || '';
+  if (pw !== pw2) { setAuthMsg('signup', 'error', 'รหัสผ่านทั้งสองช่องไม่ตรงกัน · กรุณาพิมพ์ยืนยันให้ตรงกัน'); return; }
   if (!consented) { setAuthMsg('signup', 'error', 'กรุณาอ่านและยอมรับข้อกำหนดการใช้บริการและนโยบายความเป็นส่วนตัวก่อนสมัคร'); return; }
   if (!SUPABASE) { setAuthMsg('signup', 'error', 'ระบบยังไม่พร้อม · ลองอีกครั้ง'); return; }
 
