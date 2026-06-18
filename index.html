@@ -9112,7 +9112,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.30';
+const PIXORY_VERSION = '2.9.31';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -12415,6 +12415,18 @@ function initSupabase() {
             // Make sure UI is on auth view + show reset form
             try { hideAuthScreens(); } catch(e){}
             showAuthScreen('reset');
+            return;
+          }
+          // v2.9.31 · เซสชันถูกเพิกถอน (เช่น บัญชีถูกลบใน Supabase → refresh token ใช้ไม่ได้)
+          //   → เด้งกลับหน้าเข้าสู่ระบบเอง ไม่ปล่อยให้ค้างใช้งานต่อ (ปิดช่อง "ลบแล้วยังใช้ได้")
+          //   หมายเหตุ: ลบข้อมูลแล้วโทเคนเดิมยังมีอายุตาม JWT (~1 ชม.) จึงเด้งตอน autoRefresh รอบถัดไป
+          if (event === 'SIGNED_OUT' && CURRENT_USER) {
+            console.warn('[auth] SIGNED_OUT · เซสชันหมดอายุ/ถูกเพิกถอน · กลับหน้าเข้าสู่ระบบ');
+            try { if (typeof stopPresenceHeartbeat === 'function') stopPresenceHeartbeat(); } catch(e){}
+            try { if (typeof stopRealtimeSync === 'function') stopRealtimeSync(); } catch(e){}
+            try { localStorage.removeItem('pixory.auth.session'); } catch(e){}
+            CURRENT_USER = null;
+            try { location.reload(); } catch(e){}
           }
         });
       } catch(e) { console.warn('onAuthStateChange register failed', e); }
@@ -12833,8 +12845,20 @@ async function doLogout() {
   try {
     if (typeof stopPresenceHeartbeat === 'function') stopPresenceHeartbeat();
     if (typeof stopRealtimeSync === 'function') stopRealtimeSync(); // v2.5.56 · clean up realtime channel
-    if (SUPABASE) await SUPABASE.auth.signOut();
-  } catch(e) { console.warn('signOut failed', e); }
+  } catch(e) {}
+  // v2.9.31 · ออกจากระบบให้ "ชัวร์" · ไม่ผูกกับเซิร์ฟเวอร์
+  //   บั๊กเดิม: ถ้า user ถูกลบใน Supabase → signOut() เซิร์ฟเวอร์ fail/ค้าง → โทเคนค้างใน localStorage
+  //            → reload แล้วแอปอ่านโทเคนเก่า ล็อกอินกลับเอง = ออกไม่ได้ (Joe report 18 มิ.ย.)
+  //   แก้: เคลียร์ session ในเครื่องเองเสมอ (scope:'local' ไม่ต้องรอเซิร์ฟเวอร์) + เพดานเวลา 2.5 วิ + ลบ storage key ตรงๆ
+  try {
+    if (SUPABASE) {
+      await Promise.race([
+        SUPABASE.auth.signOut({ scope: 'local' }),
+        new Promise(function(res){ setTimeout(res, 2500); })
+      ]);
+    }
+  } catch(e) { console.warn('signOut failed · เคลียร์เครื่องเองต่อ', e); }
+  try { localStorage.removeItem('pixory.auth.session'); } catch(e) {}
   CURRENT_USER = null;
   location.reload();
 }

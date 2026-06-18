@@ -3129,7 +3129,7 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.7';
+const PIXORY_DESKTOP_VERSION = '1.1.8';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
@@ -3856,6 +3856,8 @@ function initSupabase() {
       // Listen for token expiry / logout / password recovery
       SUPABASE.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT') {
+          // v1.1.8 · เซสชันถูกเพิกถอน/หมดอายุ (เช่น บัญชีถูกลบใน Supabase) → ล้าง + กลับหน้าเข้าสู่ระบบ
+          try { localStorage.removeItem(AUTH_STORAGE_KEY); } catch(e) {}
           CURRENT_USER = null;
           showAuthOverlay();
         } else if (event === 'PASSWORD_RECOVERY') {
@@ -4165,7 +4167,18 @@ async function doLogout() {
   try { document.getElementById('dc-panel')?.remove(); document.getElementById('dc-fab')?.remove(); } catch(e) {}
   window._MY_BADGE = null;
   try { const _b = document.getElementById('topbar-badge'); if (_b) _b.style.display = 'none'; } catch(e) {}
-  try { if (SUPABASE) await SUPABASE.auth.signOut(); } catch(e) {}
+  // v1.1.8 · ออกจากระบบให้ "ชัวร์" · ไม่ผูก/ไม่ค้างกับเซิร์ฟเวอร์
+  //   บั๊กเดิม: ถ้า user ถูกลบใน Supabase → signOut() เซิร์ฟเวอร์ fail/ค้าง (await ไม่จบ) = ออกไม่ได้ (Joe report 18 มิ.ย.)
+  //   แก้: scope:'local' (ไม่ต้องรอเซิร์ฟเวอร์) + เพดานเวลา 2.5 วิ + ลบ auth storage key ตรงๆ
+  try {
+    if (SUPABASE) {
+      await Promise.race([
+        SUPABASE.auth.signOut({ scope: 'local' }),
+        new Promise(function(res){ setTimeout(res, 2500); })
+      ]);
+    }
+  } catch(e) {}
+  try { localStorage.removeItem(AUTH_STORAGE_KEY); } catch(e) {}
   CURRENT_USER = null;
   localStorage.removeItem(DATA_STORAGE_KEY);
   resetAppState();
