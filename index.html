@@ -199,7 +199,10 @@
   #screen-wizard #wizard-back-btn { background:transparent !important; color:#f3eee4 !important; border:1.5px solid rgba(201,168,106,.4) !important; font-weight:800 !important; }
   /* v2.9.32 · เอากล่องเทา (พื้นสว่าง default ที่ override เฉพาะ body.dark-theme) ออก → โปร่งบนพื้นดำเหมือนหน้าสมัคร */
   #screen-wizard .pixory-lockup { background:transparent !important; border:none !important; box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; padding:16px 6px !important; margin:18px 6px 14px !important; }
-  #screen-wizard .wiz-section { background:transparent !important; border:none !important; box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; padding:2px 0 0 !important; margin:8px 0 0 !important; }
+  #screen-wizard .wiz-section { background:transparent !important; border:none !important; box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; padding:2px 16px 0 !important; margin:8px 0 0 !important; }
+  /* v2.9.34 · ช่องกรอกในวิซาร์ด · ลดความสูง + ไม่ชิดขอบ */
+  #screen-wizard .form-group input, #screen-wizard .form-group textarea { padding:11px 14px !important; font-size:15px !important; }
+  #screen-wizard .form-group label { font-size:13px !important; margin-bottom:5px !important; }
 
   .screen { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: 100px; display: none; }
   .screen.active { display: block; }
@@ -5524,8 +5527,8 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
     <div class="auth-panel">
       <div style="text-align:center;">
         <div style="font-size:48px;line-height:1;margin-bottom:12px;">📬</div>
-        <h2 class="auth-title" style="text-align:center;">ยืนยันอีเมล</h2>
-        <p class="auth-sub" style="text-align:center;">เราส่งรหัสยืนยันไปที่<br><b id="otp-email" style="color:#ecd49e;">อีเมลของคุณ</b></p>
+        <h2 class="auth-title" style="text-align:center;" id="otp-title">ยืนยันอีเมล</h2>
+        <p class="auth-sub" style="text-align:center;">เราส่งรหัสไปที่<br><b id="otp-email" style="color:#ecd49e;">อีเมลของคุณ</b></p>
       </div>
       <div class="auth-error" id="otp-error"></div>
       <div class="auth-success" id="otp-success"></div>
@@ -9155,7 +9158,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.34';
+const PIXORY_VERSION = '2.9.35';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -12819,9 +12822,12 @@ async function doSignup() {
     } else if (data && data.user && !data.session) {
       // Email confirmation required → v2.9.32 · เด้งไปหน้ากรอกรหัส OTP 6 หลัก (อยู่ในแอปตลอด)
       //   เก็บ context สมัครไว้ · ใช้ตอน verifyOtp สำเร็จเพื่อสร้างโปรไฟล์ใหม่เหมือน auto-confirm path
+      window._otpMode = 'signup';
       window._pendingSignup = { email: email, studio: studio, phone: phone, line: line, genres: genres, genreOtherClean: genreOtherClean, consentedAt: consentedAt };
       try { var _oe = document.getElementById('otp-email'); if (_oe) _oe.textContent = email; } catch(e){}
       try { var _oc = document.getElementById('otp-code'); if (_oc) _oc.value = ''; } catch(e){}
+      try { document.getElementById('otp-title').textContent = 'ยืนยันอีเมล'; } catch(e){}
+      try { document.getElementById('otp-btn').textContent = 'ยืนยัน · เข้าใช้งาน'; } catch(e){}
       btn.disabled = false; btn.textContent = t('auth.signupBtn');
       try { hideAuthScreens(); } catch(e){}
       showAuthScreen('otp');
@@ -12839,6 +12845,7 @@ async function doSignup() {
 
 // v2.9.32 · ยืนยันอีเมลด้วยรหัส OTP 6 หลัก · อยู่ในแอปตลอด ไม่ต้องเปิดเบราว์เซอร์
 async function verifyEmailOtp() {
+  if ((window._otpMode || 'signup') === 'recovery') { return verifyRecoveryOtp(); }
   clearAuthMsg('otp');
   const ps = window._pendingSignup || {};
   const email = ps.email || '';
@@ -12879,19 +12886,55 @@ async function verifyEmailOtp() {
   }
 }
 
-// v2.9.32 · ส่งรหัส OTP ใหม่
+// v2.9.35 · ยืนยันรหัส OTP สำหรับรีเซ็ตรหัสผ่าน (recovery) → ไปหน้าตั้งรหัสใหม่
+async function verifyRecoveryOtp() {
+  clearAuthMsg('otp');
+  const email = (window._pendingRecovery && window._pendingRecovery.email) || '';
+  const code = ((document.getElementById('otp-code') || {}).value || '').trim();
+  if (!email) { setAuthError('otp', 'เซสชันรีเซ็ตหมดอายุ · เริ่ม "ลืมรหัสผ่าน" ใหม่'); return; }
+  if (!/^\d{6,8}$/.test(code)) { setAuthError('otp', 'กรุณากรอกรหัสยืนยันให้ครบ (6–8 หลัก ตามอีเมล)'); return; }
+  if (!SUPABASE) { setAuthError('otp', 'ระบบยังไม่พร้อม · ลองอีกครั้ง'); return; }
+  const btn = document.getElementById('otp-btn');
+  btn.disabled = true; btn.textContent = 'กำลังยืนยัน...';
+  try {
+    const { data, error } = await SUPABASE.auth.verifyOtp({ email: email, token: code, type: 'recovery' });
+    if (error) {
+      const m = error.message || '';
+      if (/expired|invalid|incorrect|token|otp/i.test(m)) setAuthError('otp', 'รหัสไม่ถูกต้องหรือหมดอายุ · ใช้รหัสจากอีเมลฉบับล่าสุด แล้วลองใหม่ · หรือกด "ส่งรหัสใหม่"');
+      else setAuthError('otp', m);
+      btn.disabled = false; btn.textContent = 'ยืนยัน · ตั้งรหัสใหม่';
+      return;
+    }
+    if (!data || !data.user) { setAuthError('otp', 'ยืนยันไม่สำเร็จ · ลองอีกครั้ง'); btn.disabled = false; btn.textContent = 'ยืนยัน · ตั้งรหัสใหม่'; return; }
+    // มี recovery session แล้ว → ไปหน้าตั้งรหัสใหม่
+    window._otpMode = null; window._pendingRecovery = null;
+    btn.disabled = false; btn.textContent = 'ยืนยัน · ตั้งรหัสใหม่';
+    try { hideAuthScreens(); } catch(e){}
+    showAuthScreen('reset');
+  } catch(e) {
+    setAuthError('otp', 'เกิดข้อผิดพลาด: ' + (e.message || e));
+    btn.disabled = false; btn.textContent = 'ยืนยัน · ตั้งรหัสใหม่';
+  }
+}
+
+// v2.9.32 · ส่งรหัส OTP ใหม่ (signup + recovery)
 async function resendEmailOtp() {
   clearAuthMsg('otp');
-  const ps = window._pendingSignup || {};
-  const email = ps.email || '';
-  if (!email) { setAuthError('otp', 'เซสชันสมัครหมดอายุ · กรุณาสมัครใหม่'); return; }
+  const _mode = window._otpMode || 'signup';
+  const email = _mode === 'recovery'
+    ? ((window._pendingRecovery && window._pendingRecovery.email) || '')
+    : ((window._pendingSignup && window._pendingSignup.email) || '');
+  if (!email) { setAuthError('otp', _mode === 'recovery' ? 'เซสชันรีเซ็ตหมดอายุ · เริ่ม "ลืมรหัสผ่าน" ใหม่' : 'เซสชันสมัครหมดอายุ · กรุณาสมัครใหม่'); return; }
   if (!SUPABASE) { setAuthError('otp', 'ระบบยังไม่พร้อม · ลองอีกครั้ง'); return; }
   const link = document.getElementById('otp-resend');
   if (link) { link.style.pointerEvents = 'none'; link.style.opacity = '0.5'; link.textContent = 'กำลังส่ง...'; }
   // v2.9.33 · กันค้าง · ถ้า Supabase ไม่ตอบใน 12 วิ (เช่น อีเมลถึงขีดจำกัด) ให้เลิกรอแล้วแจ้งผู้ใช้
   try {
+    const _resendCall = _mode === 'recovery'
+      ? SUPABASE.auth.resetPasswordForEmail(email)
+      : SUPABASE.auth.resend({ type: 'signup', email: email });
     const result = await Promise.race([
-      SUPABASE.auth.resend({ type: 'signup', email: email }),
+      _resendCall,
       new Promise(function(_, rej){ setTimeout(function(){ rej(new Error('__timeout__')); }, 12000); })
     ]);
     const error = result && result.error;
@@ -12917,6 +12960,7 @@ async function doForgot() {
   const btn = document.getElementById('forgot-btn');
   btn.disabled = true; btn.textContent = 'กำลังส่ง...';
   try {
+    // v2.9.35 · ส่งรหัสรีเซ็ต (OTP) ไปอีเมล · ผู้ใช้กรอกรหัสในแอป → ตั้งรหัสใหม่ (ไม่ต้องออกไปเบราว์เซอร์)
     const { error } = await SUPABASE.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin + window.location.pathname
     });
@@ -12925,8 +12969,16 @@ async function doForgot() {
       btn.disabled = false; btn.textContent = t('auth.forgotBtn');
       return;
     }
-    setAuthSuccess('forgot', '✓ ส่งลิงก์ตั้งรหัสใหม่ไปที่อีเมลแล้ว · ตรวจ inbox ของคุณ · ลิงก์หมดอายุใน 1 ชั่วโมง');
     btn.disabled = false; btn.textContent = t('auth.forgotBtn');
+    // → ไปหน้ากรอกรหัส OTP ในโหมด recovery
+    window._otpMode = 'recovery';
+    window._pendingRecovery = { email: email };
+    try { document.getElementById('otp-email').textContent = email; } catch(e){}
+    try { document.getElementById('otp-code').value = ''; } catch(e){}
+    try { document.getElementById('otp-title').textContent = 'รีเซ็ตรหัสผ่าน'; } catch(e){}
+    try { document.getElementById('otp-btn').textContent = 'ยืนยัน · ตั้งรหัสใหม่'; } catch(e){}
+    try { hideAuthScreens(); } catch(e){}
+    showAuthScreen('otp');
   } catch(e) {
     setAuthError('forgot', 'เกิดข้อผิดพลาด: ' + (e.message || e));
     btn.disabled = false; btn.textContent = t('auth.forgotBtn');
