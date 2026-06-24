@@ -6360,28 +6360,28 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
           <input type="number" id="addTeamCost" value="0" readonly class="readonly-input">
         </div>
 
-        <!-- v1.9.31 · Preset row 1: ค่าที่พัก -->
-        <div class="form-group" style="margin: 0 0 10px;">
-          <label data-i18n="cost.lodging">🛏 ค่าที่พัก</label>
-          <input type="number" id="addCostLodging" value="0" min="0" placeholder="0" oninput="if(typeof _addUpdateCostsSum==='function')_addUpdateCostsSum()">
+        <!-- v2.9.37 · ตารางต้นทุน & ค่าใช้จ่ายส่งต่อ (เก็บลูกค้า | จ่ายจริง) -->
+        <div style="font-size:11.5px; color:#7c7066; line-height:1.5; margin:2px 0 10px;">เก็บลูกค้า = บวกเข้าราคาขาย · จ่ายจริง = ต้นทุนที่เราจ่ายเอง · ส่วนต่าง = กำไรที่เก็บไว้</div>
+        <div style="display:grid; grid-template-columns:1.35fr 1fr 1fr 26px; gap:6px; font-size:10.5px; color:#a89a8c; padding:0 2px 6px;">
+          <span>รายการ</span><span style="text-align:right;">เก็บลูกค้า</span><span style="text-align:right;">จ่ายจริง</span><span></span>
         </div>
+        <div id="add-unified-list" style="margin:0 0 8px;"></div>
+        <button type="button" onclick="addUnifiedCost('add')" style="width:100%; padding:10px; background:transparent; color:#7c7066; border:1px dashed rgba(0,0,0,0.18); border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;">+ เพิ่มรายการ</button>
 
-        <!-- v1.9.31 · Preset row 2: ค่าเดินทาง -->
-        <div class="form-group" style="margin: 0 0 10px;">
-          <label data-i18n="cost.travel">⛽ ค่าเดินทาง</label>
-          <input type="number" id="addCostTravel" value="0" min="0" placeholder="0" oninput="if(typeof _addUpdateCostsSum==='function')_addUpdateCostsSum()">
+        <div style="margin-top:12px; padding-top:10px; border-top:0.5px dashed rgba(0,0,0,0.08); font-size:12.5px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:3px 2px; color:#7c7066;">
+            <span>เก็บลูกค้าเพิ่ม (เข้าราคาขาย)</span><span style="color:#0f6e56; font-weight:700;" id="add-unified-charge">+฿0</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:3px 2px; color:#7c7066;">
+            <span>จ่ายจริงรวม (ต้นทุน)</span><span style="color:#dc2626; font-weight:700;" id="add-unified-actual">฿0</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 2px 0; font-size:13.5px;">
+            <span style="font-weight:700; color:#3a2f25;">ส่วนต่างเก็บไว้ 🪙</span><span style="color:#0f6e56; font-weight:800;" id="add-unified-margin">+฿0</span>
+          </div>
         </div>
-
-        <!-- v1.9.31 · อื่นๆ multi-item with category dropdown -->
-        <div style="margin: 14px 0 6px; font-size:12.5px; font-weight:600; color:#7c7066;" data-i18n="cost.others">🔖 อื่นๆ</div>
-        <div id="add-costs-list" style="margin: 0 0 8px;"></div>
-        <button type="button" onclick="addCostItem('add')" style="width:100%; padding:10px; background:transparent; color:#7c7066; border:1px dashed rgba(0,0,0,0.18); border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;" data-i18n="cost.addOther">+ เพิ่มรายการอื่น</button>
-
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:0.5px dashed rgba(0,0,0,0.08); font-size:12.5px;">
-          <span style="color:#7c7066;" data-i18n="cost.subtotal">รวมต้นทุนงาน</span>
-          <span style="color:#3a2f25; font-weight:700;" id="add-costs-sum">฿0</span>
-        </div>
-        <!-- Hidden inputs for backward compat (set to 0; sum kept in costItems) -->
+        <!-- Hidden inputs for backward compat (legacy cost machinery reads these → 0) -->
+        <input type="hidden" id="addCostLodging" value="0">
+        <input type="hidden" id="addCostTravel" value="0">
         <input type="hidden" id="addTravelCost" value="0">
         <input type="hidden" id="addOtherCost" value="0">
       </div>
@@ -9158,7 +9158,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.36';
+const PIXORY_VERSION = '2.9.37';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -19405,6 +19405,8 @@ function openNewJob() {
   if (typeof resetCostItems === 'function') resetCostItems('add');
   if (typeof _addResetPresetCosts === 'function') _addResetPresetCosts();
   if (typeof _addUpdateCostsSum === 'function') _addUpdateCostsSum();
+  // v2.9.37 · reset ตารางต้นทุน&ส่งต่อ (รวม) สำหรับงานใหม่
+  if (typeof resetUnifiedCosts === 'function') resetUnifiedCosts();
   // v1.9.30 · hide billable banner (no source quote for fresh job)
   if (typeof renderJobBillableBanner === 'function') renderJobBillableBanner(null);
   // Default form
@@ -19645,20 +19647,15 @@ function editCurrentJob() {
   }
   // v1.9.14 · restore custom items
   loadCustomItems('add', j.customItems || []);
-  // v1.9.19 · restore cost items · v1.9.31 split into preset slots + others
-  if (Array.isArray(j.costItems) && j.costItems.length > 0) {
-    _addLoadCostItemsSplit(j.costItems);
-  } else {
+  // v2.9.37 · โหลดตารางต้นทุน&ส่งต่อ (รวม costItems + billableCosts เป็นแถวเดียว · sync ADD_BILLABLE ในตัว)
+  let _jForUni = j;
+  if (!Array.isArray(j.costItems) || j.costItems.length === 0) {
     const _migrate = [];
     if ((j.travelCost || 0) > 0) _migrate.push({ name: 'ค่าเดินทาง', desc: '', price: j.travelCost, category: 'เดินทาง', slot: 'travel' });
-    if ((j.otherCost || 0) > 0) _migrate.push({ name: 'ค่าใช้จ่ายอื่นๆ', desc: '', price: j.otherCost, category: 'อื่นๆ' });
-    _addLoadCostItemsSplit(_migrate);
+    if ((j.otherCost || 0) > 0) _migrate.push({ name: 'ค่าใช้จ่ายอื่นๆ', desc: '', price: j.otherCost, category: 'อื่นๆ', slot: null });
+    if (_migrate.length) _jForUni = Object.assign({}, j, { costItems: _migrate });
   }
-  if (typeof _addUpdateCostsSum === 'function') _addUpdateCostsSum();
-  // v2.5.65 · carry billable costs (revenue from converted quote) so they stay in sell on edit→save
-  ADD_BILLABLE = Array.isArray(j.billableCosts) ? JSON.parse(JSON.stringify(j.billableCosts)) : [];
-  // v1.9.30 · billable banner (if job has billableCosts from converted quote)
-  if (typeof renderJobBillableBanner === 'function') renderJobBillableBanner(j);
+  if (typeof loadUnifiedCosts === 'function') loadUnifiedCosts(_jForUni);
   ADD_TEAM = new Set(j.team || []);
   ADD_TEAM_WAGES = j.teamWages ? {...j.teamWages} : {};
   // v2.5.54 · Restore team finalization checkbox · legacy jobs (undefined) treated as finalized (no warning flood)
@@ -19763,25 +19760,16 @@ function collectAddFormData() {
   total += _customTotal('add');
   const extraTime = parseFloat(document.getElementById('addExtraTime').value) || 0;
   total += extraTime;  // ← Fix: include Extra time in total
-  // v2.5.65 · billable costs carried from a converted quote (revenue) must stay in sell · was dropped on edit→save
-  (Array.isArray(ADD_BILLABLE) ? ADD_BILLABLE : []).forEach(c => { total += (parseFloat(c && c.price) || 0); });
+  // v2.9.37 · ตารางต้นทุน&ส่งต่อ · "เก็บลูกค้า" → billableCosts (บวกราคาขาย) · "จ่ายจริง" → costItems (หักกำไร)
+  const _uni = (typeof unifiedToArrays === 'function') ? unifiedToArrays() : { costItems: [], billableCosts: [] };
+  const _addBillableSnapshot = _uni.billableCosts || [];
+  _addBillableSnapshot.forEach(c => { total += (parseFloat(c && c.price) || 0); });
   // v1.9.14 · snapshot of custom items, drop empty rows · v1.9.15 also persist desc · v1.9.27 also persist category
   const _addCustomSnapshot = _customGetState('add')
     .filter(c => (c.name && c.name.trim()) || (parseFloat(c.price) || 0) > 0)
     .map(c => ({ id: c.id, name: String(c.name || '').trim(), desc: String(c.desc || '').trim(), price: parseFloat(c.price) || 0, category: String(c.category || '') }));
-  // v1.9.19 · snapshot of cost items · v1.9.27 ctx-aware · v1.9.31 merge presets + others, persist category + slot
-  const _addPresetCosts = (typeof _addReadPresetCosts === 'function') ? _addReadPresetCosts() : [];
-  const _addOtherCosts = (typeof _costsGetState === 'function' ? _costsGetState('add') : (ADD_COSTS || []))
-    .filter(c => (c.name && c.name.trim()) || (parseFloat(c.price) || 0) > 0)
-    .map(c => ({
-      id: c.id,
-      name: String(c.name || '').trim() || 'อื่นๆ',
-      desc: String(c.desc || '').trim(),
-      price: parseFloat(c.price) || 0,
-      category: String(c.category || 'อื่นๆ'),
-      slot: null
-    }));
-  const _addCostsSnapshot = _addPresetCosts.concat(_addOtherCosts);
+  // v2.9.37 · costItems (ต้นทุน · หักกำไร) มาจากคอลัมน์ "จ่ายจริง" ของตารางรวม
+  const _addCostsSnapshot = _uni.costItems || [];
   const _costsTotalForSave = _addCostsSnapshot.reduce(function (s, it) { return s + (it.price || 0); }, 0);
   if (total === 0) { toast(t('toast.errSelectPackage')); return null; }
 
@@ -19892,6 +19880,7 @@ function collectAddFormData() {
     selectedServices: {...ADD_SELECTED},
     customItems: _addCustomSnapshot,  // v1.9.14
     costItems: _addCostsSnapshot,     // v1.9.19
+    billableCosts: _addBillableSnapshot, // v2.9.37 · คอลัมน์ "เก็บลูกค้า" (บันทึกถาวร · ออกใบเสนอ/ใบกำกับ)
     extraTime: parseFloat(document.getElementById('addExtraTime').value) || 0,
     qr: ADD_ADDONS.qr || null,
     other: ADD_ADDONS.profile || null,
@@ -21236,6 +21225,92 @@ function loadCostItems(ctx, items) {
   });
   _costsSetState(ctx, cleaned);
   renderCostList(ctx);
+}
+
+// ========== v2.9.37 · ตารางต้นทุน & ค่าใช้จ่ายส่งต่อ (เก็บลูกค้า | จ่ายจริง) ==========
+// แต่ละแถว: { id, label, category, slot, charge, cost }
+//   charge (เก็บลูกค้า) → เขียนลง billableCosts → บวกเข้าราคาขาย
+//   cost   (จ่ายจริง)  → เขียนลง costItems     → หักจากกำไร
+// เขียนลง 2 array เดิม → สูตรราคาขาย/กำไร/ใบเสนอ/แดชบอร์ด ไม่ต้องแก้
+let ADD_UNIFIED = [];
+let _unifiedCounter = 0;
+function _unifiedNewId() { _unifiedCounter++; return 'uni_' + Date.now() + '_' + _unifiedCounter; }
+
+// สร้างแถวรวมจาก costItems + billableCosts ของงาน (ตอน edit) · จับคู่ด้วย slot|category|ชื่อ
+function buildUnifiedFromJob(job) {
+  const rows = []; const byKey = {};
+  const keyOf = function(it){ return (it && it.slot || '') + '|' + (it && it.category || '') + '|' + String(it && it.name || '').trim(); };
+  (job && Array.isArray(job.costItems) ? job.costItems : []).forEach(function(it){
+    const row = { id:_unifiedNewId(), label:String(it.name||''), category:String(it.category||'อื่นๆ'), slot:it.slot||null, charge:0, cost:parseFloat(it.price)||0 };
+    rows.push(row); byKey[keyOf(it)] = row;
+  });
+  (job && Array.isArray(job.billableCosts) ? job.billableCosts : []).forEach(function(it){
+    const k = keyOf(it);
+    if (byKey[k]) byKey[k].charge = parseFloat(it.price)||0;
+    else rows.push({ id:_unifiedNewId(), label:String(it.name||''), category:String(it.category||'อื่นๆ'), slot:it.slot||null, charge:parseFloat(it.price)||0, cost:0 });
+  });
+  return rows;
+}
+function loadUnifiedCosts(job) { ADD_UNIFIED = buildUnifiedFromJob(job); _syncBillableFromUnified(); renderUnifiedCosts(); }
+function resetUnifiedCosts() { ADD_UNIFIED = []; try { ADD_BILLABLE = []; } catch(e){} renderUnifiedCosts(); }
+function addUnifiedCost() {
+  ADD_UNIFIED.push({ id:_unifiedNewId(), label:'', category:'อื่นๆ', slot:null, charge:0, cost:0 });
+  renderUnifiedCosts();
+  setTimeout(function(){ try { const r = ADD_UNIFIED[ADD_UNIFIED.length-1]; const el = document.querySelector('#add-unified-list .uni-row[data-id="'+r.id+'"] input.uni-label'); if (el) el.focus(); } catch(e){} }, 50);
+}
+function removeUnifiedCost(id) { ADD_UNIFIED = ADD_UNIFIED.filter(function(r){ return r.id !== id; }); _afterUnifiedChange(); }
+function updateUnifiedCost(id, field, raw) {
+  for (let i=0;i<ADD_UNIFIED.length;i++) { if (ADD_UNIFIED[i].id===id) {
+    if (field==='charge'||field==='cost') ADD_UNIFIED[i][field] = parseFloat(raw)||0; else ADD_UNIFIED[i].label = String(raw||'');
+    break; } }
+  _afterUnifiedChange();
+}
+function _afterUnifiedChange() { _unifiedRecalc(); _syncBillableFromUnified(); if (typeof updateAddTotal==='function') updateAddTotal(); }
+// อนุมาน slot/หมวดจากชื่อ (ให้แดชบอร์ด/ใบเสนอจัดหมวดถูก)
+function _unifiedInferSlotCat(label) {
+  const n = String(label||'').trim();
+  if (n === 'ค่าที่พัก' || /ที่พัก/.test(n)) return { slot:'lodging', category:'ที่พัก' };
+  if (n === 'ค่าเดินทาง' || n === 'ค่าน้ำมัน' || /เดินทาง|น้ำมัน/.test(n)) return { slot:'travel', category:'เดินทาง' };
+  return { slot:null, category:'อื่นๆ' };
+}
+// แปลงแถวรวม → { costItems(cost>0), billableCosts(charge>0) }
+function unifiedToArrays() {
+  const costItems = []; const billableCosts = [];
+  ADD_UNIFIED.forEach(function(r){
+    const label = String(r.label||'').trim(); const charge = parseFloat(r.charge)||0; const cost = parseFloat(r.cost)||0;
+    if (!label && charge===0 && cost===0) return;
+    let slot = r.slot, cat = r.category;
+    if (!slot || !cat || cat==='อื่นๆ') { const inf = _unifiedInferSlotCat(label); if (!slot) slot = inf.slot; if (!cat || cat==='อื่นๆ') cat = inf.category; }
+    if (cost > 0) costItems.push({ id:'uc_'+r.id, name:label||'รายการ', desc:'', price:cost, category:cat||'อื่นๆ', slot:slot||null });
+    if (charge > 0) billableCosts.push({ id:'ub_'+r.id, name:label||'รายการ', desc:'', price:charge, category:cat||'อื่นๆ', slot:slot||null });
+  });
+  return { costItems: costItems, billableCosts: billableCosts };
+}
+function _syncBillableFromUnified() { try { ADD_BILLABLE = unifiedToArrays().billableCosts; } catch(e){} }
+function _unifiedRecalc() {
+  let ch=0, ac=0, mg=0;
+  ADD_UNIFIED.forEach(function(r){ const c=parseFloat(r.charge)||0, a=parseFloat(r.cost)||0; ch+=c; ac+=a; if (c>0) mg+=(c-a); });
+  const f = function(n){ return n.toLocaleString(); };
+  const e1 = document.getElementById('add-unified-charge'); if (e1) e1.textContent = '+฿'+f(ch);
+  const e2 = document.getElementById('add-unified-actual'); if (e2) e2.textContent = '฿'+f(ac);
+  const e3 = document.getElementById('add-unified-margin'); if (e3) { e3.textContent = (mg>=0?'+':'-')+'฿'+f(Math.abs(mg)); e3.style.color = mg>=0 ? '#0f6e56' : '#dc2626'; }
+}
+function renderUnifiedCosts() {
+  const listEl = document.getElementById('add-unified-list'); if (!listEl) return;
+  const esc = function(s){ return String(s||'').replace(/"/g,'&quot;'); };
+  if (ADD_UNIFIED.length === 0) {
+    listEl.innerHTML = '<div style="text-align:center; color:#a89a8c; font-size:11.5px; padding:6px 0 8px;">ยังไม่มีรายการ · กดเพิ่มด้านล่าง</div>';
+  } else {
+    listEl.innerHTML = ADD_UNIFIED.map(function(r){
+      return '<div class="uni-row" data-id="'+r.id+'" style="display:grid; grid-template-columns:1.35fr 1fr 1fr 26px; gap:6px; align-items:center; margin-bottom:8px;">'
+        + '<input type="text" class="uni-label" placeholder="ชื่อรายการ" value="'+esc(r.label)+'" oninput="updateUnifiedCost(\''+r.id+'\',\'label\',this.value)" style="width:100%; padding:10px 11px; border:0.5px solid rgba(0,0,0,0.08); border-radius:9px; background:rgba(255,255,255,0.85); font-size:13px; font-family:inherit; color:#3a2f25; outline:none; box-sizing:border-box;">'
+        + '<input type="number" min="0" placeholder="—" value="'+(r.charge||'')+'" oninput="updateUnifiedCost(\''+r.id+'\',\'charge\',this.value)" style="width:100%; padding:10px 11px; border:0.5px solid rgba(0,0,0,0.08); border-radius:9px; background:rgba(255,255,255,0.85); font-size:13px; text-align:right; font-weight:600; color:#0f6e56; font-family:inherit; outline:none; box-sizing:border-box;">'
+        + '<input type="number" min="0" placeholder="0" value="'+(r.cost||'')+'" oninput="updateUnifiedCost(\''+r.id+'\',\'cost\',this.value)" style="width:100%; padding:10px 11px; border:0.5px solid rgba(0,0,0,0.08); border-radius:9px; background:rgba(255,255,255,0.85); font-size:13px; text-align:right; font-weight:600; color:#c2410c; font-family:inherit; outline:none; box-sizing:border-box;">'
+        + '<button type="button" aria-label="ลบ" onclick="removeUnifiedCost(\''+r.id+'\')" style="width:26px; height:34px; background:rgba(220,38,38,0.08); color:#dc2626; border:none; border-radius:7px; font-size:13px; cursor:pointer;">✕</button>'
+        + '</div>';
+    }).join('');
+  }
+  _unifiedRecalc();
 }
 
 // ========== v1.9.14 · "กำหนดรายละเอียดเอง" (Custom items) ==========
