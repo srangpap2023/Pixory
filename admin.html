@@ -261,6 +261,43 @@
   .udc-btn-row { display: flex; gap: 6px; margin-top: 10px; }
   .udc-btn-row .user-action { flex: 1; padding: 9px; font-size: 12.5px; }
 
+  /* === v4.0 · lifecycle vocab (healthy/activating/atrisk/dormant) === */
+  .stage-pill.healthy    { border-color: rgba(110,224,167,.3); background: rgba(110,224,167,.06); }
+  .stage-pill.activating { border-color: rgba(96,165,250,.3);  background: rgba(96,165,250,.06); }
+  .stage-pill.atrisk     { border-color: rgba(239,68,68,.3);   background: rgba(239,68,68,.06); }
+  .stage-pill.dormant    { border-color: rgba(255,255,255,.08); background: rgba(255,255,255,.03); }
+  .stage-pill.healthy .stage-pill-count    { color: var(--green); }
+  .stage-pill.activating .stage-pill-count { color: var(--blue); }
+  .stage-pill.atrisk .stage-pill-count     { color: var(--red); }
+  .stage-pill.dormant .stage-pill-count    { color: var(--muted-2); }
+  .user-row.healthy    { border-left: 3px solid var(--green); }
+  .user-row.activating { border-left: 3px solid var(--blue); }
+  .user-row.atrisk     { border-left: 3px solid var(--red); }
+  .user-row.dormant    { border-left: 3px solid var(--muted-2); }
+  .stage-tag.healthy    { background: rgba(110,224,167,.2); color: #a7f3d0; }
+  .stage-tag.activating { background: rgba(96,165,250,.2); color: #bfdbfe; }
+  .stage-tag.atrisk     { background: rgba(239,68,68,.2); color: #fca5a5; }
+  .stage-tag.dormant    { background: rgba(255,255,255,.06); color: var(--muted); }
+
+  /* === v4.0 · per-user deep view === */
+  .udc-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0; }
+  .udc-stat { background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 10px; padding: 8px 6px; text-align: center; }
+  .udc-stat-ic { font-size: 13px; }
+  .udc-stat-v { font-size: 13px; font-weight: 800; color: var(--ink); margin-top: 2px; word-break: break-word; }
+  .udc-stat-l { font-size: 9.5px; color: var(--muted); margin-top: 1px; }
+  .udc-flags { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
+  .udc-flag { font-size: 10.5px; padding: 3px 8px; border-radius: 50px; background: rgba(255,255,255,.04); color: var(--muted-2); border: 1px solid var(--line); }
+  .udc-flag.on { background: rgba(212,160,86,.12); color: var(--accent-2); border-color: rgba(212,160,86,.3); }
+  .udc-nudges { margin: 8px 0; display: flex; flex-direction: column; gap: 5px; }
+  .udc-nudge { font-size: 11.5px; color: #fde68a; background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.2); border-radius: 8px; padding: 6px 9px; line-height: 1.4; }
+  .udc-tl-title { font-size: 12px; font-weight: 700; color: var(--ink); margin: 12px 0 6px; }
+  .udc-timeline { display: flex; flex-direction: column; max-height: 240px; overflow-y: auto; }
+  .udc-tl-row { display: flex; align-items: center; gap: 8px; padding: 6px 2px; border-bottom: 1px solid var(--line); font-size: 12px; }
+  .udc-tl-ic { flex-shrink: 0; }
+  .udc-tl-main { flex: 1; min-width: 0; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .udc-tl-sub { color: var(--muted); font-size: 11px; }
+  .udc-tl-date { flex-shrink: 0; color: var(--muted-2); font-size: 10.5px; }
+
   /* === v2.0 · Compact user row · ~56px tall === */
   .user-row {
     display: flex; align-items: center; gap: 10px;
@@ -554,11 +591,11 @@
     <div class="hero">
       <div style="flex:1;min-width:170px;">
         <div class="hero-label">🌟 NORTH STAR</div>
-        <div class="hero-title">ใบเสนอที่ออกใน 7 วันล่าสุด</div>
+        <div class="hero-title">มูลค่างานที่จัดการผ่านแอป · เดือนนี้</div>
       </div>
       <div>
         <span class="hero-value" id="ns-value">—</span>
-        <span class="hero-unit">ใบเสนอ</span>
+        <span class="hero-unit" id="ns-active">—</span>
       </div>
       <div class="hero-trend" id="ns-trend">—</div>
     </div>
@@ -649,10 +686,10 @@
     <div class="filter-chips" id="filter-chips">
       <button class="filter-chip active" data-filter="all">ทั้งหมด</button>
       <button class="filter-chip" data-filter="new">🆕 สมัครใหม่</button>
-      <button class="filter-chip" data-filter="champion">🚀 Champions</button>
-      <button class="filter-chip" data-filter="active">✨ Active</button>
-      <button class="filter-chip" data-filter="tire">🪞 Tire</button>
-      <button class="filter-chip" data-filter="ghost">👻 Ghost</button>
+      <button class="filter-chip" data-filter="atrisk">⚠️ น่าห่วง</button>
+      <button class="filter-chip" data-filter="healthy">💚 สุขภาพดี</button>
+      <button class="filter-chip" data-filter="activating">🌱 กำลังเริ่ม</button>
+      <button class="filter-chip" data-filter="dormant">🌙 หลับอยู่</button>
       <button class="filter-chip" data-filter="online">🟢 Online</button>
       <button class="filter-chip" data-filter="badge">🏅 Tester</button>
     </div>
@@ -704,7 +741,31 @@
   <div class="view" id="view-insights">
     <div style="padding: 16px 22px 8px;">
       <div style="font-size: 22px; font-weight: 800; color: white;">Insights</div>
-      <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">รายงาน · metrics · funnel · genres · smart recommendations</div>
+      <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">วัดคุณค่า + retention จริง · ไม่ใช่ความถี่เปิดแอป</div>
+    </div>
+
+    <!-- v4.0 · 🏆 Leaderboard · ใครใช้หนักสุด (Managed GMV / งานต่อเดือน) -->
+    <div class="panel">
+      <div class="panel-title">🏆 ผู้ใช้ที่ใช้หนักสุด <span style="font-size:11px;color:var(--muted);font-weight:400;">· เรียงตามมูลค่างานที่จัดการผ่านแอป</span></div>
+      <div id="leaderboard"></div>
+    </div>
+
+    <!-- v4.0 · Active accounts (retention จริง) + งาน/ใบเสนอที่สร้างต่อวัน -->
+    <div class="panel">
+      <div class="panel-title">📈 การสร้างงาน/ใบเสนอต่อวัน <span style="font-size:11px;color:var(--muted);font-weight:400;">· 30 วันล่าสุด (การใช้งานจริง)</span></div>
+      <div id="daily-creation" style="min-height:80px;"></div>
+    </div>
+
+    <!-- v4.0 · Watchlist · เคย active แล้วเงียบกะทันหัน (อาจเจอบั๊ก/sync ล้ม) -->
+    <div class="panel">
+      <div class="panel-title">🩺 เฝ้าระวัง · เคยใช้ประจำแล้วเงียบ <span style="font-size:11px;color:var(--muted);font-weight:400;">· อาจเจอปัญหา</span></div>
+      <div id="watchlist"></div>
+    </div>
+
+    <!-- v4.0 · Segmentation · ช่างเดี่ยว vs มีทีม -->
+    <div class="panel">
+      <div class="panel-title">🧑‍🤝‍🧑 แบ่งกลุ่มผู้ใช้ <span style="font-size:11px;color:var(--muted);font-weight:400;">· retention ตามกลุ่ม</span></div>
+      <div id="segmentation"></div>
     </div>
 
     <!-- v2.4 · #1 GMV + Cash KPI cards (2 across) -->
@@ -759,15 +820,15 @@
     <div class="stats-grid" style="padding: 0 16px 4px;">
       <div class="stat">
         <div class="stat-icon">🟢</div>
-        <div class="stat-label">DAU / WAU / MAU</div>
+        <div class="stat-label">Active accounts</div>
         <div class="stat-value" id="metric-dwm" style="font-size:18px;">—</div>
-        <div class="stat-sub">active วันนี้ / 7 / 30 วัน</div>
+        <div class="stat-sub">สร้างงานจริงใน 30 / 60 / 90 วัน</div>
       </div>
       <div class="stat">
         <div class="stat-icon">🧲</div>
-        <div class="stat-label">Stickiness</div>
+        <div class="stat-label">Retention rate</div>
         <div class="stat-value" id="metric-sticky">—</div>
-        <div class="stat-sub" id="metric-sticky-sub">DAU ÷ MAU</div>
+        <div class="stat-sub" id="metric-sticky-sub">active 60วัน ÷ ทั้งหมด</div>
       </div>
     </div>
 
@@ -912,13 +973,13 @@
     <div class="panel">
       <div class="panel-title">ℹ เกี่ยวกับ</div>
       <div style="font-size:12px; color: var(--muted); line-height:1.6;">
-        Pixory Admin Monitor · v3.8<br>
-        5 แท็บ · champagne gold · growth monitors<br><br>
-        • Realtime sync + polling 10s<br>
-        • Live notification toast + sound<br>
-        • 💬 Inbox แชทกับผู้ใช้ + web push (sw-admin.js)<br>
-        • 4 user stages · engagement score<br>
-        • DM via LINE / Email / SMS
+        Pixory Admin Monitor · v4.0<br>
+        5 แท็บ · champagne gold · monitoring v4<br><br>
+        • วัดจังหวะจริง (cadence) แทนการนับวันว่าง<br>
+        • North Star = Managed GMV/เดือน + active accounts<br>
+        • 4 สถานะ: สุขภาพดี / กำลังเริ่ม / น่าห่วง / หลับอยู่<br>
+        • Leaderboard · timeline รายคน · nudge ตาม workflow<br>
+        • 💬 Inbox แชทกับผู้ใช้ + web push (sw-admin.js)
       </div>
     </div>
   </div>
@@ -1584,42 +1645,26 @@ async function loadDashboard(showLoading) {
   }
 }
 
-function classifyStage(user) {
-  // v2.5 · lowered Champion threshold for small user base (was ≥10 → ≥5)
-  //        and require hasPayment so "5 unpaid quotes" doesn't count
-  // v2.3 M5 · Active threshold loosened to include brand-new users (items=1+day=0)
-  // Champion = real customer (5+ items · paid · recent)
-  // Active = used app recently + has some activity (≥1 item · day<2)
-  // Tire = had activity but went quiet (2-7 days)
-  // Ghost = idle ≥7 days OR no items + idle ≥3 days
-  const daysSinceActive = (Date.now() - user.updatedAt) / 86400000;
-  const totalItems = user.jobCount + user.quoteCount;
-  if (totalItems >= 5 && user.hasPayment && daysSinceActive < 3) return 'champion';
-  if (daysSinceActive >= 7) return 'ghost';
-  if (totalItems === 0 && daysSinceActive >= 3) return 'ghost';
-  if (totalItems >= 1 && daysSinceActive < 2) return 'active'; // was ≥2
-  return 'tire';
-}
+// v4.0 · เดิมจัดกลุ่มด้วยการนับวันว่าง (champion/active/tire/ghost) — ยกเลิก
+//   ตอนนี้ delegate ไป classifyLifecycle (โมเดลจังหวะจริง) · เก็บชื่อไว้กัน caller เก่า
+function classifyStage(user) { return classifyLifecycle(user); }
+
+// v4.0 · Score = คุณค่าจริง (value) + สุขภาพจังหวะ · ไม่ใช่ vanity count
+//   ใช้เรียงลำดับ + badge · แทน logic นับวันว่างเดิม
 function computeScore(user) {
-  // v2.5 · Re-weighted to value REAL REVENUE over vanity counts
-  //   Old: 5 unpaid quotes = 5 paid jobs (both 30 pts) · misleading
-  //   New: hasPayment becomes the highest single weight (25) · paid job > unpaid quote
-  // v2.3 M9 · Push/PDF bonuses only count when user has real activity (prevent gaming)
-  let score = 0;
-  const hasActivity = user.quoteCount >= 1 || user.jobCount >= 1;
-  if (user.quoteCount >= 1) score += 20;             // was 30 — lowered because unpaid
-  if (user.jobCount >= 1)   score += 25;             // was 30 — booked but maybe unpaid
-  if (user.hasPayment)      score += 25;             // was 15 — REAL money in = best signal
-  if (user.custCount >= 3)  score += 10;
-  if (user.pushEnabled && hasActivity) score += 10;  // was 15 — push is a hint, not engagement
-  if (user.pdfGenerated && hasActivity) score += 10;
-  // Extra bump for healthy power users
-  const totalItems = user.quoteCount + user.jobCount;
-  if (totalItems >= 5 && user.hasPayment) score += 10;
-  const daysIdle = (Date.now() - user.updatedAt) / 86400000;
-  if (daysIdle >= 7)  score -= 20;
-  if (daysIdle >= 14) score -= 20;
-  return Math.max(0, Math.min(100, score));
+  let s = 0;
+  if (user.quoteCount >= 1) s += 10;
+  if (user.jobCount >= 1)   s += 15;
+  if (user.hasPayment)      s += 20;   // เงินเข้าจริง = สัญญาณดีสุด
+  if ((user.managedGmv || 0) > 0)       s += 10;
+  if ((user.managedGmv || 0) >= 100000) s += 10;
+  if ((user.managedGmv || 0) >= 500000) s += 10;
+  if ((user.recentEventCount || 0) >= 1) s += 10; // ยังทำงานใน 6 เดือน
+  if ((user.recentEventCount || 0) >= 5) s += 10;
+  // หักตามสุขภาพจังหวะ (ไม่ใช่วันว่างตายตัว)
+  if (user.life === 'atrisk')  s -= 10;
+  if (user.life === 'dormant') s -= 25;
+  return Math.max(0, Math.min(100, s));
 }
 
 function processRows(rows) {
@@ -1646,6 +1691,7 @@ function processRows(rows) {
     const jobs = Array.isArray(d.JOBS) ? d.JOBS : [];
     const quotes = Array.isArray(d.QUOTES) ? d.QUOTES : [];
     const customers = d.CUSTOMER_INFO || {};
+    const teamCount = Array.isArray(d.TEAM) ? d.TEAM.length : 0; // v4.0 · segmentation ช่างเดี่ยว/มีทีม
     const lastAction = profile.LAST_ACTION || { type: '', at: '', code: '' };
     const studioGenres = Array.isArray(profile.studioGenres) ? profile.studioGenres : [];
     const studioGenresOther = String(profile.studioGenresOther || '').trim();
@@ -1659,6 +1705,7 @@ function processRows(rows) {
         userId: row.user_id,  // v3.2 · ใช้ผูกตรา Founding Tester
         email, emailIsFallback, shop, phone, line, updatedAt, signupAt, hasSignup, joinedAt,
         jobCount: jobs.length, quoteCount: quotes.length, custCount: Object.keys(customers).length,
+        teamCount,
         appVersion: meta.app_version || '—',
         lastAction, pushEnabled, hasPayment, pdfGenerated,
         jobs, quotes, ns, studioGenres, studioGenresOther
@@ -1675,14 +1722,18 @@ function processRows(rows) {
       if (joinedAt && (!u.joinedAt || joinedAt < u.joinedAt)) u.joinedAt = joinedAt;
       if (updatedAt > u.updatedAt) Object.assign(u, {
         updatedAt, shop, phone, line, jobCount: jobs.length, quoteCount: quotes.length,
-        custCount: Object.keys(customers).length, lastAction, pushEnabled, hasPayment, pdfGenerated,
+        custCount: Object.keys(customers).length, teamCount, lastAction, pushEnabled, hasPayment, pdfGenerated,
         appVersion: meta.app_version || '—', jobs, quotes, ns, studioGenres, studioGenresOther
       });
     }
   });
   const users = Array.from(map.values());
   users.forEach(u => {
-    u.stage = classifyStage(u);
+    // v4.0 · โมเดลจังหวะจริง — cadence → value → lifecycle → score
+    computeCadence(u);
+    computeValueMetrics(u);
+    u.life = classifyLifecycle(u);
+    u.stage = u.life;               // v4.0 · alias กันโค้ดเก่าอ้าง u.stage
     u.score = computeScore(u);
     // v3.4 · ออนไลน์ดูจาก user_presence (beat 30 วิ) ถ้ามี · ไม่มีก็ใช้เวลาเซฟข้อมูลล่าสุดตามเดิม
     const _pseen = (window._PRESENCE || {})[u.userId] || 0;
@@ -1691,6 +1742,197 @@ function processRows(rows) {
     u.isOnline = u.secondsAgo < ONLINE_THRESHOLD_SEC;
   });
   return users.sort((a,b) => b.score - a.score || b.updatedAt - a.updatedAt);
+}
+
+// ============================================================
+// v4.0 · MONITORING ENGINE (โมเดล "จังหวะจริง" แทนการนับวันว่าง)
+//   ปรัชญา: Pixory = เครื่องมือมืออาชีพ ไม่ใช่แอปติดหนึบรายวัน
+//   วัด value + retention + จังหวะของแต่ละคน · ไม่ใช่ความถี่เปิดแอป
+//   ทุกอย่างคำนวณ client-side จาก blob ที่โหลดแล้ว (ไม่ดึงซ้ำ = กัน egress)
+// ============================================================
+const DAY_MS = 86400000;
+
+// นิยาม 4 สถานะวงจรชีวิต (แทน champion/active/tire/ghost เดิม)
+const LIFECYCLE = {
+  healthy:    { emoji: '💚', name: 'สุขภาพดี',  avatar: 'green',  weight: 2, color: '#6ee0a7' },
+  activating: { emoji: '🌱', name: 'กำลังเริ่ม', avatar: '',       weight: 1, color: '#60a5fa' },
+  atrisk:     { emoji: '⚠️', name: 'น่าห่วง',   avatar: 'red',    weight: 3, color: '#fca5a5' },
+  dormant:    { emoji: '🌙', name: 'หลับอยู่',  avatar: '',       weight: 0, color: 'var(--muted-2)' }
+};
+
+// เก็บ timestamp ของ "เหตุการณ์งานจริง" (สร้างงาน/ใบเสนอ/รับเงิน) เรียงเวลา
+function _userEventTimes(u) {
+  const ts = [];
+  (u.jobs || []).forEach(j => {
+    if (!j) return;
+    const c = new Date(j._createdAt || 0).getTime();
+    if (c > 0) ts.push(c);
+    (j.payments || []).forEach(p => { const t = new Date((p && p.date) || 0).getTime(); if (t > 0) ts.push(t); });
+  });
+  (u.quotes || []).forEach(q => {
+    if (!q) return;
+    const t = new Date(q._createdAt || q.dateSent || q.dateIssued || 0).getTime();
+    if (t > 0) ts.push(t);
+  });
+  return ts.filter(t => !isNaN(t) && t > 0).sort((a, b) => a - b);
+}
+
+// คำนวณ cadence (จังหวะ) ของผู้ใช้ + เขียนฟิลด์ลง u
+function computeCadence(u) {
+  const now = Date.now();
+  const SIX_MO = 182 * DAY_MS;
+  const all = _userEventTimes(u);
+  const recent = all.filter(t => t > now - SIX_MO);
+  u.eventCount = all.length;
+  u.recentEventCount = recent.length;
+  u.lastEventAt = all.length ? all[all.length - 1] : null;
+  u.firstEventAt = all.length ? all[0] : null;
+  const base = recent.length >= 2 ? recent : all;
+  let cadence = null;
+  if (base.length >= 2) {
+    const gaps = [];
+    for (let i = 1; i < base.length; i++) gaps.push((base[i] - base[i - 1]) / DAY_MS);
+    gaps.sort((a, b) => a - b);
+    cadence = gaps[Math.floor(gaps.length / 2)]; // median gap = จังหวะปกติ
+  }
+  u.cadenceDays = cadence; // null = มี event < 2 ครั้ง
+  u.daysSinceEvent = u.lastEventAt ? (now - u.lastEventAt) / DAY_MS : null;
+  return cadence;
+}
+
+// จัดสถานะวงจรชีวิตตามจังหวะของตัวเอง (ไม่ใช่เกณฑ์ตายตัว 3/7 วัน)
+function classifyLifecycle(u) {
+  const now = Date.now();
+  const totalItems = (u.jobCount || 0) + (u.quoteCount || 0);
+  // ยังไม่มีงาน/ใบเสนอเลย = ยังไม่ผ่าน milestone แรก
+  if (totalItems === 0) {
+    const joined = u.joinedAt || (u.hasSignup ? u.signupAt : null);
+    const daysSinceJoin = joined ? (now - joined) / DAY_MS : Infinity;
+    return daysSinceJoin <= 30 ? 'activating' : 'dormant';
+  }
+  const since = u.daysSinceEvent;
+  if (since == null) return 'activating';
+  const cad = u.cadenceDays;
+  if (cad && cad > 0) {
+    // floor กันเข้าใจผิดว่าคนที่หายไม่กี่วัน = น่าห่วง (เครื่องมือ ไม่ใช่แอปรายวัน)
+    const floorHealthy = Math.max(cad * 1.5, 21);  // healthy อย่างน้อย 21 วัน
+    const floorDormant = Math.max(cad * 4, 60);     // dormant ต่อเมื่อเงียบ > 60 วัน
+    if (since <= floorHealthy) return 'healthy';
+    if (since <= floorDormant) return 'atrisk';
+    return 'dormant';
+  }
+  // มี event ครั้งเดียว → ตัดสินจากความ recent แบบใจกว้าง
+  if (since <= 45) return 'healthy';
+  if (since <= 90) return 'atrisk';
+  return 'dormant';
+}
+
+// มูลค่าที่จัดการผ่านแอป (Managed GMV) + เงินสดเข้า + งาน/เดือน
+function computeValueMetrics(u) {
+  const now = Date.now();
+  let gmv = 0, cashIn = 0, j90 = 0;
+  (u.jobs || []).forEach(j => {
+    if (!j) return;
+    const cancelled = j.cancelled === true || j.jobStatus === 'ยกเลิก';
+    if (!cancelled) gmv += (parseFloat(j.sell) || 0);
+    (j.payments || []).forEach(p => { cashIn += parseFloat(p && p.amount) || 0; });
+    const t = new Date(j._createdAt || 0).getTime();
+    if (t > 0 && t > now - 90 * DAY_MS) j90++;
+  });
+  u.managedGmv = gmv;
+  u.cashIn = cashIn;
+  u.jobsPerMonth = Math.round((j90 / 3) * 10) / 10; // งานที่เปิดต่อเดือน (เฉลี่ย 90 วัน)
+}
+
+// รายการเตือนตาม workflow จริง (แทน "หาย 3 วัน = DM")
+function computeNudges(u) {
+  const now = Date.now(), out = [];
+  (u.jobs || []).forEach(j => {
+    if (!j || j.cancelled === true || j.jobStatus === 'ยกเลิก') return;
+    const shoot = new Date(j.date || 0).getTime();
+    const sell = parseFloat(j.sell) || 0;
+    const paid = (j.payments || []).reduce((s, p) => s + (parseFloat(p && p.amount) || 0), 0);
+    // งานถ่ายใกล้ถึงแต่ผู้ใช้เงียบนาน
+    if (shoot > now && shoot < now + 7 * DAY_MS && u.daysSinceEvent != null && u.daysSinceEvent > 14) {
+      out.push({ ic: '📅', text: 'มีงานถ่าย ' + _shortDate(shoot) + ' แต่เงียบมา ' + Math.round(u.daysSinceEvent) + ' วัน' });
+    }
+    // รับมัดจำแล้ว ผ่านวันงานไปนาน ยังไม่ปิดยอด
+    if (sell > 0 && paid > 0 && paid < sell - 0.01 && shoot > 0 && shoot < now - 3 * DAY_MS) {
+      out.push({ ic: '💸', text: (j.code || 'งาน') + ' ถ่ายแล้วยังค้างเก็บ ฿' + Math.round(sell - paid).toLocaleString() });
+    }
+  });
+  (u.quotes || []).forEach(q => {
+    if (!q || q.status === 'converted' || q.convertedJobCode || q.status === 'rejected') return;
+    const exp = new Date(q.dateExpire || 0).getTime();
+    if (exp > now && exp < now + 5 * DAY_MS) {
+      out.push({ ic: '⏳', text: 'ใบเสนอ ' + (q.code || '') + ' ใกล้หมดอายุ ' + _shortDate(exp) + ' ยังไม่ปิดการขาย' });
+    }
+  });
+  if (u.life === 'atrisk') {
+    const cad = u.cadenceDays ? ('เคยใช้ทุก ~' + Math.round(u.cadenceDays) + ' วัน') : 'เคยใช้แล้วเงียบ';
+    const last = u.daysSinceEvent != null ? (Math.round(u.daysSinceEvent) + ' วันก่อน') : '—';
+    out.push({ ic: '⚠️', text: 'ห่างหายเกินจังหวะปกติ (' + cad + ', ล่าสุด ' + last + ')' });
+  }
+  return out;
+}
+
+// timeline เหตุการณ์งานจริง เรียงใหม่→เก่า
+function buildUserTimeline(u) {
+  const ev = [];
+  (u.quotes || []).forEach(q => {
+    if (!q) return;
+    const t = new Date(q._createdAt || q.dateSent || q.dateIssued || 0).getTime();
+    if (t > 0) ev.push({ ts: t, ic: '📋', label: 'สร้างใบเสนอ', sub: (q.code || '') + (q.sell ? ' · ฿' + Math.round(parseFloat(q.sell) || 0).toLocaleString() : '') });
+  });
+  (u.jobs || []).forEach(j => {
+    if (!j) return;
+    const t = new Date(j._createdAt || 0).getTime();
+    if (t > 0) ev.push({ ts: t, ic: '💼', label: 'เปิดงาน', sub: (j.code || '') + (j.sell ? ' · ฿' + Math.round(parseFloat(j.sell) || 0).toLocaleString() : '') });
+    (j.payments || []).forEach(p => {
+      const pt = new Date((p && p.date) || 0).getTime();
+      if (pt > 0) ev.push({ ts: pt, ic: '💰', label: 'รับเงิน', sub: (j.code || '') + ' · ฿' + Math.round(parseFloat(p && p.amount) || 0).toLocaleString() });
+    });
+  });
+  ev.sort((a, b) => b.ts - a.ts);
+  return ev;
+}
+
+// เตือนตาม workflow ทั้งระบบ (ต้องทำวันนี้) — ยกมาจากทุกผู้ใช้
+function collectSystemNudges(users) {
+  const list = [];
+  users.forEach(u => {
+    computeNudges(u).forEach(n => list.push({ u, ic: n.ic, text: n.text }));
+  });
+  return list;
+}
+
+function _shortDate(ms) {
+  try { return new Date(ms).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }); }
+  catch (e) { return '—'; }
+}
+function _fmtBaht(n) {
+  n = Math.round(n || 0);
+  return '฿' + (n >= 1000000 ? (n / 1000000).toFixed(1) + 'M' : n >= 1000 ? (n / 1000).toFixed(1) + 'K' : n.toLocaleString());
+}
+// นับบัญชีที่มี "เหตุการณ์งานจริง" ภายใน N วัน (retention จริง ไม่ใช่ login)
+function activeAccounts(users, days) {
+  const cut = Date.now() - days * DAY_MS;
+  return users.filter(u => u.lastEventAt && u.lastEventAt >= cut).length;
+}
+// Managed GMV ของงานที่ "เปิดในเดือน" ที่กำหนด (0=เดือนนี้, 1=เดือนก่อน)
+function managedGmvForMonth(users, monthsAgo) {
+  const d = new Date();
+  d.setMonth(d.getMonth() - monthsAgo);
+  const y = d.getFullYear(), m = d.getMonth();
+  let gmv = 0;
+  users.forEach(u => (u.jobs || []).forEach(j => {
+    if (!j || j.cancelled === true || j.jobStatus === 'ยกเลิก') return;
+    const t = new Date(j._createdAt || 0).getTime();
+    if (!t) return;
+    const dt = new Date(t);
+    if (dt.getFullYear() === y && dt.getMonth() === m) gmv += (parseFloat(j.sell) || 0);
+  }));
+  return gmv;
 }
 
 // ============ RENDER (all views) ============
@@ -1763,22 +2005,24 @@ function renderGrowth(users) {
   const gmvEl = document.getElementById('kpi-gmv-mini');
   const srcGmv = document.getElementById('metric-gmv');
   if (gmvEl && srcGmv) gmvEl.textContent = srcGmv.textContent;
-  // --- ต้องทำวันนี้ (action list) ---
+  // --- ต้องทำวันนี้ (v4.0 · เตือนตาม workflow จริง แทน "หาย N วัน") ---
   const tEl = document.getElementById('todo-list');
   if (tEl) {
     const todos = [];
-    users.filter(u => isActionNeeded(u)).slice(0, 3).forEach(u => {
-      const days = Math.floor((now - u.updatedAt) / 86400000);
-      todos.push({ ic: '🔥', html: `DM <b>${escapeHtml(u.shop || u.email)}</b> · หายไป ${days} วัน`, email: u.email });
+    // 1. เตือนตาม workflow ของผู้ใช้ (งานถ่ายใกล้/ค้างเก็บ/ใบเสนอใกล้หมด/หลุดจังหวะ)
+    collectSystemNudges(users).slice(0, 6).forEach(n => {
+      todos.push({ ic: n.ic, html: `<b>${escapeHtml(n.u.shop || n.u.email)}</b> · ${escapeHtml(n.text)}`, email: n.u.email });
     });
+    // 2. สมัครแล้วยังไม่ตั้งค่าร้าน (7 วันล่าสุด) — ชวน onboarding
     users.filter(u => !u.shop && (now - (u.joinedAt || u.signupAt)) < 7 * 86400000).slice(0, 2).forEach(u => {
       todos.push({ ic: '🏪', html: `<b>${escapeHtml(u.email)}</b> สมัครแล้วยังไม่ตั้งค่าร้าน · ชวนตั้ง`, email: u.email });
     });
-    const champ = users.filter(u => u.stage === 'champion' && u.hasPayment).sort((a, b) => b.jobCount - a.jobCount)[0];
-    if (champ) todos.push({ ic: '⭐', html: `ขอ testimonial จาก <b>${escapeHtml(champ.shop || champ.email)}</b> (${champ.jobCount} งาน)`, email: champ.email });
+    // 3. ขอ testimonial จากผู้ใช้มูลค่าสูงสุดที่ยัง healthy
+    const topVal = users.filter(u => u.life === 'healthy' && u.hasPayment).sort((a, b) => (b.managedGmv || 0) - (a.managedGmv || 0))[0];
+    if (topVal) todos.push({ ic: '⭐', html: `ขอ testimonial จาก <b>${escapeHtml(topVal.shop || topVal.email)}</b> (${_fmtBaht(topVal.managedGmv)} · ${topVal.jobCount} งาน)`, email: topVal.email });
     document.getElementById('todo-count').textContent = todos.length;
     tEl.innerHTML = todos.length
-      ? todos.map(t => `<div onclick="openUserSheet('${escapeHtml(t.email)}')" style="display:flex;gap:10px;align-items:flex-start;padding:9px 4px;border-bottom:1px solid var(--line);font-size:12.5px;cursor:pointer;"><span>${t.ic}</span><span style="flex:1;line-height:1.5;">${t.html}</span><span style="color:var(--muted-2);">›</span></div>`).join('')
+      ? todos.slice(0, 8).map(t => `<div onclick='openUserSheet(${JSON.stringify(t.email)})' style="display:flex;gap:10px;align-items:flex-start;padding:9px 4px;border-bottom:1px solid var(--line);font-size:12.5px;cursor:pointer;"><span>${t.ic}</span><span style="flex:1;line-height:1.5;">${t.html}</span><span style="color:var(--muted-2);">›</span></div>`).join('')
       : '<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px;">วันนี้ไม่มีอะไรค้าง 🎉</div>';
   }
 }
@@ -1788,63 +2032,49 @@ function renderHome(users) {
   const now = Date.now();
   const SEVEN_DAYS = 7 * 86400000;
 
-  // North Star · v2.2 C4 · use ONLY creation timestamp (dateSent) · NOT dateEvent (future shoot date inflates)
-  let nsCount = 0, nsPrevWeek = 0;
-  users.forEach(u => {
-    (u.quotes || []).forEach(q => {
-      const t = new Date(q._createdAt || q.dateSent || 0).getTime();
-      if (!isNaN(t) && t > 0) {
-        if (t > now - SEVEN_DAYS) nsCount++;
-        else if (t > now - SEVEN_DAYS * 2) nsPrevWeek++;
-      }
-    });
-  });
-  document.getElementById('ns-value').textContent = nsCount;
-  const trend = nsPrevWeek > 0 ? Math.round(((nsCount - nsPrevWeek) / nsPrevWeek) * 100) : (nsCount > 0 ? 100 : 0);
+  // v4.0 · North Star = Managed GMV เดือนนี้ + บัญชีที่สร้างงานจริง 60 วัน (retention จริง)
+  const gmvThis = managedGmvForMonth(users, 0);
+  const gmvPrev = managedGmvForMonth(users, 1);
+  const active60 = activeAccounts(users, 60);
+  document.getElementById('ns-value').textContent = _fmtBaht(gmvThis);
+  const nsActiveEl = document.getElementById('ns-active');
+  if (nsActiveEl) nsActiveEl.textContent = active60 + ' บัญชี active (60วัน)';
+  const trend = gmvPrev > 0 ? Math.round(((gmvThis - gmvPrev) / gmvPrev) * 100) : (gmvThis > 0 ? 100 : 0);
   const trendEl = document.getElementById('ns-trend');
-  if (nsPrevWeek === 0 && nsCount > 0) trendEl.textContent = `↗ ใหม่! +${nsCount} ใบในสัปดาห์นี้`;
-  else if (trend > 0) trendEl.textContent = `↗ +${trend}% จากสัปดาห์ที่แล้ว`;
-  else if (trend < 0) { trendEl.textContent = `↘ ${trend}% จากสัปดาห์ที่แล้ว`; trendEl.classList.add('down'); }
-  else if (nsCount === 0) trendEl.textContent = '— ยังไม่มีใบเสนอใน 7 วัน';
-  else trendEl.textContent = `— เท่ากับสัปดาห์ที่แล้ว`;
+  if (gmvPrev === 0 && gmvThis > 0) trendEl.textContent = `↗ เริ่มมีมูลค่างานเดือนนี้`;
+  else if (trend > 0) trendEl.textContent = `↗ +${trend}% จากเดือนก่อน`;
+  else if (trend < 0) { trendEl.textContent = `↘ ${trend}% จากเดือนก่อน`; trendEl.classList.add('down'); }
+  else if (gmvThis === 0) trendEl.textContent = '— ยังไม่มีงานเปิดเดือนนี้';
+  else trendEl.textContent = `— เท่ากับเดือนก่อน`;
 
-  // KPIs
-  const activeToday = users.filter(u => u.secondsAgo < 86400).length;
-  const activated = users.filter(u => u.quoteCount >= 1).length;
-  const atRisk = users.filter(u => {
-    const days = u.secondsAgo / 86400;
-    return days > 3 && days < 14 && (u.jobCount + u.quoteCount) >= 1;
-  });
-  const champions = users.filter(u => u.stage === 'champion');
+  // v4.0 · KPIs — วัด retention จริง (มีเหตุการณ์งาน) ไม่ใช่การเปิดแอป
+  //   active60 ประกาศแล้วในบล็อก North Star ด้านบน (scope เดียวกัน) · ใช้ซ้ำได้
+  const active90 = activeAccounts(users, 90);
+  const activated = users.filter(u => (u.jobCount + u.quoteCount) >= 1).length;
+  const atRisk = users.filter(u => u.life === 'atrisk');
 
   document.getElementById('kpi-users').textContent = totalUsers;
   document.getElementById('kpi-users-sub').textContent = totalUsers > 0 ? 'ทั้งหมดในระบบ' : '—';
-  document.getElementById('kpi-active').textContent = activeToday;
-  // v2.5 · was mislabeled "DAU/MAU" — it's actually % of all signed-up users active today (not true MAU)
-  // Switched to honest "Today / All users" so number isn't misread as industry-standard DAU/MAU
-  const todayPct = totalUsers ? Math.round((activeToday/totalUsers)*100) : 0;
+  // "Active" = บัญชีที่สร้างงานจริงใน 60 วัน (retention จริง · ไม่ใช่ login)
+  document.getElementById('kpi-active').textContent = active60;
+  const act60Pct = totalUsers ? Math.round((active60 / totalUsers) * 100) : 0;
   const activeSub = document.getElementById('kpi-active-sub');
-  activeSub.textContent = `${todayPct}% ของผู้สมัครทั้งหมด`;
-  activeSub.className = 'stat-sub ' + (todayPct >= 20 ? '' : 'warn');
+  activeSub.textContent = `${act60Pct}% · 90วัน: ${active90}`;
+  activeSub.className = 'stat-sub ' + (act60Pct >= 25 ? '' : 'warn');
   const actPct = totalUsers ? Math.round((activated/totalUsers)*100) : 0;
   document.getElementById('kpi-activation').textContent = actPct + '%';
   const actSub = document.getElementById('kpi-activation-sub');
-  actSub.textContent = `${activated}/${totalUsers} ใบเสนอแรก`;
+  actSub.textContent = `${activated}/${totalUsers} ผ่านงาน/ใบเสนอแรก`;
   actSub.className = 'stat-sub ' + (actPct >= 50 ? '' : 'warn');
   document.getElementById('kpi-risk').textContent = atRisk.length;
-  document.getElementById('kpi-risk-sub').textContent = atRisk.length > 0 ? 'DM ทันที' : 'ไม่มี · ดี! 🎉';
+  document.getElementById('kpi-risk-sub').textContent = atRisk.length > 0 ? 'หลุดจังหวะ · ดูรายชื่อ' : 'ไม่มี · ดี! 🎉';
   document.getElementById('kpi-risk-sub').className = 'stat-sub ' + (atRisk.length > 0 ? 'bad' : '');
 
-  // Stages
-  const byStage = { ghost: 0, tire: 0, active: 0, champion: 0 };
-  users.forEach(u => byStage[u.stage]++);
+  // v4.0 · Lifecycle pills (แทน champion/active/tire/ghost)
+  const byStage = { healthy: 0, activating: 0, atrisk: 0, dormant: 0 };
+  users.forEach(u => { if (byStage[u.life] != null) byStage[u.life]++; });
   const stagesEl = document.getElementById('stages-scroll');
-  const stages = [
-    { key: 'champion', emoji: '🚀', name: 'Champion' },
-    { key: 'active', emoji: '✨', name: 'Active' },
-    { key: 'tire', emoji: '🪞', name: 'Tire-kicker' },
-    { key: 'ghost', emoji: '👻', name: 'Ghost' }
-  ];
+  const stages = ['healthy', 'activating', 'atrisk', 'dormant'].map(k => ({ key: k, emoji: LIFECYCLE[k].emoji, name: LIFECYCLE[k].name }));
   stagesEl.innerHTML = stages.map(s => `
     <div class="stage-pill ${s.key}" onclick="setUserFilter('${s.key}');switchTab('users')">
       <div class="stage-pill-emoji">${s.emoji}</div>
@@ -1861,18 +2091,7 @@ function renderHome(users) {
   document.getElementById('activity-feed').innerHTML = feedItems.length ? feedItems.map(u => renderActivityItem(u)).join('') :
     '<div class="empty" style="padding:30px;"><div style="font-size:24px;opacity:.5;">🌙</div><div style="font-size:12px;margin-top:6px;color:var(--muted);">ยังไม่มี activity · รอ user เริ่มใช้แอพ</div></div>';
 
-  // v3.1 · ตัดลิสต์ Champions/At-Risk ออกจาก Home (Joe: ข้อมูลซ้ำ 3 ชั้น) — บ้านของรายชื่อ = หน้า Users
-  //        element ลบจาก HTML แล้ว · guard กันโค้ดเก่า/ใหม่ปนกัน
-  const _champEl = document.getElementById('champions-list');
-  if (_champEl) {
-    document.getElementById('champion-count').textContent = champions.length;
-    _champEl.innerHTML = champions.slice(0, 3).map(u => renderUserRow(u, 'purple', `${u.quoteCount}q · ${u.jobCount}j · score ${u.score}`)).join('');
-  }
-  const _riskEl = document.getElementById('risk-list');
-  if (_riskEl) {
-    document.getElementById('risk-count').textContent = atRisk.length;
-    _riskEl.innerHTML = atRisk.slice(0, 5).map(u => renderUserRow(u, 'red', `ไม่เข้า ${formatDays(u.secondsAgo)} · ${u.quoteCount}q ${u.jobCount}j`)).join('');
-  }
+  // v3.1/v4.0 · ลิสต์ Champions/At-Risk ย้ายไปหน้า Users ที่เดียว (element เก่าถูกลบแล้ว)
 }
 
 function renderActivityItem(u) {
@@ -1918,21 +2137,15 @@ function setUserFilter(filter) {
   renderUsersView(_lastUsers);
 }
 
-// v2.3 M6 · Action needed = at-risk (3-14d idle w/ activity) OR active+low-score (early signal)
+// v4.0 · Action needed = มี nudge จาก workflow จริง (งานถ่ายใกล้/ค้างเก็บ/ใบเสนอใกล้หมด/หลุดจังหวะ)
 function isActionNeeded(u) {
-  if (u.stage === 'champion') return false;
-  const days = u.secondsAgo / 86400;
-  const hasActivity = (u.jobCount + u.quoteCount) >= 1;
-  // Classic at-risk pattern (used to be active · now silent 3-14 days)
-  if (days > 3 && days < 14 && hasActivity) return true;
-  // v2.3 M6 · early-stage active user with low engagement (might churn soon)
-  if (u.stage === 'active' && (u.score || 0) < 40) return true;
-  return false;
+  if (u._nudges == null) u._nudges = computeNudges(u); // cache ต่อ render cycle
+  return u._nudges.length > 0;
 }
 
-// v2.0 · Sort users by importance: at-risk → online → champion → active → tire → ghost
+// v4.0 · Sort by importance: มี action → online → healthy → activating → dormant
 function sortByImportance(users) {
-  const stageWeight = { champion: 3, active: 2, tire: 1, ghost: 0 };
+  const stageWeight = { atrisk: 3, healthy: 2, activating: 1, dormant: 0 };
   return users.slice().sort((a, b) => {
     // Action needed bubbles to top
     const aAction = isActionNeeded(a) ? 1 : 0;
@@ -1987,10 +2200,10 @@ function renderUsersView(users) {
   const totalEl = document.getElementById('users-total-text');
   if (totalEl) {
     const onlineN = users.filter(u => u.isOnline).length;
-    const champN = users.filter(u => u.stage === 'champion').length;
+    const healthyN = users.filter(u => u.life === 'healthy').length;
     const actionN = users.filter(isActionNeeded).length;
     if (_currentUserFilter === 'all') {
-      totalEl.innerHTML = `${users.length} ราย · 🟢 ${onlineN} online · ⭐ ${champN} champs · 🔥 ${actionN} ต้องดู`;
+      totalEl.innerHTML = `${users.length} ราย · 🟢 ${onlineN} online · 💚 ${healthyN} สุขภาพดี · 🔥 ${actionN} ต้องดู`;
     } else if (_currentUserFilter === 'new') {
       totalEl.textContent = `🆕 ${filtered.length} คนสมัครใหม่ · 7 วันล่าสุด (ใหม่สุดอยู่บน)`;
     } else if (_currentUserFilter === 'badge') {
@@ -2006,10 +2219,7 @@ function renderUsersView(users) {
   }
   // Filter heading
   const filterLabel = _currentUserFilter === 'all' ? '📋 ผู้ใช้ทั้งหมด' :
-    (_currentUserFilter === 'champion' ? '🚀 Champions' :
-     _currentUserFilter === 'active'   ? '✨ Active' :
-     _currentUserFilter === 'tire'     ? '🪞 Tire-kicker' :
-     _currentUserFilter === 'ghost'    ? '👻 Ghost' :
+    (LIFECYCLE[_currentUserFilter] ? LIFECYCLE[_currentUserFilter].emoji + ' ' + LIFECYCLE[_currentUserFilter].name :
      _currentUserFilter === 'online'   ? '🟢 Online ตอนนี้' : '');
   let html = `<div class="priority-section" style="margin-top:8px;">
     <div class="priority-section-head">
@@ -2025,11 +2235,14 @@ function renderUsersView(users) {
 function renderUserRow(u) {
   const scoreClass = u.score >= 60 ? 'high' : (u.score >= 30 ? 'mid' : 'low');
   const initials = getInitials(u.shop || u.email);
-  const avatarClass = u.stage === 'champion' ? 'purple' : (u.stage === 'ghost' ? 'red' : (u.stage === 'active' ? 'green' : ''));
+  const lc = LIFECYCLE[u.life] || LIFECYCLE.dormant;
+  const avatarClass = lc.avatar;
   const liveDot = u.isOnline ? '<div class="live-dot"></div>' : '';
-  const stageEmoji = ({ ghost: '👻', tire: '🪞', active: '✨', champion: '🚀' })[u.stage] || '';
+  const stageEmoji = lc.emoji;
   const onlineHtml = u.isOnline ? `<span class="online">🟢 online</span>` : '';
-  const timeHtml = `<span>${formatLastSeen(u.secondsAgo)}</span>`;
+  // v4.0 · แสดง "งานล่าสุดเมื่อไร" (เหตุการณ์จริง) แทนเวลาเปิดแอป
+  const eventAgo = u.daysSinceEvent != null ? formatLastSeen(Math.floor(u.daysSinceEvent * 86400)) : 'ยังไม่มีงาน';
+  const timeHtml = `<span title="งานล่าสุด">🗂 ${eventAgo}</span>`;
   const actionTag = isActionNeeded(u) ? '<span style="color:#fde68a; font-weight:700;">🔥</span>' : '';
   const badgeTag = (window._BADGES && u.userId && window._BADGES[u.userId]) ? ' <span title="Founding Tester">🏅</span>' : '';
   const emailSafe = JSON.stringify(u.email);
@@ -2039,7 +2252,7 @@ function renderUserRow(u) {
     <div class="user-row-avatar ${avatarClass}">${liveDot}${initials}</div>
     <div class="user-row-mid">
       <div class="user-row-name">${stageEmoji} ${escapeHtml(displayName)}${badgeTag} ${actionTag}</div>
-      <div class="user-row-sub">${onlineHtml}${timeHtml}<span>📋 ${u.quoteCount} Quo · 💼 ${u.jobCount} Job</span></div>
+      <div class="user-row-sub">${onlineHtml}${timeHtml}<span>📋 ${u.quoteCount} · 💼 ${u.jobCount} · ${_fmtBaht(u.managedGmv)}</span></div>
     </div>
     <div class="user-row-right">
       <span class="score ${scoreClass}">${u.score}</span>
@@ -2053,8 +2266,8 @@ function renderPrioritySections(users) {
   const container = document.getElementById('priority-sections');
   if (!container) return;
   const online = users.filter(u => u.isOnline);
-  const actionNeeded = users.filter(isActionNeeded).sort((a, b) => b.secondsAgo - a.secondsAgo);
-  const champions = users.filter(u => u.stage === 'champion').sort((a, b) => (b.score || 0) - (a.score || 0));
+  // v4.0 · เรียงคนที่หลุดจังหวะนานสุดขึ้นก่อน (daysSinceEvent)
+  const actionNeeded = users.filter(isActionNeeded).sort((a, b) => (b.daysSinceEvent || 0) - (a.daysSinceEvent || 0));
 
   let html = '';
   if (online.length > 0) {
@@ -2086,18 +2299,28 @@ function renderPrioritySections(users) {
 function openUserSheet(email) {
   const u = _lastUsers.find(x => x.email === email);
   if (!u) return;
-  const stageLabels = { ghost: '👻 Ghost', tire: '🪞 Tire-kicker', active: '✨ Active', champion: '🚀 Champion' };
+  const lc = LIFECYCLE[u.life] || LIFECYCLE.dormant;
   const scoreClass = u.score >= 60 ? 'high' : (u.score >= 30 ? 'mid' : 'low');
   const initials = getInitials(u.shop || u.email);
-  const avatarClass = u.stage === 'champion' ? 'purple' : (u.stage === 'ghost' ? 'red' : (u.stage === 'active' ? 'green' : ''));
+  const avatarClass = lc.avatar;
   const liveRing = u.isOnline ? '<div class="live-ring"></div>' : '';
-  const onlineText = u.isOnline ? `<span class="udc-online">🟢 ออนไลน์ ${formatLastSeen(u.secondsAgo)}</span>` : `<span>${formatLastSeen(u.secondsAgo)}</span>`;
-  const lastAction = formatActionLabel(u.lastAction);
+  const onlineText = u.isOnline ? `<span class="udc-online">🟢 ออนไลน์ ${formatLastSeen(u.secondsAgo)}</span>` : `<span>เปิดแอปล่าสุด ${formatLastSeen(u.secondsAgo)}</span>`;
   // v2.2 C5 · apply redaction to displayed PII
   const showEmail = redactEmail(u.email);
   const showPhone = u.phone ? redactPhone(u.phone) : '';
   const showLine  = u.line  ? redactLine(u.line)  : '';
   const displayShop = u.shop || (_notifPrefs.redact ? redactEmail(u.email).split('@')[0] : u.email.split('@')[0]);
+  // v4.0 · สถิติเชิงลึก
+  const cadTxt = u.cadenceDays ? ('~' + Math.round(u.cadenceDays) + ' วัน/ครั้ง') : (u.eventCount >= 1 ? 'ยังจับจังหวะไม่ได้' : '—');
+  const lastEventTxt = u.daysSinceEvent != null ? formatLastSeen(Math.floor(u.daysSinceEvent * 86400)) + 'ก่อน' : 'ยังไม่มีงาน';
+  const tenureTxt = u.joinedAt ? formatLastSeen(Math.floor((Date.now() - u.joinedAt) / 1000)) : (u.hasSignup ? formatLastSeen(Math.floor((Date.now() - u.signupAt) / 1000)) : '—');
+  const convRate = u.quoteCount > 0 ? Math.round(((u.quotes || []).filter(q => q && (q.status === 'converted' || q.convertedJobCode)).length / u.quoteCount) * 100) : null;
+  const stat = (ic, label, val) => `<div class="udc-stat"><div class="udc-stat-ic">${ic}</div><div class="udc-stat-v">${val}</div><div class="udc-stat-l">${label}</div></div>`;
+  const nudges = computeNudges(u);
+  const timeline = buildUserTimeline(u);
+  // feature flags
+  const flag = (on, label) => `<span class="udc-flag ${on ? 'on' : ''}">${on ? '✅' : '⬜'} ${label}</span>`;
+  const usesTax = (u.jobs || []).some(j => j && j.taxEnabled);
   document.getElementById('user-sheet-name').textContent = displayShop;
   document.getElementById('user-sheet-body').innerHTML = `
     <div class="udc-top">
@@ -2107,16 +2330,30 @@ function openUserSheet(email) {
         <div class="udc-email">${escapeHtml(showEmail)}</div>
       </div>
       <div class="udc-tag-row">
-        <span class="stage-tag ${u.stage}">${stageLabels[u.stage]}</span>
+        <span class="stage-tag ${u.life}">${lc.emoji} ${lc.name}</span>
         <span class="score ${scoreClass}">${u.score}</span>
       </div>
     </div>
     <div class="udc-meta">
-      ${onlineText}<span>📋 ${u.quoteCount} Quo</span><span>💼 ${u.jobCount} Job</span><span>👥 ${u.custCount} ลูกค้า</span>${u.joinedAt ? `<span>🆕 สมัคร ${formatLastSeen(Math.floor((Date.now() - u.joinedAt) / 1000))}</span>` : ''}
+      ${onlineText}${u.appVersion ? `<span>📱 v${escapeHtml(u.appVersion)}</span>` : ''}
     </div>
     ${u.phone || u.line ? `<div class="udc-contacts">${u.phone ? '📱 ' + escapeHtml(showPhone) : ''}${u.phone && u.line ? ' · ' : ''}${u.line ? '💬 ' + escapeHtml(showLine) : ''}</div>` : ''}
     ${u.studioGenres && u.studioGenres.length ? `<div class="udc-genres">${formatGenres(u.studioGenres, u.studioGenresOther)}</div>` : ''}
-    <div class="udc-action">${lastAction}</div>
+    <div class="udc-stats-grid">
+      ${stat('💸', 'Managed GMV', _fmtBaht(u.managedGmv))}
+      ${stat('💵', 'เงินสดเข้า', _fmtBaht(u.cashIn))}
+      ${stat('💼', 'งาน/เดือน', u.jobsPerMonth || 0)}
+      ${stat('🎵', 'จังหวะ', cadTxt)}
+      ${stat('🗂', 'งานล่าสุด', lastEventTxt)}
+      ${stat('📋', 'ใบเสนอ', u.quoteCount)}
+      ${stat('🎯', 'Quote→Job', convRate == null ? '—' : convRate + '%')}
+      ${stat('👥', 'ลูกค้า', u.custCount)}
+      ${stat('🗓', 'อยู่กับเรา', tenureTxt)}
+    </div>
+    <div class="udc-flags">${flag(usesTax, 'ภาษี')}${flag(u.pdfGenerated, 'ออก PDF')}${flag(u.pushEnabled, 'Push')}${flag(u.teamCount > 0, 'มีทีม (' + (u.teamCount || 0) + ')')}${flag(u.hasPayment, 'รับเงินแล้ว')}</div>
+    ${nudges.length ? `<div class="udc-nudges">${nudges.map(n => `<div class="udc-nudge">${n.ic} ${escapeHtml(n.text)}</div>`).join('')}</div>` : ''}
+    <div class="udc-tl-title">🕒 ไทม์ไลน์เหตุการณ์จริง <span style="color:var(--muted);font-weight:400;">(${timeline.length})</span></div>
+    <div class="udc-timeline">${timeline.length ? timeline.slice(0, 14).map(e => `<div class="udc-tl-row"><span class="udc-tl-ic">${e.ic}</span><span class="udc-tl-main">${e.label}<span class="udc-tl-sub"> ${escapeHtml(e.sub)}</span></span><span class="udc-tl-date">${_shortDate(e.ts)}</span></div>`).join('') : '<div style="color:var(--muted);font-size:12px;padding:8px 2px;">ยังไม่มีเหตุการณ์งาน</div>'}</div>
     <div class="udc-btn-row">
       <button class="user-action" style="background:rgba(212,160,86,0.14);color:var(--accent-2);border:1px solid rgba(212,160,86,0.4);" onclick='startChatWith(${JSON.stringify(u.email)})'>💬 แชทในแอพ</button>
       <button class="user-action" onclick='closeUserSheet();openDmModal(${JSON.stringify(u.email)}, "active")'>📨 DM (LINE/Email)</button>
@@ -2179,6 +2416,11 @@ function renderInsights(users) {
   try { renderUsageActivity(users); } catch (e) { console.warn('UsageActivity:', e); }
   try { renderVersionDist(users); } catch (e) { console.warn('VersionDist:', e); }
   try { renderFeatureAdoption(users); } catch (e) { console.warn('FeatureAdoption:', e); }
+  // v4.0 · new panels
+  try { renderLeaderboard(users); } catch (e) { console.warn('Leaderboard:', e); }
+  try { renderDailyCreation(users); } catch (e) { console.warn('DailyCreation:', e); }
+  try { renderWatchlist(users); } catch (e) { console.warn('Watchlist:', e); }
+  try { renderSegmentation(users); } catch (e) { console.warn('Segmentation:', e); }
 
   // Funnel
   const funnelData = [
@@ -2196,27 +2438,41 @@ function renderInsights(users) {
       <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${Math.max(pct, 2)}%;">${s.count}</div></div>
       <div class="funnel-pct">${pct}%</div>
     </div>`;
-  }).join('');
+  }).join('')
+  // v4.0 · §2.2 · เวลาเฉลี่ย (median) ระหว่างขั้น จาก timestamp จริง
+  + (() => {
+    const med = arr => { if (!arr.length) return null; arr.sort((a, b) => a - b); return arr[Math.floor(arr.length / 2)]; };
+    const fmtDur = h => h == null ? '—' : (h < 1 ? Math.round(h * 60) + ' นาที' : (h < 24 ? h.toFixed(1) + ' ชม.' : (h / 24).toFixed(1) + ' วัน'));
+    const toQuote = [], toJob = [];
+    users.forEach(u => {
+      const base = u.joinedAt || (u.hasSignup ? u.signupAt : null);
+      if (!base) return;
+      const fq = (u.quotes || []).map(q => new Date(q && (q._createdAt || q.dateSent || q.dateIssued) || 0).getTime()).filter(t => t > 0).sort((a, b) => a - b)[0];
+      const fj = (u.jobs || []).map(j => new Date(j && j._createdAt || 0).getTime()).filter(t => t > 0).sort((a, b) => a - b)[0];
+      if (fq && fq >= base) { const h = (fq - base) / 3600000; if (h < 24 * 90) toQuote.push(h); }
+      if (fj && fj >= base) { const h = (fj - base) / 3600000; if (h < 24 * 90) toJob.push(h); }
+    });
+    return `<div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6;">⏱ สมัคร → ใบเสนอแรก (median): <b style="color:var(--accent-2);">${fmtDur(med(toQuote))}</b> · สมัคร → งานแรก: <b style="color:var(--accent-2);">${fmtDur(med(toJob))}</b></div>`;
+  })();
 
   // Genres
   renderGenreBars(users);
 
-  // Smart insights
-  let nsCount = 0;
-  users.forEach(u => { (u.quotes||[]).forEach(q => { const t = new Date(q._createdAt||q.dateSent||0).getTime(); if (!isNaN(t) && t > 0 && t > now-SEVEN_DAYS) nsCount++; }); });
-  const champions = users.filter(u => u.stage === 'champion');
-  const atRisk = users.filter(u => { const days = u.secondsAgo / 86400; return days > 3 && days < 14 && (u.jobCount + u.quoteCount) >= 1; });
-  const activated = users.filter(u => u.quoteCount >= 1).length;
+  // v4.0 · Smart insights (อิงสถานะวงจรชีวิต + คุณค่า)
+  const byLife = { healthy: 0, activating: 0, atrisk: 0, dormant: 0 };
+  users.forEach(u => { if (byLife[u.life] != null) byLife[u.life]++; });
+  const atRisk = users.filter(u => u.life === 'atrisk');
+  const topVal = users.filter(u => u.life === 'healthy' && u.hasPayment).sort((a, b) => (b.managedGmv || 0) - (a.managedGmv || 0))[0];
+  const activated = users.filter(u => (u.jobCount + u.quoteCount) >= 1).length;
   const actPct = totalUsers ? Math.round((activated/totalUsers)*100) : 0;
-  const byStage = { ghost: 0, tire: 0, active: 0, champion: 0 };
-  users.forEach(u => byStage[u.stage]++);
+  const nudgeN = collectSystemNudges(users).length;
 
   const insights = [];
-  if (atRisk.length > 0) insights.push({ ic: '⏰', html: `<b>${atRisk.length} user ใกล้ churn</b> · ดู At-Risk ใน Home tab · DM ทักทาย` });
-  if (champions.length > 0) insights.push({ ic: '⭐', html: `<b>${champions.length} Champion!</b> · ขอ testimonial เพื่อโพสในกลุ่ม FB` });
-  if (actPct < 30 && totalUsers >= 5) insights.push({ ic: '⚠', html: `<b>Activation ต่ำ (${actPct}%)</b> · พิจารณา onboarding tour สอนสร้างใบเสนอแรก` });
-  if (nsCount > 0) insights.push({ ic: '📈', html: `<b>${nsCount} ใบเสนอใน 7 วัน</b> · เก็บข้อมูล trend ต่อ` });
-  if (byStage.ghost > 0) insights.push({ ic: '👻', html: `<b>${byStage.ghost} Ghost users</b> · ส่ง email broadcast ขอ feedback` });
+  if (atRisk.length > 0) insights.push({ ic: '⚠️', html: `<b>${atRisk.length} คนหลุดจังหวะ</b> · เคยใช้ประจำแล้วเงียบเกินปกติ · ดูแท็บ Users กรอง "น่าห่วง"` });
+  if (nudgeN > 0) insights.push({ ic: '🔔', html: `<b>${nudgeN} เรื่องต้องตาม</b> · งานถ่ายใกล้/ค้างเก็บ/ใบเสนอใกล้หมด · ดู "ต้องทำวันนี้" ใน Home` });
+  if (topVal) insights.push({ ic: '⭐', html: `<b>${escapeHtml(topVal.shop || topVal.email)}</b> มูลค่าสูงสุด (${_fmtBaht(topVal.managedGmv)}) · ขอ testimonial` });
+  if (actPct < 40 && totalUsers >= 5) insights.push({ ic: '⚠', html: `<b>Activation ต่ำ (${actPct}%)</b> · สอนสร้างงาน/ใบเสนอแรกให้ผ่าน milestone` });
+  if (byLife.dormant > 0) insights.push({ ic: '🌙', html: `<b>${byLife.dormant} คนหลับอยู่</b> · broadcast ขอ feedback หรือทวงกลับด้วยฟีเจอร์ใหม่` });
   if (!insights.length) insights.push({ ic: '✨', html: 'ทุกอย่างดูดี · ยังไม่มี action เร่งด่วน' });
   document.getElementById('insights-list').innerHTML = insights.map(i => `<div class="insight-item"><span class="insight-icon">${i.ic}</span><div>${i.html}</div></div>`).join('');
 }
@@ -2236,7 +2492,7 @@ function formatGenres(arr, other) {
   return arr.map(g => {
     if (g === 'other' && other) return '📝 ' + escapeHtml(other);
     const m = GENRE_LABELS[g];
-    return m ? m.emoji + ' ' + m.label : g;
+    return m ? m.emoji + ' ' + m.label : escapeHtml(g); // v4.0 · escape genre ที่ไม่รู้จัก (กัน XSS)
   }).join(' · ');
 }
 // ============ v2.4 · 7 NEW METRICS ============
@@ -2327,10 +2583,10 @@ function renderCohortRetention(users) {
       const cohortAgeDays = (now - c.mondayMs) / DAY;
       let d7 = 0, d30 = 0;
       c.users.forEach(u => {
-        // "Active" = updated within +-D days of cohort start. We approximate: did user have activity by day D after signup?
-        const daysSinceSignup = (u.updatedAt - u.signupAt) / DAY;
-        if (daysSinceSignup >= 7) d7++;
-        if (daysSinceSignup >= 30) d30++;
+        // v4.0 · retained = ยังมี "เหตุการณ์งานจริง" ณ วันที่ 7/30 หลังสมัคร (ไม่ใช่แค่เปิดแอป)
+        const activeSpanDays = u.lastEventAt ? (u.lastEventAt - u.signupAt) / DAY : -1;
+        if (activeSpanDays >= 7) d7++;
+        if (activeSpanDays >= 30) d30++;
       });
       return { weekStart: key, size: c.users.length, d7, d30, cohortAgeDays };
     })
@@ -2388,26 +2644,16 @@ function renderLeadSource(users) {
   }).join('');
 }
 
-// v2.6 · DAU/WAU/MAU + stickiness (จาก updatedAt)
+// v4.0 · Active accounts (retention จริง) = มี "เหตุการณ์งานจริง" ใน 30/60/90 วัน (ไม่ใช่ login)
 function renderUsageActivity(users) {
-  const now = Date.now();
-  const dau = users.filter(u => (now - u.updatedAt) < 86400000).length;
-  const wau = users.filter(u => (now - u.updatedAt) < 7 * 86400000).length;
-  const mau = users.filter(u => (now - u.updatedAt) < 30 * 86400000).length;
-  const sticky = mau > 0 ? Math.round(dau / mau * 100) : 0;
+  const a30 = activeAccounts(users, 30);
+  const a60 = activeAccounts(users, 60);
+  const a90 = activeAccounts(users, 90);
+  const total = users.length || 1;
   const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
-  set('metric-dwm', dau + ' / ' + wau + ' / ' + mau);
-  set('metric-sticky', sticky + '%');
-  set('metric-sticky-sub', mau > 0 ? ('~' + Math.round(sticky / 100 * 30) + ' วัน/เดือน') : 'DAU ÷ MAU');
-  // v2.6 · log today's DAU to localStorage so an active-trend can build up over time (no history stored server-side)
-  try {
-    const key = 'pixory.admin.dauLog';
-    const today = new Date().toISOString().slice(0, 10);
-    const log = JSON.parse(localStorage.getItem(key) || '{}');
-    log[today] = Math.max(log[today] || 0, dau);
-    const ks = Object.keys(log).sort(); while (ks.length > 90) delete log[ks.shift()];
-    localStorage.setItem(key, JSON.stringify(log));
-  } catch (e) {}
+  set('metric-dwm', a30 + ' / ' + a60 + ' / ' + a90);
+  set('metric-sticky', Math.round(a60 / total * 100) + '%');
+  set('metric-sticky-sub', 'active 60วัน ÷ ผู้ใช้ทั้งหมด');
 }
 
 // v2.6 · Version distribution (จาก _meta.app_version)
@@ -2493,6 +2739,86 @@ function renderPaymentHealth(users) {
   if (subAvg) subAvg.textContent = '฿' + Math.round(sumPaid/1000) + 'K / ฿' + Math.round(sumSell/1000) + 'K';
   if (el)    el.style.color = payPct >= 70 ? '#6ee0a7' : (payPct >= 40 ? 'var(--yellow)' : '#fca5a5');
   if (elAvg) elAvg.style.color = collectPct >= 70 ? '#6ee0a7' : (collectPct >= 40 ? 'var(--yellow)' : '#fca5a5');
+}
+
+// v4.0 · 🏆 Leaderboard — ใครใช้หนักสุด (Managed GMV + งาน/เดือน) · ไม่ใช่จำนวนครั้งเปิด
+function renderLeaderboard(users) {
+  const el = document.getElementById('leaderboard'); if (!el) return;
+  const ranked = users.filter(u => (u.managedGmv || 0) > 0 || (u.jobCount || 0) > 0)
+    .sort((a, b) => (b.managedGmv || 0) - (a.managedGmv || 0)).slice(0, 8);
+  if (!ranked.length) { el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:14px;font-size:11.5px;">ยังไม่มีผู้ใช้ที่มีมูลค่างาน</div>'; return; }
+  el.innerHTML = ranked.map((u, i) => {
+    const nm = u.shop || (_notifPrefs.redact ? redactEmail(u.email).split('@')[0] : u.email.split('@')[0]);
+    const medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : (i + 1) + '.'));
+    const lc = LIFECYCLE[u.life] || LIFECYCLE.dormant;
+    return `<div onclick='openUserSheet(${JSON.stringify(u.email)})' style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line);cursor:pointer;">
+      <span style="width:22px;text-align:center;font-weight:800;color:var(--accent-2);flex-shrink:0;">${medal}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${lc.emoji} ${escapeHtml(nm)}</div>
+        <div style="font-size:10.5px;color:var(--muted);">${u.jobsPerMonth || 0} งาน/เดือน · ${u.jobCount} งานรวม</div>
+      </div>
+      <span style="font-size:13px;font-weight:800;color:var(--accent-2);flex-shrink:0;">${_fmtBaht(u.managedGmv)}</span>
+    </div>`;
+  }).join('');
+}
+
+// v4.0 · การสร้างงาน/ใบเสนอต่อวัน (30 วันล่าสุด) = การใช้งานจริงรายวัน
+function renderDailyCreation(users) {
+  const el = document.getElementById('daily-creation'); if (!el) return;
+  const now = Date.now(), DAYS = 30;
+  const buckets = new Array(DAYS).fill(0);
+  const add = ts => {
+    if (!ts) return;
+    const ago = Math.floor((now - ts) / DAY_MS);
+    if (ago >= 0 && ago < DAYS) buckets[DAYS - 1 - ago]++;
+  };
+  users.forEach(u => {
+    (u.jobs || []).forEach(j => add(new Date(j && j._createdAt || 0).getTime()));
+    (u.quotes || []).forEach(q => add(new Date(q && (q._createdAt || q.dateSent || q.dateIssued) || 0).getTime()));
+  });
+  const max = Math.max(1, ...buckets);
+  const totalN = buckets.reduce((s, n) => s + n, 0);
+  el.innerHTML = '<div style="display:flex;align-items:flex-end;gap:2px;height:70px;">'
+    + buckets.map(n => `<div title="${n}" style="flex:1;height:${Math.max(3, Math.round(n / max * 64))}px;border-radius:2px 2px 0 0;background:${n > 0 ? 'var(--accent-2)' : 'rgba(255,255,255,0.05)'};"></div>`).join('')
+    + '</div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted-2);margin-top:4px;"><span>30 วันก่อน</span><span>รวม ' + totalN + ' รายการ</span><span>วันนี้</span></div>';
+}
+
+// v4.0 · Watchlist · เคย active (≥3 เหตุการณ์) แล้วเงียบ 30–120 วัน = อาจเจอบั๊ก/sync ล้ม
+function renderWatchlist(users) {
+  const el = document.getElementById('watchlist'); if (!el) return;
+  const flagged = users.filter(u => (u.eventCount || 0) >= 3 && u.daysSinceEvent != null && u.daysSinceEvent >= 30 && u.daysSinceEvent <= 120)
+    .sort((a, b) => (a.daysSinceEvent || 0) - (b.daysSinceEvent || 0));
+  if (!flagged.length) { el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:12px;font-size:11.5px;">ไม่มีใครน่าเป็นห่วงตอนนี้ 👍</div>'; return; }
+  el.innerHTML = flagged.slice(0, 8).map(u => {
+    const nm = u.shop || (_notifPrefs.redact ? redactEmail(u.email).split('@')[0] : u.email.split('@')[0]);
+    return `<div onclick='openUserSheet(${JSON.stringify(u.email)})' style="display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--line);cursor:pointer;font-size:12px;">
+      <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);">${escapeHtml(nm)}</span>
+      <span style="color:#fca5a5;flex-shrink:0;">เงียบ ${Math.round(u.daysSinceEvent)} วัน</span>
+    </div>`;
+  }).join('');
+}
+
+// v4.0 · Segmentation · ช่างเดี่ยว vs มีทีม (retention ตามกลุ่ม)
+function renderSegmentation(users) {
+  const el = document.getElementById('segmentation'); if (!el) return;
+  const seg = (label, list) => {
+    const n = list.length;
+    const healthy = list.filter(u => u.life === 'healthy').length;
+    const pct = n ? Math.round(healthy / n * 100) : 0;
+    return `<div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:#cdbba8;margin-bottom:3px;"><span>${label}</span><span>${healthy}/${n} สุขภาพดี (${pct}%)</span></div>
+      <div style="height:7px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;"><div style="width:${Math.max(pct, 2)}%;height:100%;background:var(--green);"></div></div>
+    </div>`;
+  };
+  const withWork = users.filter(u => (u.jobCount + u.quoteCount) > 0);
+  const solo = withWork.filter(u => !u.teamCount);
+  const team = withWork.filter(u => u.teamCount > 0);
+  const light = withWork.filter(u => (u.jobCount + u.quoteCount) <= 5);
+  const heavy = withWork.filter(u => (u.jobCount + u.quoteCount) > 5);
+  el.innerHTML = seg('🧑‍💻 ช่างเดี่ยว (ไม่มีทีม)', solo)
+    + seg('🧑‍🤝‍🧑 มีทีม', team)
+    + seg('🌱 งานน้อย (≤5)', light)
+    + seg('🔥 งานเยอะ (>5)', heavy);
 }
 
 function renderGenreBars(users) {
