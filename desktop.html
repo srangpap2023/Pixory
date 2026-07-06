@@ -3164,12 +3164,22 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.54';
+const PIXORY_DESKTOP_VERSION = '1.1.55';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.1.55': {
+    date: '2026-07-06',
+    title: 'ใบสรุปการจอง มาแล้ว 📑',
+    subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
+    items: [
+      { icon: '📑', title: 'ใบสรุปการจอง (Booking Summary)', desc: 'เอกสารสรุปการจองสวยหรู 1 หน้า — โชว์แพคเกจ กำหนดการถ่าย มัดจำ/ยอดคงเหลือ พร้อม QR พร้อมเพย์/เลขบัญชี · โหลดเป็น PDF/JPEG ส่งลูกค้าได้เลย' },
+      { icon: '🗂️', title: 'รวมเอกสารไว้ที่เดียว', desc: 'ในหน้ารายละเอียดงานมี section "เอกสาร" — ใบเสนอราคา · ใบสรุปการจอง · ใบเรียกเก็บ อยู่รวมกัน (เหมือนฝั่งมือถือ)' },
+      { icon: '⚡', title: 'เด้งถามอัตโนมัติ', desc: 'หลังสร้างงานใหม่ หรือแปลงใบเสนอเป็นงาน ระบบเด้งถามสร้างใบสรุปการจองให้ทันที (เลือกวันครบกำหนด/ช่องทางจ่าย/แก้เงื่อนไขเองได้ · หรือกดข้าม)' }
+    ]
+  },
   '1.1.54': {
     date: '2026-07-03',
     title: 'ปลอดภัยขึ้น · แม่นขึ้น · เนียนขึ้น ✨',
@@ -13904,6 +13914,8 @@ async function saveJob() {
   closeModal();
   toast(st.editing ? '✓ บันทึกงาน ' + code + ' แล้ว' : '✓ สร้างงาน ' + code + ' แล้ว', 'success');
   navigate('jobs');
+  // v1.1.55 · เด้งถามสร้างใบสรุปการจอง (มีปุ่มข้าม) หลังบันทึกงานใหม่ (เฉพาะสร้างใหม่ ไม่ใช่แก้ไข)
+  if (!st.editing) setTimeout(() => { try { openBookingSummaryPrompt(code); } catch (e) { console.warn('bkPrompt:', e); } }, 450);
 }
 
 // ===================================================================
@@ -14163,11 +14175,18 @@ function renderJobDetailHtml(j) {
               <span>ชำระแล้ว <strong style="color:var(--green);font-family:'Inter',sans-serif;">${fmtTHB(j.deposit)}</strong></span>
               <span>คงเหลือ <strong style="color:${remain > 0 ? 'var(--yellow)' : 'var(--green)'};font-family:'Inter',sans-serif;">${fmtTHB(remain)}</strong></span>
             </div>
-            ${remain > 0 ? `
-              <button class="btn btn-primary" onclick="closeModal();setTimeout(()=>openJobInvoicePrint('${escapeHtml(j.code)}'),50)" style="width:100%;margin-top:12px;background:linear-gradient(135deg,#D4A056,#9C7340);color:#0A0A0E;">📋 ออกใบเรียกเก็บยอดชำระเพิ่มเติม</button>
-            ` : ''}
           `;
         })()}
+      </div>
+
+      <!-- v1.1.55 · 📄 เอกสาร · ใบเสนอราคา / ใบสรุปการจอง / ใบเรียกเก็บ (รวมที่เดียว · ไม่ซ้ำซ้อน · parity มือถือ) -->
+      <div class="form-section">
+        <div class="form-section-title">📄 เอกสาร</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button onclick="closeModal();setTimeout(()=>openJobQuoteDoc('${escapeHtml(j.code)}'),50)" style="width:100%;padding:12px 14px;background:var(--bg-b);border:1px solid var(--border);border-radius:12px;color:var(--ink);display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;"><span style="font-size:16px;">📄</span><span>ใบเสนอราคา</span><span style="margin-left:auto;opacity:.4;font-size:16px;">›</span></button>
+          <button onclick="closeModal();setTimeout(()=>openBookingSummaryPrompt('${escapeHtml(j.code)}'),50)" style="width:100%;padding:12px 14px;background:linear-gradient(135deg,#D4A056,#9C7340);color:#0A0A0E;border:none;border-radius:12px;display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600;"><span style="font-size:16px;">📑</span><span>ใบสรุปการจอง</span><span style="margin-left:auto;font-size:10px;background:rgba(0,0,0,.16);padding:2px 8px;border-radius:20px;">ใหม่</span></button>
+          ${remain > 0 ? `<button onclick="closeModal();setTimeout(()=>openJobInvoicePrint('${escapeHtml(j.code)}'),50)" style="width:100%;padding:12px 14px;background:linear-gradient(135deg,#1D9E75,#0d7b5a);color:#fff;border:none;border-radius:12px;display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600;"><span style="font-size:16px;">📋</span><span>ออกใบเรียกเก็บยอดชำระเพิ่มเติม</span></button>` : ''}
+        </div>
       </div>
 
       <!-- 🎬 QUICK ACTIONS · บันทึกค่าใช้จ่าย / รับเงิน (ลอกดีไซน์ · แก้ไขงานย้ายขึ้นหัว) -->
@@ -14806,6 +14825,8 @@ async function convertQuoteToJob(code) {
   closeModal();
   toast('✓ สร้างงาน ' + newCode + ' แล้ว', 'success');
   navigate('jobs');
+  // v1.1.55 · เด้งถามสร้างใบสรุปการจอง (มีปุ่มข้าม) หลังแปลงใบเสนอ→งาน
+  setTimeout(() => { try { openBookingSummaryPrompt(newCode); } catch (e) { console.warn('bkPrompt:', e); } }, 450);
 }
 
 // ===================================================================
@@ -15838,6 +15859,214 @@ ${exportInjector(docCode)}
 function buildPrintDocHtml(args) {
   const ctx = getPrintCtx(args);
   return buildPdfUnified(ctx);
+}
+
+// ===== v1.1.55 · ใบสรุปการจอง (Booking Summary) · parity มือถือ · ดึงเงินจาก getPrintCtx (ไม่คำนวณเงินใหม่) =====
+function buildBookingSummaryHtml(job, opts) {
+  opts = opts || {};
+  const ctx = getPrintCtx({ type: 'booking', doc: job });
+  const esc = escapeHtml, thb = fmtTHB, dth = fmtDateTH;
+  const paid = Number(ctx.deposit) || 0, remain = Number(ctx.remain) || 0, sell = Number(ctx.sell) || 0;
+  const pct = sell > 0 ? Math.min(100, Math.round(paid / sell * 100)) : 0;
+  const custNick = job.custNick ? ' (' + esc(job.custNick) + ')' : '';
+  const contact = [ctx.phone ? '📞 ' + esc(ctx.phone) : '', ctx.lineId ? '💬 LINE: ' + esc(ctx.lineId) : ''].filter(Boolean).join(' · ');
+  const dueLabel = opts.dueLabel || (ctx.eventDate ? 'ก่อนวันงาน · ภายใน ' + dth(ctx.eventDate) : 'ตามตกลง');
+  const channel = opts.channel || 'both';
+  const studioLine = PROFILE.line || '';
+  const studioContact = [ctx.studioPhone, studioLine ? 'LINE ' + studioLine : ''].filter(Boolean).join(' · ');
+
+  const sessHtml = (ctx.sessions && ctx.sessions.length)
+    ? ctx.sessions.map(function (s) {
+        const d = new Date(s.date); const dd = isNaN(d) ? '' : d.getDate();
+        const mth = isNaN(d) ? '' : ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][d.getMonth()];
+        const tm = (s.start || '') + (s.end ? '–' + s.end : '');
+        const loc = s.loc ? ' · 📍 ' + esc(s.loc) : '';
+        return '<div class="bk-sess"><div class="bk-sd"><b>' + dd + '</b><span>' + mth + '</span></div><div class="bk-si"><div class="t">' + (s.label ? esc(s.label) : esc(ctx.doc.type || 'ถ่ายภาพ')) + '</div><div class="m">' + esc(tm) + loc + '</div></div></div>';
+      }).join('')
+    : '<div class="bk-si"><div class="m">' + (ctx.eventDate ? dth(ctx.eventDate) : 'ยังไม่ระบุวัน') + '</div></div>';
+
+  const itemsHtml = (ctx.items || []).map(function (it, i) {
+    return '<tr' + (i > 0 ? ' class="add"' : '') + '><td><div class="nm">' + esc(it.name) + '</div>' + (it.desc ? '<div class="ds">' + esc(it.desc) + '</div>' : '') + '</td><td class="pr">' + thb(it.price).replace('฿', '') + '</td></tr>';
+  }).join('');
+
+  const payRows = (job.payments || []).filter(function (p) { return p && (Number(p.amount) || 0) > 0; }).map(function (p) {
+    const ty = p.type === 'balance' ? 'ชำระเพิ่ม' : (p.type === 'deposit' ? 'มัดจำ' : (p.type === 'refund' ? 'คืนเงิน' : 'รับเงิน'));
+    return '<tr><td>' + esc(dth(p.date)) + '</td><td><span class="ty">' + ty + '</span></td><td class="r">' + thb(Number(p.amount) || 0).replace('฿', '') + '</td></tr>';
+  }).join('');
+  const remainRow = remain > 0 ? '<tr><td>ภายใน ' + esc(ctx.eventDate ? dth(ctx.eventDate) : '-') + '</td><td><span class="ty rem">คงเหลือ</span></td><td class="r">' + thb(remain).replace('฿', '') + '</td></tr>' : '';
+
+  let payWays = '';
+  const showQr = (channel === 'qr' || channel === 'both') && opts.qrUrl;
+  const showBank = (channel === 'bank' || channel === 'both') && ctx.bank;
+  if (showQr || showBank) {
+    payWays = '<div class="bk-pay"><div class="bk-lab">ช่องทางชำระยอดคงเหลือ</div><div class="bk-pay-in">'
+      + (showQr ? '<div class="bk-qr"><img src="' + opts.qrUrl + '"><div class="cap">สแกนพร้อมเพย์<br>ชำระยอดคงเหลือได้ทันที</div></div>' : '')
+      + (showBank ? '<div class="bk-bank"><div class="h">โอนเข้าบัญชี</div><div class="row"><span>' + esc(ctx.bank.name || ctx.bank.bank || '') + '</span><b>' + esc(ctx.bank.acc || '') + '</b></div><div class="hd">ชื่อบัญชี ' + esc(ctx.bank.holder || '') + '</div>' + (studioLine ? '<div class="nt">แจ้งสลิปหลังโอนทาง LINE ' + esc(studioLine) + '</div>' : '') + '</div>' : '')
+      + '</div></div>';
+  }
+
+  const termsArr = Array.isArray(opts.terms) ? opts.terms : (opts.terms ? String(opts.terms).split('\n') : []);
+  const termsClean = termsArr.map(function (l) { return String(l).trim(); }).filter(Boolean);
+  const termsHtml = termsClean.length ? '<div class="bk-terms"><div class="bk-lab">เงื่อนไข</div>' + termsClean.map(function (l) { return '<div class="tr">' + esc(l) + '</div>'; }).join('') + '</div>' : '';
+
+  const bkCss = '<style>'
+    + '.page{width:210mm;min-height:297mm;margin:24px auto;background:#FCFAF6 !important;color:#232019;padding:20mm 20mm 14mm;position:relative;letter-spacing:.1px;box-shadow:0 6px 30px rgba(0,0,0,0.12);font-family:"Sarabun",sans-serif;}'
+    + '.page::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#B79A5F,#A17E3C,#B79A5F)}'
+    + '.bk-head{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:2px solid #232019}'
+    + '.bk-wm{font-family:"Fraunces",serif;font-weight:600;font-size:24px;letter-spacing:1px}.bk-sub{font-size:10px;letter-spacing:2px;color:#5C554B;margin-top:6px}'
+    + '.bk-r{text-align:right}.bk-r .k{font-family:"Fraunces",serif;font-size:16px;color:#A17E3C;letter-spacing:2px;text-transform:uppercase}.bk-r .kt{font-size:12px;color:#5C554B;margin-top:1px}.bk-r .no{font-size:11px;color:#8A8175;margin-top:8px;line-height:1.7}.bk-r .no b{color:#232019}'
+    + '.bk-tag{display:inline-block;margin-top:8px;font-size:11px;color:#2E7D53;background:#E9F3EC;border:1px solid rgba(46,125,83,.25);padding:4px 11px;border-radius:50px;font-weight:600}'
+    + '.bk-lab{font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:#A17E3C;font-weight:700;margin-bottom:8px}'
+    + '.bk-2{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:22px}'
+    + '.bk-nm{font-family:"Fraunces",serif;font-size:16px;font-weight:500}.bk-li{font-size:12px;color:#5C554B;margin-top:5px;line-height:1.8}'
+    + '.bk-sess{display:flex;gap:11px;margin-bottom:10px}.bk-sd{width:44px;height:44px;border-radius:9px;background:linear-gradient(135deg,#FFF6E8,#F3E2C4);border:1px solid rgba(161,126,60,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}.bk-sd b{font-family:"Fraunces",serif;font-size:16px;color:#A17E3C;line-height:1}.bk-sd span{font-size:8.5px;color:#8A8175}.bk-si .t{font-size:12.5px;font-weight:600}.bk-si .m{font-size:11px;color:#5C554B;margin-top:2px;line-height:1.6}'
+    + '.bk-items{width:100%;border-collapse:collapse;margin-top:12px}.bk-items td{padding:11px 0;border-bottom:1px solid #F1EBDF;font-size:12.5px;vertical-align:top}.bk-items .nm{font-weight:600}.bk-items .ds{font-size:11px;color:#8A8175;margin-top:2px}.bk-items .pr{text-align:right;font-family:"Fraunces",serif;font-size:14px;color:#5C554B;white-space:nowrap}.bk-items .add .nm{font-weight:400;color:#5C554B}'
+    + '.bk-fin{margin:16px 0 0 auto;width:280px;font-size:12.5px}.bk-fin .row{display:flex;justify-content:space-between;padding:5px 0;color:#5C554B}.bk-fin .row .v{font-family:"Fraunces",serif;color:#232019}.bk-fin .grand{border-top:1.5px solid #232019;margin-top:5px;padding-top:9px;font-size:14px;font-weight:700;color:#232019}'
+    + '.bk-money{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-top:20px;align-items:center;background:linear-gradient(180deg,#FFFDF9,#F7F1E6);border:1px solid #E9E2D5;border-radius:12px;padding:16px 18px}'
+    + '.bk-bar{height:10px;border-radius:50px;background:#EAE0CE;overflow:hidden}.bk-bar>div{height:100%;background:linear-gradient(90deg,#C9A24B,#A17E3C)}'
+    + '.bk-lg{display:flex;gap:14px;margin-top:9px;font-size:11px;color:#5C554B}.bk-lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}'
+    + '.bk-bal{text-align:right;border-left:1px solid #E9E2D5;padding-left:16px}.bk-bal .l{font-size:11px;color:#5C554B}.bk-bal .amt{font-family:"Fraunces",serif;font-size:26px;font-weight:600;color:#A17E3C}.bk-bal .due{font-size:10px;color:#8A8175;margin-top:3px}'
+    + '.bk-ph{width:100%;border-collapse:collapse;margin-top:12px;font-size:11.5px}.bk-ph th{text-align:left;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#8A8175;font-weight:600;padding:0 0 6px;border-bottom:1px solid #E9E2D5}.bk-ph th.r,.bk-ph td.r{text-align:right}.bk-ph td{padding:7px 0;border-bottom:1px solid #F1EBDF;color:#5C554B}.bk-ph .ty{font-size:9.5px;padding:1px 8px;border-radius:50px;background:#F0E7D6;color:#A17E3C;font-weight:600}.bk-ph .ty.rem{background:#EEE7DA;color:#8A8175}'
+    + '.bk-pay{margin-top:20px}.bk-pay-in{display:flex;gap:18px;align-items:center;background:#fff;border:1px solid #E9E2D5;border-radius:11px;padding:13px 16px;margin-top:8px}.bk-qr{text-align:center;flex-shrink:0}.bk-qr img{width:82px;height:82px}.bk-qr .cap{font-size:9px;color:#8A8175;margin-top:4px;line-height:1.4}.bk-bank{flex:1;border-left:1px solid #F1EBDF;padding-left:16px}.bk-bank .h{font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:#A17E3C;font-weight:700;margin-bottom:6px}.bk-bank .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}.bk-bank .row span{font-size:12.5px;font-weight:600}.bk-bank .row b{font-family:"Fraunces",serif;font-size:16px;letter-spacing:1px}.bk-bank .hd{font-size:11px;color:#5C554B;margin-top:3px}.bk-bank .nt{font-size:10px;color:#8A8175;margin-top:4px}'
+    + '.bk-terms{margin-top:20px;padding-top:14px;border-top:1px solid #E9E2D5}.bk-terms .tr{font-size:10.5px;color:#5C554B;line-height:1.95;padding-left:13px;position:relative}.bk-terms .tr::before{content:"—";position:absolute;left:0;color:#B79A5F;font-size:9px}'
+    + '.bk-sign{text-align:center;margin-top:22px;padding-top:14px;border-top:1px solid #E9E2D5}.bk-sign .th{font-family:"Fraunces",serif;font-size:14px;color:#5C554B;font-style:italic}.bk-sign .by{font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:#8A8175;margin-top:8px}'
+    + '@media print{.page{margin:0 !important;box-shadow:none !important}}'
+    + '</style>';
+
+  const body = '<div class="page">'
+    + '<div class="bk-head"><div><div class="bk-wm">' + esc(ctx.studioName) + '</div>' + (ctx.studioTagline ? '<div class="bk-sub">' + esc(ctx.studioTagline) + '</div>' : '') + (studioContact ? '<div class="bk-sub" style="letter-spacing:.3px;margin-top:8px">' + esc(studioContact) + '</div>' : '') + '</div>'
+    + '<div class="bk-r"><div class="k">Booking</div><div class="kt">ใบสรุปการจอง</div><div class="no">เลขที่ <b>' + esc(ctx.docCode || job.code || '-') + '</b><br>' + esc(dth(ctx.issueDate || TODAY_ISO())) + '</div><div class="bk-tag">● ยืนยันการจอง · ' + (paid > 0 ? 'รับมัดจำแล้ว' : 'รอมัดจำ') + '</div></div></div>'
+    + '<div class="bk-2"><div><div class="bk-lab">ลูกค้า</div><div class="bk-nm">' + esc(job.customer || 'ลูกค้า') + custNick + '</div>' + (contact ? '<div class="bk-li">' + contact + '</div>' : '') + (ctx.doc.type ? '<div class="bk-li">งาน: ' + esc(ctx.doc.type) + '</div>' : '') + '</div>'
+    + '<div><div class="bk-lab">กำหนดการถ่ายภาพ</div>' + sessHtml + '</div></div>'
+    + '<div style="margin-top:26px"><div class="bk-lab">แพคเกจ &amp; บริการ</div><table class="bk-items">' + itemsHtml + '</table>'
+    + '<div class="bk-fin"><div class="row"><span>รวมค่าบริการ</span><span class="v">' + thb(ctx.totalItems).replace('฿', '') + '</span></div>' + (ctx.discount > 0 ? '<div class="row"><span>ส่วนลด</span><span class="v" style="color:#B3603F">−' + thb(ctx.discount).replace('฿', '') + '</span></div>' : '') + '<div class="row grand"><span>ยอดสุทธิ</span><span class="v">' + thb(sell) + '</span></div></div></div>'
+    + '<div class="bk-money"><div><div class="bk-lab">สรุปการชำระเงิน</div><div class="bk-bar"><div style="width:' + pct + '%"></div></div><div class="bk-lg"><span><i style="background:#A17E3C"></i>ชำระแล้ว ' + thb(paid) + '</span><span><i style="background:#EAE0CE"></i>คงเหลือ ' + thb(remain) + '</span></div>'
+    + '<table class="bk-ph"><thead><tr><th>วันที่</th><th>รายการ</th><th class="r">จำนวน</th></tr></thead><tbody>' + payRows + remainRow + '</tbody></table></div>'
+    + '<div class="bk-bal"><div class="l">ยอดคงเหลือ</div><div class="amt">' + thb(remain) + '</div><div class="due">📅 ' + esc(dueLabel) + '</div></div></div>'
+    + payWays + termsHtml
+    + '<div class="bk-sign"><div class="th">ขอบคุณที่ไว้วางใจให้เราเก็บภาพวันสำคัญของคุณ ✦</div><div class="by">' + esc(ctx.studioName) + ' · สร้างโดย Pixory</div></div>'
+    + '</div>';
+
+  const fb = String('booking-' + (job.code || 'summary'));
+  return printSharedHead('ใบสรุปการจอง · ' + (job.code || '')) + '<style>' + PRINT_COMMON_CSS + '</style>' + bkCss + '</head><body>'
+    + '<div class="toolbar"><span class="label">ใบสรุปการจอง · ' + esc(job.customer || '') + '</span>'
+    + '<button onclick="_pxPDF()">⬇ บันทึก PDF</button><button class="ghost" onclick="_pxJPEG()">🖼 JPEG</button></div>'
+    + body + exportInjector(fb) + '</body></html>';
+}
+
+// QR dataURL ตามยอด (async · โหลดไลบรารีถ้ายังไม่มี · เรียก cb เสมอ)
+function _bkQrDataUrl(amount, cb) {
+  try {
+    const usable = PROMPTPAY && PROMPTPAY.id && (Number(amount) || 0) > 0 && typeof window.buildPromptPayPayload === 'function';
+    const payload = usable ? window.buildPromptPayPayload(PROMPTPAY.id, Number(amount)) : null;
+    if (!payload) { cb(null); return; }
+    _ensureQrLib().then(function () {
+      const tmp = document.createElement('div'); tmp.style.cssText = 'position:absolute;left:-9999px;top:0;';
+      document.body.appendChild(tmp);
+      new QRCode(tmp, { text: payload, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.M });
+      setTimeout(function () {
+        const cv = tmp.querySelector('canvas');
+        const url = cv ? cv.toDataURL('image/png') : ((tmp.querySelector('img') || {}).src || null);
+        document.body.removeChild(tmp); cb(url || null);
+      }, 70);
+    }).catch(function () { cb(null); });
+  } catch (e) { cb(null); }
+}
+
+function openBookingSummary(jobCode, opts) {
+  const j = (typeof JOBS !== 'undefined' ? JOBS : []).find(function (x) { return x.code === jobCode; }) || window._currentJob;
+  if (!j) { toast('ไม่พบงาน', 'error'); return; }
+  opts = opts || {};
+  if (!opts.terms) {
+    const qt = (typeof QUOTE_TEMPLATE !== 'undefined' && QUOTE_TEMPLATE) ? QUOTE_TEMPLATE : {};
+    opts.terms = qt.terms || 'มัดจำถือเป็นการยืนยันการจอง สงวนสิทธิ์วันถ่ายให้ท่าน\nยอดคงเหลือชำระตามกำหนด\nเลื่อน/ยกเลิกแจ้งล่วงหน้า 30 วัน · มัดจำไม่คืนกรณียกเลิก\nส่งภาพผ่าน online gallery ตามที่ตกลง';
+  }
+  if (!opts.channel) opts.channel = 'both';
+  const _open = function (qrUrl) {
+    try {
+      opts.qrUrl = qrUrl || null;
+      const html = buildBookingSummaryHtml(j, opts);
+      const w = window.open('', '_blank', 'width=900,height=1200');
+      if (!w) { toast('เบราว์เซอร์บล็อก popup · อนุญาต popup ของไซต์นี้ก่อน', 'error'); return; }
+      w.document.write(html); w.document.close();
+      if (typeof recordAction === 'function') recordAction('generated_pdf', j.code || '');
+    } catch (e) { console.error(e); toast('สร้างใบสรุปการจองไม่สำเร็จ', 'error'); }
+  };
+  const ctx = getPrintCtx({ type: 'booking', doc: j });
+  const remain = Number(ctx.remain) || 0;
+  const wantQr = (opts.channel === 'qr' || opts.channel === 'both');
+  if (wantQr && remain > 0) { _bkQrDataUrl(remain, function (url) { _open(url); }); return; }
+  _open(null);
+}
+
+// ใบเสนอราคาที่ผูกกับงาน · reuse openQuotePrint · ไม่มี → แจ้ง (ไม่สร้าง phantom)
+function openJobQuoteDoc(jobCode) {
+  const j = (typeof JOBS !== 'undefined' ? JOBS : []).find(function (x) { return x.code === jobCode; }) || window._currentJob;
+  if (!j) { toast('ไม่พบงาน', 'error'); return; }
+  const q = (typeof QUOTES !== 'undefined' ? QUOTES : []).find(function (x) { return (j.fromQuote && x.code === j.fromQuote) || x.convertedJobCode === j.code; });
+  if (!q) { toast('งานนี้สร้างโดยตรง · ไม่มีใบเสนอราคาผูกไว้', 'info'); return; }
+  if (typeof openQuotePrint === 'function') openQuotePrint(q.code);
+}
+
+// ป๊อปอัพเลือกตัวเลือกก่อนสร้างใบสรุปการจอง (มีปุ่มข้าม) · ใช้ทั้งปุ่ม section + เด้งอัตโนมัติ
+function _bkDefaultTerms() {
+  const qt = (typeof QUOTE_TEMPLATE !== 'undefined' && QUOTE_TEMPLATE) ? QUOTE_TEMPLATE : {};
+  return qt.terms || 'มัดจำถือเป็นการยืนยันการจอง สงวนสิทธิ์วันถ่ายให้ท่าน\nยอดคงเหลือชำระก่อนหรือในวันงานตามตกลง\nเลื่อน/ยกเลิกแจ้งล่วงหน้า 30 วัน · มัดจำไม่คืนกรณียกเลิก\nส่งภาพผ่าน online gallery ตามที่ตกลง';
+}
+function openBookingSummaryPrompt(jobCode) {
+  const j = (typeof JOBS !== 'undefined' ? JOBS : []).find(function (x) { return x.code === jobCode; }) || window._currentJob;
+  if (!j) { toast('ไม่พบงาน', 'error'); return; }
+  const esc = escapeHtml;
+  const evDate = j.date || '';
+  const evTH = evDate ? fmtDateTH(evDate) : 'วันงาน';
+  const hasQr = (typeof PROMPTPAY !== 'undefined' && PROMPTPAY && PROMPTPAY.id);
+  const hasBank = (typeof BANKS !== 'undefined' && BANKS && BANKS.length > 0);
+  const defChannel = (hasQr && hasBank) ? 'both' : (hasQr ? 'qr' : 'bank');
+  const old = document.getElementById('bkPromptOverlay'); if (old) old.remove();
+  const ov = document.createElement('div');
+  ov.id = 'bkPromptOverlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);';
+  const radio = function (nm, val, checked, label, sub) {
+    return '<label style="display:flex;align-items:flex-start;gap:9px;padding:10px 12px;border:1px solid rgba(255,255,255,.12);border-radius:11px;margin-bottom:7px;cursor:pointer;background:rgba(255,255,255,.03);">'
+      + '<input type="radio" name="' + nm + '" value="' + val + '"' + (checked ? ' checked' : '') + ' style="margin-top:2px;accent-color:#D4A056;">'
+      + '<span><span style="font-size:13.5px;color:#F4F3F1;font-weight:600;">' + label + '</span>' + (sub ? '<br><span style="font-size:11px;color:#A1A1AA;">' + sub + '</span>' : '') + '</span></label>';
+  };
+  ov.innerHTML = '<div style="width:460px;max-width:94vw;max-height:90vh;overflow-y:auto;background:#17171b;border:1px solid rgba(212,160,86,.25);border-radius:18px;padding:22px 20px 18px;box-shadow:0 18px 50px rgba(0,0,0,.55);">'
+    + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;"><span style="font-size:22px;">📑</span><div><div style="font-size:18px;font-weight:700;color:#F4F3F1;font-family:Fraunces,serif;">สร้างใบสรุปการจอง</div><div style="font-size:12px;color:#A1A1AA;">' + esc(j.customer || 'ลูกค้า') + (evDate ? ' · ' + esc(evTH) : '') + '</div></div></div>'
+    + '<div style="font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#D4A056;font-weight:700;margin:16px 2px 9px;">กำหนดชำระยอดคงเหลือ</div>'
+    + radio('bkDue', 'before', true, 'ก่อนวันงาน', 'ภายใน ' + esc(evTH))
+    + radio('bkDue', 'after', false, 'หลังวันงาน', 'ภายใน 7 วันหลังงาน')
+    + radio('bkDue', 'custom', false, 'กำหนดเอง', '')
+    + '<input type="date" id="bkDueCustom" style="display:none;width:100%;margin:-2px 0 8px;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#F4F3F1;font-size:13px;">'
+    + '<div style="font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#D4A056;font-weight:700;margin:16px 2px 9px;">ช่องทางชำระ</div>'
+    + radio('bkCh', 'both', defChannel === 'both', 'QR พร้อมเพย์ + เลขบัญชี', hasQr && hasBank ? '' : 'บางช่องทางยังไม่ได้ตั้งค่า')
+    + radio('bkCh', 'qr', defChannel === 'qr', 'เฉพาะ QR พร้อมเพย์', hasQr ? '' : 'ยังไม่ได้ตั้งพร้อมเพย์')
+    + radio('bkCh', 'bank', defChannel === 'bank', 'เฉพาะเลขบัญชี', hasBank ? '' : 'ยังไม่ได้ตั้งบัญชี')
+    + '<div style="font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#D4A056;font-weight:700;margin:16px 2px 9px;">เงื่อนไขท้ายใบ (แก้ไขได้)</div>'
+    + '<textarea id="bkTerms" rows="4" style="width:100%;padding:10px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#F4F3F1;font-size:12.5px;line-height:1.7;resize:vertical;font-family:inherit;">' + esc(_bkDefaultTerms()) + '</textarea>'
+    + '<div style="display:flex;gap:10px;margin-top:16px;">'
+    + '<button id="bkSkip" style="flex:1;padding:13px;font-size:14px;border-radius:11px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:#F4F3F1;cursor:pointer;">ข้าม</button>'
+    + '<button id="bkCreate" style="flex:1.4;padding:13px;font-size:14px;font-weight:700;border:none;border-radius:11px;background:linear-gradient(135deg,#D4A056,#9C7340);color:#0A0A0E;cursor:pointer;">สร้างใบสรุปการจอง</button>'
+    + '</div></div>';
+  document.body.appendChild(ov);
+  const close = function () { ov.remove(); };
+  ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+  const dueCustom = ov.querySelector('#bkDueCustom');
+  ov.querySelectorAll('input[name="bkDue"]').forEach(function (r) {
+    r.addEventListener('change', function () { dueCustom.style.display = (ov.querySelector('input[name="bkDue"]:checked').value === 'custom') ? 'block' : 'none'; });
+  });
+  ov.querySelector('#bkSkip').addEventListener('click', close);
+  ov.querySelector('#bkCreate').addEventListener('click', function () {
+    const dueVal = (ov.querySelector('input[name="bkDue"]:checked') || {}).value || 'before';
+    const chVal = (ov.querySelector('input[name="bkCh"]:checked') || {}).value || 'both';
+    let dueLabel;
+    if (dueVal === 'before') dueLabel = 'ก่อนวันงาน · ภายใน ' + evTH;
+    else if (dueVal === 'after') dueLabel = 'หลังวันงาน · ภายใน 7 วันหลังงาน';
+    else { const dv = dueCustom.value; dueLabel = dv ? 'ภายใน ' + fmtDateTH(dv) : 'ตามตกลง'; }
+    const terms = String(ov.querySelector('#bkTerms').value || '').split('\n');
+    close();
+    openBookingSummary(j.code, { dueLabel: dueLabel, channel: chVal, terms: terms });
+  });
 }
 
 // v1.0.96 · สไตล์ "หรู" (งาช้าง-ทอง-เซริฟ) · ฉีดทับ CSS เดิมตอน docStyle=luxury · ใช้ร่วม 3 เทมเพลต
