@@ -3164,13 +3164,13 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.55';
+const PIXORY_DESKTOP_VERSION = '1.1.56';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
-  '1.1.55': {
+  '1.1.56': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
@@ -14183,9 +14183,9 @@ function renderJobDetailHtml(j) {
       <div class="form-section">
         <div class="form-section-title">📄 เอกสาร</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <button onclick="closeModal();setTimeout(()=>openJobQuoteDoc('${escapeHtml(j.code)}'),50)" style="width:100%;padding:12px 14px;background:var(--bg-b);border:1px solid var(--border);border-radius:12px;color:var(--ink);display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;"><span style="font-size:16px;">📄</span><span>ใบเสนอราคา</span><span style="margin-left:auto;opacity:.4;font-size:16px;">›</span></button>
+          <button onclick="closeModal();setTimeout(()=>openJobQuoteDoc('${escapeHtml(j.code)}'),50)" style="width:100%;padding:12px 14px;background:linear-gradient(135deg,#D4A056,#9C7340);color:#0A0A0E;border:none;border-radius:12px;display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;"><span style="font-size:16px;">📄</span><span>ใบเสนอราคา</span><span style="margin-left:auto;opacity:.5;font-size:16px;">›</span></button>
           <button onclick="closeModal();setTimeout(()=>openBookingSummaryPrompt('${escapeHtml(j.code)}'),50)" style="width:100%;padding:12px 14px;background:linear-gradient(135deg,#D4A056,#9C7340);color:#0A0A0E;border:none;border-radius:12px;display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600;"><span style="font-size:16px;">📑</span><span>ใบสรุปการจอง</span><span style="margin-left:auto;font-size:10px;background:rgba(0,0,0,.16);padding:2px 8px;border-radius:20px;">ใหม่</span></button>
-          ${remain > 0 ? `<button onclick="closeModal();setTimeout(()=>openJobInvoicePrint('${escapeHtml(j.code)}'),50)" style="width:100%;padding:12px 14px;background:linear-gradient(135deg,#1D9E75,#0d7b5a);color:#fff;border:none;border-radius:12px;display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600;"><span style="font-size:16px;">📋</span><span>ออกใบเรียกเก็บยอดชำระเพิ่มเติม</span></button>` : ''}
+          ${remain > 0 ? `<button onclick="closeModal();setTimeout(()=>openJobInvoicePrint('${escapeHtml(j.code)}'),50)" style="width:100%;padding:12px 14px;background:linear-gradient(135deg,#D4A056,#9C7340);color:#0A0A0E;border:none;border-radius:12px;display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600;"><span style="font-size:16px;">📋</span><span>ออกใบเรียกเก็บยอดชำระเพิ่มเติม</span></button>` : ''}
         </div>
       </div>
 

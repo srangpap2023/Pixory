@@ -5721,13 +5721,13 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
           <span id="job-paid-text">มัดจำ ฿3,000</span>
           <span><span data-i18n="job.remainingShort">คงเหลือ</span> <strong style="color:#dc2626" id="job-remaining">฿22,000</strong></span>
         </div>
-        <button class="btn secondary" onclick="openJobQuoteDoc()" style="margin: 12px 0 0; padding: 11px 14px; font-size: 13px; width: 100%; display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 16px; line-height: 1;">📄</span><span>ใบเสนอราคา</span><span style="margin-left: auto; opacity: .45; font-size: 16px;">›</span>
+        <button class="btn" onclick="openJobQuoteDoc()" style="margin: 12px 0 0; padding: 11px 14px; font-size: 13px; width: 100%; display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #D4A056, #9C7340); color:#0A0A0E;">
+          <span style="font-size: 16px; line-height: 1;">📄</span><span>ใบเสนอราคา</span><span style="margin-left: auto; opacity: .5; font-size: 16px;">›</span>
         </button>
         <button class="btn" onclick="openBookingSummaryPrompt()" style="margin: 9px 0 0; padding: 11px 14px; font-size: 13px; width: 100%; display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #D4A056, #9C7340); color:#0A0A0E;">
           <span style="font-size: 16px; line-height: 1;">📑</span><span style="font-weight: 600;">ใบสรุปการจอง</span><span style="margin-left: auto; font-size: 10px; background: rgba(0,0,0,.16); padding: 2px 8px; border-radius: 20px;">ใหม่</span>
         </button>
-        <button class="btn" id="job-invoice-btn" onclick="openJobInvoice()" style="margin: 9px 0 0; padding: 11px 14px; font-size: 13px; width: 100%; background: linear-gradient(135deg, #1D9E75, #0d7b5a); color:#fff;" data-i18n="inv.btnIssue">
+        <button class="btn" id="job-invoice-btn" onclick="openJobInvoice()" style="margin: 9px 0 0; padding: 11px 14px; font-size: 13px; width: 100%; background: linear-gradient(135deg, #D4A056, #9C7340); color:#0A0A0E;" data-i18n="inv.btnIssue">
           📋 ออกใบเรียกเก็บยอดชำระเพิ่มเติม
         </button>
       </div>
@@ -8768,7 +8768,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.70';
+const PIXORY_VERSION = '2.9.71';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8779,7 +8779,7 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
-  '2.9.70': {
+  '2.9.71': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
@@ -16478,15 +16478,15 @@ function openJob(code) {
   // Invoice button label — change based on whether invoice exists
   const invBtn = document.getElementById('job-invoice-btn');
   if (invBtn) {
+    // v2.9.71 · section เอกสาร: ปุ่มใบเรียกเก็บใช้โทนทองให้เข้าชุดกับใบเสนอ/ใบสรุปการจอง (Joe เคาะ · ทองทั้งสามปุ่ม)
+    invBtn.style.color = '#0A0A0E';
     if (j.invoice && j.invoice.code) {
       const paidLabel = j.invoice.balancePaid ? ' · ' + t('inv.paidBadge') : '';
       invBtn.innerHTML = t('inv.btnView') + ' (' + j.invoice.code + ')' + paidLabel;
-      invBtn.style.background = j.invoice.balancePaid
-        ? 'linear-gradient(135deg, #7c7066, #4b5563)'
-        : 'linear-gradient(135deg, #1D9E75, #0d7b5a)';
+      invBtn.style.background = 'linear-gradient(135deg, #D4A056, #9C7340)';
     } else {
       invBtn.innerHTML = t('inv.btnIssue');
-      invBtn.style.background = 'linear-gradient(135deg, #1D9E75, #0d7b5a)';
+      invBtn.style.background = 'linear-gradient(135deg, #D4A056, #9C7340)';
     }
   }
 
