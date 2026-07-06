@@ -3164,17 +3164,18 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.53';
+const PIXORY_DESKTOP_VERSION = '1.1.54';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
-  '1.1.53': {
+  '1.1.54': {
     date: '2026-07-03',
     title: 'ปลอดภัยขึ้น · แม่นขึ้น · เนียนขึ้น ✨',
     subtitle: 'เก็บรายละเอียดให้เดสก์ท็อปดีขึ้นหลายจุด',
     items: [
+      { icon: '📅', title: 'ซิงค์ทุกงานลงปฏิทินได้แล้ว', desc: 'ปุ่มใหม่ในหน้าปฏิทิน — กดครั้งเดียวเพิ่มงานที่ยังไม่ผ่านทั้งหมดลง Google / Apple / ปฏิทินมือถือ (เหมือนฝั่งมือถือ)' },
       { icon: '🧾', title: 'รายงานภาษีแม่นยำขึ้น', desc: 'ปรับให้รายงานภาษีไม่นับรวมงานที่ยกเลิกไปแล้ว — ตัวเลขสรุปภาษีตรงกันทั้งเดสก์ท็อปและมือถือ' },
       { icon: '🎨', title: 'หน้าตาเนียนขึ้น', desc: 'เก็บสีในธีมดำ-ทองให้สม่ำเสมอทั้งแอป และปรับให้ไม่มีสีแวบตอนเปิดแอป' },
       { icon: '🛡️', title: 'ปลอดภัยและเสถียรขึ้น', desc: 'ปรับปรุงความปลอดภัยของข้อมูลและการสำรองข้อมูลอัตโนมัติ' }
@@ -5543,6 +5544,103 @@ function _calMonthListHtml(entries) {
   }).join('');
 }
 
+// ===== v1.1.54 · เพิ่มงานลงปฏิทิน (.ics) → Google / ปฏิทินมือถือ / Apple · ยกจากมือถือ (index.html) เพื่อ parity =====
+function _icsEsc(s) { return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/([,;])/g, '\\$1').replace(/\r?\n/g, '\\n'); }
+function _icsTime(dateStr, timeStr) {
+  const d = String(dateStr || '').replace(/-/g, '');
+  if (!/^\d{8}$/.test(d)) return null;
+  const t = String(timeStr || '').trim();
+  if (!t) return { allDay: true, date: d };
+  let hh, mm;
+  if (t.indexOf(':') > -1) { const p = t.split(':'); hh = p[0]; mm = p[1] || '0'; } else { hh = t; mm = '0'; }
+  hh = ('0' + (parseInt(hh, 10) || 0)).slice(-2);
+  mm = ('0' + (parseInt(mm, 10) || 0)).slice(-2);
+  return { allDay: false, dt: d + 'T' + hh + mm + '00' };
+}
+function _icsNextDay(d8) {
+  const y = +d8.slice(0, 4), m = +d8.slice(4, 6), da = +d8.slice(6, 8);
+  const dt = new Date(Date.UTC(y, m - 1, da + 1));
+  return dt.toISOString().slice(0, 10).replace(/-/g, '');
+}
+function _jobVEVENTs(j, stamp) {
+  if (!j) return '';
+  stamp = stamp || (new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z');
+  const cust = j.custNick ? (j.customer + ' (' + j.custNick + ')') : (j.customer || 'ลูกค้า');
+  const typeLabel = j.type || 'งานถ่ายภาพ';
+  const sessions = (Array.isArray(j.sessions) && j.sessions.length) ? j.sessions
+    : [{ date: j.date, start: j.start, end: j.end, loc: j.loc, label: '' }];
+  let ev = '';
+  sessions.forEach((s, i) => {
+    const st = _icsTime(s.date, s.start);
+    if (!st) return;
+    const en = _icsTime(s.date, s.end);
+    const loc = s.loc || j.loc || '';
+    const summary = '📸 ' + cust + ' · ' + typeLabel + (s.label ? ' · ' + s.label : '');
+    const desc = 'งาน Pixory · ' + typeLabel + (j.sell ? ' · ฿' + Number(j.sell).toLocaleString() : '') + (j.code ? ' · ' + j.code : '');
+    ev += 'BEGIN:VEVENT\r\n';
+    ev += 'UID:' + (j.code || 'job') + '-' + i + '@pixory.pro\r\n';
+    ev += 'DTSTAMP:' + stamp + '\r\n';
+    if (st.allDay) {
+      ev += 'DTSTART;VALUE=DATE:' + st.date + '\r\n';
+      ev += 'DTEND;VALUE=DATE:' + _icsNextDay(st.date) + '\r\n';
+    } else {
+      ev += 'DTSTART:' + st.dt + '\r\n';
+      ev += 'DTEND:' + ((en && !en.allDay) ? en.dt : st.dt) + '\r\n';
+    }
+    ev += 'SUMMARY:' + _icsEsc(summary) + '\r\n';
+    if (loc) ev += 'LOCATION:' + _icsEsc(loc) + '\r\n';
+    ev += 'DESCRIPTION:' + _icsEsc(desc) + '\r\n';
+    ev += 'BEGIN:VALARM\r\nTRIGGER:-P1D\r\nACTION:DISPLAY\r\nDESCRIPTION:' + _icsEsc('พรุ่งนี้มีงาน · ' + cust) + '\r\nEND:VALARM\r\n';
+    ev += 'END:VEVENT\r\n';
+  });
+  return ev;
+}
+function _wrapICS(ev) {
+  return 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Pixory//Studio//TH\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\n' + ev + 'END:VCALENDAR\r\n';
+}
+function buildAllJobsICS(jobs) {
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  let ev = '', count = 0;
+  (jobs || []).forEach(function (j) {
+    const e = _jobVEVENTs(j, stamp);
+    if (e) { ev += e; count++; }
+  });
+  return { ics: ev ? _wrapICS(ev) : '', count: count };
+}
+function _deliverICS(ics, filename, okMsg) {
+  try {
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { try { URL.revokeObjectURL(url); } catch (e) {} }, 5000);
+    toast(okMsg, 'success');
+  } catch (e) { toast('สร้างไฟล์ปฏิทินไม่ได้ · ลองใหม่อีกครั้ง', 'error'); }
+}
+// ซิงค์ "ทุกงานที่ยังไม่ผ่าน" (รอถ่าย + รอส่งงาน) ลงปฏิทินทีเดียว
+function addAllJobsToCalendar() {
+  const upcoming = (Array.isArray(JOBS) ? JOBS : []).filter(function (j) {
+    return j && getStageFromJobStatus(j.jobStatus) !== 'closed';
+  });
+  if (!upcoming.length) { toast('ไม่มีงานที่ยังไม่ผ่าน', 'error'); return; }
+  const res = buildAllJobsICS(upcoming);
+  if (!res.ics || !res.count) { toast('งานที่ยังไม่ผ่านยังไม่มีวันที่ · ใส่วันงานก่อนนะครับ', 'error'); return; }
+  // v1.1.54 · บันทึกสถิติซิงค์ปฏิทินลง PROFILE (ให้ admin เห็นว่าใครซิงค์กี่งาน) · merge-safe · ตรงกับมือถือ
+  try {
+    if (typeof PROFILE === 'object' && PROFILE) {
+      PROFILE.calSync = PROFILE.calSync || { count: 0, totalJobs: 0 };
+      PROFILE.calSync.at = new Date().toISOString();
+      PROFILE.calSync.lastJobs = res.count;
+      PROFILE.calSync.count = (PROFILE.calSync.count || 0) + 1;
+      PROFILE.calSync.totalJobs = (PROFILE.calSync.totalJobs || 0) + res.count;
+      PROFILE.calSync.src = 'desktop';
+      if (typeof saveData === 'function') saveData();
+    }
+  } catch (e) {}
+  _deliverICS(res.ics, 'pixory-jobs.ics', '📅 เปิดไฟล์ปฏิทินแล้ว · ' + res.count + ' งาน');
+}
+
 function renderCalendar(root) {
   const today = new Date();
   const todayY = today.getFullYear();
@@ -5616,6 +5714,7 @@ function renderCalendar(root) {
         <button class="cal-nav-btn" onclick="calPrevMonth()" title="เดือนก่อน">‹</button>
         <button class="cal-today-btn" onclick="calGoToday()" title="วันนี้" style="min-width:120px;">${monthName}</button>
         <button class="cal-nav-btn" onclick="calNextMonth()" title="เดือนถัดไป">›</button>
+        <button class="btn" onclick="addAllJobsToCalendar()" title="ซิงค์ทุกงานที่ยังไม่ผ่านลงปฏิทินมือถือ (.ics)" style="background:rgba(212,160,86,0.12);border:1px solid rgba(212,160,86,0.4);color:var(--brand-light,#E0A96D);display:inline-flex;align-items:center;gap:7px;font-weight:600;">📅 ซิงค์ทุกงานลงปฏิทิน</button>
         <button class="btn btn-primary" onclick="openJobModal()">＋ เพิ่มงาน</button>
       </div>
     </div>

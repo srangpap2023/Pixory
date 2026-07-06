@@ -19300,6 +19300,18 @@ function addAllJobsToCalendar() {
   if (!upcoming.length) { toast('ไม่มีงานที่ยังไม่ผ่าน', 'error'); return; }
   const res = buildAllJobsICS(upcoming);
   if (!res.ics || !res.count) { toast('งานที่ยังไม่ผ่านยังไม่มีวันที่ · ใส่วันงานก่อนนะครับ', 'error'); return; }
+  // v2.9.68 · บันทึกสถิติซิงค์ปฏิทินลง PROFILE (ให้ admin เห็นว่าใครซิงค์กี่งาน) · merge-safe · ไม่แตะสูตรเงิน/sync engine
+  try {
+    if (typeof PROFILE === 'object' && PROFILE) {
+      PROFILE.calSync = PROFILE.calSync || { count: 0, totalJobs: 0 };
+      PROFILE.calSync.at = new Date().toISOString();
+      PROFILE.calSync.lastJobs = res.count;
+      PROFILE.calSync.count = (PROFILE.calSync.count || 0) + 1;
+      PROFILE.calSync.totalJobs = (PROFILE.calSync.totalJobs || 0) + res.count;
+      PROFILE.calSync.src = 'mobile';
+      if (typeof saveData === 'function') saveData();
+    }
+  } catch (e) {}
   _deliverICS(res.ics, 'pixory-jobs.ics', '📅 เปิดไฟล์ปฏิทินแล้ว · ' + res.count + ' งาน');
 }
 
