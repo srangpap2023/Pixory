@@ -3164,13 +3164,13 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.62';
+const PIXORY_DESKTOP_VERSION = '1.1.63';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
-  '1.1.62': {
+  '1.1.63': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
@@ -3180,7 +3180,8 @@ const RELEASE_NOTES = {
       { icon: '⚡', title: 'เด้งถามอัตโนมัติ', desc: 'หลังสร้างงานใหม่ หรือแปลงใบเสนอเป็นงาน ระบบเด้งถามสร้างใบสรุปการจองให้ทันที (เลือกวันครบกำหนด/ช่องทางจ่าย/แก้เงื่อนไขเองได้ · หรือกดข้าม)' },
       { icon: '📅', title: 'เพิ่มช่อง "วันรับมัดจำ"', desc: 'เพิ่มช่องวันรับมัดจำในหน้าแก้ไขงาน — งานใหม่ตั้งเป็นวันนี้ให้อัตโนมัติ · แก้งานเก่าที่วันไม่ตรงได้เอง (ตรงกับฝั่งมือถือ)' },
       { icon: '✏️', title: 'แก้ราคา/มัดจำ ตอนสร้างใบสรุปการจองได้เลย', desc: 'กดสร้างใบสรุปการจอง มีช่องแก้ ส่วนลด · มัดจำ · วันรับมัดจำ ในป๊อปอัพ (ยอดขายคำนวณให้อัตโนมัติ) · แก้แล้วบันทึกกลับเข้างานทันที (ตรงกับฝั่งมือถือ)' },
-      { icon: '🗓️', title: 'หน้างานแบ่งเดือน/ปีชัดขึ้น', desc: 'จัดกลุ่มงานตามเดือน มีหัวเดือน (กี่งาน + ยอดขายรวม) และเส้นแบ่งปีเมื่อขึ้นปีใหม่ · ใช้ได้ทั้งมุมมองรายการและการ์ด' }
+      { icon: '🗓️', title: 'หน้างานแบ่งเดือน/ปีชัดขึ้น', desc: 'จัดกลุ่มงานตามเดือน มีหัวเดือน (กี่งาน + ยอดขายรวม) และเส้นแบ่งปีเมื่อขึ้นปีใหม่ · ใช้ได้ทั้งมุมมองรายการและการ์ด' },
+      { icon: '📆', title: 'งานหลายวันโชว์ช่วงวันครบ', desc: 'งานที่มีหลายเซสชันคนละวัน (เช่น 14–15 พ.ย.) หน้างานทั้งมุมมองรายการและการ์ดแสดงเป็นช่วงวัน ไม่ตัดเหลือวันเดียว' }
     ]
   },
   '1.1.54': {
@@ -6139,6 +6140,20 @@ function _jobYearDivHtml(y, span) {
   return '<div style="' + (span ? 'grid-column:1/-1;' : '') + 'display:flex;align-items:center;gap:14px;margin:16px 2px 8px;"><div style="font-family:Fraunces,serif;font-size:24px;font-weight:700;color:#D4A056;">' + (y + 543) + '</div><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(212,160,86,.45),transparent);"></div></div>';
 }
 
+// v1.1.63 · แสดงช่วงวันของงานหลายเซสชัน (parity มือถือ) · ใช้ทั้งมุมมองรายการ + การ์ด
+function _jobDateDisplay(j) {
+  const TH_MS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const dates = Array.from(new Set(((j.sessions || []).map(function (s) { return s && s.date; }).filter(Boolean)))).sort();
+  const list = dates.length ? dates : (j.date ? [j.date] : []);
+  if (list.length === 0) return { big: '', small: '', multi: false };
+  const pick = function (iso) { return { d: parseInt(iso.slice(8, 10), 10) || '', m: parseInt(iso.slice(5, 7), 10) - 1, y: parseInt(iso.slice(0, 4), 10) }; };
+  if (list.length === 1) { const a = pick(list[0]); return { big: String(a.d), small: TH_MS[a.m] || '', multi: false }; }
+  const f = pick(list[0]), l = pick(list[list.length - 1]);
+  if (f.m === l.m && f.y === l.y) return { big: f.d + '–' + l.d, small: TH_MS[f.m] || '', multi: true };
+  if (f.y === l.y) return { big: f.d + ' ' + (TH_MS[f.m] || '') + '–' + l.d, small: TH_MS[l.m] || '', multi: true };
+  return { big: f.d + ' ' + (TH_MS[f.m] || '') + '–' + l.d + ' ' + (TH_MS[l.m] || ''), small: String(l.y + 543).slice(-2), multi: true };
+}
+
 function renderJobsTable() {
   const filtered = _filteredJobs();
   if (filtered.length === 0) {
@@ -6163,15 +6178,14 @@ function renderJobsTable() {
       const occs = _getJobOccurrences(j);
       const firstSess = occs.length ? occs[0].session : null;
       const iso = j.date || (occs.length ? occs[0].iso : '');
-      let dnum = '', dmon = '';
-      if (iso && iso.length >= 10) { dnum = parseInt(iso.slice(8, 10), 10) || ''; dmon = TH_MS[parseInt(iso.slice(5, 7), 10) - 1] || ''; }
+      const dd = _jobDateDisplay(j);
       const loc = _effectiveLoc(j, firstSess) || '';
       const sub = (j.type || '') + (loc ? ' · ' + loc : '');
       const tooltip = _jobSessionsTooltip(j);
       const teamWarn = (j.teamStatus === 'incomplete' && stage !== 'closed')
         ? `<span style="font-size:9.5px;color:#E27A72;background:#E27A721f;padding:2px 7px;border-radius:6px;white-space:nowrap;">${escapeHtml(t('job.teamWarnPill'))}</span>` : '';
       return `<div onclick="openJobDetail('${escapeHtml(j.code)}')"${tooltip ? ` title="${escapeHtml(tooltip)}"` : ''} style="display:flex;align-items:center;gap:20px;padding:16px 20px;${idx < seg.jobs.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.05);' : ''}cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background=''">
-        <div style="width:48px;text-align:center;flex:none;"><div style="font-family:'Fraunces',Georgia,serif;font-weight:300;font-size:23px;color:#EFB670;line-height:1;">${dnum}</div><div style="font-size:10px;color:#71717A;margin-top:2px;">${dmon}</div></div>
+        <div style="min-width:48px;text-align:center;flex:none;"><div style="font-family:'Fraunces',Georgia,serif;font-weight:300;font-size:${dd.multi ? '15px' : '23px'};color:#EFB670;line-height:1.1;white-space:nowrap;">${dd.big}</div><div style="font-size:10px;color:#71717A;margin-top:2px;white-space:nowrap;">${dd.small}</div></div>
         <div style="flex:1;min-width:0;"><div style="font-size:15px;color:#F4F4F5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(j.customer || '-')}</div><div style="font-size:12.5px;color:#71717A;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(sub)}</div></div>
         <div style="flex:none;display:flex;align-items:center;gap:6px;">${teamWarn}<span style="font-size:11.5px;font-weight:500;color:${sc};background:${sc}1f;padding:5px 13px;border-radius:8px;white-space:nowrap;">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span></div>
         <div style="width:120px;text-align:right;flex:none;"><div style="font-family:'Inter';font-weight:600;font-size:16px;color:#F4F4F5;">${fmtTHB(j.sell)}</div>${remain > 0 ? `<div style="font-size:10.5px;color:#EFB670;margin-top:2px;">เหลือ ${fmtTHB(remain)}</div>` : ''}</div>
@@ -6207,8 +6221,8 @@ function renderJobsCards() {
       const occs = _getJobOccurrences(j);
       const firstSess = occs.length ? occs[0].session : null;
       const iso = j.date || (occs.length ? occs[0].iso : '');
-      let dchip = '';
-      if (iso && iso.length >= 10) dchip = (parseInt(iso.slice(8, 10), 10) || '') + ' ' + (TH_MS[parseInt(iso.slice(5, 7), 10) - 1] || '');
+      const _dd = _jobDateDisplay(j);
+      const dchip = _dd.big + (_dd.small ? ' ' + _dd.small : '');
       const loc = _effectiveLoc(j, firstSess) || '';
       const tooltip = _jobSessionsTooltip(j);
       const teamWarn = (j.teamStatus === 'incomplete' && stage !== 'closed')
