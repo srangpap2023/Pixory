@@ -3164,13 +3164,13 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.57';
+const PIXORY_DESKTOP_VERSION = '1.1.58';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
-  '1.1.57': {
+  '1.1.58': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
@@ -3178,7 +3178,8 @@ const RELEASE_NOTES = {
       { icon: '📑', title: 'ใบสรุปการจอง (Booking Summary)', desc: 'เอกสารสรุปการจองสวยหรู 1 หน้า — โชว์แพคเกจ กำหนดการถ่าย มัดจำ/ยอดคงเหลือ พร้อม QR พร้อมเพย์/เลขบัญชี · โหลดเป็น PDF/JPEG ส่งลูกค้าได้เลย' },
       { icon: '🗂️', title: 'รวมเอกสารไว้ที่เดียว', desc: 'ในหน้ารายละเอียดงานมี section "เอกสาร" — ใบเสนอราคา · ใบสรุปการจอง · ใบเรียกเก็บ อยู่รวมกัน (เหมือนฝั่งมือถือ)' },
       { icon: '⚡', title: 'เด้งถามอัตโนมัติ', desc: 'หลังสร้างงานใหม่ หรือแปลงใบเสนอเป็นงาน ระบบเด้งถามสร้างใบสรุปการจองให้ทันที (เลือกวันครบกำหนด/ช่องทางจ่าย/แก้เงื่อนไขเองได้ · หรือกดข้าม)' },
-      { icon: '📅', title: 'เพิ่มช่อง "วันรับมัดจำ"', desc: 'เพิ่มช่องวันรับมัดจำในหน้าแก้ไขงาน — งานใหม่ตั้งเป็นวันนี้ให้อัตโนมัติ · แก้งานเก่าที่วันไม่ตรงได้เอง (ตรงกับฝั่งมือถือ)' }
+      { icon: '📅', title: 'เพิ่มช่อง "วันรับมัดจำ"', desc: 'เพิ่มช่องวันรับมัดจำในหน้าแก้ไขงาน — งานใหม่ตั้งเป็นวันนี้ให้อัตโนมัติ · แก้งานเก่าที่วันไม่ตรงได้เอง (ตรงกับฝั่งมือถือ)' },
+      { icon: '✏️', title: 'แก้ราคา/มัดจำ ตอนสร้างใบสรุปการจองได้เลย', desc: 'กดสร้างใบสรุปการจอง มีช่องแก้ ส่วนลด · มัดจำ · วันรับมัดจำ ในป๊อปอัพ (ยอดขายคำนวณให้อัตโนมัติ) · แก้แล้วบันทึกกลับเข้างานทันที (ตรงกับฝั่งมือถือ)' }
     ]
   },
   '1.1.54': {
@@ -16030,6 +16031,36 @@ function _bkDefaultTerms() {
   const qt = (typeof QUOTE_TEMPLATE !== 'undefined' && QUOTE_TEMPLATE) ? QUOTE_TEMPLATE : {};
   return qt.terms || 'มัดจำถือเป็นการยืนยันการจอง สงวนสิทธิ์วันถ่ายให้ท่าน\nยอดคงเหลือชำระก่อนหรือในวันงานตามตกลง\nเลื่อน/ยกเลิกแจ้งล่วงหน้า 30 วัน · มัดจำไม่คืนกรณียกเลิก\nส่งภาพผ่าน online gallery ตามที่ตกลง';
 }
+// v1.1.58 · แก้ราคา/มัดจำในป๊อปอัพใบสรุปการจอง → บันทึกกลับเข้างาน (parity มือถือ)
+function _bkApplyMoneyEdits(j, o) {
+  if (!j || !o) return;
+  let baseTotal = Number(o.baseTotal) || Number(j.total) || 0;
+  if (!baseTotal) baseTotal = (Number(j.sell) || 0) + (Number(j.discount) || 0);
+  const oldDeposit = Number(j.deposit) || 0;
+  const newDiscount = Math.max(0, Number(o.discount) || 0);
+  const newSell = Math.max(0, baseTotal - newDiscount);
+  let newDeposit = Math.max(0, Number(o.deposit) || 0);
+  if (newDeposit > newSell) newDeposit = newSell;
+  const newRemain = Math.max(0, newSell - newDeposit);
+  j.discount = newDiscount; j.sell = newSell; j.deposit = newDeposit; j.remain = newRemain;
+  j.payStatus = newDeposit > 0 ? (newRemain === 0 ? 'ชำระครบ' : 'มัดจำแล้ว') : 'รอมัดจำ';
+  const costSum = Array.isArray(j.costItems) ? j.costItems.reduce(function (s, c) { return s + (Number(c.price) || 0); }, 0) : 0;
+  j.profit = newSell - (Number(j.teamCost) || 0) - (Number(j.travelCost) || 0) - (Number(j.otherCost) || 0) - costSum;
+  if (j.taxEnabled && j.tax && typeof buildTaxSnapshot === 'function') {
+    try { const snap = buildTaxSnapshot(newSell, j.tax, true); j.tax = snap.tax; j.taxBreakdown = snap.taxBreakdown; } catch (e) { console.warn('bkTax:', e); }
+  }
+  if (o.dateDeposit) { j.dateDeposit = o.dateDeposit; j.depositPaidDate = o.dateDeposit; }
+  const hasDep = (j.payments || []).some(function (p) { return p && p.type === 'deposit'; });
+  if (oldDeposit === 0 && newDeposit > 0 && !hasDep) {
+    j.payments = Array.isArray(j.payments) ? j.payments : [];
+    j.payments.push({ date: o.dateDeposit || j.dateDeposit || TODAY_ISO(), amount: newDeposit, type: 'deposit', note: 'มัดจำจองคิว' });
+  } else {
+    try { window.reconcileDepositPayments(j, oldDeposit, newDeposit); } catch (e) { console.warn('bkReconcile:', e); }
+  }
+  if (o.dateDeposit) { const dep = (j.payments || []).find(function (p) { return p && p.type === 'deposit'; }); if (dep) dep.date = o.dateDeposit; }
+  try { saveData(); } catch (e) {}
+}
+
 function openBookingSummaryPrompt(jobCode) {
   const j = (typeof JOBS !== 'undefined' ? JOBS : []).find(function (x) { return x.code === jobCode; }) || window._currentJob;
   if (!j) { toast('ไม่พบงาน', 'error'); return; }
@@ -16039,6 +16070,16 @@ function openBookingSummaryPrompt(jobCode) {
   const hasQr = (typeof PROMPTPAY !== 'undefined' && PROMPTPAY && PROMPTPAY.id);
   const hasBank = (typeof BANKS !== 'undefined' && BANKS && BANKS.length > 0);
   const defChannel = (hasQr && hasBank) ? 'both' : (hasQr ? 'qr' : 'bank');
+  // v1.1.58 · ค่าเงินตั้งต้น สำหรับส่วน "ราคา·มัดจำ" (แก้ได้ในป๊อปอัพ)
+  let _baseTotal = Number(j.total) || 0;
+  if (!_baseTotal) _baseTotal = (Number(j.sell) || 0) + (Number(j.discount) || 0);
+  const _curDiscount = Number(j.discount) || 0;
+  const _curDeposit = Number(j.deposit) || 0;
+  const _curSell = Math.max(0, _baseTotal - _curDiscount);
+  const _depDateVal = String(j.dateDeposit || j.depositPaidDate || (((j.payments || []).find(function (p) { return p && p.type === 'deposit'; }) || {}).date) || TODAY_ISO()).slice(0, 10);
+  const _inCss = 'width:100%;padding:9px 11px;font-size:14px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#F4F3F1;font-family:inherit;box-sizing:border-box;';
+  const _roCss = 'width:100%;padding:9px 11px;font-size:14px;border-radius:10px;border:1px dashed rgba(255,255,255,.18);background:rgba(255,255,255,.02);color:#9a978f;font-family:inherit;box-sizing:border-box;';
+  const _lbCss = 'display:block;font-size:11.5px;color:#C9C7C2;margin-bottom:5px;';
   const old = document.getElementById('bkPromptOverlay'); if (old) old.remove();
   const ov = document.createElement('div');
   ov.id = 'bkPromptOverlay';
@@ -16050,6 +16091,18 @@ function openBookingSummaryPrompt(jobCode) {
   };
   ov.innerHTML = '<div style="width:460px;max-width:94vw;max-height:90vh;overflow-y:auto;background:#17171b;border:1px solid rgba(212,160,86,.25);border-radius:18px;padding:22px 20px 18px;box-shadow:0 18px 50px rgba(0,0,0,.55);">'
     + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;"><span style="font-size:22px;">📑</span><div><div style="font-size:18px;font-weight:700;color:#F4F3F1;font-family:Fraunces,serif;">สร้างใบสรุปการจอง</div><div style="font-size:12px;color:#A1A1AA;">' + esc(j.customer || 'ลูกค้า') + (evDate ? ' · ' + esc(evTH) : '') + '</div></div></div>'
+    + '<div style="font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#D4A056;font-weight:700;margin:14px 2px 9px;">💰 ราคา · มัดจำ <span style="font-size:9px;color:#0A0A0E;background:#D4A056;padding:1px 6px;border-radius:20px;letter-spacing:0;">แก้ได้</span></div>'
+    + '<div style="background:rgba(212,160,86,.06);border:1px solid rgba(212,160,86,.22);border-radius:13px;padding:12px 13px 9px;">'
+    +   '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
+    +     '<div><label style="' + _lbCss + '">ส่วนลด (บาท)</label><input type="number" id="bkDiscount" min="0" value="' + _curDiscount + '" style="' + _inCss + '"></div>'
+    +     '<div><label style="' + _lbCss + '">ยอดขาย (บาท)</label><input type="text" id="bkSell" readonly value="' + _curSell.toLocaleString('en-US') + '" style="' + _roCss + '"></div>'
+    +   '</div>'
+    +   '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">'
+    +     '<div><label style="' + _lbCss + '">มัดจำ (บาท)</label><input type="number" id="bkDeposit" min="0" value="' + _curDeposit + '" style="' + _inCss + '"></div>'
+    +     '<div><label style="' + _lbCss + '">วันรับมัดจำ</label><input type="date" id="bkDateDeposit" value="' + _depDateVal + '" style="' + _inCss + '"></div>'
+    +   '</div>'
+    +   '<div style="font-size:10.5px;color:#D4A056;margin-top:7px;line-height:1.55;">✏️ แก้แล้วบันทึกกลับเข้างาน · ยอดขายคำนวณจาก แพคเกจ − ส่วนลด · กระทบยอดคงเหลือ + ยอดยื่นภาษี</div>'
+    + '</div>'
     + '<div style="font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#D4A056;font-weight:700;margin:16px 2px 9px;">กำหนดชำระยอดคงเหลือ</div>'
     + radio('bkDue', 'before', true, 'ก่อนวันงาน', 'ภายใน ' + esc(evTH))
     + radio('bkDue', 'after', false, 'หลังวันงาน', 'ภายใน 7 วันหลังงาน')
@@ -16072,6 +16125,12 @@ function openBookingSummaryPrompt(jobCode) {
   ov.querySelectorAll('input[name="bkDue"]').forEach(function (r) {
     r.addEventListener('change', function () { dueCustom.style.display = (ov.querySelector('input[name="bkDue"]:checked').value === 'custom') ? 'block' : 'none'; });
   });
+  // v1.1.58 · แก้ส่วนลด → ยอดขายคำนวณสด
+  const _bkRecalc = function () {
+    const dd = Math.max(0, parseFloat((ov.querySelector('#bkDiscount') || {}).value) || 0);
+    const se = ov.querySelector('#bkSell'); if (se) se.value = Math.max(0, _baseTotal - dd).toLocaleString('en-US');
+  };
+  { const de = ov.querySelector('#bkDiscount'); if (de) de.addEventListener('input', _bkRecalc); }
   ov.querySelector('#bkSkip').addEventListener('click', close);
   ov.querySelector('#bkCreate').addEventListener('click', function () {
     const dueVal = (ov.querySelector('input[name="bkDue"]:checked') || {}).value || 'before';
@@ -16081,6 +16140,11 @@ function openBookingSummaryPrompt(jobCode) {
     else if (dueVal === 'after') dueLabel = 'หลังวันงาน · ภายใน 7 วันหลังงาน';
     else { const dv = dueCustom.value; dueLabel = dv ? 'ภายใน ' + fmtDateTH(dv) : 'ตามตกลง'; }
     const terms = String(ov.querySelector('#bkTerms').value || '').split('\n');
+    // v1.1.58 · บันทึกการแก้ราคา/มัดจำกลับเข้างานก่อนสร้างเอกสาร
+    const _discount = Math.max(0, parseFloat((ov.querySelector('#bkDiscount') || {}).value) || 0);
+    const _deposit = Math.max(0, parseFloat((ov.querySelector('#bkDeposit') || {}).value) || 0);
+    const _depDate = (ov.querySelector('#bkDateDeposit') || {}).value || '';
+    try { _bkApplyMoneyEdits(j, { discount: _discount, deposit: _deposit, dateDeposit: _depDate, baseTotal: _baseTotal }); } catch (e) { console.warn('bkMoney:', e); }
     close();
     openBookingSummary(j.code, { dueLabel: dueLabel, channel: chVal, terms: terms });
   });
