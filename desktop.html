@@ -3164,20 +3164,21 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.56';
+const PIXORY_DESKTOP_VERSION = '1.1.57';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
-  '1.1.56': {
+  '1.1.57': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
     items: [
       { icon: '📑', title: 'ใบสรุปการจอง (Booking Summary)', desc: 'เอกสารสรุปการจองสวยหรู 1 หน้า — โชว์แพคเกจ กำหนดการถ่าย มัดจำ/ยอดคงเหลือ พร้อม QR พร้อมเพย์/เลขบัญชี · โหลดเป็น PDF/JPEG ส่งลูกค้าได้เลย' },
       { icon: '🗂️', title: 'รวมเอกสารไว้ที่เดียว', desc: 'ในหน้ารายละเอียดงานมี section "เอกสาร" — ใบเสนอราคา · ใบสรุปการจอง · ใบเรียกเก็บ อยู่รวมกัน (เหมือนฝั่งมือถือ)' },
-      { icon: '⚡', title: 'เด้งถามอัตโนมัติ', desc: 'หลังสร้างงานใหม่ หรือแปลงใบเสนอเป็นงาน ระบบเด้งถามสร้างใบสรุปการจองให้ทันที (เลือกวันครบกำหนด/ช่องทางจ่าย/แก้เงื่อนไขเองได้ · หรือกดข้าม)' }
+      { icon: '⚡', title: 'เด้งถามอัตโนมัติ', desc: 'หลังสร้างงานใหม่ หรือแปลงใบเสนอเป็นงาน ระบบเด้งถามสร้างใบสรุปการจองให้ทันที (เลือกวันครบกำหนด/ช่องทางจ่าย/แก้เงื่อนไขเองได้ · หรือกดข้าม)' },
+      { icon: '📅', title: 'เพิ่มช่อง "วันรับมัดจำ"', desc: 'เพิ่มช่องวันรับมัดจำในหน้าแก้ไขงาน — งานใหม่ตั้งเป็นวันนี้ให้อัตโนมัติ · แก้งานเก่าที่วันไม่ตรงได้เอง (ตรงกับฝั่งมือถือ)' }
     ]
   },
   '1.1.54': {
@@ -12515,6 +12516,11 @@ function renderFormBody(ctx, item) {
         <div class="form-field"><label>ส่วนลด (บาท)</label><input type="number" id="${ctx}-discount" value="${item ? (item.discount || 0) : 0}" min="0" oninput="updateFormSummary('${ctx}')" /></div>
         <div class="form-field"><label>มัดจำ${isJob ? '' : 'เพื่อจองคิว'}</label><input type="number" id="${ctx}-deposit" value="${item ? (item.deposit || 0) : 0}" min="0" /></div>
       </div>
+      ${isJob ? `<!-- v1.1.57 · วันรับมัดจำ (แก้บั๊กวันติดจากงานเก่า + ให้แก้วันโอนจริงได้) -->
+      <div class="form-row">
+        <div class="form-field"><label>วันรับมัดจำ</label><input type="date" id="${ctx}-datedeposit" value="${item ? String(item.dateDeposit || item.depositPaidDate || TODAY_ISO()).slice(0,10) : TODAY_ISO()}" /><div class="hint">ค่าเริ่มต้น = วันนี้ · เปลี่ยนได้ถ้าลูกค้าโอนคนละวัน / แก้งานเก่าที่วันผิด</div></div>
+        <div class="form-field"></div>
+      </div>` : ''}
       ${!isJob ? (() => {
         // FIX H4 · default = วันนี้ + validityDays จาก QUOTE_TEMPLATE (or 14)
         let defaultExpire = '';
@@ -13736,6 +13742,8 @@ async function saveJob() {
   // Validate sessions ≥ 1
   if (st.sessions.length === 0) { toast('ใส่วันที่งานก่อน', 'error'); return; }
   const deposit = Number(document.getElementById('add-deposit').value) || 0;
+  // v1.1.57 · วันรับมัดจำจากช่องในฟอร์ม (งานใหม่=วันนี้ · แก้ไข=วันจริงของงาน)
+  const dateDeposit = (function () { const _e = document.getElementById('add-datedeposit'); return (_e && _e.value) ? _e.value : TODAY_ISO(); })();
   if (deposit > c.sell) {
     alert('⛔ มัดจำมากกว่าราคาขาย · กรุณาแก้ไขก่อนบันทึก');
     return;
@@ -13862,13 +13870,14 @@ async function saveJob() {
     // Tracking
     _createdAt: existing?._createdAt || new Date().toISOString()
   };
+  job.dateDeposit = dateDeposit; // v1.1.57 · วันรับมัดจำ (แก้ได้ · เดิม desktop ไม่เก็บ field นี้)
   // Preserve depositInitial (v1.9.11)
   if (!existing && deposit > 0) {
     job.depositInitial = deposit;
-    job.depositPaidDate = TODAY_ISO();
+    job.depositPaidDate = dateDeposit; // v1.1.57 · ใช้วันรับมัดจำจริง (เดิมใช้ TODAY เสมอ)
     // Auto-log deposit payment
     job.payments = [{
-      date: TODAY_ISO(),
+      date: dateDeposit,
       amount: deposit,
       type: 'deposit',
       note: 'มัดจำจองคิว'
@@ -13890,6 +13899,14 @@ async function saveJob() {
       // (payments[] = ฐานยอดยื่นภาษีเกณฑ์เงินสด · เดิมแก้แค่ scalar → เงินส่วนต่างหายจากชีตยอดยื่นเงียบๆ)
       const _oldDeposit = Number(existing && existing.deposit) || 0;
       try { window.reconcileDepositPayments(job, _oldDeposit, Number(job.deposit) || 0); } catch (e) { console.warn('reconcileDeposit:', e); }
+      // v1.1.57 · ซิงค์วันรับมัดจำ → depositPaidDate + payments[] รายการมัดจำ (ให้ใบสรุปการจอง/ใบเรียกเก็บ/ยอดยื่นภาษี ตรงกัน)
+      try {
+        if (job.dateDeposit) {
+          job.depositPaidDate = job.dateDeposit;
+          const _dep = (job.payments || []).find(function (p) { return p && p.type === 'deposit'; });
+          if (_dep) _dep.date = job.dateDeposit;
+        }
+      } catch (e) { console.warn('depDateSync:', e); }
     }
   } else {
     JOBS.push(job);

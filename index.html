@@ -6040,9 +6040,16 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
             <input type="number" value="0" min="0" id="addDiscount" oninput="updateAddTotal()">
           </div>
         </div>
-        <div class="form-group" style="margin: 0 0 10px;">
-          <label data-i18n="aj.depositBaht">มัดจำ (บาท)</label>
-          <input type="number" value="0" min="0" id="addDeposit">
+        <!-- v2.9.72 · มัดจำ + วันรับมัดจำ (คู่กัน) · วันรับมัดจำแก้บั๊กวันติดจากงานเก่า + ให้แก้วันโอนจริงได้ -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin: 0 0 10px;">
+          <div class="form-group" style="margin:0;">
+            <label data-i18n="aj.depositBaht">มัดจำ (บาท)</label>
+            <input type="number" value="0" min="0" id="addDeposit">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label data-i18n="aj.depositDate">วันรับมัดจำ</label>
+            <input type="date" id="addDateDeposit">
+          </div>
         </div>
       </div>
 
@@ -8768,7 +8775,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.71';
+const PIXORY_VERSION = '2.9.72';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8779,14 +8786,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
-  '2.9.71': {
+  '2.9.72': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
     items: [
       { icon: '📑', title: 'ใบสรุปการจอง (Booking Summary)', desc: 'เอกสารสรุปการจองสวยหรู 1 หน้า — โชว์แพคเกจ กำหนดการถ่าย มัดจำ/ยอดคงเหลือ พร้อม QR พร้อมเพย์/เลขบัญชี · โหลดเป็น PDF/JPEG ส่งลูกค้าได้เลย' },
       { icon: '🗂️', title: 'รวมเอกสารไว้ที่เดียว', desc: 'ในหน้ารายละเอียดงานมี section "เอกสาร" — ใบเสนอราคา · ใบสรุปการจอง · ใบเรียกเก็บ อยู่รวมกัน ไม่ต้องหา' },
-      { icon: '⚡', title: 'เด้งถามอัตโนมัติ', desc: 'หลังสร้างงานใหม่ หรือแปลงใบเสนอเป็นงาน ระบบเด้งถามสร้างใบสรุปการจองให้ทันที (เลือกวันครบกำหนด/ช่องทางจ่าย/แก้เงื่อนไขเองได้ · หรือกดข้าม)' }
+      { icon: '⚡', title: 'เด้งถามอัตโนมัติ', desc: 'หลังสร้างงานใหม่ หรือแปลงใบเสนอเป็นงาน ระบบเด้งถามสร้างใบสรุปการจองให้ทันที (เลือกวันครบกำหนด/ช่องทางจ่าย/แก้เงื่อนไขเองได้ · หรือกดข้าม)' },
+      { icon: '📅', title: 'เพิ่มช่อง "วันรับมัดจำ" + แก้บั๊กวันมัดจำ', desc: 'เพิ่มช่องวันรับมัดจำในหน้าแก้ไขงาน — งานใหม่ตั้งเป็นวันนี้ให้อัตโนมัติ · แก้งานเก่าที่วันไม่ตรงได้เอง · แก้บั๊กที่งานใหม่เคยหยิบวันมัดจำของงานที่เพิ่งเปิดดูมาแทน' }
     ]
   },
   '2.9.69': {
@@ -14638,6 +14646,7 @@ const I18N = {
   'aj.addSession':      { th: 'เพิ่มช่วงเวลา', en: 'Add Time Slot' },
   'aj.discountBaht':    { th: 'ส่วนลด (บาท)', en: 'Discount (฿)' },
   'aj.depositBaht':     { th: 'มัดจำ (บาท)', en: 'Deposit (฿)' },
+  'aj.depositDate':     { th: 'วันรับมัดจำ', en: 'Deposit received' },
   'aj.teamCostAuto':    { th: 'ค่าแรงทีม (รวมอัตโนมัติ)', en: 'Team wages (auto)' },
   'aj.otherCosts':      { th: 'ค่าใช้จ่ายอื่นๆ', en: 'Other costs' },
   'aj.travel':          { th: 'ค่าที่พัก/เดินทาง', en: 'Travel cost' },
@@ -19118,6 +19127,7 @@ function openNewJob() {
   document.getElementById('add-location').value = '';
   document.getElementById('addDiscount').value = 0;
   document.getElementById('addDeposit').value = 0;
+  { const _dd = document.getElementById('addDateDeposit'); if (_dd) _dd.value = today; } // v2.9.72 · วันรับมัดจำ default = วันนี้ (งานใหม่)
   document.getElementById('addTravelCost').value = 0;
   document.getElementById('addOtherCost').value = 0;
   document.getElementById('addExtraTime').value = 0;
@@ -19390,6 +19400,7 @@ function editCurrentJob() {
   document.getElementById('add-location').value = j.loc || '';
   document.getElementById('addDiscount').value = j.discount || 0;
   document.getElementById('addDeposit').value = j.deposit || 0;
+  { const _dd = document.getElementById('addDateDeposit'); if (_dd) _dd.value = String(j.dateDeposit || j.depositPaidDate || new Date().toISOString().slice(0,10)).slice(0,10); } // v2.9.72 · โหลดวันรับมัดจำจริงของงาน
   document.getElementById('addTravelCost').value = j.travelCost || 0;
   document.getElementById('addOtherCost').value = j.otherCost || 0;
   document.getElementById('addExtraTime').value = j.extraTime || 0;
@@ -19482,6 +19493,8 @@ function collectAddFormData() {
 
   const discount = parseFloat(document.getElementById('addDiscount').value) || 0;
   const deposit = parseFloat(document.getElementById('addDeposit').value) || 0;
+  // v2.9.72 · วันรับมัดจำจากช่องในฟอร์ม (แก้บั๊กเดิมที่ดึงจาก window._currentJob งานเก่าที่ค้าง)
+  const dateDeposit = (function () { const _e = document.getElementById('addDateDeposit'); return (_e && _e.value) ? _e.value : new Date().toISOString().slice(0, 10); })();
   // v1.9.11 · M6 fix — warn if discount > total (would silently set sell to 0)
   if (discount > total) {
     if (!confirm('⚠️ ส่วนลด (' + fmt(discount) + ') มากกว่าราคารวม (' + fmt(total) + ')\n\nระบบจะตั้งยอดขายเป็น 0 บาท — ต้องการบันทึกใช่ไหม?')) {
@@ -19564,7 +19577,7 @@ function collectAddFormData() {
     tax: _taxSnap.tax,
     taxBreakdown: _taxSnap.taxBreakdown,
     date: eventDate,
-    dateDeposit: (window._currentJob && window._currentJob.dateDeposit) || new Date().toISOString().slice(0,10),
+    dateDeposit: dateDeposit, // v2.9.72 · จากช่อง addDateDeposit (งานใหม่=วันนี้ · แก้ไข=วันจริงของงาน) · เลิกดึงจาก _currentJob ที่ค้าง
     sessions: ADD_SESSIONS.map(s => ({...s})),
     type,
     // v2.5.2 · top-level loc derived from session 1 (kept for backward compat with code that reads j.loc)
@@ -19622,6 +19635,15 @@ function saveAddJob() {
       // v2.9.8 · A1 fix · มัดจำเปลี่ยนตอนแก้งาน → ปรับ payments[] ตามด้วย
       // (payments[] = ฐานยอดยื่นภาษีเกณฑ์เงินสด · เดิมแก้แค่ scalar → เงินส่วนต่างหายจากชีตยอดยื่นเงียบๆ)
       try { window.reconcileDepositPayments(JOBS[idx], _oldDeposit, Number(JOBS[idx].deposit) || 0); } catch (e) { console.warn('reconcileDeposit:', e); }
+      // v2.9.72 · ซิงค์ "วันรับมัดจำ" → depositPaidDate + payments[] รายการมัดจำ (ให้ใบสรุปการจอง/ใบเรียกเก็บ/ยอดยื่นภาษี ตรงกัน)
+      try {
+        const _dd = JOBS[idx].dateDeposit;
+        if (_dd) {
+          JOBS[idx].depositPaidDate = _dd;
+          const _dep = (JOBS[idx].payments || []).find(function (p) { return p && p.type === 'deposit'; });
+          if (_dep) _dep.date = _dd;
+        }
+      } catch (e) { console.warn('depDateSync:', e); }
     }
     saveData();
     toast('บันทึกการแก้ไขแล้ว');
