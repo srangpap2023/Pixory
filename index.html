@@ -8775,7 +8775,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.76';
+const PIXORY_VERSION = '2.9.77';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8786,7 +8786,7 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
-  '2.9.76': {
+  '2.9.77': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
@@ -8795,7 +8795,8 @@ const RELEASE_NOTES = {
       { icon: '🗂️', title: 'รวมเอกสารไว้ที่เดียว', desc: 'ในหน้ารายละเอียดงานมี section "เอกสาร" — ใบเสนอราคา · ใบสรุปการจอง · ใบเรียกเก็บ อยู่รวมกัน ไม่ต้องหา' },
       { icon: '⚡', title: 'เด้งถามอัตโนมัติ', desc: 'หลังสร้างงานใหม่ หรือแปลงใบเสนอเป็นงาน ระบบเด้งถามสร้างใบสรุปการจองให้ทันที (เลือกวันครบกำหนด/ช่องทางจ่าย/แก้เงื่อนไขเองได้ · หรือกดข้าม)' },
       { icon: '📅', title: 'เพิ่มช่อง "วันรับมัดจำ" + แก้บั๊กวันมัดจำ', desc: 'เพิ่มช่องวันรับมัดจำในหน้าแก้ไขงาน — งานใหม่ตั้งเป็นวันนี้ให้อัตโนมัติ · แก้งานเก่าที่วันไม่ตรงได้เอง · แก้บั๊กที่งานใหม่เคยหยิบวันมัดจำของงานที่เพิ่งเปิดดูมาแทน' },
-      { icon: '✏️', title: 'แก้ราคา/มัดจำ ตอนสร้างใบสรุปการจองได้เลย', desc: 'กดสร้างใบสรุปการจอง มีช่องแก้ ส่วนลด · มัดจำ · วันรับมัดจำ ในป๊อปอัพ (ยอดขายคำนวณให้อัตโนมัติ) · แก้แล้วบันทึกกลับเข้างานทันที ไม่ต้องเข้าหน้าแก้ไขงานแยก' }
+      { icon: '✏️', title: 'แก้ราคา/มัดจำ ตอนสร้างใบสรุปการจองได้เลย', desc: 'กดสร้างใบสรุปการจอง มีช่องแก้ ส่วนลด · มัดจำ · วันรับมัดจำ ในป๊อปอัพ (ยอดขายคำนวณให้อัตโนมัติ) · แก้แล้วบันทึกกลับเข้างานทันที ไม่ต้องเข้าหน้าแก้ไขงานแยก' },
+      { icon: '🗓️', title: 'หน้างานแบ่งเดือน/ปีชัดขึ้น', desc: 'จัดกลุ่มงานตามเดือน มีหัวเดือน (บอกกี่งาน + ยอดขายรวม) และเส้นแบ่งปีเมื่อขึ้นปีใหม่ · เลื่อนดูงานง่ายขึ้นมาก' }
     ]
   },
   '2.9.69': {
@@ -16086,7 +16087,29 @@ function renderJobs(list, container) {
   }
   const today = new Date();
   today.setHours(0,0,0,0);
-  list.forEach(j => {
+  // v2.9.77 · จัดกลุ่มหัวเดือน/ปี · แทรกหัวเมื่อเปลี่ยนเดือน + เส้นแบ่งเมื่อเปลี่ยนปี · นับ/รวมยอดต่อกลุ่มต่อเนื่อง (list เรียงตามวันแล้ว)
+  const MONTHS_TH_L = (typeof MONTHS_TH !== 'undefined') ? MONTHS_TH : MONTHS_TH_SHORT;
+  const _ydH = function (beY) { return '<div style="display:flex;align-items:center;gap:12px;margin:16px 4px 10px;"><div style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#D4A056;">' + beY + '</div><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(212,160,86,.45),transparent);"></div></div>'; };
+  const _mhH = function (m, beY, cnt, sum, bad) { const title = bad ? 'ไม่ระบุวันงาน' : (MONTHS_TH_L[m] + ' <span style="color:#D4A056;">' + beY + '</span>'); return '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 4px 8px;margin:12px 0 9px;border-bottom:1.5px solid rgba(212,160,86,.3);"><div style="font-family:Fraunces,serif;font-size:16px;font-weight:600;color:#F4F3F1;">' + title + '</div><div style="font-size:11px;color:#8A8790;white-space:nowrap;"><b style="color:#C9C7C2;">' + cnt + ' งาน</b> · ' + fmt(sum) + '</div></div>'; };
+  const _hdr = new Array(list.length).fill('');
+  { let pY = null, pM = null;
+    for (let i = 0; i < list.length; i++) {
+      const d = new Date(list[i].date); const bad = isNaN(d.getTime()); const y = bad ? null : d.getFullYear(); const m = bad ? -1 : d.getMonth();
+      const isNew = bad ? (pM !== -2) : (y !== pY || m !== pM);
+      if (isNew) {
+        let cnt = 0, sum = 0;
+        for (let k = i; k < list.length; k++) { const dk = new Date(list[k].date); const bk = isNaN(dk.getTime()); const yk = bk ? null : dk.getFullYear(); const mk = bk ? -1 : dk.getMonth(); if (bad ? !bk : (yk !== y || mk !== m)) break; cnt++; sum += Number(list[k].sell) || 0; }
+        const beY = bad ? '' : (typeof displayYear === 'function' ? displayYear(y) : (y + 543));
+        let h = '';
+        if (!bad && y !== pY) h += _ydH(beY);
+        h += _mhH(m, beY, cnt, sum, bad);
+        _hdr[i] = h;
+        pY = bad ? null : y; pM = bad ? -2 : m;
+      }
+    }
+  }
+  list.forEach((j, i) => {
+    if (_hdr[i]) c.insertAdjacentHTML('beforeend', _hdr[i]);
     const dp = dateParts(j.date);
     const jd = new Date(j.date);
     jd.setHours(0,0,0,0);
