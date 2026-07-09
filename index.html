@@ -5730,6 +5730,10 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
         <button class="btn" id="job-invoice-btn" onclick="openJobInvoice()" style="margin: 9px 0 0; padding: 11px 14px; font-size: 13px; width: 100%; background: linear-gradient(135deg, #D4A056, #9C7340); color:#0A0A0E;" data-i18n="inv.btnIssue">
           📋 ออกใบเรียกเก็บยอดชำระเพิ่มเติม
         </button>
+        <!-- v2.9.79 · รับเงินงวดสุดท้าย + ออกใบเสร็จ (จบในที่เดียว · ต่อยอด balancePaid) -->
+        <button class="btn" onclick="issueFinalReceipt()" style="margin: 9px 0 0; padding: 11px 14px; font-size: 13px; width: 100%; display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #D4A056, #9C7340); color:#0A0A0E;">
+          <span style="font-size: 16px; line-height: 1;">✓</span><span style="font-weight: 600;">รับเงินงวดสุดท้าย · ออกใบเสร็จ</span>
+        </button>
       </div>
 
       <div class="detail-block">
@@ -8775,7 +8779,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.78';
+const PIXORY_VERSION = '2.9.79';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8786,7 +8790,7 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
-  '2.9.78': {
+  '2.9.79': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
@@ -8797,7 +8801,8 @@ const RELEASE_NOTES = {
       { icon: '📅', title: 'เพิ่มช่อง "วันรับมัดจำ" + แก้บั๊กวันมัดจำ', desc: 'เพิ่มช่องวันรับมัดจำในหน้าแก้ไขงาน — งานใหม่ตั้งเป็นวันนี้ให้อัตโนมัติ · แก้งานเก่าที่วันไม่ตรงได้เอง · แก้บั๊กที่งานใหม่เคยหยิบวันมัดจำของงานที่เพิ่งเปิดดูมาแทน' },
       { icon: '✏️', title: 'แก้ราคา/มัดจำ ตอนสร้างใบสรุปการจองได้เลย', desc: 'กดสร้างใบสรุปการจอง มีช่องแก้ ส่วนลด · มัดจำ · วันรับมัดจำ ในป๊อปอัพ (ยอดขายคำนวณให้อัตโนมัติ) · แก้แล้วบันทึกกลับเข้างานทันที ไม่ต้องเข้าหน้าแก้ไขงานแยก' },
       { icon: '🗓️', title: 'หน้างานแบ่งเดือน/ปีชัดขึ้น', desc: 'จัดกลุ่มงานตามเดือน มีหัวเดือน (บอกกี่งาน + ยอดขายรวม) และเส้นแบ่งปีเมื่อขึ้นปีใหม่ · เลื่อนดูงานง่ายขึ้นมาก' },
-      { icon: '🧾', title: 'จ่ายครบ = ได้ใบเสร็จรับเงินอัตโนมัติ', desc: 'พอกด "ชำระครบ" ใบเรียกเก็บใบเดิมพลิกเป็น "ใบเสร็จรับเงิน" ให้เอง — เปลี่ยนหัวเอกสาร + ประทับ "จ่ายครบเมื่อ" + ซ่อน QR · ส่งให้ลูกค้าเป็นหลักฐานได้ทันที ไม่ต้องสร้างเอกสารเพิ่ม (ลูกค้า VAT = ใบกำกับภาษี/ใบเสร็จรับเงิน)' }
+      { icon: '🧾', title: 'จ่ายครบ = ได้ใบเสร็จรับเงินอัตโนมัติ', desc: 'พอกด "ชำระครบ" ใบเรียกเก็บใบเดิมพลิกเป็น "ใบเสร็จรับเงิน" ให้เอง — เปลี่ยนหัวเอกสาร + ประทับ "จ่ายครบเมื่อ" + ซ่อน QR · ส่งให้ลูกค้าเป็นหลักฐานได้ทันที ไม่ต้องสร้างเอกสารเพิ่ม (ลูกค้า VAT = ใบกำกับภาษี/ใบเสร็จรับเงิน)' },
+      { icon: '✓', title: 'ปุ่ม "รับเงินงวดสุดท้าย · ออกใบเสร็จ" ในหน้างาน', desc: 'เพิ่มปุ่มใน section เอกสาร — กดทีเดียวจบ: บันทึกรับเงินงวดสุดท้าย + ออกใบเสร็จรับเงินให้ลูกค้าเลย (ยืนยันก่อนบันทึก · ยกเลิกได้ภายหลัง)' }
     ]
   },
   '2.9.69': {
@@ -23282,6 +23287,25 @@ function openJobInvoice() {
     saveData();
   }
   showInvoiceScreen(j);
+}
+
+// v2.9.79 · ปุ่มใน section เอกสาร: รับเงินงวดสุดท้าย + ออกใบเสร็จ (จบในที่เดียว · reuse ตรรกะเงินเดิม ไม่คำนวณเงินใหม่)
+function issueFinalReceipt(jobCode) {
+  const j = (typeof JOBS !== 'undefined' ? JOBS : []).find(function (x) { return x.code === (jobCode || (window._currentJob && window._currentJob.code)); }) || window._currentJob;
+  if (!j) { toast(t('inv.notFoundJob')); return; }
+  if (!j.invoice) {
+    const today = new Date(); const due = new Date(today); due.setDate(due.getDate() + 14);
+    j.invoice = { code: generateInvoiceCode(), dateIssued: today.toISOString().slice(0, 10), dateDue: due.toISOString().slice(0, 10), extraTime: 0, addOns: [], message: getDefaultInvoiceMessage(), balancePaid: false, balancePaidDate: null };
+    saveData();
+  }
+  window._currentInvoiceJob = j;
+  if (!j.invoice.balancePaid) {
+    const due = (typeof calcInvoiceTotals === 'function') ? (Number(calcInvoiceTotals(j).balanceDue) || 0) : (Number(j.remain) || 0);
+    if (!confirm('ยืนยันรับเงินงวดสุดท้าย ' + fmt(due) + ' แล้วออกใบเสร็จรับเงิน?\n(ยกเลิกได้ภายหลังในหน้าใบเรียกเก็บ)')) return;
+    toggleInvoiceBalancePaid(); // มาร์คชำระครบ + บันทึกเงิน(idempotent) + saveData
+  }
+  openInvoiceNewPdf(); // เปิด PDF · จ่ายครบแล้ว → พลิกเป็นใบเสร็จรับเงิน
+  if (window._currentJob) { try { openJob(j.code); } catch (e) {} }
 }
 
 function showInvoiceScreen(job) {
