@@ -6543,7 +6543,7 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
           </div>
         </div>
 
-        <div class="settings-section" style="margin-bottom:10px;">
+        <div class="settings-section" id="inv-sec-postshoot" style="margin-bottom:10px;">
           <div class="sec-title" style="font-size:12px; opacity:.85;">⏱ รายการหลังถ่าย</div>
           <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
             <label style="flex:1; margin:0; font-size:13.5px;" data-i18n="inv.editExtraTime">OT / เวลาเกิน</label>
@@ -6557,7 +6557,7 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
           </button>
         </div>
 
-        <div class="settings-section" style="margin-bottom:10px;">
+        <div class="settings-section" id="inv-sec-payment" style="margin-bottom:10px;">
           <div class="sec-title" style="font-size:12px; opacity:.85;">💰 การรับเงินบนใบนี้</div>
           <div class="form-group" style="margin:0 0 10px;">
             <label>บัญชีรับโอน</label>
@@ -8779,7 +8779,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.79';
+const PIXORY_VERSION = '2.9.82';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8790,7 +8790,7 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
-  '2.9.79': {
+  '2.9.82': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
@@ -8802,7 +8802,7 @@ const RELEASE_NOTES = {
       { icon: '✏️', title: 'แก้ราคา/มัดจำ ตอนสร้างใบสรุปการจองได้เลย', desc: 'กดสร้างใบสรุปการจอง มีช่องแก้ ส่วนลด · มัดจำ · วันรับมัดจำ ในป๊อปอัพ (ยอดขายคำนวณให้อัตโนมัติ) · แก้แล้วบันทึกกลับเข้างานทันที ไม่ต้องเข้าหน้าแก้ไขงานแยก' },
       { icon: '🗓️', title: 'หน้างานแบ่งเดือน/ปีชัดขึ้น', desc: 'จัดกลุ่มงานตามเดือน มีหัวเดือน (บอกกี่งาน + ยอดขายรวม) และเส้นแบ่งปีเมื่อขึ้นปีใหม่ · เลื่อนดูงานง่ายขึ้นมาก' },
       { icon: '🧾', title: 'จ่ายครบ = ได้ใบเสร็จรับเงินอัตโนมัติ', desc: 'พอกด "ชำระครบ" ใบเรียกเก็บใบเดิมพลิกเป็น "ใบเสร็จรับเงิน" ให้เอง — เปลี่ยนหัวเอกสาร + ประทับ "จ่ายครบเมื่อ" + ซ่อน QR · ส่งให้ลูกค้าเป็นหลักฐานได้ทันที ไม่ต้องสร้างเอกสารเพิ่ม (ลูกค้า VAT = ใบกำกับภาษี/ใบเสร็จรับเงิน)' },
-      { icon: '✓', title: 'ปุ่ม "รับเงินงวดสุดท้าย · ออกใบเสร็จ" ในหน้างาน', desc: 'เพิ่มปุ่มใน section เอกสาร — กดทีเดียวจบ: บันทึกรับเงินงวดสุดท้าย + ออกใบเสร็จรับเงินให้ลูกค้าเลย (ยืนยันก่อนบันทึก · ยกเลิกได้ภายหลัง)' }
+      { icon: '✓', title: 'ปุ่ม "รับเงินงวดสุดท้าย · ออกใบเสร็จ" + ปรับแต่งใบเสร็จได้', desc: 'ปุ่มใน section เอกสาร — บันทึกรับเงินงวดสุดท้าย แล้วพาเข้าหน้า "ปรับแต่งใบเสร็จ" ที่แก้ได้ทุกช่อง (วันที่ · OT · Add-on · บัญชี · ข้อความท้ายใบ) ก่อนกดออก PDF · แก้ย้อนหลังได้ตลอด' }
     ]
   },
   '2.9.69': {
@@ -22290,8 +22290,8 @@ ${v2pdf_printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
     ${bank ? `<div class="col"><div class="k">🏦 โอนเข้าบัญชี</div><div class="bank">${esc(bank.bank || bank.name || '')}${bank.acc ? ' · ' + esc(bank.acc) : ''}</div><div class="sub">${esc(bank.holder || '')}</div></div>` : '<div></div>'}
   </div>` : ''}
 
-  ${(ctx.inv && bank) ? `<div class="u-pay"><div class="col"><div class="k">🏦 โอนยอดคงเหลือเข้าบัญชี</div><div class="bank">${esc(bank.bank || bank.name || '')}${bank.acc ? ' · ' + esc(bank.acc) : ''}</div><div class="sub">${esc(bank.holder || '')}</div></div><div></div></div>` : ''}
-  ${ctx.inv ? `<div style="padding:0 44px;">${v2pdf_promptPayBlock()}</div>` : ''}
+  ${(ctx.inv && bank && !ctx.balancePaid) ? `<div class="u-pay"><div class="col"><div class="k">🏦 โอนยอดคงเหลือเข้าบัญชี</div><div class="bank">${esc(bank.bank || bank.name || '')}${bank.acc ? ' · ' + esc(bank.acc) : ''}</div><div class="sub">${esc(bank.holder || '')}</div></div><div></div></div>` : ''}
+  ${(ctx.inv && !ctx.balancePaid) ? `<div style="padding:0 44px;">${v2pdf_promptPayBlock()}</div>` : ''}
 
   ${terms ? `<div class="u-note"><strong>เงื่อนไข · Terms &amp; Conditions</strong>${esc(terms)}</div>` : ''}
   ${(ctx.inv && ctx.invMessage) ? `<div class="u-note"><strong>📝 ข้อความจากร้าน</strong>${esc(ctx.invMessage)}</div>` : (doc.note ? `<div class="u-note"><strong>📝 หมายเหตุ</strong>${esc(doc.note)}</div>` : '')}
@@ -23304,8 +23304,7 @@ function issueFinalReceipt(jobCode) {
     if (!confirm('ยืนยันรับเงินงวดสุดท้าย ' + fmt(due) + ' แล้วออกใบเสร็จรับเงิน?\n(ยกเลิกได้ภายหลังในหน้าใบเรียกเก็บ)')) return;
     toggleInvoiceBalancePaid(); // มาร์คชำระครบ + บันทึกเงิน(idempotent) + saveData
   }
-  openInvoiceNewPdf(); // เปิด PDF · จ่ายครบแล้ว → พลิกเป็นใบเสร็จรับเงิน
-  if (window._currentJob) { try { openJob(j.code); } catch (e) {} }
+  showInvoiceScreen(j); // v2.9.80 · เข้าหน้าปรับแต่ง (แก้ได้ทุกช่อง ยันข้อความท้ายใบ) → จ่ายครบแล้วเป็น "ใบเสร็จ" · กดออก PDF ในนั้น
 }
 
 function showInvoiceScreen(job) {
@@ -23313,6 +23312,15 @@ function showInvoiceScreen(job) {
   goTo('invoice');
   renderInvoicePDF(job);
   renderInvoiceEditor(job);
+  // v2.9.80 · จ่ายครบ → relabel หน้า/ปรับแต่ง เป็น "ใบเสร็จ" (ใบเดียวกัน · แก้ได้ทุกช่อง ยันข้อความท้ายใบ)
+  try {
+    const paid = !!(job.invoice && job.invoice.balancePaid);
+    const h1 = document.querySelector('#screen-invoice h1'); if (h1) h1.textContent = paid ? 'ใบเสร็จรับเงิน' : 'ใบเรียกเก็บยอดชำระเพิ่มเติม';
+    const et = document.querySelector('#inv-editor-section [data-i18n="inv.editorTitle"]'); if (et) et.textContent = paid ? '⚙ ปรับแต่งใบเสร็จรับเงิน' : '⚙ ปรับแต่งใบเรียกเก็บฯ';
+    // v2.9.81 · ใบเสร็จ(จ่ายครบ) ซ่อน "รายการหลังถ่าย" + "การรับเงิน/บัญชี" (เป็นฟังก์ชันตอนเรียกเก็บ · ไม่ควรเพิ่มยอดหลังจ่ายครบ)
+    const s1 = document.getElementById('inv-sec-postshoot'); if (s1) s1.style.display = paid ? 'none' : '';
+    const s2 = document.getElementById('inv-sec-payment'); if (s2) s2.style.display = paid ? 'none' : '';
+  } catch (e) {}
 }
 
 function backFromInvoice() {

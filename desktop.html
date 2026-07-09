@@ -3164,13 +3164,13 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.65';
+const PIXORY_DESKTOP_VERSION = '1.1.68';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
-  '1.1.65': {
+  '1.1.68': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
@@ -3183,7 +3183,7 @@ const RELEASE_NOTES = {
       { icon: '🗓️', title: 'หน้างานแบ่งเดือน/ปีชัดขึ้น', desc: 'จัดกลุ่มงานตามเดือน มีหัวเดือน (กี่งาน + ยอดขายรวม) และเส้นแบ่งปีเมื่อขึ้นปีใหม่ · ใช้ได้ทั้งมุมมองรายการและการ์ด' },
       { icon: '📆', title: 'งานหลายวันโชว์ช่วงวันครบ', desc: 'งานที่มีหลายเซสชันคนละวัน (เช่น 14–15 พ.ย.) หน้างานทั้งมุมมองรายการและการ์ดแสดงเป็นช่วงวัน ไม่ตัดเหลือวันเดียว' },
       { icon: '🧾', title: 'จ่ายครบ = ได้ใบเสร็จรับเงินอัตโนมัติ', desc: 'พอกด "ชำระครบ" ใบเรียกเก็บใบเดิมพลิกเป็น "ใบเสร็จรับเงิน" ให้เอง — เปลี่ยนหัวเอกสาร + ประทับ "จ่ายครบเมื่อ" + ซ่อน QR (ตรงกับฝั่งมือถือ · ลูกค้า VAT = ใบกำกับภาษี/ใบเสร็จรับเงิน)' },
-      { icon: '✓', title: 'ปุ่ม "รับเงินงวดสุดท้าย · ออกใบเสร็จ" ในหน้างาน', desc: 'เพิ่มปุ่มใน section เอกสาร — กดทีเดียวจบ: บันทึกรับเงินงวดสุดท้าย + ออกใบเสร็จรับเงินให้ลูกค้าเลย (ยืนยันก่อนบันทึก · ยกเลิกได้ภายหลัง)' }
+      { icon: '✓', title: 'ปุ่ม "รับเงินงวดสุดท้าย · ออกใบเสร็จ" + ปรับแต่งใบเสร็จได้', desc: 'ปุ่มใน section เอกสาร — บันทึกรับเงินงวดสุดท้าย แล้วเปิดหน้า "ปรับแต่งใบเสร็จ" ที่แก้ได้ทุกช่อง (วันที่ · OT · Add-on · บัญชี · ข้อความท้ายเอกสาร) ก่อนกดออก PDF · แก้ย้อนหลังได้ตลอด' }
     ]
   },
   '1.1.54': {
@@ -15430,9 +15430,10 @@ async function issueFinalReceipt(code) {
   if (!j.invoice.balancePaid) {
     const due = Number(calcInvoiceTotals(j).balanceDue) || 0;
     if (!confirm('ยืนยันรับเงินงวดสุดท้าย ' + fmtTHB(due) + ' แล้วออกใบเสร็จรับเงิน?\n(ยกเลิกได้ภายหลังในใบเรียกเก็บ)')) return;
-    await toggleInvoiceBalancePaid(j.code); // มาร์คชำระครบ + บันทึกเงิน(idempotent) + saveData
+    await toggleInvoiceBalancePaid(j.code); // มาร์คชำระครบ + บันทึกเงิน(idempotent) + saveData + เปิด editor
+  } else {
+    openInvoiceEditor(j.code); // v1.1.66 · เข้าหน้าปรับแต่ง (แก้ได้ทุกช่อง ยันข้อความท้ายใบ) → กดออก PDF ในนั้น
   }
-  printInvoicePdf(j.code); // เปิด PDF · จ่ายครบแล้ว → พลิกเป็นใบเสร็จรับเงิน
 }
 
 function openInvoiceEditor(code) {
@@ -15443,7 +15444,7 @@ function openInvoiceEditor(code) {
   openModalWithHtml(`
     <div class="modal-header">
       <div>
-        <div class="modal-title">📋 ใบเรียกเก็บยอดชำระเพิ่มเติม <span class="text-mono text-sm text-mute">${escapeHtml(inv.code)}</span></div>
+        <div class="modal-title">${inv.balancePaid ? '🧾 ปรับแต่งใบเสร็จรับเงิน' : '📋 ใบเรียกเก็บยอดชำระเพิ่มเติม'} <span class="text-mono text-sm text-mute">${escapeHtml(inv.code)}</span></div>
         <div class="text-sm text-mute" style="margin-top:2px;">${escapeHtml(j.customer || '-')} · งาน ${escapeHtml(j.code)} · ${inv.balancePaid ? '<span style="color:var(--green);font-weight:600;">✓ ชำระแล้ว</span>' : '<span style="color:var(--yellow);font-weight:600;">⏳ รอชำระยอดคงเหลือ</span>'}</div>
       </div>
       <button class="modal-close" onclick="closeModal()">✕</button>
@@ -15478,7 +15479,7 @@ function openInvoiceEditor(code) {
       </div>
 
       <!-- Post-shoot extras -->
-      <div class="form-section">
+      <div class="form-section" id="inv-sec-postshoot">
         <div class="form-section-title">⏱ เพิ่มเติมหลังถ่าย</div>
         <div class="form-row">
           <div class="form-field" style="max-width:240px;">
@@ -15501,7 +15502,7 @@ function openInvoiceEditor(code) {
       </div>
 
       <!-- v1.0.88 · การรับเงินบนใบนี้ · เลือกบัญชีรายใบ (เดิมโชว์เฉพาะงานที่ผูกบัญชี → บิลส่วนใหญ่ไม่มีเลขบัญชี · Joe report) -->
-      <div class="form-section">
+      <div class="form-section" id="inv-sec-payment">
         <div class="form-section-title">🏦 การรับเงินบนใบนี้</div>
         <div class="form-field" style="max-width:420px;">
           <label>บัญชีรับโอน</label>
@@ -15532,7 +15533,14 @@ function openInvoiceEditor(code) {
       <button class="btn btn-primary" onclick="saveInvoiceFromEditor('${escapeHtml(code)}', true)">บันทึก + พิมพ์ PDF</button>
     </div>
   `);
-  setTimeout(() => renderInvoiceAddonsList(code), 0);
+  setTimeout(() => {
+    renderInvoiceAddonsList(code);
+    // v1.1.67 · ใบเสร็จ(จ่ายครบ) ซ่อน "เพิ่มเติมหลังถ่าย" + "การรับเงิน/บัญชี" (ฟังก์ชันตอนเรียกเก็บ · ไม่เพิ่มยอดหลังจ่ายครบ)
+    if (inv.balancePaid) {
+      const a = document.getElementById('inv-sec-postshoot'); if (a) a.style.display = 'none';
+      const b = document.getElementById('inv-sec-payment'); if (b) b.style.display = 'none';
+    }
+  }, 0);
 }
 
 // ===== Editor helpers =====
@@ -15923,8 +15931,8 @@ ${printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
     ${bank ? `<div class="col"><div class="k">🏦 โอนเข้าบัญชี</div><div class="bank">${esc(bank.bank || bank.name || '')}${bank.acc ? ' · ' + esc(bank.acc) : ''}</div><div class="sub">${esc(bank.holder || '')}</div></div>` : '<div></div>'}
   </div>` : ''}
 
-  ${(ctx.inv && bank) ? `<div class="u-pay"><div class="col"><div class="k">🏦 โอนยอดคงเหลือเข้าบัญชี</div><div class="bank">${esc(bank.bank || bank.name || '')}${bank.acc ? ' · ' + esc(bank.acc) : ''}</div><div class="sub">${esc(bank.holder || '')}</div></div><div></div></div>` : ''}
-  ${ctx.inv ? `<div style="padding:0 44px;">${promptPayBlockHtml()}</div>` : ''}
+  ${(ctx.inv && bank && !ctx.balancePaid) ? `<div class="u-pay"><div class="col"><div class="k">🏦 โอนยอดคงเหลือเข้าบัญชี</div><div class="bank">${esc(bank.bank || bank.name || '')}${bank.acc ? ' · ' + esc(bank.acc) : ''}</div><div class="sub">${esc(bank.holder || '')}</div></div><div></div></div>` : ''}
+  ${(ctx.inv && !ctx.balancePaid) ? `<div style="padding:0 44px;">${promptPayBlockHtml()}</div>` : ''}
 
   ${terms ? `<div class="u-note"><strong>เงื่อนไข · Terms &amp; Conditions</strong>${esc(terms)}</div>` : ''}
   ${(ctx.inv && ctx.invMessage) ? `<div class="u-note"><strong>📝 ข้อความจากร้าน</strong>${esc(ctx.invMessage)}</div>` : (doc.note ? `<div class="u-note"><strong>📝 หมายเหตุ</strong>${esc(doc.note)}</div>` : '')}
