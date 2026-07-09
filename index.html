@@ -8775,7 +8775,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.77';
+const PIXORY_VERSION = '2.9.78';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8786,7 +8786,7 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
-  '2.9.77': {
+  '2.9.78': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
@@ -8796,7 +8796,8 @@ const RELEASE_NOTES = {
       { icon: '⚡', title: 'เด้งถามอัตโนมัติ', desc: 'หลังสร้างงานใหม่ หรือแปลงใบเสนอเป็นงาน ระบบเด้งถามสร้างใบสรุปการจองให้ทันที (เลือกวันครบกำหนด/ช่องทางจ่าย/แก้เงื่อนไขเองได้ · หรือกดข้าม)' },
       { icon: '📅', title: 'เพิ่มช่อง "วันรับมัดจำ" + แก้บั๊กวันมัดจำ', desc: 'เพิ่มช่องวันรับมัดจำในหน้าแก้ไขงาน — งานใหม่ตั้งเป็นวันนี้ให้อัตโนมัติ · แก้งานเก่าที่วันไม่ตรงได้เอง · แก้บั๊กที่งานใหม่เคยหยิบวันมัดจำของงานที่เพิ่งเปิดดูมาแทน' },
       { icon: '✏️', title: 'แก้ราคา/มัดจำ ตอนสร้างใบสรุปการจองได้เลย', desc: 'กดสร้างใบสรุปการจอง มีช่องแก้ ส่วนลด · มัดจำ · วันรับมัดจำ ในป๊อปอัพ (ยอดขายคำนวณให้อัตโนมัติ) · แก้แล้วบันทึกกลับเข้างานทันที ไม่ต้องเข้าหน้าแก้ไขงานแยก' },
-      { icon: '🗓️', title: 'หน้างานแบ่งเดือน/ปีชัดขึ้น', desc: 'จัดกลุ่มงานตามเดือน มีหัวเดือน (บอกกี่งาน + ยอดขายรวม) และเส้นแบ่งปีเมื่อขึ้นปีใหม่ · เลื่อนดูงานง่ายขึ้นมาก' }
+      { icon: '🗓️', title: 'หน้างานแบ่งเดือน/ปีชัดขึ้น', desc: 'จัดกลุ่มงานตามเดือน มีหัวเดือน (บอกกี่งาน + ยอดขายรวม) และเส้นแบ่งปีเมื่อขึ้นปีใหม่ · เลื่อนดูงานง่ายขึ้นมาก' },
+      { icon: '🧾', title: 'จ่ายครบ = ได้ใบเสร็จรับเงินอัตโนมัติ', desc: 'พอกด "ชำระครบ" ใบเรียกเก็บใบเดิมพลิกเป็น "ใบเสร็จรับเงิน" ให้เอง — เปลี่ยนหัวเอกสาร + ประทับ "จ่ายครบเมื่อ" + ซ่อน QR · ส่งให้ลูกค้าเป็นหลักฐานได้ทันที ไม่ต้องสร้างเอกสารเพิ่ม (ลูกค้า VAT = ใบกำกับภาษี/ใบเสร็จรับเงิน)' }
     ]
   },
   '2.9.69': {
@@ -22143,7 +22144,9 @@ function v2pdf_buildPdfUnified(ctx) {
           bank, studioName, studioTagline, studioPhone, studioEmail, studioAddress,
           studioTaxId, studioTaxAddress, studioBranch } = ctx;
   const esc = v2pdf_escapeHtml, dTH = v2pdf_fmtDateTH, thb = v2pdf_fmtTHB;
-  const title = isQuote ? 'ใบเสนอราคา' : 'ใบเรียกเก็บยอดชำระเพิ่มเติม';
+  // v2.9.78 · จ่ายครบ → ใบเรียกเก็บพลิกเป็นใบเสร็จรับเงิน (ใบเดียว 2 สถานะ · ไม่เพิ่มเอกสาร)
+  const _isPaid = !isQuote && !!ctx.balancePaid;
+  const title = isQuote ? 'ใบเสนอราคา' : (_isPaid ? (includeVat ? 'ใบกำกับภาษี / ใบเสร็จรับเงิน' : 'ใบเสร็จรับเงิน') : 'ใบเรียกเก็บยอดชำระเพิ่มเติม');
   // v2.9.59 · ดึงข้อความที่ผู้ใช้ตั้งเองจากหน้า "เทมเพลตใบเสนอ" (QUOTE_TEMPLATE) มาใช้จริงในไฟล์ PDF
   const _QT = (typeof QUOTE_TEMPLATE !== 'undefined' && QUOTE_TEMPLATE) ? QUOTE_TEMPLATE : {};
   const docTitle = isQuote ? ((_QT.title && _QT.title.trim()) || title) : title;
@@ -22219,14 +22222,14 @@ ${v2pdf_printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
       <div class="bn">${esc(studioName)}</div>
       ${studioTagline ? `<div class="bt">${esc(studioTagline)}</div>` : ''}
     </div>
-    <div class="u-pill">${esc(docTitle)}${isQuote ? ' · Quotation' : ''}</div>
+    <div class="u-pill"${_isPaid ? ' style="border-color:#2E7D53;color:#2E7D53;"' : ''}>${esc(docTitle)}${isQuote ? ' · Quotation' : (_isPaid ? ' · Receipt' : '')}</div>
   </div>
   <div class="u-div"></div>
 
   <div class="u-meta">
     <div><div class="k">เลขที่</div><div class="v">${esc(docCode)}</div></div>
     <div><div class="k">วันที่ออก</div><div class="v">${esc(dTH(issueDate))}</div></div>
-    ${expireDate ? `<div><div class="k warn">${isQuote ? 'หมดอายุ' : 'กำหนดชำระ'}</div><div class="v">${esc(dTH(expireDate))}</div></div>` : ''}
+    ${_isPaid ? `<div><div class="k" style="color:#2E7D53;">จ่ายครบเมื่อ</div><div class="v">${esc(dTH(ctx.balancePaidDate || issueDate))}</div></div>` : (expireDate ? `<div><div class="k warn">${isQuote ? 'หมดอายุ' : 'กำหนดชำระ'}</div><div class="v">${esc(dTH(expireDate))}</div></div>` : '')}
     ${eventDate ? `<div style="margin-left:auto; text-align:right;"><div class="k">วันงาน</div><div class="v">${esc(dTH(eventDate))}</div></div>` : ''}
   </div>
   <div class="u-div"></div>
