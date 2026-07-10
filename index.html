@@ -1043,37 +1043,51 @@
   /* Empty state */
   .pdb-empty { padding: 40px 20px; text-align: center; color: #a89a8c; font-size: 13px; }
 
-  /* v2.5.27+ · Notes · Sticky board (B+C hybrid · cards + checkbox) */
-  .notes-toolbar { padding: 10px 16px 4px; display: flex; gap: 6px; overflow-x: auto; }
-  .notes-chip { padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,0.6); border: 0.5px solid rgba(0,0,0,0.04); font-size: 11.5px; font-weight: 500; color: #7c6856; white-space: nowrap; flex-shrink: 0; cursor: pointer; }
-  .notes-chip.active { background: linear-gradient(135deg, #EFB670, #9C7340); color: white; font-weight: 600; border-color: transparent; }
-  .notes-board { column-count: 2; column-gap: 8px; padding: 8px 12px 80px; }
-  .note-card { break-inside: avoid; margin: 0 0 8px; padding: 12px 12px 10px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06); position: relative; transform: rotate(-0.5deg); cursor: pointer; }
-  .note-card:nth-child(even) { transform: rotate(0.5deg); }
-  .note-card.pinned::before { content: '📌'; position: absolute; top: -6px; right: 6px; font-size: 14px; transform: rotate(15deg); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2)); }
-  .note-card.done { opacity: 0.55; }
-  .note-card .nc-title { font-family: 'Caveat', 'Sarabun', cursive; font-size: 17px; font-weight: 700; line-height: 1.25; margin-bottom: 4px; color: #2A1F18; word-wrap: break-word; }
-  .note-card.done .nc-title { text-decoration: line-through; }
-  .note-card .nc-body { font-size: 11.5px; line-height: 1.5; color: rgba(42,31,24,0.78); word-wrap: break-word; }
-  .note-card .nc-footer { margin-top: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; color: rgba(42,31,24,0.55); gap: 6px; }
-  .note-card .nc-check { width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid rgba(0,0,0,0.25); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(255,255,255,0.4); font-size: 12px; }
-  .note-card.done .nc-check { background: #15803d; border-color: #15803d; color: white; }
-  .note-card .nc-tag { padding: 1px 6px; border-radius: 4px; background: rgba(0,0,0,0.06); font-weight: 600; font-size: 9px; white-space: nowrap; }
-  .note-card .nc-time { color: rgba(42,31,24,0.5); white-space: nowrap; }
-  .nc-y { background: linear-gradient(135deg, #FEF3C7, #FDE68A); }
-  .nc-p { background: linear-gradient(135deg, #FCE7F3, #FBCFE8); }
-  .nc-b { background: linear-gradient(135deg, #DBEAFE, #BFDBFE); }
-  .nc-g { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); }
-  .nc-o { background: linear-gradient(135deg, #FED7AA, #FDBA74); }
-  .nc-v { background: linear-gradient(135deg, #E9D5FF, #D8B4FE); }
-  /* Note edit modal · color picker */
-  .nc-color-row { display: flex; gap: 8px; margin: 12px 0; }
-  .nc-color-opt { width: 32px; height: 32px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; }
-  .nc-color-opt.selected { border-color: #2A1F18; transform: scale(1.1); }
-  /* Stats bar */
-  .notes-stats { padding: 4px 16px 8px; display: flex; gap: 8px; font-size: 11px; color: #7c6856; }
-  .notes-stats .ns { padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.5); }
-  .notes-stats .ns strong { color: #9C7340; font-weight: 700; }
+  /* v2.9.84 · Notes · redesign พรีเมียมดำ-ทอง (spine + masonry + ชิปงาน + search) */
+  .notes-search { margin: 6px 16px 12px; display: flex; align-items: center; gap: 9px; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.08); border-radius: 13px; padding: 10px 13px; }
+  .notes-search input { flex: 1; background: none; border: none; color: #F4F3F1; font-size: 14px; font-family: inherit; outline: none; }
+  .notes-search input::placeholder { color: #6b6b73; }
+  .notes-stats { padding: 0 16px 12px; display: flex; gap: 8px; overflow-x: auto; }
+  .notes-stats .ns { flex: 1; min-width: 72px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 13px; padding: 10px 12px; font-size: 10.5px; color: #8A8790; white-space: nowrap; }
+  .notes-stats .ns strong { display: block; font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 600; color: #D4A056; margin-bottom: 3px; }
+  .notes-toolbar { padding: 0 16px 14px; display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; }
+  .notes-toolbar::-webkit-scrollbar { display: none; }
+  .notes-chip { padding: 7px 13px; border-radius: 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); font-size: 12.5px; font-weight: 500; color: #C9C7C2; white-space: nowrap; flex-shrink: 0; cursor: pointer; }
+  .notes-chip.active { background: linear-gradient(135deg, #D4A056, #9C7340); color: #0A0A0E; font-weight: 600; border-color: transparent; }
+  .notes-seclabel { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8A8790; font-weight: 700; padding: 2px 18px 9px; }
+  .notes-board { column-count: 2; column-gap: 10px; padding: 0 14px 24px; }
+  .note-card { break-inside: avoid; margin: 0 0 10px; padding: 13px 13px 11px 16px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.07); position: relative; cursor: pointer; overflow: visible; }
+  .note-card::before { content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px; border-radius: 3px; background: var(--sp, #E4B84D); }
+  .note-card.pinned::after { content: '📌'; position: absolute; top: -7px; right: 9px; font-size: 14px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
+  .note-card.done { opacity: 0.5; }
+  .note-card .nc-title { font-size: 14px; font-weight: 600; line-height: 1.35; margin-bottom: 5px; color: #F4F3F1; word-wrap: break-word; }
+  .note-card.done .nc-title { text-decoration: line-through; color: #8A8790; }
+  .note-card .nc-body { font-size: 12.5px; line-height: 1.5; color: #B4B2AC; word-wrap: break-word; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+  .note-card .nc-footer { margin-top: 11px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .note-card .nc-check { width: 19px; height: 19px; border-radius: 50%; border: 1.8px solid #5a5a63; flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px; color: transparent; }
+  .note-card.done .nc-check { background: linear-gradient(135deg, #D4A056, #9C7340); border-color: transparent; color: #0A0A0E; }
+  .note-card .nc-tag { padding: 2px 8px; border-radius: 20px; background: rgba(255,255,255,0.06); color: #C9C7C2; font-size: 10px; white-space: nowrap; }
+  .note-card .nc-jobchip { padding: 3px 9px; border-radius: 20px; background: linear-gradient(135deg, #E9C67F, #D4A056); color: #0A0A0E; font-size: 10px; font-weight: 700; white-space: nowrap; }
+  .note-card .nc-time { color: #6b6b73; font-size: 10.5px; white-space: nowrap; margin-left: auto; }
+  .nc-y { --sp: #E4B84D; background: linear-gradient(180deg, rgba(228,184,77,0.09), rgba(20,20,24,0.6)); }
+  .nc-p { --sp: #E08AA8; background: linear-gradient(180deg, rgba(224,138,168,0.09), rgba(20,20,24,0.6)); }
+  .nc-b { --sp: #6EA8E0; background: linear-gradient(180deg, rgba(110,168,224,0.09), rgba(20,20,24,0.6)); }
+  .nc-g { --sp: #5FCF8E; background: linear-gradient(180deg, rgba(95,207,142,0.09), rgba(20,20,24,0.6)); }
+  .nc-o { --sp: #E0955A; background: linear-gradient(180deg, rgba(224,149,90,0.09), rgba(20,20,24,0.6)); }
+  .nc-v { --sp: #B48AE0; background: linear-gradient(180deg, rgba(180,138,224,0.09), rgba(20,20,24,0.6)); }
+  /* Note edit · color picker (dark) */
+  .nc-color-row { display: flex; gap: 9px; margin: 4px 0; }
+  .nc-color-opt { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+  .nc-color-opt.selected { box-shadow: 0 0 0 2px #0A0A0E, 0 0 0 4px #D4A056; }
+  .nc-color-opt.nc-y{background:#E4B84D}.nc-color-opt.nc-p{background:#E08AA8}.nc-color-opt.nc-b{background:#6EA8E0}.nc-color-opt.nc-g{background:#5FCF8E}.nc-color-opt.nc-o{background:#E0955A}.nc-color-opt.nc-v{background:#B48AE0}
+  /* บันทึกของงานนี้ (ในหน้ารายละเอียดงาน) */
+  .jobnote-mini { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+  .jobnote-mini:last-child { border-bottom: none; }
+  .jobnote-mini .jn-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex: none; background: var(--sp, #E4B84D); }
+  .jobnote-mini .jn-t { font-size: 13px; font-weight: 600; color: #F4F3F1; }
+  .jobnote-mini.done .jn-t { text-decoration: line-through; color: #8A8790; }
+  .jobnote-mini .jn-b { font-size: 11.5px; color: #8A8790; margin-top: 2px; }
+  .jobnote-mini .jn-time { font-size: 10.5px; color: #6b6b73; margin-left: auto; white-space: nowrap; }
 
   /* Segmented tabs (used in Jobs page for Jobs/Quotes switch) */
   .seg-tabs { display: flex; background: #f3f4f6; padding: 4px; margin: 0 16px 12px; border-radius: 12px; gap: 4px; }
@@ -5818,6 +5832,15 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
         <div id="job-note-text" style="font-size:13px; line-height:1.6; color:#F4F3F1; white-space:pre-wrap;"></div>
       </div>
 
+      <!-- v2.9.84 · บันทึกของงานนี้ (โน้ตที่ผูก jobCode) -->
+      <div class="detail-block" id="job-notes-block" style="display:none;">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <h3 style="margin:0;">📝 บันทึกของงานนี้</h3>
+          <button onclick="addNoteForCurrentJob()" style="background:rgba(212,160,86,.12); color:#D4A056; border:none; font-size:12px; font-weight:600; padding:6px 12px; border-radius:20px; cursor:pointer;">+ จดเพิ่ม</button>
+        </div>
+        <div id="job-notes-list" style="margin-top:8px;"></div>
+      </div>
+
       <!-- v1.9.37 · Filing status toggle removed · all jobs always appear in tax report -->
     </div>
 
@@ -7091,6 +7114,10 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
         <h1>📝 บันทึก</h1>
         <button class="icon-btn" onclick="newNote()" style="color:#EFB670; font-size:20px;" title="บันทึกใหม่">+</button>
       </div>
+      <div class="notes-search">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8A8790" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="notes-search" placeholder="ค้นหาบันทึก · ชื่อ · เนื้อหา..." oninput="renderNotes()" autocomplete="off">
+      </div>
       <div class="notes-stats" id="notes-stats"></div>
       <div class="notes-toolbar" id="notes-filter-row">
         <div class="notes-chip active" onclick="filterNotes('all', this)">ทั้งหมด</div>
@@ -7137,6 +7164,11 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
             <option value="equipment">🔧 อุปกรณ์</option>
             <option value="appt">📅 นัด</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label>🔗 ผูกกับงาน (ไม่บังคับ)</label>
+          <select id="note-job-input"></select>
+          <div style="font-size:11px; color:#8A8790; margin-top:6px;">ผูกแล้วโน้ตจะไปโผล่ในหน้างานนั้นด้วย</div>
         </div>
         <div class="form-group">
           <label>สีกระดาษ</label>
@@ -8779,7 +8811,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.83';
+const PIXORY_VERSION = '2.9.85';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8790,11 +8822,24 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
-  '2.9.83': {
-    date: '2026-07-06',
-    title: 'ใบสรุปการจอง มาแล้ว 📑',
-    subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
+  '2.9.85': {
+    date: '2026-07-10',
+    title: 'แก้ปุ่มบันทึก JPEG บน iPhone 🖼',
+    subtitle: 'กดบันทึกรูปแล้วไม่ลง? แก้แล้ว — ใช้แผงแชร์ของ iOS',
     items: [
+      { icon: '🖼', title: 'บันทึก JPEG บน iPhone ได้แล้ว', desc: 'เดิมกดปุ่ม "บันทึก JPEG" บน iPhone/iPad แล้วรูปไม่ลงเครื่อง (ข้อจำกัดของ Safari ในโหมดแอป) · ตอนนี้จะเด้งแผงแชร์ของ iOS ขึ้นมา — เลือก "บันทึกรูปภาพ" ลงอัลบั้ม หรือส่งเข้า LINE/Facebook ได้เลยในปุ่มเดียว' },
+      { icon: '📄', title: 'ครบทุกเอกสาร', desc: 'ใช้ได้กับปุ่ม JPEG ทุกใบ — ใบเสนอราคา · ใบสรุปการจอง · ใบเรียกเก็บ/ใบเสร็จ · ส่วน PDF และเครื่องคอมพิวเตอร์ยังทำงานเหมือนเดิม' },
+    ]
+  },
+  '2.9.84': {
+    date: '2026-07-10',
+    title: 'หน้าบันทึกโฉมใหม่ 📝',
+    subtitle: 'สวยขึ้น ค้นหาได้ · ผูกโน้ตเข้ากับงานได้แล้ว',
+    items: [
+      { icon: '📝', title: 'หน้าบันทึกดีไซน์ใหม่', desc: 'จัดวางแบบการ์ด 2 คอลัมน์ มีแถบสีข้างการ์ด · แยกโซน "ปักหมุด" กับ "ทั้งหมด" ชัดเจน · ดูสบายตาขึ้นมาก' },
+      { icon: '🔍', title: 'ค้นหาบันทึกได้', desc: 'มีช่องค้นหาด้านบน — พิมพ์คำในชื่อหรือเนื้อหา เจอทันที' },
+      { icon: '🔗', title: 'ผูกบันทึกเข้ากับงาน', desc: 'ตอนจดโน้ตเลือกงานที่เกี่ยวข้องได้ · การ์ดจะโชว์ชิปชื่องาน แตะเด้งไปหน้างานนั้น' },
+      { icon: '📌', title: 'บันทึกของงานนี้', desc: 'ในหน้ารายละเอียดงานมีโซน "บันทึกของงานนี้" รวมโน้ตที่ผูกไว้ · กด "+ จดเพิ่ม" สร้างโน้ตผูกงานนั้นให้อัตโนมัติ' },
       { icon: '📑', title: 'ใบสรุปการจอง (Booking Summary)', desc: 'เอกสารสรุปการจองสวยหรู 1 หน้า — โชว์แพคเกจ กำหนดการถ่าย มัดจำ/ยอดคงเหลือ พร้อม QR พร้อมเพย์/เลขบัญชี · โหลดเป็น PDF/JPEG ส่งลูกค้าได้เลย' },
       { icon: '🗂️', title: 'รวมเอกสารไว้ที่เดียว', desc: 'ในหน้ารายละเอียดงานมี section "เอกสาร" — ใบเสนอราคา · ใบสรุปการจอง · ใบเรียกเก็บ อยู่รวมกัน ไม่ต้องหา' },
       { icon: '⚡', title: 'เด้งถามอัตโนมัติ', desc: 'หลังสร้างงานใหม่ หรือแปลงใบเสนอเป็นงาน ระบบเด้งถามสร้างใบสรุปการจองให้ทันที (เลือกวันครบกำหนด/ช่องทางจ่าย/แก้เงื่อนไขเองได้ · หรือกดข้าม)' },
@@ -16570,6 +16615,7 @@ function openJob(code) {
   }
   // v2.9.57 · เติมการ์ดสถานะ + Timeline ประวัติสถานะ (ลอกดีไซน์)
   try { renderJobStatusCard(j); renderJobTimeline(j); } catch(e) {}
+  try { renderNotesForJob(j); } catch(e) {}
 }
 
 // v2.5.54 · One-click mark team as finalized · called from job detail banner button
@@ -16608,6 +16654,7 @@ function changeJobStatus(newStatus) {
   toast('อัปเดตสถานะ → "' + newStatus + '"');
   // v2.9.57 · refresh rich status card + timeline
   try { renderJobStatusCard(j); renderJobTimeline(j); } catch(e) {}
+  try { renderNotesForJob(j); } catch(e) {}
 }
 
 // v2.9.57 · Job Detail · การ์ดสถานะ + Timeline (ลอกจาก Pixory Job Detail.dc.html)
@@ -21789,6 +21836,38 @@ function downloadPDF() {
   });
 }
 
+// v2.9.85 · iOS/PWA ดาวน์โหลดรูป JPEG ผ่าน a.download ไม่ทำงาน (Safari ไม่รองรับ blob download ในโหมด PWA)
+//           → บน iPhone/iPad ใช้แผงแชร์ของ iOS แทน (บันทึกรูปภาพ / ส่ง LINE/Facebook) · เดสก์ท็อป+Android คงดาวน์โหลดเดิม
+function _isIOSish() {
+  var ua = navigator.userAgent || '';
+  return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+function _deliverImageBlob(blob, fname, okMsg) {
+  if (!blob) { toast('สร้างรูปไม่สำเร็จ'); return; }
+  var okToast = okMsg || t('toast.jpegDone');
+  var file = null;
+  try { file = new File([blob], fname, { type: 'image/jpeg' }); } catch (e) { file = null; }
+  // iOS/iPadOS → แผงแชร์ native (บันทึกรูปภาพ / ส่งต่อ)
+  if (_isIOSish() && file && navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+    navigator.share({ files: [file], title: fname })
+      .then(function () { toast(okToast); })
+      .catch(function (err) {
+        if (err && (err.name === 'AbortError' || /cancel/i.test(err.message || ''))) return; // ผู้ใช้ปิดแผงเอง
+        _downloadImageBlobFallback(blob, fname, okToast); // แชร์ล้มเหลว → ลองดาวน์โหลดปกติ
+      });
+    return;
+  }
+  _downloadImageBlobFallback(blob, fname, okToast);
+}
+function _downloadImageBlobFallback(blob, fname, okToast) {
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = fname;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  toast(okToast || t('toast.jpegDone'));
+}
+
 function downloadJPEG() {
   const node = document.getElementById('pdf-content');
   if (!node) { toast('ไม่พบใบเสนอราคา'); return; }
@@ -21837,16 +21916,7 @@ function downloadJPEG() {
     const dy = 0; // anchor top
     actx.drawImage(canvas, dx, dy, drawW, drawH);
     a4Canvas.toBlob(blob => {
-      if (!blob) { toast('สร้างรูปไม่สำเร็จ'); return; }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fname;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      toast(t('toast.jpegDone'));
+      _deliverImageBlob(blob, fname, t('toast.jpegDone'));
     }, 'image/jpeg', 0.95);
   }).catch(err => {
     node.style.background = prevBg;
@@ -22620,7 +22690,9 @@ function v2pdf_exportInjector(fileBase) {
         .then(cb).catch(function(){ alert('สร้างไฟล์ไม่สำเร็จ · ลองใหม่'); });
     });
   }
-  function _pxJPEG(){ _pxCap(function(c){ var a=document.createElement('a'); a.href=c.toDataURL('image/jpeg',0.95); a.download=_PXFILE+'.jpg'; document.body.appendChild(a); a.click(); a.remove(); }); }
+  function _pxIOS(){ var u=navigator.userAgent||''; return /iPad|iPhone|iPod/.test(u)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1); }
+  function _pxDL(b,fn){ var u=URL.createObjectURL(b); var a=document.createElement('a'); a.href=u; a.download=fn; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){URL.revokeObjectURL(u);},1000); }
+  function _pxJPEG(){ _pxCap(function(c){ c.toBlob(function(b){ if(!b){ alert('สร้างไฟล์ไม่สำเร็จ · ลองใหม่'); return; } var fn=_PXFILE+'.jpg'; var f=null; try{ f=new File([b],fn,{type:'image/jpeg'}); }catch(e){ f=null; } if(_pxIOS()&&f&&navigator.canShare&&navigator.canShare({files:[f]})&&navigator.share){ navigator.share({files:[f],title:fn}).catch(function(err){ if(err&&err.name==='AbortError')return; _pxDL(b,fn); }); return; } _pxDL(b,fn); }, 'image/jpeg', 0.95); }); }
   function _pxPDF(){
     if (!window.jspdf) { alert('กำลังโหลดเครื่องมือ PDF… โปรดลองอีกครั้ง'); return; }
     _pxCap(function(c){
@@ -23778,13 +23850,7 @@ function downloadInvoiceJPEG() {
     .then(canvas => {
       node.style.background = prevBg;
       canvas.toBlob(blob => {
-        if (!blob) { toast('สร้างรูปไม่สำเร็จ'); return; }
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = fname;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast(t('inv.jpegSaved'));
+        _deliverImageBlob(blob, fname, t('inv.jpegSaved'));
       }, 'image/jpeg', 0.95);
     })
     .catch(err => {
@@ -27023,6 +27089,10 @@ function renderNotes() {
   else if (NOTES_FILTER === 'todo') list = list.filter(n => !n.done);
   else if (NOTES_FILTER === 'done') list = list.filter(n => n.done);
   else if (['customer','job','money','team','idea','equipment','appt'].includes(NOTES_FILTER)) list = list.filter(n => n.category === NOTES_FILTER);
+  // v2.9.84 · ค้นหา (ชื่อ+เนื้อหา)
+  const _qEl = document.getElementById('notes-search');
+  const q = ((_qEl && _qEl.value) || '').trim().toLowerCase();
+  if (q) list = list.filter(n => ((n.title || '') + ' ' + (n.body || '')).toLowerCase().includes(q));
   // Sort: pinned first, then by createdAt desc
   list.sort((a, b) => {
     if ((b.pinned ? 1 : 0) !== (a.pinned ? 1 : 0)) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
@@ -27039,22 +27109,38 @@ function renderNotes() {
     return;
   }
   const CAT_LABEL = { customer: '👰 ลูกค้า', job: '📸 งาน', money: '💰 เงิน', team: '👥 ทีม', idea: '💡 ไอเดีย', equipment: '🔧 อุปกรณ์', appt: '📅 นัด' };
-  board.className = 'notes-board';
-  board.innerHTML = list.map(n => {
+  const cardHtml = function (n) {
     const color = NOTE_COLORS.includes(n.color) ? n.color : 'y';
     const tag = CAT_LABEL[n.category] || '';
     const time = _fmtRelativeTime(n.updatedAt || n.createdAt);
     const safeId = String(n.id).replace(/'/g, "\\'");
+    let jobChip = '';
+    if (n.jobCode) {
+      const jb = (typeof JOBS !== 'undefined' ? JOBS : []).find(x => x.code === n.jobCode);
+      if (jb) jobChip = '<span class="nc-jobchip" onclick="event.stopPropagation(); openJob(\'' + String(n.jobCode).replace(/'/g, "\\'") + '\')">🔗 ' + escapeHtml(jb.custNick || jb.customer || n.jobCode) + '</span>';
+    }
     return '<div class="note-card nc-' + color + (n.pinned ? ' pinned' : '') + (n.done ? ' done' : '') + '" onclick="editNote(\'' + safeId + '\')">' +
       (n.title ? '<div class="nc-title">' + escapeHtml(n.title) + '</div>' : '') +
       (n.body ? '<div class="nc-body">' + escapeHtml(n.body) + '</div>' : '') +
       '<div class="nc-footer">' +
         '<div class="nc-check" onclick="event.stopPropagation(); toggleNoteDone(\'' + safeId + '\')">' + (n.done ? '✓' : '') + '</div>' +
-        (tag ? '<span class="nc-tag">' + escapeHtml(tag) + '</span>' : '<span></span>') +
+        jobChip +
+        (tag ? '<span class="nc-tag">' + escapeHtml(tag) + '</span>' : '') +
         '<span class="nc-time">' + escapeHtml(time) + '</span>' +
       '</div>' +
     '</div>';
-  }).join('');
+  };
+  board.className = '';
+  // แยก section "📌 ปักหมุด" + "ทั้งหมด" เฉพาะตอน filter=all และไม่ค้นหา (มีปักหมุด)
+  const pinnedList = list.filter(n => n.pinned);
+  const restList = list.filter(n => !n.pinned);
+  if (NOTES_FILTER === 'all' && !q && pinnedList.length > 0 && restList.length > 0) {
+    board.innerHTML =
+      '<div class="notes-seclabel">📌 ปักหมุด</div><div class="notes-board">' + pinnedList.map(cardHtml).join('') + '</div>' +
+      '<div class="notes-seclabel">ทั้งหมด</div><div class="notes-board">' + restList.map(cardHtml).join('') + '</div>';
+  } else {
+    board.innerHTML = '<div class="notes-board">' + list.map(cardHtml).join('') + '</div>';
+  }
 }
 function _fmtRelativeTime(iso) {
   if (!iso) return '';
@@ -27080,6 +27166,51 @@ function filterNotes(f, el) {
   }
   renderNotes();
 }
+// v2.9.84 · บันทึกของงานนี้ (ในหน้ารายละเอียดงาน)
+const _NOTE_SPINE = { y: '#E4B84D', p: '#E08AA8', b: '#6EA8E0', g: '#5FCF8E', o: '#E0955A', v: '#B48AE0' };
+function renderNotesForJob(j) {
+  const block = document.getElementById('job-notes-block');
+  const listEl = document.getElementById('job-notes-list');
+  if (!block || !listEl || !j) return;
+  block.style.display = '';
+  const notes = (typeof NOTES !== 'undefined' ? NOTES : []).filter(function (n) { return n && n.jobCode === j.code; })
+    .sort(function (a, b) { return (a.done ? 1 : 0) - (b.done ? 1 : 0) || (b.updatedAt || b.createdAt || '').localeCompare(a.updatedAt || a.createdAt || ''); });
+  if (notes.length === 0) {
+    listEl.innerHTML = '<div style="font-size:12px; color:#8A8790; padding:6px 0;">ยังไม่มีบันทึกสำหรับงานนี้ · กด "จดเพิ่ม" เพื่อเริ่ม</div>';
+    return;
+  }
+  listEl.innerHTML = notes.map(function (n) {
+    const sp = _NOTE_SPINE[n.color] || '#E4B84D';
+    const safeId = String(n.id).replace(/'/g, "\\'");
+    const time = _fmtRelativeTime(n.updatedAt || n.createdAt);
+    const bodyShort = n.body ? (n.body.length > 64 ? n.body.slice(0, 64) + '…' : n.body) : '';
+    return '<div class="jobnote-mini' + (n.done ? ' done' : '') + '" onclick="editNote(\'' + safeId + '\')">' +
+      '<span class="jn-dot" style="background:' + sp + ';"></span>' +
+      '<div style="min-width:0; flex:1;"><div class="jn-t">' + escapeHtml(n.title || '(ไม่มีชื่อ)') + '</div>' +
+      (bodyShort ? '<div class="jn-b">' + escapeHtml(bodyShort) + '</div>' : '') + '</div>' +
+      '<span class="jn-time">' + escapeHtml(time) + '</span></div>';
+  }).join('');
+}
+function addNoteForCurrentJob() {
+  const j = window._currentJob;
+  window._prefillNoteJob = j ? j.code : null;
+  newNote();
+}
+// v2.9.84 · เติม dropdown เลือกงานผูกโน้ต
+function _populateNoteJobSelect(selectedCode) {
+  const sel = document.getElementById('note-job-input');
+  if (!sel) return;
+  const jobs = (typeof JOBS !== 'undefined' ? JOBS : []).slice().sort(function (a, b) { return (b.date || '').localeCompare(a.date || ''); });
+  let html = '<option value="">— ไม่ผูกกับงาน —</option>';
+  jobs.forEach(function (j) {
+    const nm = j.custNick || j.customer || j.code;
+    let dt = ''; try { dt = j.date ? v2pdf_fmtDateTH(j.date) : ''; } catch (e) { dt = j.date || ''; }
+    const label = nm + (j.type ? ' · ' + j.type : '') + (dt ? ' · ' + dt : '');
+    html += '<option value="' + escapeHtml(j.code) + '"' + (j.code === selectedCode ? ' selected' : '') + '>' + escapeHtml(label) + '</option>';
+  });
+  sel.innerHTML = html;
+  sel.value = selectedCode || '';
+}
 function newNote() {
   _editingNoteId = null;
   _editingNoteColor = NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)];
@@ -27088,6 +27219,8 @@ function newNote() {
   document.getElementById('note-body-input').value = '';
   document.getElementById('note-category-input').value = '';
   document.getElementById('note-pinned-input').checked = false;
+  _populateNoteJobSelect(window._prefillNoteJob || ''); // v2.9.84 · จดจากในงาน = ผูกอัตโนมัติ
+  window._prefillNoteJob = null;
   _refreshNoteColorUI();
   document.getElementById('note-delete-btn').style.display = 'none';
   goTo('note-edit');
@@ -27103,6 +27236,7 @@ function editNote(id) {
   document.getElementById('note-body-input').value = n.body || '';
   document.getElementById('note-category-input').value = n.category || '';
   document.getElementById('note-pinned-input').checked = !!n.pinned;
+  _populateNoteJobSelect(n.jobCode || ''); // v2.9.84
   _refreshNoteColorUI();
   document.getElementById('note-delete-btn').style.display = '';
   goTo('note-edit');
@@ -27126,18 +27260,19 @@ async function saveNoteFromEdit() {
   const body = (document.getElementById('note-body-input').value || '').trim();
   const category = document.getElementById('note-category-input').value || '';
   const pinned = !!document.getElementById('note-pinned-input').checked;
+  const jobCode = (document.getElementById('note-job-input') || {}).value || ''; // v2.9.84 · ผูกงาน
   if (!title && !body) { toast('ใส่ชื่อหรือรายละเอียดอย่างน้อย 1 อย่าง'); return; }
   const now = new Date().toISOString();
   if (_editingNoteId) {
     const n = NOTES.find(x => x.id === _editingNoteId);
     if (n) {
       n.title = title; n.body = body; n.category = category; n.pinned = pinned;
-      n.color = _editingNoteColor; n.updatedAt = now;
+      n.color = _editingNoteColor; n.jobCode = jobCode; n.updatedAt = now;
     }
   } else {
     NOTES.unshift({
       id: _genNoteId(),
-      title, body, category, pinned, color: _editingNoteColor,
+      title, body, category, pinned, color: _editingNoteColor, jobCode: jobCode,
       done: false, doneAt: null,
       createdAt: now, updatedAt: now
     });
