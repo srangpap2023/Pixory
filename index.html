@@ -8779,7 +8779,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.82';
+const PIXORY_VERSION = '2.9.83';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8790,7 +8790,7 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
-  '2.9.82': {
+  '2.9.83': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
@@ -21052,7 +21052,7 @@ function unifiedToArrays() {
 function _syncBillableFromUnified() { try { ADD_BILLABLE = unifiedToArrays().billableCosts; } catch(e){} }
 function _unifiedRecalc() {
   let ch=0, ac=0, mg=0;
-  ADD_UNIFIED.forEach(function(r){ const c=parseFloat(r.charge)||0, a=parseFloat(r.cost)||0; ch+=c; ac+=a; if (c>0) mg+=(c-a); });
+  ADD_UNIFIED.forEach(function(r){ const c=parseFloat(r.charge)||0, a=parseFloat(r.cost)||0; ch+=c; ac+=a; mg+=(c-a); }); // v2.9.83 · ส่วนต่าง = เก็บลูกค้า − จ่ายจริง ทุกแถว (เดิม if(c>0) ข้ามรายการจ่ายล้วน → โชว์กำไรเกินจริง · display-only)
   const f = function(n){ return n.toLocaleString(); };
   const e1 = document.getElementById('add-unified-charge'); if (e1) e1.textContent = '+฿'+f(ch);
   const e2 = document.getElementById('add-unified-actual'); if (e2) e2.textContent = '฿'+f(ac);

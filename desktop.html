@@ -3164,13 +3164,13 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.68';
+const PIXORY_DESKTOP_VERSION = '1.1.69';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
-  '1.1.68': {
+  '1.1.69': {
     date: '2026-07-06',
     title: 'ใบสรุปการจอง มาแล้ว 📑',
     subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
@@ -13236,7 +13236,7 @@ function updateUnifiedCost(ctx, id, field, raw) {
 function _afterUnifiedChange(ctx) { _unifiedSyncState(ctx); _unifiedRecalcUI(ctx); if (typeof updateFormSummary==='function') updateFormSummary(ctx); }
 function _unifiedRecalcUI(ctx) {
   let ch=0, ac=0, mg=0;
-  (FORM_STATE[ctx].unified||[]).forEach(function(r){ const c=Number(r.charge)||0, a=Number(r.cost)||0; ch+=c; ac+=a; if(c>0)mg+=(c-a); });
+  (FORM_STATE[ctx].unified||[]).forEach(function(r){ const c=Number(r.charge)||0, a=Number(r.cost)||0; ch+=c; ac+=a; mg+=(c-a); }); // v1.1.69 · ส่วนต่าง = เก็บลูกค้า − จ่ายจริง ทุกแถว (เดิม if(c>0) ข้ามรายการจ่ายล้วน · display-only · parity มือถือ)
   const f=function(n){return n.toLocaleString();};
   const e1=document.getElementById(ctx+'-unified-charge'); if(e1)e1.textContent='+฿'+f(ch);
   const e2=document.getElementById(ctx+'-unified-actual'); if(e2)e2.textContent='฿'+f(ac);
