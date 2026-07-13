@@ -3164,13 +3164,13 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.73';
+const PIXORY_DESKTOP_VERSION = '1.1.74';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
-  '1.1.73': {
+  '1.1.74': {
     date: '2026-07-13',
     title: 'ลิงก์ยืนยันการจอง + แก้บั๊กวันที่ 🔗🕐',
     subtitle: 'ลูกค้าเซ็น+จ่ายมัดจำในลิงก์เดียว · และวันที่ตรงตามเวลาไทยแล้ว',
@@ -15087,7 +15087,9 @@ function renderBookingLink(q) {
     <div style="background:rgba(212,160,86,0.08);border:1px solid rgba(212,160,86,0.3);border-radius:8px;padding:11px 12px;margin-bottom:11px;">
       <div style="font-size:11px;letter-spacing:1px;color:var(--brand);font-weight:700;margin-bottom:5px;">ลิงก์ของใบเสนอนี้</div>
       <div style="font-size:12.5px;color:var(--ink);word-break:break-all;font-family:monospace;">${escapeHtml(url)}</div>
-      <button class="btn btn-ghost" style="width:100%;margin-top:9px;justify-content:center;" onclick="copyBookingLink('${escapeHtml(row.token)}')">📋 คัดลอกลิงก์</button>
+      <button class="btn" style="width:100%;margin-top:10px;justify-content:center;" onclick="copyBookingMessage('${escapeHtml(q.code)}')">💬 คัดลอกข้อความ + ลิงก์ (แนะนำ)</button>
+      <div style="font-size:11.5px;color:var(--ink-mute);margin-top:6px;text-align:center;line-height:1.5;">มีข้อความแนะนำครบ — บอกว่าใครส่ง งานอะไร ลิงก์ทำอะไร<br>ลูกค้าจะไม่เข้าใจผิดว่าเป็นลิงก์สแกม</div>
+      <button class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;" onclick="copyBookingLink('${escapeHtml(row.token)}')">📋 คัดลอกลิงก์อย่างเดียว</button>
     </div>`;
 
   h += signed
@@ -15127,6 +15129,33 @@ function copyBookingLink(token) {
   const done = () => toast('✓ คัดลอกลิงก์แล้ว · วางในแชทได้เลย', 'success');
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done).catch(() => prompt('คัดลอกลิงก์นี้:', url));
   else prompt('คัดลอกลิงก์นี้:', url);
+}
+
+// v1.1.74 · คัดลอก "ข้อความแนะนำ + ลิงก์" · แก้ปัญหาลูกค้ากลัวลิงก์เปล่าเป็นสแกม
+function _bkShareText(token, q) {
+  const url = _bkUrl(token);
+  const studio = (PROFILE && PROFILE.shop) ? PROFILE.shop : 'สตูดิโอ';
+  const customer = (q && q.customer) || '';
+  const ev = (q && q.dateEvent && typeof fmtDateTH === 'function') ? fmtDateTH(q.dateEvent) : '';
+  const jobLine = [(q && q.type) || '', ev].filter(Boolean).join(' · ');
+
+  return 'สวัสดีค่ะ' + (customer ? ' คุณ' + customer : '') + ' 🙏\n\n'
+    + 'นี่คือลิงก์ยืนยันการจอง' + (jobLine ? ' ' + jobLine : '') + '\n'
+    + 'จาก ' + studio + ' นะคะ\n\n'
+    + 'ในลิงก์จะเห็น: รายละเอียดงาน · ยอดเงิน · เงื่อนไข\n'
+    + 'กดยืนยัน เซ็นชื่อ แล้วชำระมัดจำได้ในหน้าเดียวเลยค่ะ\n\n'
+    + url + '\n\n'
+    + '(ลิงก์นี้ส่งจากช่างโดยตรง · ไม่ต้องสมัครสมาชิก ไม่ต้องกรอกรหัสอะไรทั้งสิ้น)';
+}
+
+function copyBookingMessage(quoteCode) {
+  const q = QUOTES.find(x => x.code === quoteCode);
+  const row = BOOKING_LINK_CACHE[quoteCode];
+  if (!q || !row) return;
+  const text = _bkShareText(row.token, q);
+  const done = () => toast('✓ คัดลอกข้อความ + ลิงก์แล้ว · วางในแชทได้เลย', 'success');
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(() => prompt('คัดลอกข้อความนี้:', text));
+  else prompt('คัดลอกข้อความนี้:', text);
 }
 
 async function viewBookingSlip(path) {
