@@ -20578,14 +20578,12 @@ function _bkToken() {
   for (let i = 0; i < 10; i++) s += A[arr[i] % A.length];
   return s;
 }
-// ⚠️ ชั่วคราว 2026-07-13: ชี้กลับไปที่ b.html ตรงๆ
-// เพราะ Edge Function `b` ยัง deploy ไม่ขึ้น (Supabase มีปัญหาระบบ)
-// เมื่อ deploy สำเร็จแล้ว ให้สลับกลับเป็นบรรทัดที่คอมเมนต์ไว้ด้านล่าง
-// (ฟังก์ชัน b = ตัวที่ยัดชื่อสตูดิโอลง meta ให้การ์ดพรีวิวในแชท
-//  เพราะ crawler ของ Messenger/LINE ไม่รัน JS จึงเห็นแค่ meta ที่เซิร์ฟเวอร์ส่งมา)
+// ลิงก์ชี้ไปที่ Edge Function `b` ไม่ใช่ b.html ตรงๆ
+// เพราะ crawler ของ Messenger/LINE ไม่รัน JS → ต้องให้เซิร์ฟเวอร์ยัด
+// ชื่อสตูดิโอของช่างลง meta ก่อน การ์ดพรีวิวในแชทถึงจะขึ้นชื่อร้านเขา
+// (ฟังก์ชัน b ต้องเปิดใช้งานอยู่ + ปิด Verify JWT · ดู 99_edge_functions/DEPLOY_b.md)
 function _bkUrl(token) {
-  return location.href.split('?')[0].replace(/[^/]*$/, '') + 'b.html?t=' + encodeURIComponent(token);
-  // return SUPABASE_URL + '/functions/v1/b?t=' + encodeURIComponent(token);
+  return SUPABASE_URL + '/functions/v1/b?t=' + encodeURIComponent(token);
 }
 
 // สร้าง snapshot จากใบเสนอราคา · ใช้ getPrintCtx ตัวเดียวกับเอกสาร → ตัวเลขตรงกันเสมอ
