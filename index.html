@@ -6439,6 +6439,12 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
         <button class="btn secondary" style="margin:0; flex:1;" onclick="downloadJPEG()" data-i18n="btn.saveJPEG">🖼 บันทึก JPEG</button>
         <button class="btn" style="margin:0; flex:1; background:linear-gradient(135deg, #D97757, #B85A3D);" onclick="openQuoteNewPdf()">⬇ บันทึก PDF</button>
       </div>
+
+      <!-- v2.9.86 · ลิงก์ยืนยันการจอง (ลูกค้าอ่าน → เซ็น → จ่ายมัดจำ ในลิงก์เดียว) -->
+      <div id="quote-booklink-block" style="display:none; margin:0 16px 20px; background:rgba(255,255,255,.03); border:0.5px solid rgba(255,255,255,.07); border-radius:15px; padding:14px;">
+        <h3 style="font-size:13.5px; font-weight:700; margin-bottom:12px; color:#F4F3F1;">🔗 ลิงก์ยืนยันการจอง</h3>
+        <div id="quote-booklink-body"></div>
+      </div>
     </div>
 
     <!-- ====== SCREEN: INVOICE (ใบเรียกเก็บยอดชำระเพิ่มเติม) ====== -->
@@ -8006,6 +8012,16 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
           <input type="checkbox" id="pp-on-invoice" onchange="savePromptPay(false)" style="width:20px; height:20px; accent-color:#D4A056;">
         </label>
         <div style="font-size:11.5px; color:#A1A1AA; padding:0 2px;">ลูกค้าสแกนด้วยแอปธนาคารใดก็ได้ · ยอดคงเหลือขึ้นอัตโนมัติ ไม่ต้องพิมพ์เอง</div>
+
+        <!-- v2.9.86 · สวิตช์ใหม่ · ตั้งต้นปิด -->
+        <label style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 2px 8px; margin-top:10px; border-top:0.5px solid rgba(255,255,255,.07); cursor:pointer;">
+          <span style="font-size:13.5px;">แสดงเลขบัญชีบนใบเสนอราคา</span>
+          <input type="checkbox" id="pp-on-quote" onchange="savePromptPay(false)" style="width:20px; height:20px; accent-color:#D4A056;">
+        </label>
+        <div style="font-size:11.5px; color:#A1A1AA; padding:0 2px; line-height:1.6;">
+          แนะนำ <b style="color:#D4A056;">ปิดไว้</b> — ให้ลูกค้าจ่ายผ่าน "ลิงก์ยืนยันการจอง" แทน จะได้ลายเซ็นยอมรับเงื่อนไขก่อนโอนเสมอ<br>
+          เปิดเฉพาะกรณีลูกค้าอยากโอนทันทีโดยไม่ผ่านลิงก์
+        </div>
       </div>
 
       <div id="list-bank"></div>
@@ -8811,7 +8827,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.85';
+const PIXORY_VERSION = '2.9.86';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8822,6 +8838,19 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.86': {
+    date: '2026-07-13',
+    title: 'ลิงก์ยืนยันการจอง มาแล้ว 🔗',
+    subtitle: 'ลูกค้าเซ็นยืนยัน + จ่ายมัดจำ จบในลิงก์เดียว',
+    items: [
+      { icon: '🔗', title: 'สร้างลิงก์ยืนยันการจอง', desc: 'ในหน้าใบเสนอราคา กดปุ่มเดียวได้ลิงก์ ส่งให้ลูกค้าทางแชท (Messenger · เพจ · LINE) · ลูกค้าเปิดแล้วอ่านรายละเอียดครบ → เซ็นยืนยัน → สแกน PromptPay หรือคัดลอกเลขบัญชีไปโอน → แนบสลิป จบในลิงก์เดียว ไม่ต้องล็อกอิน' },
+      { icon: '✍️', title: 'ได้ลายเซ็นเป็นหลักฐาน', desc: 'ลูกค้าพิมพ์ชื่อ + ติ๊กยอมรับเงื่อนไข ระบบบันทึกชื่อและเวลาไว้ · เซ็นแล้วล็อกทันที แก้เนื้อหาไม่ได้อีก (มีผลตามกฎหมายสำหรับสัญญาบริการ)' },
+      { icon: '📊', title: 'เห็นสถานะแบบเรียลไทม์', desc: 'ในหน้าใบเสนอเห็นครบว่า ส่งลิงก์แล้ว → ลูกค้าเซ็นหรือยัง → แจ้งโอนหรือยัง · กดดูรูปสลิปที่ลูกค้าแนบได้เลย' },
+      { icon: '✓', title: 'เงินเข้าแล้ว กดแปลงเป็นงาน', desc: 'ตรวจเงินในแอปธนาคาร แล้วกดปุ่มเดียว — ระบบสร้างงาน + บันทึกมัดจำให้ (เหมือนกดแปลงใบเสนอปกติ) · วันรับมัดจำจะตรงกับวันที่เงินเข้าจริงอัตโนมัติ' },
+      { icon: '📝', title: 'แก้ข้อความก่อนส่งได้', desc: 'ปรับ "หมายเหตุจากช่าง" และ "เงื่อนไข" ให้ลูกค้าแต่ละรายได้ก่อนส่งลิงก์ · แก้ได้เรื่อยๆ จนกว่าลูกค้าจะเซ็น' },
+      { icon: '🏦', title: 'ใบเสนอราคาไม่มีเลขบัญชีแล้ว', desc: 'ย้ายช่องทางจ่ายเงินไปอยู่ในลิงก์แทน เพื่อให้ลูกค้าเซ็นยอมรับเงื่อนไขก่อนโอนเสมอ · ถ้าอยากให้แสดงเหมือนเดิม เปิดได้ที่ ตั้งค่า → บัญชีรับโอน → "แสดงเลขบัญชีบนใบเสนอราคา"' },
+    ]
+  },
   '2.9.85': {
     date: '2026-07-10',
     title: 'แก้ปุ่มบันทึก JPEG บน iPhone 🖼',
@@ -14744,7 +14773,7 @@ const I18N = {
   'q.transferTo':       { th: '🏦 โอนเข้าบัญชี', en: '🏦 Transfer to' },
   'q.terms':            { th: 'เงื่อนไขการชำระเงิน', en: 'Payment Terms' },
   'q.status':           { th: 'สถานะ', en: 'Status' },
-  'q.defaultTerms':     { th: '• มัดจำเพื่อยืนยันการจอง\n• ชำระส่วนที่เหลือก่อนหรือในวันงาน\n• โอนเข้าบัญชีที่ระบุด้านบน', en: '• Deposit to confirm booking\n• Pay remaining before or on the event day\n• Transfer to the bank account above' },
+  'q.defaultTerms':     { th: '• มัดจำเพื่อยืนยันการจอง\n• ชำระส่วนที่เหลือก่อนหรือในวันงาน\n• ชำระมัดจำผ่านลิงก์ยืนยันการจองที่ช่างส่งให้', en: '• Deposit to confirm booking\n• Pay remaining before or on the event day\n• Pay the deposit via the booking confirmation link we send you' },
   'q.defaultFooter':    { th: 'ขอบคุณที่ไว้วางใจ', en: 'Thank you for your trust' },
 
   // Toasts extra
@@ -20089,6 +20118,16 @@ function showQuoteScreen(data, source) {
   _quoteCtx = { source, data };
   goTo('quote');
 
+  // v2.9.86 · ลิงก์ยืนยันการจอง · โชว์เฉพาะใบเสนอที่บันทึกไว้จริง (ไม่โชว์ตอนดูใบเสนอของงาน)
+  const bkBlock = document.getElementById('quote-booklink-block');
+  if (bkBlock) {
+    if (source === 'quote') {
+      try { renderBookingLink(data); refreshBookingLink(data); } catch (e) { console.warn('bk:', e); }
+    } else {
+      bkBlock.style.display = 'none';
+    }
+  }
+
   // PDF header — pull from PROFILE
   const brandEl = document.getElementById('pdf-brand');
   const tagEl = document.getElementById('pdf-tag');
@@ -20411,16 +20450,21 @@ function showQuoteScreen(data, source) {
     }
   }
 
-  // Bank block — for quote source with bankIdx, OR pick default (first) bank
+  // Bank block — v2.9.86 · ตั้งต้น "ไม่แสดง" บนใบเสนอราคา
+  //   เหตุผล: ทางจ่ายเงินคือ "ลิงก์ยืนยันการจอง" ซึ่งบังคับให้ลูกค้าเซ็นก่อนถึงจะเห็น QR/บัญชี
+  //   ถ้าเลขบัญชีอยู่บนใบเสนอ ลูกค้าจะโอนก่อนเซ็น → เสียลายเซ็น/หลักฐานยอมรับเงื่อนไข
+  //   เปิดกลับได้ที่ ตั้งค่า → บัญชีรับโอน → "แสดงบัญชีในใบเสนอราคา" (PROMPTPAY.onQuote)
   const bankBlock = document.getElementById('q-bank-block');
   if (bankBlock) {
+    const showOnQuote = !!(typeof PROMPTPAY !== 'undefined' && PROMPTPAY && PROMPTPAY.onQuote);
     let bank = null;
-    if (data.bankIdx != null && data.bankIdx !== '') {
-      const idx = parseInt(data.bankIdx, 10);
-      if (!isNaN(idx) && BANKS[idx]) bank = BANKS[idx];
+    if (showOnQuote) {
+      if (data.bankIdx != null && data.bankIdx !== '') {
+        const idx = parseInt(data.bankIdx, 10);
+        if (!isNaN(idx) && BANKS[idx]) bank = BANKS[idx];
+      }
+      if (!bank && BANKS.length > 0) bank = BANKS[0];
     }
-    // Fallback to first bank if from job source or no selection
-    if (!bank && BANKS.length > 0) bank = BANKS[0];
     if (bank) {
       bankBlock.style.display = '';
       document.getElementById('q-bank-name').textContent = (bank.bank || '') + ' · ' + (bank.name || '');
@@ -20492,6 +20536,327 @@ function logDepositPayment(job, amount, dateStr, noteStr) {
   });
   // v2.3.0 · Track payment as engagement signal
   if (typeof recordAction === 'function') recordAction('logged_payment', job.code || '');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   v2.9.86 · ลิงก์ยืนยันการจอง (Booking Link) · สร้างจาก "ใบเสนอราคา"
+   ลิงก์เดียว: ลูกค้าอ่านรายละเอียด → เซ็นยืนยัน → จ่ายมัดจำ → แนบสลิป
+   จบด้วยช่างกด "เงินเข้าแล้ว · แปลงเป็นงาน" → เรียก convertQuoteToJob() ตัวเดิม
+
+   ⛔ ไม่แตะสูตรเงินเลยสักบรรทัด
+      · snapshot ดึงจาก v2pdf_getPrintCtx({type:'quote'}) — แหล่งความจริงเดียวกับเอกสาร
+      · มัดจำลงบัญชีตอน convertQuoteToJob เหมือนเดิมทุกอย่าง (ครั้งเดียว · ไม่มีทางนับซ้ำ)
+      · ตอนส่งลิงก์ "ยังไม่มีงาน" ในระบบ → งานเกิดหลังเงินเข้าเท่านั้น
+   ═══════════════════════════════════════════════════════════════════════ */
+let BOOKING_LINK_CACHE = {};   // { [quoteCode]: rowจาก supabase } · ไม่เก็บใน blob (ข้อมูลอยู่ที่เซิร์ฟเวอร์)
+
+function _bkToken() {
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // ตัด I,O,0,1 กันอ่านผิด
+  let s = '';
+  const arr = new Uint32Array(10);
+  (window.crypto || window.msCrypto).getRandomValues(arr);
+  for (let i = 0; i < 10; i++) s += A[arr[i] % A.length];
+  return s;
+}
+function _bkUrl(token) {
+  return location.href.split('?')[0].replace(/[^/]*$/, '') + 'b.html?t=' + encodeURIComponent(token);
+}
+
+// สร้าง snapshot จากใบเสนอราคา · ใช้ getPrintCtx ตัวเดียวกับเอกสาร → ตัวเลขตรงกันเสมอ
+function buildBookingSnapshot(q, note, terms) {
+  const ctx = v2pdf_getPrintCtx({ type: 'quote', doc: q });
+  const bank = ctx.bank || null;
+  const ppId = (typeof PROMPTPAY !== 'undefined' && PROMPTPAY && PROMPTPAY.id) ? PROMPTPAY.id : '';
+  const sessions = (ctx.sessions && ctx.sessions.length)
+    ? ctx.sessions.map(s => ({ date: s.date || '', start: s.start || '', end: s.end || '', label: s.label || '', loc: s.loc || '' }))
+    : (ctx.eventDate ? [{ date: ctx.eventDate, start: '', end: '', label: q.type || '', loc: q.loc || '' }] : []);
+
+  return {
+    studio: {
+      name: ctx.studioName || 'สตูดิโอ',
+      initial: (ctx.studioName || 'P').trim().charAt(0),
+      bankName: bank ? (bank.bank || bank.name || '') : '',
+      bankAcc: bank ? (bank.acc || '') : '',
+      bankHolder: bank ? (bank.holder || '') : '',
+      promptpayId: ppId
+    },
+    customer: q.customer || '',
+    jobType: q.type || '',
+    code: ctx.docCode || q.code || '',
+    issued: v2pdf_todayISO(),
+    sessions: sessions,
+    items: (ctx.items || []).map(i => ({ name: i.name || '', desc: i.desc || '', price: Number(i.price) || 0 })),
+    subtotal: Number(ctx.totalItems) || 0,
+    discount: Number(ctx.discount) || 0,
+    net: Number(ctx.sell) || 0,
+    deposit: Number(ctx.deposit) || 0,
+    remain: Number(ctx.remain) || 0,
+    note: String(note || '').trim(),
+    terms: String(terms || '').trim()
+  };
+}
+
+// ── เปิดแผงสร้าง/แก้ลิงก์ (จากใบเสนอราคา) ────────────────
+function openBookingLinkPanel(quoteCode) {
+  const q = QUOTES.find(x => x.code === quoteCode);
+  if (!q) { toast('ไม่พบใบเสนอราคา'); return; }
+  if (!CURRENT_USER) { toast('ต้องล็อกอินก่อนสร้างลิงก์'); return; }
+
+  const row = BOOKING_LINK_CACHE[q.code];
+  if (row && row.signed_at) { toast('🔒 ลูกค้าเซ็นแล้ว · แก้เนื้อหาไม่ได้'); return; }
+
+  const snap = (row && row.snapshot) || {};
+  const note = snap.note != null ? snap.note : (q.note || '');
+  const terms = snap.terms != null ? snap.terms : (q.terms || (typeof PROFILE !== 'undefined' && PROFILE.terms) || '');
+
+  const html = `
+    <div style="padding:4px 0 2px;">
+      <div style="font-size:12.5px;color:#8A8790;line-height:1.6;margin-bottom:14px;">
+        ลูกค้าจะเห็นรายละเอียด ยอดเงิน แล้วเซ็นยืนยัน + จ่ายมัดจำในลิงก์เดียว
+      </div>
+      <div class="form-group">
+        <label>📌 หมายเหตุจากช่าง</label>
+        <textarea id="bk-note" rows="3" placeholder="เช่น ส่งพรีวิว 20 ภาพภายใน 3 วัน">${escapeHtml(note)}</textarea>
+        <div style="font-size:11px;color:#6b6b73;margin-top:5px;">ดึงจากหมายเหตุในใบเสนอ · แก้ตรงนี้ได้</div>
+      </div>
+      <div class="form-group">
+        <label>📋 เงื่อนไข</label>
+        <textarea id="bk-terms" rows="4" placeholder="เงื่อนไขมัดจำ/ยกเลิก">${escapeHtml(terms)}</textarea>
+        <div style="font-size:11px;color:#6b6b73;margin-top:5px;">ดึงจากเงื่อนไขตั้งต้นในตั้งค่า · ปรับให้ลูกค้ารายนี้ได้</div>
+      </div>
+      <div style="background:rgba(212,160,86,.08);border:1px solid rgba(212,160,86,.28);border-radius:10px;padding:10px 12px;font-size:11.5px;color:#C9C7C2;line-height:1.6;margin-bottom:4px;">
+        💡 แก้ได้เรื่อยๆ จนกว่าลูกค้าจะเซ็น · เซ็นแล้วจะล็อกทันที
+      </div>
+    </div>`;
+
+  openModal(row ? 'แก้ข้อความในลิงก์' : 'สร้างลิงก์ยืนยันการจอง', html, [
+    { text: 'ยกเลิก', class: 'secondary', onClick: closeModal },
+    { text: row ? 'บันทึก' : '🔗 สร้างลิงก์', class: '', onClick: () => saveBookingLink(q.code) }
+  ]);
+}
+
+async function saveBookingLink(quoteCode) {
+  const q = QUOTES.find(x => x.code === quoteCode);
+  if (!q) return;
+  const note = (document.getElementById('bk-note') || {}).value || '';
+  const terms = (document.getElementById('bk-terms') || {}).value || '';
+  const snap = buildBookingSnapshot(q, note, terms);
+
+  if (!(snap.deposit > 0)) {
+    toast('ใบเสนอนี้ยังไม่ได้ตั้งยอดมัดจำ · ใส่มัดจำก่อนสร้างลิงก์');
+    return;
+  }
+  closeModal();
+  toast('กำลังสร้างลิงก์...');
+
+  try {
+    const existing = BOOKING_LINK_CACHE[q.code];
+    if (existing) {
+      const { error } = await SUPABASE.from('booking_links')
+        .update({ snapshot: snap, updated_at: new Date().toISOString() })
+        .eq('token', existing.token);
+      if (error) throw error;
+      existing.snapshot = snap;
+      toast('บันทึกแล้ว ✓');
+    } else {
+      const token = _bkToken();
+      const { error } = await SUPABASE.from('booking_links').insert({
+        token: token, user_id: CURRENT_USER.id, job_code: q.code, snapshot: snap
+      });
+      if (error) throw error;
+      q.bookingToken = token;              // เก็บไว้ในใบเสนอ (ซิงก์ข้ามเครื่อง)
+      await saveData();
+      BOOKING_LINK_CACHE[q.code] = { token: token, job_code: q.code, snapshot: snap, status: 'sent' };
+      toast('สร้างลิงก์แล้ว ✓ · กดแชร์ส่งลูกค้าได้เลย');
+      if (typeof recordAction === 'function') recordAction('booking_link_created', q.code);
+    }
+    renderBookingLink(q);
+  } catch (e) {
+    console.warn('bkLink:', e);
+    toast('สร้างลิงก์ไม่สำเร็จ · ตรวจอินเทอร์เน็ตแล้วลองใหม่');
+  }
+}
+
+// ── ดึงสถานะจากเซิร์ฟเวอร์ ───────────────────────────────
+async function refreshBookingLink(q) {
+  if (!q || !CURRENT_USER || !SUPABASE) return;
+  try {
+    const { data, error } = await SUPABASE.from('booking_links')
+      .select('*').eq('user_id', CURRENT_USER.id).eq('job_code', q.code).maybeSingle();
+    if (error) throw error;
+    if (data) BOOKING_LINK_CACHE[q.code] = data;
+    else delete BOOKING_LINK_CACHE[q.code];
+    if (_quoteCtx && _quoteCtx.data && _quoteCtx.data.code === q.code) renderBookingLink(q);
+  } catch (e) { console.warn('bkRefresh:', e); }
+}
+
+// ── การ์ดสถานะในหน้าใบเสนอราคา ───────────────────────────
+function renderBookingLink(j) {
+  const block = document.getElementById('quote-booklink-block');
+  const body = document.getElementById('quote-booklink-body');
+  if (!block || !body || !j) return;
+  block.style.display = '';
+
+  const row = BOOKING_LINK_CACHE[j.code];
+
+  if (!row) {
+    body.innerHTML = `
+      <button class="btn" onclick="openBookingLinkPanel('${escapeHtml(j.code)}')" style="margin:4px 0 0; padding:12px 14px; font-size:13px; width:100%; display:flex; align-items:center; justify-content:center; gap:10px; background:linear-gradient(135deg,#D4A056,#9C7340); color:#0A0A0E;">
+        <span style="font-size:16px; line-height:1;">🔗</span><span style="font-weight:600;">สร้างลิงก์ยืนยันการจอง</span>
+      </button>
+      <div style="font-size:11.5px; color:#8A8790; line-height:1.65; margin-top:10px; text-align:center;">
+        ส่งให้ลูกค้าทางแชทได้เลย · เขาจะอ่านรายละเอียด → เซ็นยืนยัน → จ่ายมัดจำ จบในลิงก์เดียว
+      </div>
+      <div style="font-size:11px; color:#6b6b73; line-height:1.6; margin-top:6px; text-align:center;">
+        กดแล้วแก้ หมายเหตุ / เงื่อนไข ก่อนส่งได้
+      </div>`;
+    return;
+  }
+
+  const url = _bkUrl(row.token);
+  const signed = !!row.signed_at;
+  const notified = !!row.paid_notified_at;
+  const confirmed = row.status === 'confirmed';
+  const snap = row.snapshot || {};
+
+  const st = (on, ic, title, sub) => `
+    <div style="display:flex; gap:11px; padding:10px 0; border-bottom:0.5px solid rgba(255,255,255,.05);">
+      <span style="width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;
+        ${on ? 'background:linear-gradient(135deg,#5FCF8E,#3ea96b);color:#08130c;' : 'background:rgba(255,255,255,.05);color:#5a5a63;border:0.5px solid rgba(255,255,255,.08);'}">${on ? '✓' : ic}</span>
+      <div style="flex:1;">
+        <div style="font-size:13.5px;font-weight:600;color:${on ? '#F4F3F1' : '#5a5a63'};">${title}</div>
+        <div style="font-size:11.5px;color:${on ? '#8A8790' : '#6b6b73'};margin-top:2px;">${sub}</div>
+      </div>
+    </div>`;
+
+  let h = `
+    <div style="background:rgba(212,160,86,.08); border:0.5px solid rgba(212,160,86,.3); border-radius:12px; padding:11px 12px; margin-bottom:11px;">
+      <div style="font-size:10.5px; letter-spacing:1.5px; color:#D4A056; font-weight:700; margin-bottom:6px;">ลิงก์ของใบเสนอนี้</div>
+      <div style="font-size:11.5px; color:#E8E5DF; word-break:break-all; font-family:monospace;">${escapeHtml(url)}</div>
+      <div style="display:flex; gap:7px; margin-top:10px;">
+        <button onclick="copyBookingLink('${escapeHtml(row.token)}')" style="flex:1; padding:9px; border-radius:9px; border:0.5px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05); color:#E8E5DF; font-size:12px; font-family:inherit;">📋 คัดลอก</button>
+        <button onclick="shareBookingLink('${escapeHtml(row.token)}','${escapeHtml(j.customer || '')}')" style="flex:1; padding:9px; border-radius:9px; border:0.5px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05); color:#E8E5DF; font-size:12px; font-family:inherit;">📤 แชร์</button>
+      </div>
+    </div>`;
+
+  // แถบล็อก / แก้ข้อความ
+  h += signed
+    ? `<div style="display:flex; align-items:center; gap:8px; padding:9px 11px; border-radius:9px; background:rgba(224,149,90,.08); border:0.5px solid rgba(224,149,90,.3); font-size:11.5px; color:#E0955A; margin-bottom:8px;">
+         <span>🔒</span><span style="flex:1;">ล็อกแล้ว · ลูกค้าเซ็นรับเงื่อนไขนี้ไปแล้ว</span></div>`
+    : `<div style="display:flex; align-items:center; gap:8px; padding:9px 11px; border-radius:9px; background:rgba(255,255,255,.04); border:0.5px solid rgba(255,255,255,.08); font-size:11.5px; color:#8A8790; margin-bottom:8px;">
+         <span>✏️</span><span style="flex:1;">ยังแก้ข้อความได้ · ลูกค้ายังไม่เซ็น</span>
+         <button onclick="openBookingLinkPanel('${escapeHtml(j.code)}')" style="background:rgba(212,160,86,.15); color:#D4A056; border:none; border-radius:7px; padding:5px 10px; font-size:11.5px; font-weight:700; font-family:inherit;">แก้</button></div>`;
+
+  h += st(true, '1', 'ส่งลิงก์ให้ลูกค้าแล้ว', signed ? 'ลูกค้าเปิดลิงก์แล้ว' : 'รอลูกค้าเปิด');
+  h += st(signed, '2', 'ลูกค้ายืนยัน + เซ็น',
+         signed ? escapeHtml(row.signed_name || '') + ' · ' + _bkStamp(row.signed_at) : 'ยังไม่ยืนยัน');
+  h += st(notified, '3', 'แจ้งชำระมัดจำ',
+         notified ? 'แจ้งโอน ' + fmt(snap.deposit || 0) + ' · ' + _bkStamp(row.paid_notified_at) : 'ยังไม่แจ้ง');
+
+  if (notified && row.slip_url) {
+    h += `<button onclick="viewBookingSlip('${escapeHtml(row.slip_url)}')" style="width:100%; margin-top:9px; padding:10px; border-radius:10px; border:0.5px solid rgba(212,160,86,.35); background:rgba(212,160,86,.08); color:#D4A056; font-size:12.5px; font-weight:600; font-family:inherit;">🧾 ดูสลิปที่ลูกค้าแนบ</button>`;
+  }
+
+  if (notified && !confirmed) {
+    h += `
+      <div style="margin-top:11px; padding:12px; border-radius:12px; background:rgba(95,207,142,.08); border:0.5px solid rgba(95,207,142,.28);">
+        <div style="font-size:12.5px; color:#B4B2AC; line-height:1.55; margin-bottom:9px;">
+          💰 ลูกค้าแจ้งโอนมัดจำ <b style="color:#7fe0a3;">${fmt(snap.deposit || 0)}</b> พร้อมสลิป<br>
+          ตรวจเงินเข้าในแอปธนาคารแล้วกดปุ่มนี้
+        </div>
+        <button onclick="confirmBookingMoney('${escapeHtml(j.code)}')" style="width:100%; padding:12px; border:none; border-radius:10px; background:linear-gradient(135deg,#5FCF8E,#3ea96b); color:#08130c; font-weight:700; font-size:13.5px; font-family:inherit;">✓ เงินเข้าแล้ว · แปลงเป็นงาน</button>
+        <div style="font-size:10.5px; color:#6b6b73; line-height:1.5; margin-top:7px; text-align:center;">ระบบจะสร้างงาน + บันทึกมัดจำ ${fmt(snap.deposit || 0)}<br>(เหมือนกดแปลงใบเสนอปกติทุกอย่าง)</div>
+      </div>`;
+  }
+
+  if (confirmed) {
+    const jobCode = j.convertedJobCode || '';
+    h += `<div style="margin-top:11px; padding:12px; border-radius:12px; background:rgba(95,207,142,.1); border:0.5px solid rgba(95,207,142,.3); font-size:12.5px; color:#7fe0a3; font-weight:600; line-height:1.6;">
+      ✅ เงินเข้าแล้ว · แปลงเป็นงานเรียบร้อย<br>
+      <span style="color:#6bbf8c; font-weight:400; font-size:11.5px;">บันทึกมัดจำ ${fmt(snap.deposit || 0)} · วันรับมัดจำ = วันที่เงินเข้าจริง</span>
+      ${jobCode ? `<button onclick="openJob('${escapeHtml(jobCode)}')" style="width:100%; margin-top:9px; padding:9px; border:none; border-radius:9px; background:rgba(255,255,255,.08); color:#E8E5DF; font-size:12px; font-weight:600; font-family:inherit;">ดูงาน ${escapeHtml(jobCode)} ›</button>` : ''}
+    </div>`;
+  }
+
+  body.innerHTML = h;
+}
+
+function _bkStamp(ts) {
+  if (!ts) return '';
+  const d = new Date(ts); if (isNaN(d.getTime())) return '';
+  const M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const h = ('0' + d.getHours()).slice(-2), mi = ('0' + d.getMinutes()).slice(-2);
+  return d.getDate() + ' ' + M[d.getMonth()] + ' ' + (d.getFullYear() + 543) + ' · ' + h + ':' + mi + ' น.';
+}
+
+// ── คัดลอก / แชร์ ────────────────────────────────────────
+function copyBookingLink(token) {
+  const url = _bkUrl(token);
+  const done = () => toast('คัดลอกลิงก์แล้ว ✓ · วางในแชทได้เลย');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(done).catch(() => _bkCopyFallback(url, done));
+  } else _bkCopyFallback(url, done);
+}
+function _bkCopyFallback(url, done) {
+  const ta = document.createElement('textarea');
+  ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { prompt('คัดลอกลิงก์นี้:', url); }
+  document.body.removeChild(ta);
+}
+function shareBookingLink(token, customer) {
+  const url = _bkUrl(token);
+  const text = 'สวัสดีค่ะ' + (customer ? ' คุณ' + customer : '') + ' 🙏\nกดลิงก์นี้เพื่อดูรายละเอียดการจอง ยืนยัน และชำระมัดจำได้เลยค่ะ\n' + url;
+  if (navigator.share) {
+    navigator.share({ title: 'ยืนยันการจอง', text: text }).catch(() => {});
+  } else {
+    copyBookingLink(token);
+  }
+}
+
+// ── ดูสลิป (ลิงก์ชั่วคราว · bucket เป็น private) ─────────
+async function viewBookingSlip(path) {
+  if (!SUPABASE) return;
+  toast('กำลังเปิดสลิป...');
+  try {
+    const { data, error } = await SUPABASE.storage.from('slips').createSignedUrl(path, 300); // 5 นาที
+    if (error || !data || !data.signedUrl) throw (error || new Error('nourl'));
+    window.open(data.signedUrl, '_blank');
+  } catch (e) {
+    console.warn('slip:', e);
+    toast('เปิดสลิปไม่สำเร็จ');
+  }
+}
+
+// ── เงินเข้าแล้ว → แปลงใบเสนอเป็นงาน ──────────────────────
+// ⛔ ไม่มีสูตรเงินใหม่เลย · เรียก convertQuoteToJob() ตัวเดิม ซึ่งจะสร้างงาน + ลงมัดจำเหมือนเดิมทุกอย่าง
+//    (มัดจำจึงลงบัญชี "ครั้งเดียว" ตอนแปลง — และเป็นวันที่เงินเข้าจริง เพราะเราแปลงหลังตรวจสลิป)
+async function confirmBookingMoney(quoteCode) {
+  const q = QUOTES.find(x => x.code === quoteCode);
+  const row = BOOKING_LINK_CACHE[quoteCode];
+  if (!q || !row) return;
+  if (row.status === 'confirmed') { toast('ยืนยันไปแล้ว'); return; }
+
+  const amount = Number((row.snapshot || {}).deposit) || 0;
+  if (!confirm('เงินเข้าบัญชีแล้วใช่ไหมครับ?\n\n'
+             + 'ระบบจะสร้างงานจากใบเสนอนี้ + บันทึกมัดจำ ' + fmt(amount) + '\n'
+             + '(เหมือนกดแปลงใบเสนอปกติทุกอย่าง)')) return;
+
+  // ปิดสถานะลิงก์ก่อน (ลูกค้าจะเห็นว่า "ช่างยืนยันรับแล้ว")
+  try {
+    await SUPABASE.from('booking_links')
+      .update({ status: 'confirmed', confirmed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .eq('token', row.token);
+    row.status = 'confirmed';
+    row.confirmed_at = new Date().toISOString();
+  } catch (e) { console.warn('bkConfirm:', e); }
+
+  // เก็บสลิปไว้กับใบเสนอ (ตอนแปลงจะติดไปกับงานด้วย)
+  q.bookingSlip = row.slip_url || '';
+  await saveData();
+
+  // ↓↓↓ ฟังก์ชันเดิมของแอป · สร้างงาน + ลงมัดจำ (ไม่แตะเลย)
+  convertQuoteToJob(q.code);
 }
 
 function convertQuoteToJob(code) {
@@ -27680,6 +28045,8 @@ function renderSettingsLists() {
   if (ppIdEl) ppIdEl.value = PROMPTPAY.id || '';
   const ppInvEl = document.getElementById('pp-on-invoice');
   if (ppInvEl) ppInvEl.checked = PROMPTPAY.onInvoice !== false;
+  const ppQEl = document.getElementById('pp-on-quote');           // v2.9.86 · ตั้งต้นปิด
+  if (ppQEl) ppQEl.checked = !!PROMPTPAY.onQuote;
 }
 
 // v2.9.15 · บันทึกตั้งค่าพร้อมเพย์ · validate เบอร์ 10 หลัก/บัตร ปชช. 13 หลัก · ค่าว่าง = ปิดใช้
@@ -27691,6 +28058,8 @@ function savePromptPay(fromIdField) {
   }
   PROMPTPAY.id = raw;
   PROMPTPAY.onInvoice = !!document.getElementById('pp-on-invoice').checked;
+  const _ppq = document.getElementById('pp-on-quote');            // v2.9.86
+  if (_ppq) PROMPTPAY.onQuote = !!_ppq.checked;
   saveData();
   if (fromIdField && raw) toast('บันทึกพร้อมเพย์แล้ว ✓ QR จะขึ้นบนใบเรียกเก็บอัตโนมัติ');
 }

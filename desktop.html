@@ -3164,12 +3164,24 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.71';
+const PIXORY_DESKTOP_VERSION = '1.1.72';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.1.72': {
+    date: '2026-07-13',
+    title: 'ลิงก์ยืนยันการจอง มาแล้ว 🔗',
+    subtitle: 'ลูกค้าเซ็นยืนยัน + จ่ายมัดจำ จบในลิงก์เดียว',
+    items: [
+      { icon: '🔗', title: 'สร้างลิงก์ยืนยันการจอง', desc: 'เปิดใบเสนอราคา กดปุ่มเดียวได้ลิงก์ · คัดลอกส่งลูกค้าทางแชทได้เลย · ลูกค้าอ่านรายละเอียด → เซ็นยืนยัน → สแกน PromptPay หรือคัดลอกเลขบัญชีไปโอน → แนบสลิป จบในลิงก์เดียว ไม่ต้องล็อกอิน' },
+      { icon: '✍️', title: 'ได้ลายเซ็นเป็นหลักฐาน', desc: 'ลูกค้าพิมพ์ชื่อ + ติ๊กยอมรับเงื่อนไข ระบบเก็บชื่อและเวลาไว้ · เซ็นแล้วล็อกทันที แก้เนื้อหาไม่ได้อีก' },
+      { icon: '📊', title: 'เห็นสถานะครบในใบเสนอ', desc: 'ส่งลิงก์แล้ว → ลูกค้าเซ็นหรือยัง → แจ้งโอนหรือยัง · กดดูรูปสลิปที่ลูกค้าแนบได้เลย' },
+      { icon: '✓', title: 'เงินเข้าแล้ว กดแปลงเป็นงาน', desc: 'ตรวจเงินในแอปธนาคาร แล้วกดปุ่มเดียว — ระบบสร้างงาน + บันทึกมัดจำให้ (เหมือนกดแปลงใบเสนอปกติ) · วันรับมัดจำตรงกับวันที่เงินเข้าจริง' },
+      { icon: '🏦', title: 'ใบเสนอราคาไม่มีเลขบัญชีแล้ว', desc: 'ย้ายช่องทางจ่ายเงินไปอยู่ในลิงก์ เพื่อให้ลูกค้าเซ็นยอมรับเงื่อนไขก่อนโอนเสมอ · เปิดกลับได้ในตั้งค่า (ฝั่งมือถือ)' },
+    ]
+  },
   '1.1.71': {
     date: '2026-07-12',
     title: 'ยกเครื่อง To Do ✅',
@@ -14668,6 +14680,8 @@ function openQuoteDetail(code) {
   const q = QUOTES.find(x => x.code === code);
   if (!q) { toast('ไม่พบใบเสนอ ' + code, 'error'); return; }
   openModalWithHtml(renderQuoteDetailHtml(q));
+  // v1.1.72 · ลิงก์ยืนยันการจอง · วาดจาก cache ก่อน แล้วดึงสถานะล่าสุด
+  try { renderBookingLink(q); refreshBookingLink(q); } catch (e) { console.warn('bk:', e); }
 }
 
 function renderQuoteDetailHtml(q) {
@@ -14843,6 +14857,12 @@ function renderQuoteDetailHtml(q) {
           <div style="font-size:13px;line-height:1.6;color:var(--ink-soft);white-space:pre-wrap;background:rgba(0,0,0,0.025);padding:10px 12px;border-radius:8px;">${escapeHtml(q.note)}</div>
         </div>
       ` : ''}
+
+      <!-- v1.1.72 · ลิงก์ยืนยันการจอง -->
+      <div class="form-section">
+        <div class="form-section-title">🔗 ลิงก์ยืนยันการจอง</div>
+        <div id="quote-booklink-body"><div style="font-size:12.5px;color:var(--ink-mute);">กำลังโหลด…</div></div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" onclick="deleteQuote('${escapeHtml(q.code)}')">🗑 ลบใบเสนอ</button>
@@ -14893,6 +14913,250 @@ async function changeQuoteStatus(code, newStatus) {
 // ===================================================================
 // CONVERT QUOTE → JOB (Sprint 2A)
 // ===================================================================
+
+/* ═══════════════════════════════════════════════════════════════════════
+   v1.1.72 · ลิงก์ยืนยันการจอง (Booking Link) · สร้างจากใบเสนอราคา · ตรงกับมือถือ
+   ⛔ ไม่แตะสูตรเงิน · snapshot ดึงจาก getPrintCtx({type:'quote'})
+   ⛔ มัดจำลงบัญชีตอน convertQuoteToJob() ตัวเดิม (ครั้งเดียว · หลังเงินเข้าจริง)
+   ═══════════════════════════════════════════════════════════════════════ */
+let BOOKING_LINK_CACHE = {};
+
+function _bkToken() {
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = ''; const arr = new Uint32Array(10);
+  (window.crypto || window.msCrypto).getRandomValues(arr);
+  for (let i = 0; i < 10; i++) s += A[arr[i] % A.length];
+  return s;
+}
+function _bkUrl(token) {
+  return location.href.split('?')[0].replace(/[^/]*$/, '') + 'b.html?t=' + encodeURIComponent(token);
+}
+function _bkStamp(ts) {
+  if (!ts) return '';
+  const d = new Date(ts); if (isNaN(d.getTime())) return '';
+  const M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const h = ('0' + d.getHours()).slice(-2), mi = ('0' + d.getMinutes()).slice(-2);
+  return d.getDate() + ' ' + M[d.getMonth()] + ' ' + (d.getFullYear() + 543) + ' · ' + h + ':' + mi + ' น.';
+}
+
+function buildBookingSnapshot(q, note, terms) {
+  const ctx = getPrintCtx({ type: 'quote', doc: q });
+  const bank = ctx.bank || null;
+  const ppId = (PROMPTPAY && PROMPTPAY.id) ? PROMPTPAY.id : '';
+  const sessions = (ctx.sessions && ctx.sessions.length)
+    ? ctx.sessions.map(s => ({ date: s.date || '', start: s.start || '', end: s.end || '', label: s.label || '', loc: s.loc || '' }))
+    : (ctx.eventDate ? [{ date: ctx.eventDate, start: '', end: '', label: q.type || '', loc: q.loc || '' }] : []);
+  return {
+    studio: {
+      name: ctx.studioName || 'สตูดิโอ',
+      initial: (ctx.studioName || 'P').trim().charAt(0),
+      bankName: bank ? (bank.bank || bank.name || '') : '',
+      bankAcc: bank ? (bank.acc || '') : '',
+      bankHolder: bank ? (bank.holder || '') : '',
+      promptpayId: ppId
+    },
+    customer: q.customer || '', jobType: q.type || '',
+    code: ctx.docCode || q.code || '', issued: TODAY_ISO(),
+    sessions: sessions,
+    items: (ctx.items || []).map(i => ({ name: i.name || '', desc: i.desc || '', price: Number(i.price) || 0 })),
+    subtotal: Number(ctx.totalItems) || 0,
+    discount: Number(ctx.discount) || 0,
+    net: Number(ctx.sell) || 0,
+    deposit: Number(ctx.deposit) || 0,
+    remain: Number(ctx.remain) || 0,
+    note: String(note || '').trim(),
+    terms: String(terms || '').trim()
+  };
+}
+
+function openBookingLinkPanel(quoteCode) {
+  const q = QUOTES.find(x => x.code === quoteCode);
+  if (!q) { toast('ไม่พบใบเสนอราคา', 'error'); return; }
+  if (!CURRENT_USER) { toast('ต้องล็อกอินก่อนสร้างลิงก์', 'error'); return; }
+  const row = BOOKING_LINK_CACHE[q.code];
+  if (row && row.signed_at) { toast('🔒 ลูกค้าเซ็นแล้ว · แก้เนื้อหาไม่ได้', 'error'); return; }
+
+  const snap = (row && row.snapshot) || {};
+  const note = snap.note != null ? snap.note : (q.note || '');
+  const terms = snap.terms != null ? snap.terms : (q.terms || (PROFILE && PROFILE.terms) || '');
+
+  openModalWithHtml(`
+    <div class="modal-header">
+      <div class="modal-title">${row ? 'แก้ข้อความในลิงก์' : '🔗 สร้างลิงก์ยืนยันการจอง'}</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px 24px;">
+      <div style="font-size:13px;color:var(--ink-mute);line-height:1.6;margin-bottom:16px;">
+        ลูกค้าจะเห็นรายละเอียด ยอดเงิน แล้วเซ็นยืนยัน + จ่ายมัดจำในลิงก์เดียว
+      </div>
+      <div class="form-field">
+        <label>📌 หมายเหตุจากช่าง</label>
+        <textarea id="bk-note" rows="3" placeholder="เช่น ส่งพรีวิว 20 ภาพภายใน 3 วัน">${escapeHtml(note)}</textarea>
+        <div class="hint">ดึงจากหมายเหตุในใบเสนอ · แก้ตรงนี้ได้</div>
+      </div>
+      <div class="form-field">
+        <label>📋 เงื่อนไข</label>
+        <textarea id="bk-terms" rows="4" placeholder="เงื่อนไขมัดจำ/ยกเลิก">${escapeHtml(terms)}</textarea>
+        <div class="hint">ดึงจากเงื่อนไขตั้งต้นในตั้งค่า · ปรับให้ลูกค้ารายนี้ได้</div>
+      </div>
+      <div style="background:rgba(212,160,86,0.1);border:1px solid rgba(212,160,86,0.3);border-radius:8px;padding:10px 12px;font-size:12.5px;color:var(--ink-soft);line-height:1.6;">
+        💡 แก้ได้เรื่อยๆ จนกว่าลูกค้าจะเซ็น · เซ็นแล้วจะล็อกทันที
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="openQuoteDetail('${escapeHtml(q.code)}')">ยกเลิก</button>
+      <div style="flex:1;"></div>
+      <button class="btn" onclick="saveBookingLink('${escapeHtml(q.code)}')">${row ? 'บันทึก' : '🔗 สร้างลิงก์'}</button>
+    </div>
+  `);
+}
+
+async function saveBookingLink(quoteCode) {
+  const q = QUOTES.find(x => x.code === quoteCode);
+  if (!q) return;
+  const note = (document.getElementById('bk-note') || {}).value || '';
+  const terms = (document.getElementById('bk-terms') || {}).value || '';
+  const snap = buildBookingSnapshot(q, note, terms);
+  if (!(snap.deposit > 0)) { toast('ใบเสนอนี้ยังไม่ได้ตั้งยอดมัดจำ · ใส่มัดจำก่อนสร้างลิงก์', 'error'); return; }
+
+  try {
+    const existing = BOOKING_LINK_CACHE[q.code];
+    if (existing) {
+      const { error } = await SUPABASE.from('booking_links')
+        .update({ snapshot: snap, updated_at: new Date().toISOString() }).eq('token', existing.token);
+      if (error) throw error;
+      existing.snapshot = snap;
+      toast('✓ บันทึกแล้ว', 'success');
+    } else {
+      const token = _bkToken();
+      const { error } = await SUPABASE.from('booking_links')
+        .insert({ token: token, user_id: CURRENT_USER.id, job_code: q.code, snapshot: snap });
+      if (error) throw error;
+      q.bookingToken = token;
+      await saveData();
+      BOOKING_LINK_CACHE[q.code] = { token: token, job_code: q.code, snapshot: snap, status: 'sent' };
+      toast('✓ สร้างลิงก์แล้ว · กดคัดลอกส่งลูกค้าได้เลย', 'success');
+    }
+    openQuoteDetail(q.code);
+  } catch (e) {
+    console.warn('bkLink:', e);
+    toast('สร้างลิงก์ไม่สำเร็จ · ตรวจอินเทอร์เน็ตแล้วลองใหม่', 'error');
+  }
+}
+
+async function refreshBookingLink(q) {
+  if (!q || !CURRENT_USER || !SUPABASE) return;
+  try {
+    const { data, error } = await SUPABASE.from('booking_links')
+      .select('*').eq('user_id', CURRENT_USER.id).eq('job_code', q.code).maybeSingle();
+    if (error) throw error;
+    if (data) BOOKING_LINK_CACHE[q.code] = data; else delete BOOKING_LINK_CACHE[q.code];
+    renderBookingLink(q);
+  } catch (e) { console.warn('bkRefresh:', e); }
+}
+
+function renderBookingLink(q) {
+  const body = document.getElementById('quote-booklink-body');
+  if (!body || !q) return;
+  const row = BOOKING_LINK_CACHE[q.code];
+
+  if (!row) {
+    body.innerHTML = `
+      <button class="btn" style="width:100%;justify-content:center;" onclick="openBookingLinkPanel('${escapeHtml(q.code)}')">🔗 สร้างลิงก์ยืนยันการจอง</button>
+      <div style="font-size:12.5px;color:var(--ink-mute);line-height:1.65;margin-top:10px;text-align:center;">
+        ส่งให้ลูกค้าทางแชทได้เลย · เขาจะอ่านรายละเอียด → เซ็นยืนยัน → จ่ายมัดจำ จบในลิงก์เดียว
+      </div>
+      <div style="font-size:12px;color:var(--ink-mute);opacity:.75;margin-top:5px;text-align:center;">กดแล้วแก้ หมายเหตุ / เงื่อนไข ก่อนส่งได้</div>`;
+    return;
+  }
+
+  const url = _bkUrl(row.token);
+  const signed = !!row.signed_at, notified = !!row.paid_notified_at, confirmed = row.status === 'confirmed';
+  const snap = row.snapshot || {};
+
+  const st = (on, ic, title, sub) => `
+    <div style="display:flex;gap:11px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <span style="width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;
+        ${on ? 'background:var(--green);color:#fff;' : 'background:rgba(0,0,0,0.05);color:var(--ink-mute);'}">${on ? '✓' : ic}</span>
+      <div><div style="font-size:13.5px;font-weight:600;color:${on ? 'var(--ink)' : 'var(--ink-mute)'};">${title}</div>
+      <div style="font-size:12px;color:var(--ink-mute);margin-top:2px;">${sub}</div></div>
+    </div>`;
+
+  let h = `
+    <div style="background:rgba(212,160,86,0.08);border:1px solid rgba(212,160,86,0.3);border-radius:8px;padding:11px 12px;margin-bottom:11px;">
+      <div style="font-size:11px;letter-spacing:1px;color:var(--brand);font-weight:700;margin-bottom:5px;">ลิงก์ของใบเสนอนี้</div>
+      <div style="font-size:12.5px;color:var(--ink);word-break:break-all;font-family:monospace;">${escapeHtml(url)}</div>
+      <button class="btn btn-ghost" style="width:100%;margin-top:9px;justify-content:center;" onclick="copyBookingLink('${escapeHtml(row.token)}')">📋 คัดลอกลิงก์</button>
+    </div>`;
+
+  h += signed
+    ? `<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:8px;background:rgba(224,149,90,0.1);border:1px solid rgba(224,149,90,0.35);font-size:12.5px;color:#B45309;margin-bottom:8px;font-weight:600;">
+         🔒 <span style="flex:1;">ล็อกแล้ว · ลูกค้าเซ็นรับเงื่อนไขนี้แล้ว</span></div>`
+    : `<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:8px;background:rgba(0,0,0,0.03);border:1px solid var(--border);font-size:12.5px;color:var(--ink-mute);margin-bottom:8px;">
+         ✏️ <span style="flex:1;">ยังแก้ข้อความได้ · ลูกค้ายังไม่เซ็น</span>
+         <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px;" onclick="openBookingLinkPanel('${escapeHtml(q.code)}')">แก้</button></div>`;
+
+  h += st(true, '1', 'ส่งลิงก์ให้ลูกค้าแล้ว', signed ? 'ลูกค้าเปิดลิงก์แล้ว' : 'รอลูกค้าเปิด');
+  h += st(signed, '2', 'ลูกค้ายืนยัน + เซ็น', signed ? escapeHtml(row.signed_name || '') + ' · ' + _bkStamp(row.signed_at) : 'ยังไม่ยืนยัน');
+  h += st(notified, '3', 'แจ้งชำระมัดจำ', notified ? 'แจ้งโอน ' + fmtTHB(snap.deposit || 0) + ' · ' + _bkStamp(row.paid_notified_at) : 'ยังไม่แจ้ง');
+
+  if (notified && row.slip_url) {
+    h += `<button class="btn btn-ghost" style="width:100%;margin-top:9px;justify-content:center;" onclick="viewBookingSlip('${escapeHtml(row.slip_url)}')">🧾 ดูสลิปที่ลูกค้าแนบ</button>`;
+  }
+  if (notified && !confirmed) {
+    h += `
+      <div style="margin-top:11px;padding:12px;border-radius:10px;background:rgba(21,128,61,0.07);border:1px solid rgba(21,128,61,0.28);">
+        <div style="font-size:12.5px;color:var(--ink-soft);line-height:1.55;margin-bottom:9px;">
+          💰 ลูกค้าแจ้งโอนมัดจำ <b style="color:var(--green);">${fmtTHB(snap.deposit || 0)}</b> พร้อมสลิป<br>ตรวจเงินเข้าในแอปธนาคารแล้วกดปุ่มนี้
+        </div>
+        <button class="btn" style="width:100%;justify-content:center;background:var(--green);border-color:var(--green);color:#fff;" onclick="confirmBookingMoney('${escapeHtml(q.code)}')">✓ เงินเข้าแล้ว · แปลงเป็นงาน</button>
+        <div style="font-size:11.5px;color:var(--ink-mute);margin-top:7px;text-align:center;line-height:1.5;">ระบบจะสร้างงาน + บันทึกมัดจำ ${fmtTHB(snap.deposit || 0)} (เหมือนกดแปลงใบเสนอปกติ)</div>
+      </div>`;
+  }
+  if (confirmed) {
+    h += `<div style="margin-top:11px;padding:12px;border-radius:10px;background:rgba(21,128,61,0.1);border:1px solid rgba(21,128,61,0.3);font-size:12.5px;color:var(--green);font-weight:600;line-height:1.6;">
+      ✅ เงินเข้าแล้ว · แปลงเป็นงานเรียบร้อย<br>
+      <span style="font-weight:400;color:var(--ink-soft);">บันทึกมัดจำ ${fmtTHB(snap.deposit || 0)} · วันรับมัดจำ = วันที่เงินเข้าจริง</span></div>`;
+  }
+  body.innerHTML = h;
+}
+
+function copyBookingLink(token) {
+  const url = _bkUrl(token);
+  const done = () => toast('✓ คัดลอกลิงก์แล้ว · วางในแชทได้เลย', 'success');
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done).catch(() => prompt('คัดลอกลิงก์นี้:', url));
+  else prompt('คัดลอกลิงก์นี้:', url);
+}
+
+async function viewBookingSlip(path) {
+  if (!SUPABASE) return;
+  try {
+    const { data, error } = await SUPABASE.storage.from('slips').createSignedUrl(path, 300);
+    if (error || !data || !data.signedUrl) throw (error || new Error('nourl'));
+    window.open(data.signedUrl, '_blank');
+  } catch (e) { console.warn('slip:', e); toast('เปิดสลิปไม่สำเร็จ', 'error'); }
+}
+
+// เงินเข้าแล้ว → แปลงเป็นงาน (เรียกฟังก์ชันเดิม · มัดจำลงบัญชีที่นั่น)
+async function confirmBookingMoney(quoteCode) {
+  const q = QUOTES.find(x => x.code === quoteCode);
+  const row = BOOKING_LINK_CACHE[quoteCode];
+  if (!q || !row) return;
+  if (row.status === 'confirmed') { toast('ยืนยันไปแล้ว'); return; }
+  const amount = Number((row.snapshot || {}).deposit) || 0;
+  if (!confirm('เงินเข้าบัญชีแล้วใช่ไหมครับ?\n\nระบบจะสร้างงานจากใบเสนอนี้ + บันทึกมัดจำ ' + fmtTHB(amount) + '\n(เหมือนกดแปลงใบเสนอปกติทุกอย่าง)')) return;
+
+  try {
+    await SUPABASE.from('booking_links')
+      .update({ status: 'confirmed', confirmed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .eq('token', row.token);
+    row.status = 'confirmed';
+  } catch (e) { console.warn('bkConfirm:', e); }
+
+  q.bookingSlip = row.slip_url || '';
+  await saveData();
+  convertQuoteToJob(q.code);   // ← ฟังก์ชันเดิม · สร้างงาน + ลงมัดจำ
+}
 
 async function convertQuoteToJob(code) {
   const q = QUOTES.find(x => x.code === code);
@@ -16041,7 +16305,7 @@ ${printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
 
   ${(!ctx.inv && (deposit > 0 || bank)) ? `<div class="u-pay">
     ${deposit > 0 ? `<div class="col"><div class="k">มัดจำเพื่อยืนยันการจอง</div><div class="big">${thb(deposit)}</div>${remain > 0 ? `<div class="sub">+ คงเหลือ ${thb(remain)} · ชำระก่อนวันงาน</div>` : ''}</div>` : '<div></div>'}
-    ${bank ? `<div class="col"><div class="k">🏦 โอนเข้าบัญชี</div><div class="bank">${esc(bank.bank || bank.name || '')}${bank.acc ? ' · ' + esc(bank.acc) : ''}</div><div class="sub">${esc(bank.holder || '')}</div></div>` : '<div></div>'}
+    ${(bank && (ctx.inv || (PROMPTPAY && PROMPTPAY.onQuote))) ? `<div class="col"><div class="k">🏦 โอนเข้าบัญชี</div><div class="bank">${esc(bank.bank || bank.name || '')}${bank.acc ? ' · ' + esc(bank.acc) : ''}</div><div class="sub">${esc(bank.holder || '')}</div></div>` : '<div></div>'}
   </div>` : ''}
 
   ${(ctx.inv && bank && !ctx.balancePaid) ? `<div class="u-pay"><div class="col"><div class="k">🏦 โอนยอดคงเหลือเข้าบัญชี</div><div class="bank">${esc(bank.bank || bank.name || '')}${bank.acc ? ' · ' + esc(bank.acc) : ''}</div><div class="sub">${esc(bank.holder || '')}</div></div><div></div></div>` : ''}

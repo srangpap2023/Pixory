@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>ยืนยันการจอง · Pixory</title>
+<link rel="icon" href="./favicon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Trirong:wght@300;400;500;600&family=Sarabun:wght@300;400;500;600&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7"></script>
+<script src="./pixory-helpers.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --ink:#231C13; --ink-soft:#5B5040; --muted:#9A8F79;
+    --cream:#FBF7EE; --cream-2:#F4EDDE; --paper-line:rgba(176,138,62,.28);
+    --gold:#A9853D; --gold-lt:#C6A052; --gold-deep:#8A6C2E;
+  }
+  body{background:#171208;background-image:radial-gradient(120% 80% at 50% -10%,#2a2112 0%,#171208 60%);
+    font-family:'Sarabun',sans-serif;color:var(--ink);min-height:100vh;padding:0;-webkit-text-size-adjust:100%}
+  .wrap{max-width:460px;margin:0 auto;background:var(--cream);min-height:100vh;
+    box-shadow:0 0 80px rgba(0,0,0,.5)}
+  @media(min-width:520px){.wrap{margin:24px auto;min-height:auto;border-radius:22px;overflow:hidden}}
+
+  .rule{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 auto;width:70%}
+  .rule::before,.rule::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+  .rule .dia{width:6px;height:6px;background:var(--gold);transform:rotate(45deg)}
+  .tcaps{font-size:10.5px;letter-spacing:4px;color:var(--gold-deep);font-weight:500}
+
+  .crest{text-align:center;padding:36px 26px 20px}
+  .seal{width:74px;height:74px;border-radius:50%;margin:0 auto 15px;border:1px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:inset 0 0 0 4px var(--cream),inset 0 0 0 5px rgba(169,133,61,.35)}
+  .seal span{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--gold-deep);font-weight:600;line-height:1}
+  .crest h1{font-family:'Trirong',serif;font-weight:500;font-size:24px;color:var(--ink);word-break:break-word}
+  .crest .who{margin-top:13px;font-family:'Trirong',serif;font-size:14.5px;color:var(--ink-soft)}
+  .crest .who b{color:var(--gold-deep);font-weight:500}
+
+  .pad{padding:4px 26px 24px}
+  .sect{text-align:center;margin:22px 0 14px}
+  .sect .tcaps{display:block;margin-bottom:11px}
+
+  .drow{display:flex;justify-content:space-between;gap:14px;padding:11px 2px;border-bottom:1px solid var(--paper-line);font-size:13.5px}
+  .drow .l{color:var(--muted);flex:none}
+  .drow .v{text-align:right;font-weight:500;word-break:break-word}
+  .drow .v small{display:block;font-weight:400;color:var(--ink-soft);font-size:11.5px;margin-top:2px}
+
+  .sess{display:flex;gap:13px;padding:11px 2px;border-bottom:1px solid var(--paper-line)}
+  .sess:last-child{border-bottom:none}
+  .sess .dt{width:52px;flex:none;text-align:center}
+  .sess .dt .d{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;color:var(--gold-deep);line-height:1}
+  .sess .dt .m{font-size:10px;color:var(--muted);margin-top:2px}
+  .sess .in .t{font-size:13.5px;font-weight:600}
+  .sess .in .s{font-size:12px;color:var(--ink-soft);margin-top:2px;line-height:1.5}
+
+  .it{display:flex;justify-content:space-between;gap:12px;padding:10px 2px;border-bottom:1px solid var(--paper-line);font-size:13px}
+  .it .n small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px;line-height:1.5}
+  .it .p{font-weight:500;white-space:nowrap}
+  .sums{margin-top:11px;padding-top:11px;border-top:1px solid var(--gold)}
+  .sums .r{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);padding:4px 2px}
+  .sums .r .v{font-weight:500;color:var(--ink)}
+  .sums .r.net{font-size:14.5px;color:var(--ink);font-weight:600;padding-top:9px;margin-top:5px;border-top:1px solid var(--paper-line)}
+  .sums .r.net .v{font-weight:700}
+  .note-b{margin-top:15px;padding:12px 14px;border-left:2px solid var(--gold);background:var(--cream-2);
+    font-size:12px;color:var(--ink-soft);line-height:1.75;white-space:pre-wrap}
+
+  .amt{text-align:center;padding:8px 0 2px}
+  .amt .k{font-size:10.5px;letter-spacing:4px;color:var(--gold-deep)}
+  .amt .big{font-family:'Cormorant Garamond',serif;font-size:45px;font-weight:600;line-height:1.1;margin-top:4px}
+  .amt .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .mini{margin:13px auto 0;max-width:280px}
+  .mini .r{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);padding:5px 0}
+  .mini .r .v{font-weight:500;color:var(--ink)}
+  .mini .r.gold .v{color:var(--gold-deep)}
+
+  .terms{margin:20px 26px 0;padding:15px 17px;background:var(--cream-2);border-radius:12px;border:1px solid var(--paper-line);
+    font-size:11.5px;color:var(--ink-soft);line-height:1.8;text-align:center;white-space:pre-wrap}
+
+  .zone{margin:20px 26px 0}
+  .zone.locked{opacity:.35;pointer-events:none}
+  .zh{text-align:center;margin-bottom:13px}
+  .zh .step{font-size:10.5px;letter-spacing:4px;color:var(--gold-deep)}
+  .zh .zt{font-family:'Trirong',serif;font-size:19px;font-weight:500;margin-top:5px}
+  .zh .zsub{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.6}
+
+  .btn{width:100%;padding:15px;border:none;border-radius:2px;font-size:14px;font-weight:500;cursor:pointer;
+    font-family:'Sarabun',sans-serif;letter-spacing:1px;-webkit-appearance:none}
+  .btn.ink{background:var(--ink);color:var(--gold-lt)}
+  .btn.gold-out{background:transparent;color:var(--gold-deep);border:1px solid var(--gold)}
+  .btn.gold{background:linear-gradient(135deg,var(--gold-lt),var(--gold-deep));color:#241b09;font-weight:600}
+  .btn:disabled{opacity:.4;cursor:default}
+
+  .signed{text-align:center;padding:8px 0}
+  .signed .mono{font-family:'Cormorant Garamond',serif;font-size:29px;color:var(--gold-deep);
+    border-bottom:1px solid var(--paper-line);display:inline-block;padding:0 24px 8px;font-weight:600;font-style:italic}
+  .signed .cap{font-size:11px;color:var(--muted);margin-top:10px}
+
+  .qrw{text-align:center;padding:6px 0}
+  .qrc{display:inline-block;background:#fff;border-radius:6px;padding:15px 15px 11px;
+    box-shadow:0 10px 30px rgba(0,0,0,.14);border:1px solid var(--paper-line)}
+  .qrc .pp{font-family:'Cormorant Garamond',serif;font-size:12.5px;color:#1b3a6b;font-weight:600;
+    margin-bottom:9px;letter-spacing:2px}
+  .qrc #qrbox img,.qrc #qrbox canvas{display:block;margin:0 auto}
+  .qrc .amt2{font-size:11px;color:#5b5b5b;margin-top:9px}
+
+  .or{display:flex;align-items:center;gap:12px;margin:17px 0 12px}
+  .or::before,.or::after{content:"";height:1px;flex:1;background:var(--paper-line)}
+  .or span{font-size:10px;letter-spacing:2.5px;color:var(--muted)}
+  .bank{border:1px solid var(--paper-line);border-radius:6px;padding:14px;background:var(--cream-2);text-align:center}
+  .bank .bn{font-size:12px;color:var(--muted)}
+  .bank .ac{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--ink);letter-spacing:1.5px;margin:4px 0 2px}
+  .bank .ho{font-size:12px;color:var(--ink-soft)}
+  .bank .cp{margin-top:12px;width:100%;padding:11px;border:1px solid var(--gold);border-radius:3px;background:transparent;
+    color:var(--gold-deep);font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Sarabun',sans-serif;-webkit-appearance:none}
+  .bank .cp.ok{background:var(--gold-deep);color:#fff;border-color:var(--gold-deep)}
+
+  .slip{margin-top:14px;border:1px dashed var(--gold);border-radius:5px;padding:16px;text-align:center;
+    font-size:12.5px;color:var(--gold-deep);cursor:pointer;background:var(--cream-2)}
+  .slip.has{border-style:solid}
+  .prev{margin-top:11px;text-align:center}
+  .prev img{max-width:130px;border-radius:6px;border:1px solid var(--paper-line);box-shadow:0 6px 18px rgba(0,0,0,.12)}
+  .prev .fn{font-size:11px;color:var(--muted);margin-top:6px}
+
+  .foot{text-align:center;font-size:10px;color:#B6AB92;padding:26px 20px 26px;letter-spacing:2px}
+
+  .done{padding:52px 30px;text-align:center}
+  .done h2{font-family:'Trirong',serif;font-size:25px;font-weight:500;margin-bottom:7px}
+  .done p{font-size:13px;color:var(--ink-soft);line-height:1.8}
+  .done .card{margin-top:22px;border:1px solid var(--paper-line);border-radius:10px;padding:5px 19px;text-align:left}
+  .done .card .r{display:flex;justify-content:space-between;gap:11px;font-size:12.5px;padding:11px 0;
+    border-bottom:1px solid var(--paper-line);color:var(--ink-soft)}
+  .done .card .r:last-child{border-bottom:none}
+  .done .card .r b{color:var(--ink);font-weight:500;text-align:right}
+  .done .hint{margin-top:18px;font-size:11.5px;color:var(--muted);line-height:1.7}
+
+  /* modal */
+  #sm{display:none;position:fixed;inset:0;background:rgba(20,15,8,.7);z-index:50;align-items:flex-end;justify-content:center}
+  .sheet{background:var(--cream);width:100%;max-width:460px;border-radius:20px 20px 0 0;padding:26px 28px 32px;border-top:2px solid var(--gold)}
+  .sheet h3{font-family:'Trirong',serif;font-size:21px;font-weight:500;text-align:center}
+  .sheet .hint{font-size:12px;color:var(--muted);text-align:center;margin:6px 0 20px;line-height:1.6}
+  .fg{margin-bottom:16px}
+  .fg label{display:block;font-size:10.5px;letter-spacing:2px;color:var(--gold-deep);margin-bottom:8px}
+  .fg input{width:100%;padding:12px 2px;font-size:20px;font-family:'Trirong',serif;border:none;
+    border-bottom:1px solid var(--gold);background:transparent;color:var(--ink);text-align:center;-webkit-appearance:none}
+  .fg input:focus{outline:none;border-bottom-color:var(--gold-deep)}
+  .chk{display:flex;gap:11px;align-items:flex-start;font-size:12px;color:var(--ink-soft);line-height:1.6;cursor:pointer;margin-bottom:20px}
+  .chk input{margin-top:2px;width:17px;height:17px;flex:none;accent-color:var(--gold-deep)}
+
+  .msg{padding:80px 34px;text-align:center;color:var(--muted)}
+  .msg .ic{font-size:38px;margin-bottom:14px;opacity:.55}
+  .msg .t{font-size:15px;font-weight:600;color:var(--ink-soft)}
+  .msg .s{font-size:12.5px;margin-top:8px;line-height:1.7}
+  .spin{width:26px;height:26px;border:2px solid var(--paper-line);border-top-color:var(--gold);border-radius:50%;
+    margin:0 auto 16px;animation:sp .8s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .busy{opacity:.55;pointer-events:none}
+</style>
+</head><body>
+
+<div class="wrap">
+  <div id="loading" class="msg"><div class="spin"></div><div class="t">กำลังโหลด…</div></div>
+  <div id="err" class="msg" style="display:none">
+    <div class="ic">🔗</div><div class="t">ไม่พบลิงก์นี้</div>
+    <div class="s">ลิงก์อาจหมดอายุหรือถูกยกเลิก<br>กรุณาติดต่อช่างภาพเพื่อขอลิงก์ใหม่</div>
+  </div>
+  <div id="app" style="display:none"></div>
+</div>
+
+<div id="sm"><div class="sheet">
+  <h3>เซ็นยืนยันการจอง</h3>
+  <div class="hint">พิมพ์ชื่อของคุณเพื่อเป็นการลงนามยืนยัน<br>(มีผลตามกฎหมายสำหรับสัญญาบริการ)</div>
+  <div class="fg"><label>ชื่อ – นามสกุล</label><input type="text" id="signname" placeholder="ชื่อของคุณ" autocomplete="name"></div>
+  <label class="chk"><input type="checkbox" id="signagree"><span>ข้าพเจ้าได้อ่านและยอมรับรายละเอียดแพคเกจ ยอดเงิน และเงื่อนไขการมัดจำ/ยกเลิกด้านบน</span></label>
+  <button class="btn ink" id="signgo" onclick="doSign()">ยืนยันการเซ็น</button>
+  <div style="height:10px"></div>
+  <button class="btn gold-out" onclick="closeSign()">ยกเลิก</button>
+</div></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var SUPABASE_URL = 'https://efoezjiytuxvvobyqntl.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_d_Pp52QFpipDvj4JlhCzNw_mBpgyEvE';
+  var SB = null, TOKEN = '', B = null, SLIP_FILE = null, SLIP_URL = '';
+
+  var TH_M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  var TH_D = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+
+  function esc(s){ return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function num(n){ return (Number(n)||0).toLocaleString('en-US'); }
+  function el(id){ return document.getElementById(id); }
+
+  function fmtDate(iso){
+    if(!iso) return '';
+    var d = new Date(String(iso).slice(0,10) + 'T00:00:00');
+    if (isNaN(d.getTime())) return String(iso);
+    return TH_D[d.getDay()] + ' ' + d.getDate() + ' ' + TH_M[d.getMonth()] + ' ' + (d.getFullYear()+543);
+  }
+  function fmtStamp(ts){
+    if(!ts) return '';
+    var d = new Date(ts); if (isNaN(d.getTime())) return '';
+    var h = ('0'+d.getHours()).slice(-2), mi = ('0'+d.getMinutes()).slice(-2);
+    return d.getDate()+' '+TH_M[d.getMonth()]+' '+(d.getFullYear()+543)+' · '+h+':'+mi+' น.';
+  }
+
+  // ── boot ─────────────────────────────────────────────
+  function boot(){
+    TOKEN = (new URLSearchParams(location.search).get('t') || '').trim();
+    if (!TOKEN) return fail();
+    try { SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }
+    catch (e) { return fail(); }
+    load();
+  }
+  function fail(){ el('loading').style.display='none'; el('err').style.display='block'; }
+
+  function load(){
+    SB.rpc('get_booking', { p_token: TOKEN }).then(function (res) {
+      if (res.error || !res.data) { console.warn(res.error); return fail(); }
+      B = res.data;
+      el('loading').style.display = 'none';
+      el('app').style.display = 'block';
+      render();
+    }).catch(fail);
+  }
+
+  // ── render ───────────────────────────────────────────
+  function render(){
+    var s = B.snapshot || {};
+    // ชำระเงินเรียบร้อย (ช่างยืนยันแล้ว) หรือแจ้งชำระแล้ว → หน้าสถานะ
+    if (B.status === 'confirmed' || B.status === 'paid_notified') return renderDone(s);
+    renderFlow(s);
+  }
+
+  function studioHead(s){
+    var st = s.studio || {};
+    var initial = (st.initial || (st.name||'P').trim().charAt(0) || 'P');
+    return '<div class="crest">'
+      + '<div class="seal"><span>' + esc(initial) + '</span></div>'
+      + '<h1>' + esc(st.name || 'สตูดิโอ') + '</h1>'
+      + '<div class="rule" style="margin-top:15px"><span class="dia"></span></div>'
+      + '<div class="who">คำเชิญยืนยันการจอง · สำหรับ <b>' + esc(s.customer || 'ลูกค้า') + '</b></div>'
+      + '</div>';
+  }
+
+  function sectionsHtml(s){
+    var h = '<div class="pad">';
+
+    // รายละเอียด
+    h += '<div class="sect"><span class="tcaps">ใบสรุปการจอง</span><div class="rule"><span class="dia"></span></div></div>';
+    if (s.jobType)  h += row('งาน', esc(s.jobType));
+    h += row('ลูกค้า', esc(s.customer || '-'));
+    if (s.code)     h += row('เลขที่เอกสาร', esc(s.code) + (s.issued ? '<small>ออกเมื่อ ' + esc(fmtDate(s.issued)) + '</small>' : ''));
+
+    // กำหนดการถ่าย
+    var ss = Array.isArray(s.sessions) ? s.sessions : [];
+    if (ss.length) {
+      h += '<div class="sect" style="margin-top:24px"><span class="tcaps">กำหนดการถ่าย</span><div class="rule"><span class="dia"></span></div></div>';
+      ss.forEach(function (x) {
+        var d = new Date(String(x.date||'').slice(0,10) + 'T00:00:00');
+        var dd = isNaN(d.getTime()) ? '–' : d.getDate();
+        var mm = isNaN(d.getTime()) ? '' : TH_M[d.getMonth()] + ' ' + String((d.getFullYear()+543)).slice(-2);
+        var time = [x.start, x.end].filter(Boolean).join(' – ');
+        var sub = [time ? time + ' น.' : '', x.loc || ''].filter(Boolean).join(' · ');
+        h += '<div class="sess"><div class="dt"><div class="d">' + esc(dd) + '</div><div class="m">' + esc(mm) + '</div></div>'
+           + '<div class="in"><div class="t">' + esc(x.label || 'ถ่ายภาพ') + '</div>'
+           + (sub ? '<div class="s">' + esc(sub) + '</div>' : '') + '</div></div>';
+      });
+    }
+
+    // รายการ
+    var items = Array.isArray(s.items) ? s.items : [];
+    if (items.length) {
+      h += '<div class="sect" style="margin-top:24px"><span class="tcaps">รายการ</span><div class="rule"><span class="dia"></span></div></div>';
+      items.forEach(function (it) {
+        h += '<div class="it"><span class="n">' + esc(it.name || '-')
+           + (it.desc ? '<small>' + esc(it.desc) + '</small>' : '') + '</span>'
+           + '<span class="p">' + num(it.price) + '</span></div>';
+      });
+      h += '<div class="sums">';
+      h += '<div class="r"><span>ยอดรวม</span><span class="v">' + num(s.subtotal) + ' บาท</span></div>';
+      if (Number(s.discount) > 0)
+        h += '<div class="r"><span>ส่วนลด</span><span class="v">− ' + num(s.discount) + ' บาท</span></div>';
+      h += '<div class="r net"><span>ยอดสุทธิ</span><span class="v">' + num(s.net) + ' บาท</span></div>';
+      h += '</div>';
+    }
+
+    if (s.note) h += '<div class="note-b">📌 หมายเหตุจากช่าง: ' + esc(s.note) + '</div>';
+
+    // ยอดชำระ
+    h += '<div class="sect" style="margin-top:24px"><span class="tcaps">ยอดชำระ</span><div class="rule"><span class="dia"></span></div></div>';
+    h += '<div class="amt"><div class="k">มัดจำเพื่อล็อกวัน</div>'
+       + '<div class="big">฿' + num(s.deposit) + '</div>'
+       + '<div class="sub">จากยอดสุทธิ ' + num(s.net) + ' บาท</div></div>';
+    h += '<div class="mini">'
+       + '<div class="r"><span>ยอดสุทธิ</span><span class="v">' + num(s.net) + ' บาท</span></div>'
+       + '<div class="r gold"><span>มัดจำวันนี้</span><span class="v">' + num(s.deposit) + ' บาท</span></div>'
+       + '<div class="r"><span>คงเหลือ</span><span class="v">' + num(s.remain) + ' บาท</span></div>'
+       + '</div>';
+    h += '</div>';
+
+    if (s.terms) h += '<div class="terms">' + esc(s.terms) + '</div>';
+    return h;
+  }
+  function row(l, v){ return '<div class="drow"><span class="l">' + esc(l) + '</span><span class="v">' + v + '</span></div>'; }
+
+  function renderFlow(s){
+    var signed = !!B.signed_at;
+    var h = studioHead(s) + sectionsHtml(s);
+
+    // ขั้น 1 · เซ็น
+    h += '<div class="zone"><div class="zh"><div class="step">ขั้นที่ 1</div><div class="zt">ยืนยันการจอง</div>'
+       + '<div class="zsub">ตรวจรายละเอียดด้านบนแล้ว กดยืนยันเพื่อล็อกคิววันถ่าย</div></div>';
+    if (signed) {
+      h += '<div class="signed"><div class="mono">' + esc(B.signed_name || '') + '</div>'
+         + '<div class="cap">ยืนยันแล้ว · ' + esc(fmtStamp(B.signed_at)) + '</div></div>';
+    } else {
+      h += '<button class="btn ink" onclick="openSign()">✍️ ยืนยัน &amp; เซ็นรับทราบ</button>';
+    }
+    h += '</div>';
+
+    // ขั้น 2 · จ่าย
+    h += '<div class="zone' + (signed ? '' : ' locked') + '" id="z2">'
+       + '<div class="zh"><div class="step">ขั้นที่ 2</div><div class="zt">ชำระมัดจำ</div>'
+       + '<div class="zsub">สแกน PromptPay จ่ายมัดจำ แล้วแนบสลิปให้ช่างตรวจ</div></div>'
+       + '<div class="amt" style="padding-bottom:10px"><div class="big" style="font-size:37px">฿' + num(s.deposit) + '</div></div>'
+       + '<div class="qrw"><div class="qrc"><div class="pp">PROMPTPAY</div>'
+       + '<div id="qrbox"></div>'
+       + '<div class="amt2">' + esc((s.studio && s.studio.name) || '') + ' · ' + num(s.deposit) + '.00 บาท</div>'
+       + '</div></div>';
+
+    var bk = (s.studio && s.studio.bankAcc) ? s.studio : null;
+    if (bk) {
+      h += '<div class="or"><span>หรือ</span></div>'
+         + '<div class="bank">'
+         + '<div class="bn">' + esc(bk.bankName || 'โอนเข้าบัญชี') + '</div>'
+         + '<div class="ac" id="bacc">' + esc(bk.bankAcc) + '</div>'
+         + (bk.bankHolder ? '<div class="ho">ชื่อบัญชี · ' + esc(bk.bankHolder) + '</div>' : '')
+         + '<button class="cp" id="cpb" onclick="copyAcc()">📋 คัดลอกเลขบัญชี</button>'
+         + '</div>';
+    }
+
+    h += '<input type="file" id="slipf" accept="image/*" style="display:none">'
+       + '<div class="slip" id="slip" onclick="pickSlip()">📎 แตะเพื่อแนบสลิปโอนเงิน</div>'
+       + '<div class="prev" id="prev" style="display:none"><img id="previmg" alt="สลิป"><div class="fn" id="prevfn"></div></div>'
+       + '<div style="height:14px"></div>'
+       + '<button class="btn gold" id="paybtn" onclick="notifyPaid()" disabled>แจ้งชำระเงินแล้ว</button>'
+       + '</div>';
+
+    h += '<div class="foot">ปลอดภัย · สร้างด้วย PIXORY</div>';
+    el('app').innerHTML = h;
+
+    el('slipf').addEventListener('change', onSlip);
+    if (signed) drawQR(s);
+  }
+
+  function renderDone(s){
+    var confirmed = B.status === 'confirmed';
+    var h = '<div class="done">'
+      + '<div class="seal"><span>✓</span></div>'
+      + '<div class="tcaps" style="margin-top:6px">CONFIRMED</div>'
+      + '<h2 style="margin-top:9px">ขอบคุณค่ะ ' + esc(s.customer || '') + '! 🎉</h2>'
+      + '<p>ยืนยันการจอง + แจ้งชำระมัดจำเรียบร้อยแล้ว<br>ช่างได้รับข้อมูลของคุณแล้ว</p>'
+      + '<div class="card">';
+    var ss = Array.isArray(s.sessions) ? s.sessions : [];
+    if (ss.length) h += '<div class="r"><span>📅 วันถ่าย</span><b>' + esc(fmtDate(ss[0].date)) + (ss.length > 1 ? ' +' + (ss.length-1) : '') + '</b></div>';
+    h += '<div class="r"><span>💰 มัดจำ</span><b>' + num(s.deposit) + ' บาท · ' + (confirmed ? 'ช่างยืนยันรับแล้ว ✓' : 'รอช่างตรวจสลิป') + '</b></div>'
+       + '<div class="r"><span>🧾 คงเหลือ</span><b>' + num(s.remain) + ' บาท · ในวันถ่าย</b></div>'
+       + '<div class="r"><span>✍️ ยืนยันโดย</span><b>' + esc(B.signed_name || '-') + '</b></div>'
+       + '<div class="r"><span>🕐 เมื่อ</span><b>' + esc(fmtStamp(B.signed_at)) + '</b></div>'
+       + '</div>'
+       + '<div class="hint">ใบสรุปการจองฉบับเต็ม ช่างจะส่งให้ทางแชท</div>'
+       + '</div>'
+       + '<div class="foot">ปลอดภัย · สร้างด้วย PIXORY</div>';
+    el('app').innerHTML = h;
+  }
+
+  // ── QR ───────────────────────────────────────────────
+  function drawQR(s){
+    var box = el('qrbox'); if (!box) return;
+    var id = s.studio && s.studio.promptpayId;
+    var amt = Number(s.deposit) || 0;
+    if (!id || amt <= 0 || typeof window.buildPromptPayPayload !== 'function' || typeof QRCode === 'undefined') {
+      box.innerHTML = '<div style="font-size:11px;color:#999;padding:24px 10px">ไม่มี QR · โอนเข้าบัญชีด้านล่าง</div>';
+      return;
+    }
+    var payload = window.buildPromptPayPayload(id, amt);
+    if (!payload) { box.innerHTML = '<div style="font-size:11px;color:#999;padding:24px 10px">ไม่มี QR</div>'; return; }
+    box.innerHTML = '';
+    try { new QRCode(box, { text: payload, width: 176, height: 176, correctLevel: QRCode.CorrectLevel.M }); }
+    catch (e) { box.innerHTML = '<div style="font-size:11px;color:#999;padding:24px 10px">สร้าง QR ไม่สำเร็จ</div>'; }
+  }
+
+  // ── เซ็น ─────────────────────────────────────────────
+  window.openSign  = function(){ el('sm').style.display='flex'; setTimeout(function(){ el('signname').focus(); }, 150); };
+  window.closeSign = function(){ el('sm').style.display='none'; };
+  window.doSign = function(){
+    var nm = (el('signname').value || '').trim();
+    if (!nm) { alert('กรุณาพิมพ์ชื่อเพื่อยืนยัน'); return; }
+    if (!el('signagree').checked) { alert('กรุณาติ๊กยอมรับเงื่อนไข'); return; }
+    var btn = el('signgo'); btn.disabled = true; btn.textContent = 'กำลังบันทึก…';
+    SB.rpc('sign_booking', { p_token: TOKEN, p_name: nm }).then(function (res) {
+      var d = res.data || {};
+      if (res.error || !d.ok) {
+        btn.disabled = false; btn.textContent = 'ยืนยันการเซ็น';
+        alert(d.error === 'already_signed' ? 'ลิงก์นี้ถูกเซ็นยืนยันไปแล้ว' : 'บันทึกไม่สำเร็จ · ลองใหม่อีกครั้ง');
+        if (d.error === 'already_signed') location.reload();
+        return;
+      }
+      closeSign();
+      B.signed_name = nm; B.signed_at = new Date().toISOString(); B.status = 'signed';
+      render();
+      setTimeout(function(){ var z = el('z2'); if (z) z.scrollIntoView({behavior:'smooth', block:'center'}); }, 250);
+    }).catch(function(){
+      btn.disabled = false; btn.textContent = 'ยืนยันการเซ็น';
+      alert('เชื่อมต่อไม่สำเร็จ · ลองใหม่อีกครั้ง');
+    });
+  };
+
+  // ── คัดลอกเลขบัญชี ───────────────────────────────────
+  window.copyAcc = function(){
+    var acc = (el('bacc').textContent || '').replace(/[^0-9]/g, '');
+    var btn = el('cpb');
+    function done(){
+      btn.classList.add('ok'); btn.textContent = '✓ คัดลอกแล้ว · ' + acc;
+      setTimeout(function(){ btn.classList.remove('ok'); btn.textContent = '📋 คัดลอกเลขบัญชี'; }, 2200);
+    }
+    function fb(){
+      var ta = document.createElement('textarea'); ta.value = acc;
+      ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch(e){ alert('เลขบัญชี: ' + acc); }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(acc).then(done).catch(fb);
+    else fb();
+  };
+
+  // ── สลิป ─────────────────────────────────────────────
+  window.pickSlip = function(){ el('slipf').click(); };
+
+  function onSlip(e){
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    if (!/^image\//.test(f.type)) { alert('กรุณาเลือกไฟล์รูปภาพ'); return; }
+    compress(f, function (blob, dataUrl) {
+      SLIP_FILE = blob;
+      el('previmg').src = dataUrl;
+      el('prevfn').textContent = Math.round(blob.size/1024) + ' KB';
+      el('prev').style.display = 'block';
+      var s = el('slip'); s.classList.add('has'); s.textContent = '✓ แนบสลิปแล้ว · แตะเพื่อเปลี่ยน';
+      el('paybtn').disabled = false;
+    });
+  }
+
+  // ย่อรูปในเครื่องก่อนอัป (กว้างไม่เกิน 1200px · JPEG 0.72) → สลิปเหลือ ~80-150KB
+  function compress(file, cb){
+    var img = new Image(), url = URL.createObjectURL(file);
+    img.onload = function(){
+      var MAX = 1200;
+      var w = img.width, h = img.height;
+      if (w > MAX || h > MAX) { var r = Math.min(MAX/w, MAX/h); w = Math.round(w*r); h = Math.round(h*r); }
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0,0,w,h); x.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      c.toBlob(function (blob) {
+        if (!blob) { alert('อ่านรูปไม่สำเร็จ'); return; }
+        cb(blob, c.toDataURL('image/jpeg', 0.72));
+      }, 'image/jpeg', 0.72);
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); alert('อ่านรูปไม่สำเร็จ · ลองรูปอื่น'); };
+    img.src = url;
+  }
+
+  // ── แจ้งชำระ ─────────────────────────────────────────
+  window.notifyPaid = function(){
+    if (!SLIP_FILE) { alert('กรุณาแนบสลิปก่อน'); return; }
+    var btn = el('paybtn'); btn.disabled = true; btn.textContent = 'กำลังส่ง…';
+    var z = el('z2'); if (z) z.classList.add('busy');
+
+    var owner = B.owner_id || 'unknown';
+    var name = owner + '/' + TOKEN + '/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.jpg';
+
+    SB.storage.from('slips').upload(name, SLIP_FILE, { contentType: 'image/jpeg', upsert: false })
+      .then(function (up) {
+        if (up.error) throw up.error;
+        SLIP_URL = name;
+        return SB.rpc('notify_paid', { p_token: TOKEN, p_slip_url: SLIP_URL });
+      })
+      .then(function (res) {
+        var d = (res && res.data) || {};
+        if ((res && res.error) || !d.ok) throw new Error(d.error || 'rpc');
+        B.status = 'paid_notified'; B.slip_url = SLIP_URL;
+        render();
+        window.scrollTo(0, 0);
+      })
+      .catch(function (e) {
+        console.warn(e);
+        if (z) z.classList.remove('busy');
+        btn.disabled = false; btn.textContent = 'แจ้งชำระเงินแล้ว';
+        alert('ส่งไม่สำเร็จ · ตรวจสัญญาณอินเทอร์เน็ตแล้วลองใหม่');
+      });
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</body></html>
