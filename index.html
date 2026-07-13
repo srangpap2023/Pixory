@@ -8827,7 +8827,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.86';
+const PIXORY_VERSION = '2.9.88';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8838,7 +8838,7 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
-  '2.9.86': {
+  '2.9.88': {
     date: '2026-07-13',
     title: 'ลิงก์ยืนยันการจอง มาแล้ว 🔗',
     subtitle: 'ลูกค้าเซ็นยืนยัน + จ่ายมัดจำ จบในลิงก์เดียว',
@@ -20609,30 +20609,39 @@ function openBookingLinkPanel(quoteCode) {
   const note = snap.note != null ? snap.note : (q.note || '');
   const terms = snap.terms != null ? snap.terms : (q.terms || (typeof PROFILE !== 'undefined' && PROFILE.terms) || '');
 
-  const html = `
-    <div style="padding:4px 0 2px;">
-      <div style="font-size:12.5px;color:#8A8790;line-height:1.6;margin-bottom:14px;">
-        ลูกค้าจะเห็นรายละเอียด ยอดเงิน แล้วเซ็นยืนยัน + จ่ายมัดจำในลิงก์เดียว
-      </div>
-      <div class="form-group">
-        <label>📌 หมายเหตุจากช่าง</label>
-        <textarea id="bk-note" rows="3" placeholder="เช่น ส่งพรีวิว 20 ภาพภายใน 3 วัน">${escapeHtml(note)}</textarea>
-        <div style="font-size:11px;color:#6b6b73;margin-top:5px;">ดึงจากหมายเหตุในใบเสนอ · แก้ตรงนี้ได้</div>
-      </div>
-      <div class="form-group">
-        <label>📋 เงื่อนไข</label>
-        <textarea id="bk-terms" rows="4" placeholder="เงื่อนไขมัดจำ/ยกเลิก">${escapeHtml(terms)}</textarea>
-        <div style="font-size:11px;color:#6b6b73;margin-top:5px;">ดึงจากเงื่อนไขตั้งต้นในตั้งค่า · ปรับให้ลูกค้ารายนี้ได้</div>
-      </div>
-      <div style="background:rgba(212,160,86,.08);border:1px solid rgba(212,160,86,.28);border-radius:10px;padding:10px 12px;font-size:11.5px;color:#C9C7C2;line-height:1.6;margin-bottom:4px;">
-        💡 แก้ได้เรื่อยๆ จนกว่าลูกค้าจะเซ็น · เซ็นแล้วจะล็อกทันที
-      </div>
-    </div>`;
+  // v2.9.87 · FIX · มือถือไม่มีฟังก์ชัน openModal() → สร้าง overlay เองแบบเดียวกับป๊อปอัพใบสรุปการจอง
+  const _in = 'display:block;width:100%;box-sizing:border-box;-webkit-appearance:none;padding:10px 12px;font-size:14px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#F4F3F1;font-family:inherit;line-height:1.6;resize:vertical;';
+  const _lb = 'display:block;font-size:11.5px;color:#C9C7C2;margin-bottom:6px;font-weight:600;';
+  const _hint = 'font-size:11px;color:#6b6b73;margin-top:5px;line-height:1.5;';
 
-  openModal(row ? 'แก้ข้อความในลิงก์' : 'สร้างลิงก์ยืนยันการจอง', html, [
-    { text: 'ยกเลิก', class: 'secondary', onClick: closeModal },
-    { text: row ? 'บันทึก' : '🔗 สร้างลิงก์', class: '', onClick: () => saveBookingLink(q.code) }
-  ]);
+  const old = document.getElementById('bkLinkOverlay'); if (old) old.remove();
+  const ov = document.createElement('div');
+  ov.id = 'bkLinkOverlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.62);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px);';
+  ov.innerHTML =
+    '<div style="width:100%;max-width:460px;max-height:92vh;overflow-y:auto;overflow-x:hidden;background:#17171b;border:1px solid rgba(212,160,86,.25);border-radius:20px 20px 0 0;padding:20px 18px 18px;box-shadow:0 -10px 40px rgba(0,0,0,.5);box-sizing:border-box;">'
+    + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;"><span style="font-size:22px;">🔗</span>'
+    +   '<div><div style="font-size:17px;font-weight:700;color:#F4F3F1;font-family:Fraunces,serif;">' + (row ? 'แก้ข้อความในลิงก์' : 'สร้างลิงก์ยืนยันการจอง') + '</div>'
+    +   '<div style="font-size:12px;color:#A1A1AA;">' + escapeHtml(q.customer || 'ลูกค้า') + ' · ' + escapeHtml(q.code || '') + '</div></div></div>'
+    + '<div style="font-size:12.5px;color:#8A8790;line-height:1.6;margin:12px 2px 14px;">ลูกค้าจะเห็นรายละเอียด ยอดเงิน แล้วเซ็นยืนยัน + จ่ายมัดจำในลิงก์เดียว</div>'
+    + '<div style="margin-bottom:14px;"><label style="' + _lb + '">📌 หมายเหตุจากช่าง</label>'
+    +   '<textarea id="bk-note" rows="3" placeholder="เช่น ส่งพรีวิว 20 ภาพภายใน 3 วัน" style="' + _in + '">' + escapeHtml(note) + '</textarea>'
+    +   '<div style="' + _hint + '">ดึงจากหมายเหตุในใบเสนอ · แก้ตรงนี้ได้</div></div>'
+    + '<div style="margin-bottom:14px;"><label style="' + _lb + '">📋 เงื่อนไข</label>'
+    +   '<textarea id="bk-terms" rows="4" placeholder="เงื่อนไขมัดจำ/ยกเลิก" style="' + _in + '">' + escapeHtml(terms) + '</textarea>'
+    +   '<div style="' + _hint + '">ดึงจากเงื่อนไขตั้งต้นในตั้งค่า · ปรับให้ลูกค้ารายนี้ได้</div></div>'
+    + '<div style="background:rgba(212,160,86,.08);border:1px solid rgba(212,160,86,.28);border-radius:10px;padding:10px 12px;font-size:11.5px;color:#C9C7C2;line-height:1.6;margin-bottom:16px;">💡 แก้ได้เรื่อยๆ จนกว่าลูกค้าจะเซ็น · เซ็นแล้วจะล็อกทันที</div>'
+    + '<div style="display:flex;gap:9px;">'
+    +   '<button onclick="closeBookingLinkPanel()" style="flex:1;padding:13px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#E8E5DF;font-size:14px;font-weight:600;font-family:inherit;">ยกเลิก</button>'
+    +   '<button onclick="saveBookingLink(\'' + escapeHtml(q.code) + '\')" style="flex:1.4;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#D4A056,#9C7340);color:#0A0A0E;font-size:14px;font-weight:700;font-family:inherit;">' + (row ? 'บันทึก' : '🔗 สร้างลิงก์') + '</button>'
+    + '</div></div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click', function (e) { if (e.target === ov) closeBookingLinkPanel(); });
+}
+
+function closeBookingLinkPanel() {
+  const o = document.getElementById('bkLinkOverlay');
+  if (o) o.remove();
 }
 
 async function saveBookingLink(quoteCode) {
@@ -20646,7 +20655,7 @@ async function saveBookingLink(quoteCode) {
     toast('ใบเสนอนี้ยังไม่ได้ตั้งยอดมัดจำ · ใส่มัดจำก่อนสร้างลิงก์');
     return;
   }
-  closeModal();
+  closeBookingLinkPanel();   // v2.9.87 · FIX · เดิมเรียก closeModal() ที่ไม่มีในมือถือ
   toast('กำลังสร้างลิงก์...');
 
   try {
@@ -20815,17 +20824,47 @@ function shareBookingLink(token, customer) {
 }
 
 // ── ดูสลิป (ลิงก์ชั่วคราว · bucket เป็น private) ─────────
+// v2.9.88 · FIX · เดิมใช้ window.open() หลัง await → iOS/Safari บล็อกเป็นป๊อปอัพ กดแล้วไม่มีอะไรขึ้น
+//           ตอนนี้เปิดดูในแอปเลย (overlay) · มีปุ่มเปิดแท็บใหม่/บันทึกรูปให้ด้วย
 async function viewBookingSlip(path) {
-  if (!SUPABASE) return;
+  if (!SUPABASE) { toast('ยังไม่ได้เชื่อมต่อ'); return; }
+  if (!path) { toast('ไม่พบสลิป'); return; }
   toast('กำลังเปิดสลิป...');
   try {
-    const { data, error } = await SUPABASE.storage.from('slips').createSignedUrl(path, 300); // 5 นาที
+    const { data, error } = await SUPABASE.storage.from('slips').createSignedUrl(path, 600); // 10 นาที
     if (error || !data || !data.signedUrl) throw (error || new Error('nourl'));
-    window.open(data.signedUrl, '_blank');
+    showSlipViewer(data.signedUrl);
   } catch (e) {
     console.warn('slip:', e);
-    toast('เปิดสลิปไม่สำเร็จ');
+    toast('เปิดสลิปไม่สำเร็จ · ลองใหม่อีกครั้ง');
   }
+}
+
+function showSlipViewer(url) {
+  const old = document.getElementById('slipViewerOverlay'); if (old) old.remove();
+  const ov = document.createElement('div');
+  ov.id = 'slipViewerOverlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);';
+  ov.innerHTML =
+    '<div style="width:100%;max-width:460px;display:flex;flex-direction:column;gap:12px;align-items:center;">'
+    + '<div style="display:flex;align-items:center;width:100%;gap:10px;">'
+    +   '<span style="font-size:15px;font-weight:700;color:#F4F3F1;flex:1;">🧾 สลิปที่ลูกค้าแนบ</span>'
+    +   '<button onclick="closeSlipViewer()" style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#E8E5DF;font-size:16px;font-family:inherit;">✕</button>'
+    + '</div>'
+    + '<div style="width:100%;max-height:70vh;overflow:auto;border-radius:14px;background:#fff;">'
+    +   '<img src="' + escapeHtml(url) + '" alt="สลิป" style="display:block;width:100%;height:auto;" '
+    +   'onerror="this.parentNode.innerHTML=\'<div style=&quot;padding:40px 20px;text-align:center;color:#888;font-size:13px;&quot;>โหลดรูปไม่สำเร็จ</div>\'">'
+    + '</div>'
+    + '<div style="font-size:11.5px;color:#8A8790;text-align:center;line-height:1.5;">แตะรูปค้างไว้เพื่อบันทึก · ลิงก์นี้มีอายุ 10 นาที</div>'
+    + '<button onclick="closeSlipViewer()" style="width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#D4A056,#9C7340);color:#0A0A0E;font-size:14px;font-weight:700;font-family:inherit;">ปิด</button>'
+    + '</div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click', function (e) { if (e.target === ov) closeSlipViewer(); });
+}
+
+function closeSlipViewer() {
+  const o = document.getElementById('slipViewerOverlay');
+  if (o) o.remove();
 }
 
 // ── เงินเข้าแล้ว → แปลงใบเสนอเป็นงาน ──────────────────────

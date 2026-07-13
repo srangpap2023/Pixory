@@ -493,6 +493,7 @@
         B.status = 'paid_notified'; B.slip_url = SLIP_URL;
         render();
         window.scrollTo(0, 0);
+        pingSlipNotify();   // แจ้งเตือนช่าง (ไม่รอผล · ล้มเหลวก็ไม่กระทบลูกค้า)
       })
       .catch(function (e) {
         console.warn(e);
@@ -501,6 +502,19 @@
         alert('ส่งไม่สำเร็จ · ตรวจสัญญาณอินเทอร์เน็ตแล้วลองใหม่');
       });
   };
+
+  // ── แจ้งเตือนช่างว่าลูกค้าโอนแล้ว (web-push) ──────────
+  // ยิงแบบ "ส่งแล้วไม่รอผล" · ถ้าล้มเหลวลูกค้าก็ยังเห็นหน้าขอบคุณปกติ
+  // ฝั่งเซิร์ฟเวอร์กันยิงซ้ำด้วย push_sent_at (ส่งได้ครั้งเดียวต่อ 1 ลิงก์)
+  function pingSlipNotify() {
+    try {
+      fetch(SUPABASE_URL + '/functions/v1/notify_slip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+        body: JSON.stringify({ token: TOKEN })
+      }).catch(function () { /* เงียบ */ });
+    } catch (e) { /* เงียบ */ }
+  }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
