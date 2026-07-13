@@ -3164,17 +3164,18 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.72';
+const PIXORY_DESKTOP_VERSION = '1.1.73';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
-  '1.1.72': {
+  '1.1.73': {
     date: '2026-07-13',
-    title: 'ลิงก์ยืนยันการจอง มาแล้ว 🔗',
-    subtitle: 'ลูกค้าเซ็นยืนยัน + จ่ายมัดจำ จบในลิงก์เดียว',
+    title: 'ลิงก์ยืนยันการจอง + แก้บั๊กวันที่ 🔗🕐',
+    subtitle: 'ลูกค้าเซ็น+จ่ายมัดจำในลิงก์เดียว · และวันที่ตรงตามเวลาไทยแล้ว',
     items: [
+      { icon: '🕐', title: '⚠️ แก้บั๊กสำคัญ · วันที่เพี้ยนไป 1 วัน', desc: 'เดิมระบบอ่านวันที่จากเวลาสากล (UTC) ช้ากว่าไทย 7 ชั่วโมง → ใช้แอปช่วงเที่ยงคืน–07:00 น. วันที่ที่บันทึกจะกลายเป็น "เมื่อวาน" · กระทบวันรับเงิน · วันรับมัดจำ · วันที่ออกเอกสาร · วันครบกำหนด — แก้ให้อิงเวลาไทยแล้วทุกจุด' },
       { icon: '🔗', title: 'สร้างลิงก์ยืนยันการจอง', desc: 'เปิดใบเสนอราคา กดปุ่มเดียวได้ลิงก์ · คัดลอกส่งลูกค้าทางแชทได้เลย · ลูกค้าอ่านรายละเอียด → เซ็นยืนยัน → สแกน PromptPay หรือคัดลอกเลขบัญชีไปโอน → แนบสลิป จบในลิงก์เดียว ไม่ต้องล็อกอิน' },
       { icon: '✍️', title: 'ได้ลายเซ็นเป็นหลักฐาน', desc: 'ลูกค้าพิมพ์ชื่อ + ติ๊กยอมรับเงื่อนไข ระบบเก็บชื่อและเวลาไว้ · เซ็นแล้วล็อกทันที แก้เนื้อหาไม่ได้อีก' },
       { icon: '📊', title: 'เห็นสถานะครบในใบเสนอ', desc: 'ส่งลิงก์แล้ว → ลูกค้าเซ็นหรือยัง → แจ้งโอนหรือยัง · กดดูรูปสลิปที่ลูกค้าแนบได้เลย' },
@@ -3653,7 +3654,7 @@ if (typeof window.reconcileDepositPayments !== 'function') {
       return true;
     }
     j.payments.push({
-      date: String(j.depositPaidDate || j.dateDeposit || new Date().toISOString().slice(0, 10)).slice(0, 10),
+      date: String(j.depositPaidDate || j.dateDeposit || _isoLocal(new Date())).slice(0, 10),
       amount: diff,
       type: 'adjust',
       note: 'ปรับยอดรับ · จากการแก้ไขงาน'
@@ -3786,7 +3787,7 @@ let DATA_VERSION = 0; // bumped on local change · used for conflict detection
 let _cloudConfirmed = false;
 
 // ===== Constants =====
-const TODAY_ISO = () => new Date().toISOString().slice(0, 10);
+const TODAY_ISO = () => _isoLocal(new Date());
 // v1.0.30 · labels intentionally kept Thai · used as data keys (matched against j.jobStatus in cloud + filters)
 // Display layer should translate via t('status.waitShoot' / 'status.waitDeliver' / 'status.closed') · TODO Phase 5
 const DEFAULT_JOB_STATUSES = [
@@ -5285,7 +5286,7 @@ function renderDashboard(root) {
 
   // v1.0.34 · Pending quotes (รอตอบ + ใกล้หมดอายุ) — replaces 7-day income chart
   // pending = status pending/draft · not converted · not rejected · not expired
-  const _todayIso = new Date().toISOString().slice(0, 10);
+  const _todayIso = _isoLocal(new Date());
   const pendingQuotes = (QUOTES || []).filter(q => {
     const s = q && q.status;
     if (s === 'converted' || s === 'rejected') return false;
@@ -5347,7 +5348,7 @@ function renderDashboard(root) {
   const _ringC = 2 * Math.PI * 32; // r=32 → 201.06
   const _ringDash = Math.min(_ringC, (goalPct / 100) * _ringC);
   // Upcoming shoots (after the next one)
-  const _todayStr = new Date().toISOString().slice(0, 10);
+  const _todayStr = _isoLocal(new Date());
   const _upcoming = JOBS
     .filter(j => j.date && j.date >= _todayStr && getStageFromJobStatus(j.jobStatus) !== 'closed')
     .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
@@ -7765,7 +7766,7 @@ function getTaxYearPeriod(year) {
   const startYear = year - 1;
   const start = new Date(startYear, ys - 1, 1);
   const end = new Date(year, ys - 1, 0);
-  return { start, end, label: start.toISOString().slice(0, 10) + ' – ' + end.toISOString().slice(0, 10) };
+  return { start, end, label: _isoLocal(start) + ' – ' + _isoLocal(end) };
 }
 function getTaxReportRows(year, filter) {
   const period = getTaxYearPeriod(year);
@@ -7838,8 +7839,8 @@ function exportTaxExcel() {
     ['ชื่อสตูดิโอ', studioName],
     ['เลขผู้เสียภาษี', studioTaxId],
     ['ปีภาษี', String(yr)],
-    ['ช่วงเวลา', period.start.toISOString().slice(0, 10) + '  →  ' + period.end.toISOString().slice(0, 10)],
-    ['สร้างเมื่อ', new Date().toISOString().slice(0, 10)],
+    ['ช่วงเวลา', _isoLocal(period.start) + '  →  ' + _isoLocal(period.end)],
+    ['สร้างเมื่อ', _isoLocal(new Date())],
     [],
     ['— ยอดยื่นจริง (เกณฑ์เงินสด) —'],
     ['เงินรับจริงในปีภาษี (ยอดยื่น)', cashTotal],
@@ -12690,7 +12691,7 @@ function renderFormBody(ctx, item) {
         if (!item || !item.dateExpire) {
           const days = Number((QUOTE_TEMPLATE && QUOTE_TEMPLATE.validityDays) || 14);
           const d = new Date(); d.setDate(d.getDate() + days);
-          defaultExpire = d.toISOString().slice(0, 10);
+          defaultExpire = _isoLocal(d);
         }
         const expVal = item ? (item.dateExpire || defaultExpire) : defaultExpire;
         return `<div class="form-row"><div class="form-field"><label>วันหมดอายุราคา</label><input type="date" id="${ctx}-expire" value="${expVal}" /><div class="hint">${item && !item.dateExpire ? 'default +' + (Number((QUOTE_TEMPLATE && QUOTE_TEMPLATE.validityDays) || 14)) + ' วันจากวันนี้' : ''}</div></div></div>`;
@@ -15763,7 +15764,7 @@ function ensureJobInvoice(j) {
   j.invoice = {
     code: generateInvoiceCode(),
     dateIssued: today,
-    dateDue: due.toISOString().slice(0, 10),
+    dateDue: _isoLocal(due),
     extraTime: 0,
     addOns: [],
     message: getDefaultInvoiceMessage(),
@@ -16530,7 +16531,7 @@ function openBookingSummaryPrompt(jobCode) {
   const _depDateVal = String(j.dateDeposit || j.depositPaidDate || (((j.payments || []).find(function (p) { return p && p.type === 'deposit'; }) || {}).date) || TODAY_ISO()).slice(0, 10);
   const _inCss = 'display:block;width:100%;min-width:0;max-width:100%;-webkit-appearance:none;-moz-appearance:none;appearance:none;padding:9px 11px;font-size:14px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#F4F3F1;font-family:inherit;box-sizing:border-box;';
   const _roCss = 'display:block;width:100%;min-width:0;max-width:100%;-webkit-appearance:none;-moz-appearance:none;appearance:none;padding:9px 11px;font-size:14px;border-radius:10px;border:1px dashed rgba(255,255,255,.18);background:rgba(255,255,255,.02);color:#9a978f;font-family:inherit;box-sizing:border-box;';
-  const _bkToday = new Date().toISOString().slice(0, 10);
+  const _bkToday = _isoLocal(new Date());
   const _lbCss = 'display:block;font-size:11.5px;color:#C9C7C2;margin-bottom:5px;';
   const old = document.getElementById('bkPromptOverlay'); if (old) old.remove();
   const ov = document.createElement('div');

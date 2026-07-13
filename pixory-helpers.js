@@ -12,6 +12,18 @@
 (function (g) {
   'use strict';
 
+  /* ══════════════════════════════════════════════════════════════
+     v2.9.89 · วันที่ตาม "เวลาไทย" ไม่ใช่ UTC
+     ไทย = UTC+7 → toISOString() ช่วงเที่ยงคืน–07:00 น. คืนวันที่ของ "เมื่อวาน"
+     ⛔ ห้ามใช้ new Date().toISOString().slice(0,10) กับวันที่ตามปฏิทินอีก
+     ✅ ใช้ isoLocal() / todayISO() แทนทุกจุด
+     ══════════════════════════════════════════════════════════════ */
+  function isoLocal(dt) {
+    var d = dt ? new Date(dt) : new Date();
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  }
+  function todayISO() { return isoLocal(new Date()); }
+
   // OT + post-shoot add-ons จากใบเรียกเก็บเพิ่ม = รายได้จริงของงาน
   function jobInvExtra(j) {
     if (!j || !j.invoice) return 0;
@@ -137,7 +149,7 @@
       return true;
     }
     j.payments.push({
-      date: String(j.depositPaidDate || j.dateDeposit || new Date().toISOString().slice(0, 10)).slice(0, 10),
+      date: String(j.depositPaidDate || j.dateDeposit || isoLocal()).slice(0, 10),  // v2.9.89 · เวลาไทย ไม่ใช่ UTC
       amount: diff,
       type: 'adjust',
       note: 'ปรับยอดรับ · จากการแก้ไขงาน'
@@ -280,6 +292,9 @@
     while (crc.length < 4) crc = '0' + crc;
     return p + crc;
   }
+
+  g.isoLocal = isoLocal;      // v2.9.89 · วันที่เวลาไทย
+  g.todayISO = todayISO;
 
   g.ppCrc16 = ppCrc16;
   g.buildPromptPayPayload = buildPromptPayPayload;

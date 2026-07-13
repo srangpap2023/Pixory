@@ -8360,6 +8360,23 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
 </div>
 
 <script>
+/* ═══════════════════════════════════════════════════════════════════════
+   v2.9.89 · FIX เขตเวลา · วันที่ต้องเป็น "เวลาไทย" ไม่ใช่ UTC
+   ─────────────────────────────────────────────────────────────────────
+   ปัญหาเดิม: โค้ดใช้ toISOString().slice(0,10) ซึ่งให้วันที่ตาม UTC
+   ไทย = UTC+7 → ช่วงเที่ยงคืน–07:00 น. toISOString() คืนวันที่ของ "เมื่อวาน"
+   ผลคือ วันรับเงิน · วันรับมัดจำ · วันออกเอกสาร ถูกบันทึกผิดไป 1 วัน
+   (กระทบรายงานรายเดือน/ปีภาษี ถ้าทำรายการต้นเดือน/ต้นปี)
+
+   ⛔ ห้ามกลับไปใช้ toISOString().slice(0,10) กับ "วันที่ตามปฏิทินท้องถิ่น" อีก
+   ✅ ยกเว้น _icsNextDay() ที่ใช้ Date.UTC() โดยตั้งใจ — อันนั้นถูกแล้ว
+   ═══════════════════════════════════════════════════════════════════════ */
+function _isoLocal(dt) {
+  const d = dt ? new Date(dt) : new Date();
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+function _todayLocal() { return _isoLocal(new Date()); }
+
 // ========== DATA ==========
 const JOBS = [];
 
@@ -8515,7 +8532,7 @@ if (typeof window.reconcileDepositPayments !== 'function') {
       return true;
     }
     j.payments.push({
-      date: String(j.depositPaidDate || j.dateDeposit || new Date().toISOString().slice(0, 10)).slice(0, 10),
+      date: String(j.depositPaidDate || j.dateDeposit || _todayLocal()).slice(0, 10),
       amount: diff,
       type: 'adjust',
       note: 'ปรับยอดรับ · จากการแก้ไขงาน'
@@ -8827,7 +8844,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.88';
+const PIXORY_VERSION = '2.9.89';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8838,11 +8855,13 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
-  '2.9.88': {
+  '2.9.89': {
     date: '2026-07-13',
-    title: 'ลิงก์ยืนยันการจอง มาแล้ว 🔗',
-    subtitle: 'ลูกค้าเซ็นยืนยัน + จ่ายมัดจำ จบในลิงก์เดียว',
+    title: 'ลิงก์ยืนยันการจอง + แก้บั๊กวันที่ 🔗🕐',
+    subtitle: 'ลูกค้าเซ็น+จ่ายมัดจำในลิงก์เดียว · และวันที่ตรงตามเวลาไทยแล้ว',
     items: [
+      { icon: '🕐', title: '⚠️ แก้บั๊กสำคัญ · วันที่เพี้ยนไป 1 วัน', desc: 'เดิมระบบอ่านวันที่จากเวลาสากล (UTC) ซึ่งช้ากว่าไทย 7 ชั่วโมง → ถ้าใช้แอปช่วง เที่ยงคืน–07:00 น. วันที่ที่บันทึกจะกลายเป็น "เมื่อวาน" ทั้งหมด · กระทบ วันรับเงิน · วันรับมัดจำ · วันที่ออกเอกสาร · วันครบกำหนดชำระ · วันหมดอายุใบเสนอ — ตอนนี้อิงเวลาไทยแล้วทุกจุด' },
+      { icon: '📊', title: 'สำคัญกับรายงาน/ภาษี', desc: 'ถ้าเคยลงรายการช่วงตี 1–7 โมงเช้าของวันที่ 1 ของเดือน/ปี รายการนั้นเคยถูกนับเข้าเดือน/ปีก่อนหน้า · ตอนนี้ไม่เกิดอีกแล้ว (ข้อมูลเก่าที่บันทึกไปแล้วไม่ถูกแก้ย้อนหลัง — ถ้าเจอรายการที่วันที่ดูแปลก แก้ได้ในหน้ารับเงิน)' },
       { icon: '🔗', title: 'สร้างลิงก์ยืนยันการจอง', desc: 'ในหน้าใบเสนอราคา กดปุ่มเดียวได้ลิงก์ ส่งให้ลูกค้าทางแชท (Messenger · เพจ · LINE) · ลูกค้าเปิดแล้วอ่านรายละเอียดครบ → เซ็นยืนยัน → สแกน PromptPay หรือคัดลอกเลขบัญชีไปโอน → แนบสลิป จบในลิงก์เดียว ไม่ต้องล็อกอิน' },
       { icon: '✍️', title: 'ได้ลายเซ็นเป็นหลักฐาน', desc: 'ลูกค้าพิมพ์ชื่อ + ติ๊กยอมรับเงื่อนไข ระบบบันทึกชื่อและเวลาไว้ · เซ็นแล้วล็อกทันที แก้เนื้อหาไม่ได้อีก (มีผลตามกฎหมายสำหรับสัญญาบริการ)' },
       { icon: '📊', title: 'เห็นสถานะแบบเรียลไทม์', desc: 'ในหน้าใบเสนอเห็นครบว่า ส่งลิงก์แล้ว → ลูกค้าเซ็นหรือยัง → แจ้งโอนหรือยัง · กดดูรูปสลิปที่ลูกค้าแนบได้เลย' },
@@ -14014,7 +14033,7 @@ function migrateBackfillPayments() {
     if ((j.deposit || 0) > 0 && (!j.payments || j.payments.length === 0)) {
       j.payments = [];
       j.payments.push({
-        date: j.dateDeposit || j.date || new Date().toISOString().slice(0, 10),
+        date: j.dateDeposit || j.date || _todayLocal(),
         amount: j.deposit,
         type: 'deposit',
         note: 'มัดจำ (ข้อมูลเก่า)'
@@ -16002,7 +16021,7 @@ function openQuoteFromJob() {
   if (Array.isArray(j.sessions) && j.sessions.length) {
     j.sessions.forEach(s => NQ_SESSIONS.push({...s}));
   } else {
-    NQ_SESSIONS.push({ date: j.date || j.dateEvent || new Date().toISOString().slice(0,10), start: '14:00', end: '22:00', label: '' });
+    NQ_SESSIONS.push({ date: j.date || j.dateEvent || _todayLocal(), start: '14:00', end: '22:00', label: '' });
   }
 
   // Generate new quote code — v1.9.11 C2 fix: use generateQuoteCode (max+1) not length+1
@@ -16037,7 +16056,7 @@ function openQuoteFromJob() {
 
   // Expire — new quote starts fresh: +1 month from today
   const expire = new Date(); expire.setMonth(expire.getMonth() + 1);
-  document.getElementById('nq-expire').value = expire.toISOString().slice(0, 10);
+  document.getElementById('nq-expire').value = _isoLocal(expire);
 
   // Job type chips — pre-select the job's type
   populateJobTypeChipsForNQ();
@@ -16786,7 +16805,7 @@ function openAddExpense(idx) {
   } else {
     document.getElementById('ex-cat').value = EXPENSE_CATS[0];
     document.getElementById('ex-item').value = '';
-    document.getElementById('ex-date').value = new Date().toISOString().slice(0,10);
+    document.getElementById('ex-date').value = _todayLocal();
     document.getElementById('ex-amount').value = '';
     document.getElementById('ex-job').value = '';
     document.getElementById('ex-vendor').value = '';
@@ -16949,7 +16968,7 @@ function exportBackup() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'srangpap-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.download = 'srangpap-backup-' + _todayLocal() + '.json';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -19227,7 +19246,7 @@ function openNewJob() {
   document.getElementById('add-cust-nick').value = '';
   document.getElementById('add-cust-phone').value = '';
   document.getElementById('add-cust-line').value = '';
-  const today = new Date().toISOString().slice(0,10);
+  const today = _todayLocal();
   // v1.9.19 · removed วันจองมัดจำ field — keep dateDeposit on saved jobs, no UI input
   // (no-op)
   document.getElementById('add-location').value = '';
@@ -19506,7 +19525,7 @@ function editCurrentJob() {
   document.getElementById('add-location').value = j.loc || '';
   document.getElementById('addDiscount').value = j.discount || 0;
   document.getElementById('addDeposit').value = j.deposit || 0;
-  { const _dd = document.getElementById('addDateDeposit'); if (_dd) _dd.value = String(j.dateDeposit || j.depositPaidDate || new Date().toISOString().slice(0,10)).slice(0,10); } // v2.9.72 · โหลดวันรับมัดจำจริงของงาน
+  { const _dd = document.getElementById('addDateDeposit'); if (_dd) _dd.value = String(j.dateDeposit || j.depositPaidDate || _todayLocal()).slice(0,10); } // v2.9.72 · โหลดวันรับมัดจำจริงของงาน
   document.getElementById('addTravelCost').value = j.travelCost || 0;
   document.getElementById('addOtherCost').value = j.otherCost || 0;
   document.getElementById('addExtraTime').value = j.extraTime || 0;
@@ -19600,7 +19619,7 @@ function collectAddFormData() {
   const discount = parseFloat(document.getElementById('addDiscount').value) || 0;
   const deposit = parseFloat(document.getElementById('addDeposit').value) || 0;
   // v2.9.72 · วันรับมัดจำจากช่องในฟอร์ม (แก้บั๊กเดิมที่ดึงจาก window._currentJob งานเก่าที่ค้าง)
-  const dateDeposit = (function () { const _e = document.getElementById('addDateDeposit'); return (_e && _e.value) ? _e.value : new Date().toISOString().slice(0, 10); })();
+  const dateDeposit = (function () { const _e = document.getElementById('addDateDeposit'); return (_e && _e.value) ? _e.value : _todayLocal(); })();
   // v1.9.11 · M6 fix — warn if discount > total (would silently set sell to 0)
   if (discount > total) {
     if (!confirm('⚠️ ส่วนลด (' + fmt(discount) + ') มากกว่าราคารวม (' + fmt(total) + ')\n\nระบบจะตั้งยอดขายเป็น 0 บาท — ต้องการบันทึกใช่ไหม?')) {
@@ -19761,7 +19780,7 @@ function saveAddJob() {
     const newJob = { code: newCode, ...data, _createdAt: new Date().toISOString(), payments: [] };
     // Auto-log the deposit payment (user filled deposit > 0 = received)
     if (newJob.deposit > 0) {
-      const depDate = newJob.dateDeposit || new Date().toISOString().slice(0, 10);
+      const depDate = newJob.dateDeposit || _todayLocal();
       logDepositPayment(newJob, newJob.deposit, depDate, 'มัดจำจองคิว');
       newJob.depositPaidDate = depDate;
     }
@@ -19901,7 +19920,7 @@ function _performCancelJob(j, refunded, received) {
   j.jobStatus = 'ยกเลิก';
   if (refunded && received > 0) {
     j.payments = j.payments || [];
-    j.payments.push({ date: new Date().toISOString().slice(0, 10), amount: -received, type: 'refund', note: 'คืนเงิน (ยกเลิกงาน)', _autoCancelRefund: true });
+    j.payments.push({ date: _todayLocal(), amount: -received, type: 'refund', note: 'คืนเงิน (ยกเลิกงาน)', _autoCancelRefund: true });
     j.depositRefunded = true;
   }
   saveData();
@@ -19940,7 +19959,7 @@ function openReceivePayment() {
   document.getElementById('pay-remain').textContent = fmt(j.remain);
   document.getElementById('pay-remain-raw').value = j.remain;
   document.getElementById('pay-amount').value = '';
-  document.getElementById('pay-date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('pay-date').value = _todayLocal();
   document.getElementById('pay-note').value = '';
   goTo('receive-payment');
 }
@@ -19975,7 +19994,7 @@ function savePayment() {
     alert('⛔ ยอดรับรวมจะเป็น ' + fmt(_receivedSoFar + amount) + ' ซึ่งเกินราคางาน ' + fmt(_jobValue) + '\n\n(รับมาแล้ว ' + fmt(_receivedSoFar) + ') · รับเกินราคางานไม่ได้ · ตรวจสอบอีกครั้ง');
     return;
   }
-  const date = document.getElementById('pay-date').value || new Date().toISOString().slice(0,10);
+  const date = document.getElementById('pay-date').value || _todayLocal();
   const note = document.getElementById('pay-note').value;
   // v2.9.1 · กันบันทึกซ้ำ · เตือนถ้ามีรายการวันเดียวกัน + จำนวนเท่ากันอยู่แล้ว
   if ((j.payments || []).some(p => p && p.date === date && (Number(p.amount) || 0) === amount)) {
@@ -20529,7 +20548,7 @@ function logDepositPayment(job, amount, dateStr, noteStr) {
   if (!job || !(amount > 0)) return;
   job.payments = job.payments || [];
   job.payments.push({
-    date: dateStr || new Date().toISOString().slice(0, 10),
+    date: dateStr || _todayLocal(),
     amount: amount,
     type: 'deposit',
     note: noteStr || 'มัดจำจองคิว'
@@ -20925,7 +20944,7 @@ function convertQuoteToJob(code) {
     ? q.sessions.map(s => ({...s}))
     : [{ date: q.dateEvent, start: '14:00', end: '22:00', label: '' }];
   const firstS = jobSessions[0];
-  const today = new Date().toISOString().slice(0, 10);
+  const today = _todayLocal();
   const newJob = {
     code: newCode, date: firstS.date, customer: q.customer, type: q.type, loc: q.loc,
     sessions: jobSessions,
@@ -21068,7 +21087,7 @@ function openNewQuote() {
   });
   if (BANKS.length > 0) bankSel.value = '0';  // Default first bank
   const expire = new Date(); expire.setMonth(expire.getMonth() + 1);
-  document.getElementById('nq-expire').value = expire.toISOString().slice(0, 10);
+  document.getElementById('nq-expire').value = _isoLocal(expire);
   // Populate type chips from JOB_TYPES
   populateJobTypeChipsForNQ();
   renderSessions('nq');
@@ -21113,7 +21132,7 @@ function editCurrentQuote() {
   if (q.sessions && q.sessions.length) {
     q.sessions.forEach(s => NQ_SESSIONS.push({...s}));
   } else {
-    NQ_SESSIONS.push({ date: q.dateEvent || new Date().toISOString().slice(0,10), start: '14:00', end: '22:00', label: '', loc: '' });
+    NQ_SESSIONS.push({ date: q.dateEvent || _todayLocal(), start: '14:00', end: '22:00', label: '', loc: '' });
   }
   // v2.5.2 · ensure session 1 has loc populated from legacy q.loc
   if (NQ_SESSIONS.length > 0 && !NQ_SESSIONS[0].loc && q.loc && q.loc !== '-') {
@@ -22056,7 +22075,7 @@ function saveNewQuote(status) {
       line: line,
       type: typeEl ? typeEl.textContent.trim() : (old.type || 'Wedding'),
       loc: (NQ_SESSIONS[0] && NQ_SESSIONS[0].loc) || document.getElementById('nq-loc').value || '-', // v2.5.2 · from session 1
-      dateEvent: (NQ_SESSIONS[0] && NQ_SESSIONS[0].date) || old.dateEvent || new Date().toISOString().slice(0,10),
+      dateEvent: (NQ_SESSIONS[0] && NQ_SESSIONS[0].date) || old.dateEvent || _todayLocal(),
       sessions: NQ_SESSIONS.map(s => ({...s})),
       dateExpire: document.getElementById('nq-expire').value,
       selectedServices: {...NQ_SELECTED},
@@ -22099,9 +22118,9 @@ function saveNewQuote(status) {
     line: line,
     type: typeEl ? typeEl.textContent.trim() : 'Wedding',
     loc: document.getElementById('nq-loc').value || '-',
-    dateEvent: (NQ_SESSIONS[0] && NQ_SESSIONS[0].date) || new Date().toISOString().slice(0,10),
+    dateEvent: (NQ_SESSIONS[0] && NQ_SESSIONS[0].date) || _todayLocal(),
     sessions: NQ_SESSIONS.map(s => ({...s})),
-    dateSent: new Date().toISOString().slice(0,10),
+    dateSent: _todayLocal(),
     dateExpire: document.getElementById('nq-expire').value,
     selectedServices: {...NQ_SELECTED},
     customItems: _customSnapshot,  // v1.9.14
@@ -22356,7 +22375,7 @@ function v2pdf_fmtDateTH(iso) {
   } catch(e) { return iso; }
 }
 
-function v2pdf_todayISO() { return new Date().toISOString().slice(0, 10); }
+function v2pdf_todayISO() { return _todayLocal(); }
 
 function v2pdf_getPackageDesc(serviceId, packageId) {
   if (!serviceId || !packageId) return '';
@@ -22990,10 +23009,10 @@ function openBookingSummaryPrompt(jobCode) {
   const _curDiscount = Number(j.discount) || 0;
   const _curDeposit = Number(j.deposit) || 0;
   const _curSell = Math.max(0, _baseTotal - _curDiscount);
-  const _depDateVal = String(j.dateDeposit || j.depositPaidDate || (((j.payments || []).find(function (p) { return p && p.type === 'deposit'; }) || {}).date) || new Date().toISOString().slice(0, 10)).slice(0, 10);
+  const _depDateVal = String(j.dateDeposit || j.depositPaidDate || (((j.payments || []).find(function (p) { return p && p.type === 'deposit'; }) || {}).date) || _todayLocal()).slice(0, 10);
   const _inCss = 'display:block;width:100%;min-width:0;max-width:100%;-webkit-appearance:none;-moz-appearance:none;appearance:none;padding:9px 11px;font-size:14px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#F4F3F1;font-family:inherit;box-sizing:border-box;';
   const _roCss = 'display:block;width:100%;min-width:0;max-width:100%;-webkit-appearance:none;-moz-appearance:none;appearance:none;padding:9px 11px;font-size:14px;border-radius:10px;border:1px dashed rgba(255,255,255,.18);background:rgba(255,255,255,.02);color:#9a978f;font-family:inherit;box-sizing:border-box;';
-  const _bkToday = new Date().toISOString().slice(0, 10);
+  const _bkToday = _todayLocal();
   const _lbCss = 'display:block;font-size:11.5px;color:#C9C7C2;margin-bottom:5px;';
   const old = document.getElementById('bkPromptOverlay'); if (old) old.remove();
   const ov = document.createElement('div');
@@ -23752,8 +23771,8 @@ function openJobInvoice() {
     const due = new Date(today); due.setDate(due.getDate() + 14);
     j.invoice = {
       code: generateInvoiceCode(),
-      dateIssued: today.toISOString().slice(0, 10),
-      dateDue: due.toISOString().slice(0, 10),
+      dateIssued: _isoLocal(today),
+      dateDue: _isoLocal(due),
       extraTime: 0,
       addOns: [],
       message: getDefaultInvoiceMessage(),
@@ -23771,7 +23790,7 @@ function issueFinalReceipt(jobCode) {
   if (!j) { toast(t('inv.notFoundJob')); return; }
   if (!j.invoice) {
     const today = new Date(); const due = new Date(today); due.setDate(due.getDate() + 14);
-    j.invoice = { code: generateInvoiceCode(), dateIssued: today.toISOString().slice(0, 10), dateDue: due.toISOString().slice(0, 10), extraTime: 0, addOns: [], message: getDefaultInvoiceMessage(), balancePaid: false, balancePaidDate: null };
+    j.invoice = { code: generateInvoiceCode(), dateIssued: _isoLocal(today), dateDue: _isoLocal(due), extraTime: 0, addOns: [], message: getDefaultInvoiceMessage(), balancePaid: false, balancePaidDate: null };
     saveData();
   }
   window._currentInvoiceJob = j;
@@ -24132,7 +24151,7 @@ function toggleInvoiceBalancePaid() {
     }
     toast(t('inv.unmarkedPaid'));
   } else {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = _todayLocal();
     // v2.6.8 FIX (C1) · ต้องคำนวณยอดคงเหลือ "ก่อน" ตั้ง balancePaid
     // เพราะ calcInvoiceTotals → jobOutstanding() คืน 0 ทันทีที่ balancePaid=true
     // (เดิมตั้ง flag ก่อน → balanceDue=0 → payment ก้อนสุดท้ายไม่ถูกบันทึก เงินเข้า/กำไรหาย + ภาษีลงผิดปี)
@@ -26126,8 +26145,8 @@ function exportTaxExcel() {
     [LANG === 'en' ? 'Studio' : 'ชื่อสตูดิโอ', studioName],
     [LANG === 'en' ? 'Tax ID' : 'เลขผู้เสียภาษี', studioTaxId],
     [LANG === 'en' ? 'Tax Year' : 'ปีภาษี', String(yr)],
-    [LANG === 'en' ? 'Period' : 'ช่วงเวลา', period.start.toISOString().slice(0,10) + '  →  ' + period.end.toISOString().slice(0,10)],
-    [LANG === 'en' ? 'Generated' : 'สร้างเมื่อ', new Date().toISOString().slice(0,10)],
+    [LANG === 'en' ? 'Period' : 'ช่วงเวลา', _isoLocal(period.start) + '  →  ' + _isoLocal(period.end)],
+    [LANG === 'en' ? 'Generated' : 'สร้างเมื่อ', _todayLocal()],
     [],
     // task #9 · ยอดยื่นจริง (เกณฑ์เงินสด) — เลขที่ใช้ยื่นสรรพากร
     [LANG === 'en' ? '— FILING AMOUNT (Cash Basis) —' : '— ยอดยื่นจริง (เกณฑ์เงินสด) —'],
@@ -26502,7 +26521,7 @@ function renderSessions(prefix) {
   if (!c) return;
   if (sessions.length === 0) {
     // Auto-add 1 session as default
-    sessions.push({ date: new Date().toISOString().slice(0,10), start: '14:00', end: '22:00', label: '', loc: '' });
+    sessions.push({ date: _todayLocal(), start: '14:00', end: '22:00', label: '', loc: '' });
   }
   c.innerHTML = '';
   // v2.5.2 · placeholder for loc field (i18n-aware)
@@ -26535,7 +26554,7 @@ function addNewSession(prefix) {
   const last = sessions[sessions.length - 1];
   const newSess = last
     ? { date: last.date, start: last.end || '17:00', end: '22:00', label: '', loc: last.loc || '' }
-    : { date: new Date().toISOString().slice(0,10), start: '17:00', end: '22:00', label: '', loc: '' };
+    : { date: _todayLocal(), start: '17:00', end: '22:00', label: '', loc: '' };
   sessions.push(newSess);
   renderSessions(prefix);
 }
