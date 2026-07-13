@@ -3164,17 +3164,36 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.69';
+const PIXORY_DESKTOP_VERSION = '1.1.71';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
-  '1.1.69': {
-    date: '2026-07-06',
-    title: 'ใบสรุปการจอง มาแล้ว 📑',
-    subtitle: 'เอกสารยืนยันการจองแบบมืออาชีพ · 1 หน้า A4',
+  '1.1.71': {
+    date: '2026-07-12',
+    title: 'ยกเครื่อง To Do ✅',
+    subtitle: 'เลิกทวงเงินงานที่ยังไม่ได้ถ่าย · เตือนตรงเวลาจริง',
     items: [
+      { icon: '🛠️', title: 'แก้บั๊กใหญ่ · ทวงเงินก่อนถึงวันงาน', desc: 'เดิม To Do ขึ้น "เก็บยอดคงเหลือ · เกินกำหนด" กับงานที่ยังไม่ได้ถ่ายเลย (เพราะไปดูวันครบกำหนดของใบเรียกเก็บที่ตั้งไว้ล่วงหน้า) · ตอนนี้จะเตือนก็ต่อเมื่อ "ถ่ายงานจบแล้วจริงๆ" และนับวันค้างจากวันจบงานเป็นต้นไป ตัวเลขไม่เกินจริงอีก' },
+      { icon: '🎯', title: 'งานจริงไม่ถูกเบียดตกจอ', desc: 'รายการเตือนผิดเคยกินครบทั้ง 6 ช่อง จนงานที่ต้องทำจริง (นัดถ่าย · ตามใบเสนอ) ไม่ขึ้นเลย · ตอนนี้เห็นครบ' },
+      { icon: '🕐', title: 'นับวันตามเวลาไทยแล้ว', desc: 'เดิมช่วงเที่ยงคืน–07:00 น. ระบบยังคิดว่าเป็นเมื่อวาน ทำให้ "ถ่ายวันนี้" ขึ้นเป็น "พรุ่งนี้" และกราฟ 7 วันเลื่อนช่อง · แก้แล้วทั้งหมด' },
+      { icon: '🗓️', title: 'ใบเสนอหมดอายุไม่หายเงียบ', desc: 'ใบเสนอราคาที่เลยวันหมดอายุเคยหลุดหายจาก To Do · ตอนนี้ขึ้นเตือนให้ต่ออายุหรือปิดใบ' },
+      { icon: '💵', title: 'เงินค้างก้อนใหญ่ไม่ตกร่อง', desc: 'งานที่ถ่ายจบเกิน 30 วัน ค้างเงิน และไม่เคยเปิดใบเรียกเก็บ เคยไม่มีเตือนเลย · ตอนนี้ขึ้นเป็นรายการด่วน' },
+      { icon: '📆', title: 'งานหลายวันนับจากวันสุดท้าย', desc: '"ส่งไฟล์ค้างมา X วัน" ของงานที่ถ่ายหลายวัน เคยนับจากวันแรกทำให้เกินจริง · ตอนนี้นับจากวันจบงาน' },
+      { icon: '📋', title: 'ภ.ง.ด.3 ไม่หายไปเฉยๆ', desc: 'เดิมพอเลย 7 วันรายการหายไปเลย · ตอนนี้ยกระดับเป็นสีแดง "เลยกำหนดแล้ว" จนกว่าจะกดปิดเอง' },
+      { icon: '✓', title: 'ปิดรายการได้มากขึ้น', desc: 'รายการ "สร้างงานจากใบเสนอ" มีปุ่มติ๊กปิดแล้ว · และรายการ "ขอบคุณลูกค้า" จะเตือนใหม่ทุกครั้งที่มีมัดจำงวดใหม่' },
+    ]
+  },
+  '1.1.70': {
+    date: '2026-07-10',
+    title: 'หน้าบันทึกโฉมใหม่ 📝',
+    subtitle: 'สวยขึ้น ค้นหาได้ · ผูกโน้ตเข้ากับงานได้แล้ว',
+    items: [
+      { icon: '📝', title: 'หน้าบันทึกดีไซน์ใหม่', desc: 'การ์ดโน้ตมีแถบสีข้าง โทนดำ-ทอง · แยกโซนปักหมุด/ทั้งหมด (ตรงกับฝั่งมือถือ)' },
+      { icon: '🔍', title: 'ค้นหาบันทึกได้', desc: 'มีช่องค้นหาด้านบนหน้าบันทึก — พิมพ์คำในชื่อหรือเนื้อหา กรองทันที' },
+      { icon: '🔗', title: 'ผูกบันทึกเข้ากับงาน', desc: 'ตอนจดโน้ตเลือกงานที่เกี่ยวข้องได้ · การ์ดโชว์ชิปชื่องาน คลิกเด้งไปหน้างานนั้น' },
+      { icon: '📌', title: 'บันทึกของงานนี้', desc: 'ในหน้ารายละเอียดงานมีโซน "บันทึกของงานนี้" · กด "+ จดเพิ่ม" สร้างโน้ตผูกงานนั้นให้อัตโนมัติ' },
       { icon: '📑', title: 'ใบสรุปการจอง (Booking Summary)', desc: 'เอกสารสรุปการจองสวยหรู 1 หน้า — โชว์แพคเกจ กำหนดการถ่าย มัดจำ/ยอดคงเหลือ พร้อม QR พร้อมเพย์/เลขบัญชี · โหลดเป็น PDF/JPEG ส่งลูกค้าได้เลย' },
       { icon: '🗂️', title: 'รวมเอกสารไว้ที่เดียว', desc: 'ในหน้ารายละเอียดงานมี section "เอกสาร" — ใบเสนอราคา · ใบสรุปการจอง · ใบเรียกเก็บ อยู่รวมกัน (เหมือนฝั่งมือถือ)' },
       { icon: '⚡', title: 'เด้งถามอัตโนมัติ', desc: 'หลังสร้างงานใหม่ หรือแปลงใบเสนอเป็นงาน ระบบเด้งถามสร้างใบสรุปการจองให้ทันที (เลือกวันครบกำหนด/ช่องทางจ่าย/แก้เงื่อนไขเองได้ · หรือกดข้าม)' },
@@ -4857,11 +4876,24 @@ function _greeting() {
   if (h < 17) return 'สวัสดีตอนบ่าย';
   return 'สวัสดีตอนเย็น';
 }
-function _todayISO() { return new Date().toISOString().slice(0,10); }
+// v1.1.71 · FIX · เดิมใช้ toISOString() = วันที่ตามเวลา UTC → ช่วงเที่ยงคืน–07:00 น. ไทย ระบบยังคิดว่าเป็น "เมื่อวาน"
+//           ทำให้ To Do นับวันเพี้ยนไป 1 วัน · ตอนนี้ใช้วันที่ตามเวลาเครื่อง (เวลาไทย)
+function _isoLocal(dt) { const d = new Date(dt); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
+function _todayISO() { return _isoLocal(new Date()); }
 function _addDays(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
 function _daysBetween(iso1, iso2) {
   const d1 = new Date(iso1), d2 = new Date(iso2);
   return Math.round((d2.getTime() - d1.getTime()) / 86400000);
+}
+// v1.1.71 · วันสุดท้ายของงาน (งานหลายเซสชันคนละวัน เช่น 14–15 พ.ย.) · fallback = j.date
+function _jobEndDate(j) {
+  if (!j) return '';
+  let end = j.date || '';
+  (j.sessions || []).forEach(function (s) {
+    const d = (s && s.date) ? String(s.date).slice(0, 10) : '';
+    if (d && (!end || d > end)) end = d;
+  });
+  return end;
 }
 
 // Income for given month (0-indexed)
@@ -4880,7 +4912,7 @@ function _weeklyTrend() {
   const days = [];
   for (let i = 6; i >= 0; i--) {
     const d = _addDays(new Date(), -i);
-    const iso = d.toISOString().slice(0,10);
+    const iso = _isoLocal(d); // v1.1.71 · เดิมใช้ UTC → กราฟ 7 วันเลื่อนช่องผิดช่วงเช้ามืด
     let sum = 0;
     JOBS.forEach(j => {
       (j.payments || []).forEach(p => { if (p.date === iso) sum += Number(p.amount) || 0; });
@@ -4930,12 +4962,19 @@ function _deriveTodos() {
     }
   });
 
-  // Overdue invoice (balance not paid past dateDue + 7 days)
+  // Overdue invoice · v1.1.71 · FIX สองบั๊ก:
+  //   (1) เดิมเช็กแค่ "เลยวันครบกำหนด" โดยไม่ดูว่าถ่ายงานหรือยัง → ทวงเงินงานที่ยังไม่ได้ถ่าย
+  //       (ใบเรียกเก็บตั้งวันครบกำหนด = วันสร้างใบ+14 ซึ่งมาก่อนวันงานหลายเดือน)
+  //   (2) นับวันค้างจากวันครบกำหนดที่มาก่อนวันงาน → ตัวเลข "ค้าง X วัน" เกินจริง
+  //   ตอนนี้: ต้องผ่านวันงานสุดท้ายก่อน + นับวันค้างจาก "วันครบกำหนด หรือ วันจบงาน" อันไหนหลังกว่า
   JOBS.forEach(j => {
     const remain = jobOutstanding(j);
     if (remain <= 0) return;
     if (!j.invoice || !j.invoice.dateDue || j.invoice.balancePaid) return;
-    const overdue = _daysBetween(j.invoice.dateDue, today);
+    const endISO = _jobEndDate(j);
+    if (!endISO || endISO > today) return;           // งานยังไม่ถ่าย/ยังไม่จบ → ยังไม่ถือว่าค้างชำระ
+    const dueRef = (j.invoice.dateDue > endISO) ? j.invoice.dateDue : endISO;
+    const overdue = _daysBetween(dueRef, today);
     if (overdue > 7) {
       todos.push({
         key: 'overdue_' + j.code, priority: 1, color: 'red', icon: '💰',
@@ -4947,12 +4986,29 @@ function _deriveTodos() {
     }
   });
 
+  // v1.1.71 · NEW · ใบเสนอราคาที่ "หมดอายุไปแล้ว" (เดิมหลุดหายจาก To Do เงียบๆ)
+  QUOTES.forEach(q => {
+    if (q.status !== 'pending' && q.status !== 'draft') return;
+    if (!q.dateExpire || q.convertedJobCode) return;
+    const past = _daysBetween(q.dateExpire, today);
+    if (past <= 0) return;                            // ยังไม่หมดอายุ → กฎอื่นดูแล
+    todos.push({
+      key: 'expired_' + q.code, priority: 1, color: 'red', icon: '🗓️',
+      title: 'ใบเสนอ ' + q.code + ' หมดอายุแล้ว ' + past + ' วัน',
+      sub: (q.customer || '-') + ' · ต่ออายุ หรือปิดใบนี้',
+      action: () => openQuoteDetail(q.code),
+      amount: q.sell,
+      dismissable: true
+    });
+  });
+
   // 🟡 WARM
   // wait_deliver > 7 days
   JOBS.forEach(j => {
     if (getStageFromJobStatus(j.jobStatus) !== 'wait_deliver') return;
-    if (!j.date) return;
-    const days = _daysBetween(j.date, today);
+    const endISO = _jobEndDate(j);   // v1.1.71 · งานหลายวัน: นับจากวันสุดท้าย ไม่ใช่วันแรก
+    if (!endISO) return;
+    const days = _daysBetween(endISO, today);
     if (days > 7) {
       todos.push({
         key: 'deliver_' + j.code, priority: 2, color: 'yellow', icon: '📦',
@@ -4992,44 +5048,51 @@ function _deriveTodos() {
       title: 'สร้างงานจาก ' + q.code + ' · ลูกค้าอนุมัติแล้ว',
       sub: (q.customer || '-') + ' · ฿' + (Number(q.sell)||0).toLocaleString('en-US'),
       action: () => openQuoteDetail(q.code),
-      amount: q.sell
+      amount: q.sell,
+      dismissable: true   // v1.1.71 · เดิมไม่มีปุ่มปิด ค้างในลิสต์ตลอด
     });
   });
 
-  // event passed but remain > 0 (not yet overdue · dateDue check above)
+  // งานถ่ายจบแล้วแต่ยังค้างเงิน · v1.1.71 · FIX เดิมจับแค่ 1–30 วัน
+  //   → งานที่จบเกิน 30 วัน + ค้างเงิน + ยังไม่เคยเปิดใบเรียกเก็บ จะไม่มี To Do เลย (เงินก้อนใหญ่หลุดหาย)
+  //   ตอนนี้: ไม่มีเพดาน · เกิน 30 วันยกระดับเป็นสีแดง (ด่วน)
   JOBS.forEach(j => {
     const remain = jobOutstanding(j);
     if (remain <= 0) return;
-    if (!j.date) return;
-    const days = _daysBetween(j.date, today);
-    if (days < 0) return; // event in future
-    // Skip if already added as overdue
-    if (todos.find(t => t.key === 'overdue_' + j.code)) return;
-    if (days >= 1 && days <= 30) {
-      todos.push({
-        key: 'collect_' + j.code, priority: 2, color: 'yellow', icon: '💵',
-        title: 'เก็บเงินคงเหลือ ' + (j.customer || '-') + ' · งานผ่านแล้ว ' + days + ' วัน',
-        sub: 'ยังไม่ปิดยอด',
-        action: () => openJobDetail(j.code),
-        amount: remain
-      });
-    }
+    const endISO = _jobEndDate(j);   // งานหลายวัน: นับจากวันสุดท้าย
+    if (!endISO) return;
+    const days = _daysBetween(endISO, today);
+    if (days < 1) return;                                   // งานยังไม่ผ่าน → ไม่ทวง
+    if (todos.find(t => t.key === 'overdue_' + j.code)) return;  // มีใบเรียกเก็บเลยกำหนดแล้ว → ใช้อันนั้น
+    const late = days > 30;
+    todos.push({
+      key: 'collect_' + j.code, priority: late ? 1 : 2, color: late ? 'red' : 'yellow', icon: '💵',
+      title: 'เก็บเงินคงเหลือ ' + (j.customer || '-') + ' · งานผ่านแล้ว ' + days + ' วัน',
+      sub: late ? 'ค้างนานแล้ว · ยังไม่ปิดยอด' : 'ยังไม่ปิดยอด',
+      action: () => openJobDetail(j.code),
+      amount: remain
+    });
   });
 
   // 🟢 NORMAL
   // WHT cert reminder · within 7 days after payment
+  // v1.1.71 · FIX · เดิมหยิบ payment "ตัวแรกที่เจอ" ไม่ใช่ล่าสุด · และพอเลย 7 วันรายการหายไปเฉยๆ
+  //   ตอนนี้: ใช้ payment ล่าสุด · เลยกำหนดแล้วยกระดับเป็นสีแดงแทนที่จะหาย (กดปิดเองได้)
   JOBS.forEach(j => {
     if (!j.taxBreakdown || !j.taxBreakdown.whtAmount || j.taxBreakdown.whtAmount <= 0) return;
     if (j.customerType !== 'B2B' && j.customerType !== 'Gov') return;
-    // Find last payment in last 7 days
-    const recentPay = (j.payments || []).find(p => p.date && _daysBetween(p.date, today) >= 1 && _daysBetween(p.date, today) <= 7);
+    const recentPay = (j.payments || [])
+      .filter(p => p && p.date && _daysBetween(p.date, today) >= 1 && _daysBetween(p.date, today) <= 30)
+      .sort((a, b) => String(b.date).localeCompare(String(a.date)))[0];
     if (!recentPay) return;
     const todoKey = 'pnd3_' + j.code + '_' + recentPay.date;
     if (dismissed[todoKey]) return;
-    const daysLeft = 7 - _daysBetween(recentPay.date, today);
+    const since = _daysBetween(recentPay.date, today);
+    const daysLeft = 7 - since;
+    const late = daysLeft <= 0;
     todos.push({
-      key: todoKey, priority: 3, color: 'green', icon: '📋',
-      title: 'ส่ง ภ.ง.ด.3 ให้ ' + (j.customer || '-') + ' · เหลือเวลา ' + daysLeft + ' วัน',
+      key: todoKey, priority: late ? 1 : 3, color: late ? 'red' : 'green', icon: '📋',
+      title: 'ส่ง ภ.ง.ด.3 ให้ ' + (j.customer || '-') + (late ? ' · เลยกำหนดแล้ว ' + (-daysLeft) + ' วัน' : ' · เหลือเวลา ' + daysLeft + ' วัน'),
       sub: 'หักไป ฿' + Math.round(j.taxBreakdown.whtAmount).toLocaleString('en-US') + ' · ลูกค้าต้องการ ภ.ง.ด.3/53',
       action: () => openJobDetail(j.code),
       amount: j.taxBreakdown.whtAmount,
@@ -5041,7 +5104,8 @@ function _deriveTodos() {
   JOBS.forEach(j => {
     const recentDeposit = (j.payments || []).find(p => p.type === 'deposit' && p.date === today);
     if (!recentDeposit) return;
-    const todoKey = 'thanks_' + j.code;
+    // v1.1.71 · FIX · เดิม key ผูกกับงานเฉยๆ → กดปิดครั้งเดียวแล้วมัดจำงวดหลังของงานเดิมจะไม่เตือนอีกเลย
+    const todoKey = 'thanks_' + j.code + '_' + recentDeposit.date;
     if (dismissed[todoKey]) return;
     todos.push({
       key: todoKey, priority: 3, color: 'green', icon: '💌',
@@ -5062,6 +5126,14 @@ function _deriveTodos() {
 async function dismissTodo(key) {
   if (!PROFILE.todoDismissed || typeof PROFILE.todoDismissed !== 'object') PROFILE.todoDismissed = {};
   PROFILE.todoDismissed[key] = _todayISO();
+  // v1.1.71 · ล้างรายการที่ปิดไว้เกิน 1 ปี (เดิมสะสมไปเรื่อยๆ ไม่มีวันลบ)
+  try {
+    const cutoff = _isoLocal(_addDays(new Date(), -365));
+    Object.keys(PROFILE.todoDismissed).forEach(function (k) {
+      const v = PROFILE.todoDismissed[k];
+      if (typeof v === 'string' && v.length === 10 && v < cutoff) delete PROFILE.todoDismissed[k];
+    });
+  } catch (e) { /* ไม่ critical */ }
   await saveData();
   renderDashboard(document.getElementById('main'));
   toast('✓ เช็คแล้ว · เอาออกจากรายการ', 'success');
@@ -8088,6 +8160,14 @@ function _renderCustomerTable() {
 // PAGE · NOTES (v1.0.5) · Sticky board + checkbox · sync with mobile
 // ===================================================================
 let NOTES_FILTER = 'all';
+let NOTES_SEARCH = ''; // v1.1.70 · คำค้นหาโน้ต (เก็บ var เพราะ renderNotes สร้างทั้งหน้าใหม่ · กัน focus หลุด)
+const _NOTE_SPINE = { y: '#E4B84D', p: '#E08AA8', b: '#6EA8E0', g: '#5FCF8E', o: '#E0955A', v: '#B48AE0' };
+function _refocusNoteSearch() {
+  setTimeout(function () {
+    const el = document.getElementById('notes-search-dt');
+    if (el) { el.focus(); const v = el.value; el.value = ''; el.value = v; }
+  }, 0);
+}
 
 function _genNoteId() { return 'note_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7); }
 
@@ -8127,6 +8207,9 @@ function renderNotes(root) {
   else if (NOTES_FILTER === 'todo') list = list.filter(n => !n.done);
   else if (NOTES_FILTER === 'done') list = list.filter(n => n.done);
   else if (['customer','job','money','team','idea','equipment','appt'].includes(NOTES_FILTER)) list = list.filter(n => n.category === NOTES_FILTER);
+  // v1.1.70 · ค้นหา
+  const _q = (NOTES_SEARCH || '').trim().toLowerCase();
+  if (_q) list = list.filter(n => ((n.title || '') + ' ' + (n.body || '')).toLowerCase().includes(_q));
   list.sort((a, b) => {
     if ((b.pinned ? 1 : 0) !== (a.pinned ? 1 : 0)) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
     return (b.createdAt || '').localeCompare(a.createdAt || '');
@@ -8159,6 +8242,10 @@ function renderNotes(root) {
       </div>
       <button class="btn btn-primary" onclick="openNoteModal()">＋ เขียนบันทึกใหม่</button>
     </div>
+    <div style="display:flex;align-items:center;gap:9px;background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px;margin-bottom:14px;max-width:440px;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8A8790" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="notes-search-dt" value="${escapeHtml(NOTES_SEARCH)}" placeholder="ค้นหาบันทึก · ชื่อ · เนื้อหา..." autocomplete="off" oninput="NOTES_SEARCH=this.value;renderNotes(document.getElementById('main'));_refocusNoteSearch();" style="flex:1;background:none;border:none;color:#F4F3F1;font-size:14px;font-family:inherit;outline:none;">
+    </div>
     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px;">
       ${filterChips.map(c => { const on = NOTES_FILTER === c.k; return `<div onclick="setNotesFilter('${c.k}')" style="padding:7px 14px;border-radius:10px;cursor:pointer;font-family:'Sarabun';font-size:13px;${on ? 'background:rgba(184,133,74,0.14);box-shadow:0 0 0 1px rgba(184,133,74,0.3) inset;font-weight:600;color:#EFB670;' : 'color:#A1A1AA;'}">${c.label}</div>`; }).join('')}
     </div>
@@ -8176,13 +8263,16 @@ function renderNotes(root) {
           const time = _noteFmtTime(n.updatedAt || n.createdAt);
           const bodyHtml = n.body ? escapeHtml(n.body).replace(/\n/g, '<br>') : '';
           const safeId = String(n.id).replace(/'/g, "\\'");
-          return `<div onclick="openNoteModal('${safeId}')" style="break-inside:avoid;margin-bottom:16px;background:rgba(255,255,255,0.028);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;cursor:pointer;${n.done ? 'opacity:0.62;' : ''}">
-            ${n.pinned ? '<span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#E0A96D;"></span>' : ''}
+          const spineColor = n.pinned ? '#E0A96D' : (_NOTE_SPINE[n.color] || '#E4B84D');
+          let jobChip = '';
+          if (n.jobCode) { const jb = JOBS.find(x => x.code === n.jobCode); if (jb) jobChip = '<span onclick="event.stopPropagation();openJobDetail(\'' + String(n.jobCode).replace(/'/g, "\\'") + '\')" style="font-size:10.5px;color:#0A0A0E;background:linear-gradient(135deg,#E9C67F,#D4A056);padding:3px 9px;border-radius:20px;font-weight:700;white-space:nowrap;cursor:pointer;">🔗 ' + escapeHtml(jb.custNick || jb.customer || n.jobCode) + '</span>'; }
+          return `<div onclick="openNoteModal('${safeId}')" style="break-inside:avoid;margin-bottom:16px;background:rgba(255,255,255,0.028);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px 20px 18px 22px;position:relative;overflow:hidden;cursor:pointer;${n.done ? 'opacity:0.62;' : ''}">
+            <span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:${spineColor};"></span>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:11px;color:${headColor};font-weight:600;">${escapeHtml(headText)}</span><span style="font-size:11px;color:#65625E;">${escapeHtml(time)}</span></div>
             ${n.title ? `<div style="font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:17px;color:#F4F3F1;margin-bottom:8px;${n.done ? 'text-decoration:line-through;' : ''}">${escapeHtml(n.title)}</div>` : ''}
             ${bodyHtml ? `<div style="font-size:13px;color:#B6B3AE;line-height:1.7;">${bodyHtml}</div>` : ''}
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
-              <span style="font-size:10.5px;color:${meta.c};background:${meta.c}1f;padding:2px 9px;border-radius:6px;">${escapeHtml(label)}</span>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:8px;">
+              <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0;"><span style="font-size:10.5px;color:${meta.c};background:${meta.c}1f;padding:2px 9px;border-radius:6px;">${escapeHtml(label)}</span>${jobChip}</div>
               <div onclick="event.stopPropagation();toggleNoteDone('${safeId}')" title="ทำเครื่องหมายเสร็จ" style="width:22px;height:22px;border-radius:6px;border:1px solid ${n.done ? '#7FCB9B' : 'rgba(255,255,255,0.15)'};background:${n.done ? 'rgba(127,203,155,0.15)' : 'transparent'};color:#7FCB9B;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;flex:none;">${n.done ? '✓' : ''}</div>
             </div>
           </div>`;
@@ -8234,6 +8324,14 @@ function openNoteModal(id) {
         </div>
       </div>
       <div class="form-field">
+        <label>🔗 ผูกกับงาน (ไม่บังคับ)</label>
+        <select id="nm-job">
+          <option value="">— ไม่ผูกกับงาน —</option>
+          ${JOBS.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '')).map(j => { const nm = j.custNick || j.customer || j.code; let dt = ''; try { dt = j.date ? fmtDateTH(j.date) : ''; } catch (e) { dt = j.date || ''; } const lbl = nm + (j.type ? ' · ' + j.type : '') + (dt ? ' · ' + dt : ''); const selCode = isEdit ? (n && n.jobCode) : (window._prefillNoteJob || ''); return '<option value="' + escapeHtml(j.code) + '"' + (j.code === selCode ? ' selected' : '') + '>' + escapeHtml(lbl) + '</option>'; }).join('')}
+        </select>
+        <div style="font-size:11px;color:#8A8790;margin-top:6px;">ผูกแล้วโน้ตจะไปโผล่ในหน้างานนั้นด้วย</div>
+      </div>
+      <div class="form-field">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
           <input type="checkbox" id="nm-pinned" ${n && n.pinned ? 'checked' : ''} style="width:18px;height:18px;cursor:pointer;" />
           <span>📌 ปักหมุดไว้บนสุด</span>
@@ -8247,6 +8345,7 @@ function openNoteModal(id) {
     </div>
   `;
   document.body.appendChild(overlay);
+  window._prefillNoteJob = null; // v1.1.70 · prefill ใช้ครั้งเดียว
   setTimeout(() => { try { document.getElementById('nm-title').focus(); } catch(e){} }, 50);
 }
 function pickNoteColor(c) {
@@ -8261,18 +8360,19 @@ async function saveNoteFromModal() {
   const body = (document.getElementById('nm-body').value || '').trim();
   const category = document.getElementById('nm-category').value || '';
   const pinned = !!document.getElementById('nm-pinned').checked;
+  const jobCode = (document.getElementById('nm-job') || {}).value || ''; // v1.1.70 · ผูกงาน
   if (!title && !body) { toast('ใส่ชื่อหรือรายละเอียดอย่างน้อย 1 อย่าง', 'warn'); return; }
   const now = new Date().toISOString();
   if (_editingNoteId) {
     const n = NOTES.find(x => x.id === _editingNoteId);
     if (n) {
       n.title = title; n.body = body; n.category = category; n.pinned = pinned;
-      n.color = _editingNoteColor; n.updatedAt = now;
+      n.color = _editingNoteColor; n.jobCode = jobCode; n.updatedAt = now;
     }
   } else {
     NOTES.unshift({
       id: _genNoteId(),
-      title, body, category, pinned, color: _editingNoteColor,
+      title, body, category, pinned, color: _editingNoteColor, jobCode: jobCode,
       done: false, doneAt: null,
       createdAt: now, updatedAt: now
     });
@@ -14371,6 +14471,19 @@ function renderJobDetailHtml(j) {
           <div style="font-size:13px;line-height:1.6;color:var(--ink-soft);white-space:pre-wrap;background:rgba(0,0,0,0.025);padding:10px 12px;border-radius:8px;">${escapeHtml(j.note)}</div>
         </div>
       ` : ''}
+
+      <!-- v1.1.70 · บันทึกของงานนี้ (โน้ตที่ผูก jobCode) -->
+      <div class="form-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div class="form-section-title" style="margin:0;">📝 บันทึกของงานนี้</div>
+          <button onclick="event.stopPropagation();window._prefillNoteJob='${escapeHtml(j.code)}';openNoteModal();" style="background:rgba(212,160,86,0.12);color:#D4A056;border:none;font-size:12px;font-weight:600;padding:6px 12px;border-radius:20px;cursor:pointer;">+ จดเพิ่ม</button>
+        </div>
+        ${(function () {
+          const jn = (typeof NOTES !== 'undefined' ? NOTES : []).filter(n => n && n.jobCode === j.code).sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0) || (b.updatedAt || b.createdAt || '').localeCompare(a.updatedAt || a.createdAt || ''));
+          if (jn.length === 0) return '<div style="font-size:12.5px;color:var(--ink-mute);padding:8px 0;">ยังไม่มีบันทึกสำหรับงานนี้ · กด "จดเพิ่ม" เพื่อเริ่ม</div>';
+          return jn.map(n => { const sp = _NOTE_SPINE[n.color] || '#E4B84D'; const safeId = String(n.id).replace(/'/g, "\\'"); const tm = _noteFmtTime(n.updatedAt || n.createdAt); const bs = n.body ? (n.body.length > 70 ? n.body.slice(0, 70) + '…' : n.body) : ''; return '<div onclick="event.stopPropagation();openNoteModal(\'' + safeId + '\')" style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;' + (n.done ? 'opacity:0.55;' : '') + '"><span style="width:8px;height:8px;border-radius:50%;margin-top:6px;flex:none;background:' + sp + ';"></span><div style="min-width:0;flex:1;"><div style="font-size:13px;font-weight:600;color:var(--ink);' + (n.done ? 'text-decoration:line-through;' : '') + '">' + escapeHtml(n.title || '(ไม่มีชื่อ)') + '</div>' + (bs ? '<div style="font-size:11.5px;color:var(--ink-mute);margin-top:2px;">' + escapeHtml(bs) + '</div>' : '') + '</div><span style="font-size:10.5px;color:var(--ink-mute);margin-left:auto;white-space:nowrap;">' + escapeHtml(tm) + '</span></div>'; }).join('');
+        })()}
+      </div>
 
       <!-- 📜 ประวัติชำระเงิน (move to bottom) -->
       <div class="form-section">
