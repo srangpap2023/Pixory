@@ -797,17 +797,22 @@
   .session-block-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .session-block-label { font-size: 11px; color: #7c7066; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
   .session-block-delete { background: none; border: none; color: #dc2626; font-size: 14px; cursor: pointer; padding: 2px 6px; }
-  /* v2.9.92 · แก้บั๊ก Android: เดิมยัด วันที่+เวลาเริ่ม+เวลาจบ ไว้ 3 คอลัมน์แถวเดียว
-     Chrome/Android เรนเดอร์ input[type=date]/[type=time] กว้างกว่า Safari มาก
-     + grid item ย่อต่ำกว่า min-content ไม่ได้ (ไม่มี min-width:0)
-     → ช่อง "เวลาจบ" ถูกดันตกขอบขวา กดไม่โดน ค่าค้างที่ default 22:00
-     แก้: วันที่เต็มแถวบน · เวลาเริ่ม/เวลาจบแถวล่างข้างกัน · ใส่ min-width:0 กันล้น */
+  /* v2.9.91 · แก้บั๊กช่องเวลา (Android กดเวลาจบไม่ได้ · iPhone ช่องซ้อน/ล้นกรอบ)
+     เดิม: ยัด วันที่+เวลาเริ่ม+เวลาจบ ไว้ 3 คอลัมน์แถวเดียว โดยไม่มี min-width:0
+     → grid item ย่อต่ำกว่า min-content ไม่ได้ · Chrome/Android เรนเดอร์ input date/time
+       กว้างกว่า Safari มาก → ช่อง "เวลาจบ" ตกขอบขวา แตะไม่โดน ค่าค้างที่ 22:00
+     แก้: วันที่เต็มแถวบน · เวลาเริ่ม/เวลาจบแถวล่างข้างกัน
+          + min-width:0 (กันล้น) + appearance:none (กัน Safari บังคับความกว้างขั้นต่ำของตัวเอง)
+     ⚠️ ห้ามเอา min-width:0 หรือ appearance:none ออก ไม่งั้นบั๊กกลับมา */
+  /* ทุกช่องในบล็อกช่วงเวลา สูงเท่ากันหมด 44px
+     (input แต่ละชนิดมี line-height ภายในไม่เท่ากัน · ใช้แค่ padding จะสูงไม่เท่า → ล็อก height) */
   .session-block-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
-  .session-block-fields input { min-width: 0; width: 100%; padding: 9px 8px; font-size: 13px; border: 0.5px solid #d1d5db; border-radius: 6px; background: white; }
+  .session-block-fields input { min-width: 0; width: 100%; height: 44px; padding: 0 6px; font-size: 13px; line-height: 1.2; text-align: center;
+    -webkit-appearance: none; appearance: none; border: 0.5px solid #d1d5db; border-radius: 6px; background: white; font-family: inherit; }
   .session-block-fields input[type="date"] { grid-column: 1 / -1; }
-  .session-block-note { width: 100%; padding: 6px 8px; font-size: 12px; border: 0.5px solid #d1d5db; border-radius: 6px; background: white; }
+  .session-block-note { width: 100%; height: 44px; padding: 0 10px; font-size: 13px; line-height: 1.2; -webkit-appearance: none; appearance: none; border: 0.5px solid #d1d5db; border-radius: 6px; background: white; font-family: inherit; }
   /* v2.5.2 · per-session location field */
-  .session-block-loc { width: 100%; padding: 6px 8px 6px 28px; font-size: 12px; border: 0.5px solid #d1d5db; border-radius: 6px; background: white url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237c7066' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z'/><circle cx='12' cy='9' r='3'/></svg>") no-repeat 8px center; }
+  .session-block-loc { width: 100%; height: 44px; padding: 0 10px 0 30px; font-size: 13px; line-height: 1.2; -webkit-appearance: none; appearance: none; border: 0.5px solid #d1d5db; border-radius: 6px; font-family: inherit; background: white url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237c7066' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z'/><circle cx='12' cy='9' r='3'/></svg>") no-repeat 9px center; }
   body.dark-theme .session-block-fields input,
   body.dark-theme .session-block-note,
   .btn.secondary { background: white; color: #3a2f25; border: 0.5px solid #d1d5db; }
