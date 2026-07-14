@@ -14930,12 +14930,13 @@ function _bkToken() {
   for (let i = 0; i < 10; i++) s += A[arr[i] % A.length];
   return s;
 }
-// ลิงก์ชี้ไปที่ Edge Function `b` ไม่ใช่ b.html ตรงๆ
-// เพราะ crawler ของ Messenger/LINE ไม่รัน JS → ต้องให้เซิร์ฟเวอร์ยัด
-// ชื่อสตูดิโอของช่างลง meta ก่อน การ์ดพรีวิวในแชทถึงจะขึ้นชื่อร้านเขา
-// (ฟังก์ชัน b ต้องเปิดใช้งานอยู่ + ปิด Verify JWT · ดู 99_edge_functions/DEPLOY_b.md)
+// ⚠️ ลิงก์ต้องชี้ไป b.html บน GitHub Pages เท่านั้น
+// เคยลองย้ายไป Supabase Edge Function `b` (เพื่อใส่ชื่อสตูดิโอลง OG meta ให้การ์ด
+// พรีวิวในแชท เพราะ crawler ของ FB/LINE ไม่รัน JS) — แต่ Supabase แพลนฟรี
+// **บังคับเปลี่ยน text/html เป็น text/plain เสมอ** → เบราว์เซอร์โชว์โค้ดดิบ ใช้ไม่ได้
+// ปลดล็อกได้เฉพาะ Pro + Custom Domain (~$35/เดือน) · ทางเลือกฟรี = ย้ายไป Cloudflare Workers
 function _bkUrl(token) {
-  return SUPABASE_URL + '/functions/v1/b?t=' + encodeURIComponent(token);
+  return location.href.split('?')[0].replace(/[^/]*$/, '') + 'b.html?t=' + encodeURIComponent(token);
 }
 function _bkStamp(ts) {
   if (!ts) return '';

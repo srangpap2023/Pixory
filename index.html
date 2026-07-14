@@ -797,8 +797,14 @@
   .session-block-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .session-block-label { font-size: 11px; color: #7c7066; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
   .session-block-delete { background: none; border: none; color: #dc2626; font-size: 14px; cursor: pointer; padding: 2px 6px; }
-  .session-block-fields { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 6px; margin-bottom: 6px; }
-  .session-block-fields input { padding: 7px 8px; font-size: 12px; border: 0.5px solid #d1d5db; border-radius: 6px; background: white; }
+  /* v2.9.92 · แก้บั๊ก Android: เดิมยัด วันที่+เวลาเริ่ม+เวลาจบ ไว้ 3 คอลัมน์แถวเดียว
+     Chrome/Android เรนเดอร์ input[type=date]/[type=time] กว้างกว่า Safari มาก
+     + grid item ย่อต่ำกว่า min-content ไม่ได้ (ไม่มี min-width:0)
+     → ช่อง "เวลาจบ" ถูกดันตกขอบขวา กดไม่โดน ค่าค้างที่ default 22:00
+     แก้: วันที่เต็มแถวบน · เวลาเริ่ม/เวลาจบแถวล่างข้างกัน · ใส่ min-width:0 กันล้น */
+  .session-block-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+  .session-block-fields input { min-width: 0; width: 100%; padding: 9px 8px; font-size: 13px; border: 0.5px solid #d1d5db; border-radius: 6px; background: white; }
+  .session-block-fields input[type="date"] { grid-column: 1 / -1; }
   .session-block-note { width: 100%; padding: 6px 8px; font-size: 12px; border: 0.5px solid #d1d5db; border-radius: 6px; background: white; }
   /* v2.5.2 · per-session location field */
   .session-block-loc { width: 100%; padding: 6px 8px 6px 28px; font-size: 12px; border: 0.5px solid #d1d5db; border-radius: 6px; background: white url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237c7066' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z'/><circle cx='12' cy='9' r='3'/></svg>") no-repeat 8px center; }
@@ -8844,7 +8850,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.90';
+const PIXORY_VERSION = '2.9.91';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8855,6 +8861,15 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.91': {
+    date: '2026-07-14',
+    title: 'แก้บั๊ก · แก้เวลาจบงานไม่ได้บน Android 🤖',
+    subtitle: 'ช่องเวลาจบถูกดันตกขอบจอ กดไม่โดน · ตอนนี้กดได้ทุกเครื่องแล้ว',
+    items: [
+      { icon: '🕐', title: 'แก้เวลาจบงานได้แล้วบน Android', desc: 'เดิมช่อง วันที่ · เวลาเริ่ม · เวลาจบ ถูกยัดไว้แถวเดียว 3 ช่อง · บนแอนดรอยด์ช่องพวกนี้กว้างกว่าไอโฟน ทำให้ช่อง "เวลาจบ" ถูกดันตกขอบขวา แตะไม่โดน ค่าเลยค้างอยู่ที่ 22:00 แก้ไม่ได้ · ตอนนี้จัดใหม่เป็น วันที่อยู่แถวบนเต็มความกว้าง · เวลาเริ่ม/เวลาจบอยู่แถวล่างข้างกัน แตะได้สบายทุกเครื่อง' },
+      { icon: '📱', title: 'ผู้ใช้ iPhone ไม่ต้องกังวล', desc: 'หน้าตาเปลี่ยนนิดหน่อย (ช่องใหญ่ขึ้น กดง่ายขึ้น) แต่ข้อมูลและวิธีใช้เหมือนเดิมทุกอย่าง · งานเก่าไม่กระทบ' },
+    ]
+  },
   '2.9.90': {
     date: '2026-07-13',
     title: 'ลิงก์ยืนยันการจอง + แก้บั๊กวันที่ 🔗🕐',
@@ -20578,12 +20593,13 @@ function _bkToken() {
   for (let i = 0; i < 10; i++) s += A[arr[i] % A.length];
   return s;
 }
-// ลิงก์ชี้ไปที่ Edge Function `b` ไม่ใช่ b.html ตรงๆ
-// เพราะ crawler ของ Messenger/LINE ไม่รัน JS → ต้องให้เซิร์ฟเวอร์ยัด
-// ชื่อสตูดิโอของช่างลง meta ก่อน การ์ดพรีวิวในแชทถึงจะขึ้นชื่อร้านเขา
-// (ฟังก์ชัน b ต้องเปิดใช้งานอยู่ + ปิด Verify JWT · ดู 99_edge_functions/DEPLOY_b.md)
+// ⚠️ ลิงก์ต้องชี้ไป b.html บน GitHub Pages เท่านั้น
+// เคยลองย้ายไป Supabase Edge Function `b` (เพื่อใส่ชื่อสตูดิโอลง OG meta ให้การ์ด
+// พรีวิวในแชท เพราะ crawler ของ FB/LINE ไม่รัน JS) — แต่ Supabase แพลนฟรี
+// **บังคับเปลี่ยน text/html เป็น text/plain เสมอ** → เบราว์เซอร์โชว์โค้ดดิบ ใช้ไม่ได้
+// ปลดล็อกได้เฉพาะ Pro + Custom Domain (~$35/เดือน) · ทางเลือกฟรี = ย้ายไป Cloudflare Workers
 function _bkUrl(token) {
-  return SUPABASE_URL + '/functions/v1/b?t=' + encodeURIComponent(token);
+  return location.href.split('?')[0].replace(/[^/]*$/, '') + 'b.html?t=' + encodeURIComponent(token);
 }
 
 // สร้าง snapshot จากใบเสนอราคา · ใช้ getPrintCtx ตัวเดียวกับเอกสาร → ตัวเลขตรงกันเสมอ
