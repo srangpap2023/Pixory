@@ -2863,6 +2863,13 @@
     border-color: rgba(255,255,255,0.12);
     color: #f5f5f5;
   }
+  /* ⚠️ Android/Windows-Chrome bug: <option> ในดร็อปดาวน์ตกไปใช้พื้นขาวของ OS
+     → ตัวหนังสือสีอ่อนอ่านไม่ออก (iOS Safari ไม่เจอเพราะ inherit ธีมมืด)
+     ต้องกำหนดสีพื้น+ตัวอักษรของ option ตรงๆ */
+  body.dark-theme select option {
+    background: #1E1E23;
+    color: #f5f5f5;
+  }
 
   /* === WALLPAPER page: remove glass card frames === */
   #screen-settings-wallpaper .settings-section {

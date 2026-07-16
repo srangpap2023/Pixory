@@ -743,6 +743,19 @@
     color: var(--ink-faint);
   }
 
+  /* ⚠️ Windows-Chrome bug: <option> ในดร็อปดาวน์ตกไปใช้พื้นขาวของ OS
+     ทำให้ตัวหนังสือสีอ่อนอ่านไม่ออก (Mac Safari ไม่เจอเพราะ inherit ธีมมืด)
+     ต้องกำหนดสีพื้น+ตัวอักษรของ option ตรงๆ ทั้งธีมมืดและ luxe */
+  html[data-theme="dark"] select option,
+  html[data-theme="luxe"] select option {
+    background: #1E1B26;
+    color: #F4F3F1;
+  }
+  html[data-theme="dark"] select option:checked,
+  html[data-theme="luxe"] select option:checked {
+    background: #2A2636;
+  }
+
   /* Dark · table headers + rows */
 
   /* Dark · scrollbar */
