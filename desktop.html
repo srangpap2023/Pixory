@@ -3177,12 +3177,33 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.74';
+const PIXORY_DESKTOP_VERSION = '1.1.76';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.1.76': {
+    date: '2026-09-18',
+    title: 'สรุปรายเดือน · ดูกำไรทีละเดือน 📅',
+    subtitle: 'ผู้ใช้ขอมา — แท็บใหม่ในหน้ารายงาน เลื่อนดูได้ทุกเดือน',
+    items: [
+      { icon: '📅', title: 'แท็บ "รายเดือน" ในหน้ารายงาน', desc: 'กด ‹ › เลื่อนดูเดือนไหนก็ได้ · กำไรสุทธิตัวใหญ่ + เทียบเดือนก่อน/ปีก่อน · งบไล่บรรทัด ยอดขาย − ทีม − เดินทาง − ค่าใช้จ่าย = กำไร' },
+      { icon: '🔢', title: 'จองใหม่ในเดือน', desc: 'นอกจากงานที่ถ่าย ยังเห็นว่าเดือนนั้นปิดการขายได้กี่งาน มูลค่าเท่าไหร่' },
+      { icon: '📋', title: 'ตารางงานในเดือน แยกคอลัมน์ต้นทุน', desc: 'ยอดขาย · ทีม · เดินทาง+พัก · อื่นๆ · กำไร ต่อแต่ละงาน พร้อมแถวรวม · กดแถวเปิดรายละเอียดงานได้' },
+      { icon: '🧾', title: 'ค่าใช้จ่ายทั่วไปของเดือน', desc: 'รวมอยู่ในหน้าเดียวกัน ไม่ต้องสลับไปมา' },
+    ]
+  },
+  '1.1.75': {
+    date: '2026-07-16',
+    title: 'ลูกค้าโอนมัดจำแล้ว โผล่บนแดชบอร์ดเลย 💸',
+    subtitle: 'ไม่ต้องไปหาว่าสลิปมาจากใบเสนอไหน · เปิดแดชบอร์ดมาก็เจอ กดตรวจแล้วสร้างงานได้เลย',
+    items: [
+      { icon: '💸', title: 'การ์ด "ลูกค้าโอนมัดจำแล้ว · รอตรวจสลิป"', desc: 'พอลูกค้าเซ็น + แนบสลิปผ่านลิงก์จอง · เปิดแดชบอร์ดจะเจอการ์ดบนสุดทันที · เห็นชื่อลูกค้า ประเภทงาน วันถ่าย ยอดมัดจำ และมาจากใบเสนอเลขไหน ครบในที่เดียว' },
+      { icon: '📎', title: 'ดูสลิป + สร้างงาน จากการ์ดได้เลย', desc: 'กด "ดูสลิป" เปิดรูปที่ลูกค้าแนบ · เช็คเงินเข้าแล้วกด "สร้างงาน" → ระบบสร้างงาน + บันทึกมัดจำให้เหมือนเดิม' },
+      { icon: '🎨', title: 'แก้ช่องดรอปดาวน์บน Windows', desc: 'เดิมช่องเลือก (เช่น ประเภทงาน) บนโครม Windows เป็นพื้นขาวตัวหนังสือขาว อ่านไม่ออก · แก้ให้อ่านชัดแล้ว' },
+    ]
+  },
   '1.1.74': {
     date: '2026-07-13',
     title: 'ลิงก์ยืนยันการจอง + แก้บั๊กวันที่ 🔗🕐',
@@ -5395,6 +5416,9 @@ function renderDashboard(root) {
 
     <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:16px;align-items:stretch;">
 
+      <!-- v1.1.75 · การ์ด "ลูกค้าโอนมัดจำแล้ว · รอตรวจสลิป" · เติมโดย renderDashSlips() หลัง innerHTML -->
+      <div id="dash-slips" style="grid-column:span 12;display:none;"></div>
+
       <!-- HERO · รายได้สะสมปี + กราฟเทรนด์ (span 8) -->
       <div style="grid-column:span 8;background:rgba(255,255,255,0.028);border:1px solid rgba(255,255,255,0.08);color:#F4F3F1;padding:22px 26px;border-radius:18px;position:relative;overflow:hidden;box-shadow:0 24px 50px -28px rgba(0,0,0,0.55);">
         <div style="position:relative;z-index:1;">
@@ -5576,6 +5600,86 @@ function renderDashboard(root) {
 
     </div>
   `;
+
+  // v1.1.75 · เติมการ์ด "รอตรวจสลิป" แบบ async (query booking_links) หลัง render เสร็จ
+  if (typeof renderDashSlips === 'function') renderDashSlips();
+}
+
+// ── การ์ด "ลูกค้าโอนมัดจำแล้ว · รอตรวจสลิป" (เดสก์ท็อป · mirror มือถือ) ──────
+// ดึงลิงก์ status=paid_notified ของ owner (RLS กรอง user_id) → โชว์บนสุดของแดชบอร์ด
+// ⛔ ปุ่ม "สร้างงาน" เรียก confirmBookingMoney() ตัวเดิม · ไม่มีสูตรเงินใหม่
+let _DASH_SLIPS_BUSY = false;
+function _bkDateShort(iso) {
+  if (!iso) return '';
+  const d = new Date(String(iso).slice(0,10) + 'T00:00:00');
+  if (isNaN(d.getTime())) return '';
+  const M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return d.getDate() + ' ' + M[d.getMonth()] + ' ' + (d.getFullYear() + 543);
+}
+async function renderDashSlips() {
+  const box = document.getElementById('dash-slips');
+  if (!box) return;
+  if (!SUPABASE) { box.style.display = 'none'; return; }
+  if (_DASH_SLIPS_BUSY) return;
+  _DASH_SLIPS_BUSY = true;
+  try {
+    const { data, error } = await SUPABASE
+      .from('booking_links')
+      .select('token,job_code,snapshot,status,slip_url,signed_name,signed_at,paid_notified_at')
+      .eq('status', 'paid_notified')
+      .order('paid_notified_at', { ascending: false });
+    if (error) throw error;
+    const rows = Array.isArray(data) ? data : [];
+    if (!rows.length) { box.style.display = 'none'; box.innerHTML = ''; _DASH_SLIPS_BUSY = false; return; }
+
+    let items = '';
+    rows.forEach(row => {
+      BOOKING_LINK_CACHE[row.job_code] = row;
+      const s = row.snapshot || {};
+      const nm = s.customer || 'ลูกค้า';
+      const av = escapeHtml((nm.trim().charAt(0) || 'ล'));
+      const typ = s.jobType ? ' · ' + escapeHtml(s.jobType) : '';
+      const date0 = (Array.isArray(s.sessions) && s.sessions[0]) ? _bkDateShort(s.sessions[0].date) : '';
+      const code = escapeHtml(s.code || row.job_code || '');
+      const dep = Number(s.deposit) || 0;
+      const jc = jsStr(row.job_code);
+      const slip = jsStr(row.slip_url || '');
+      const signed = row.signed_at ? ' · เซ็นแล้ว ✍️' : '';
+      items +=
+        '<div style="background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.09);border-radius:13px;padding:13px 15px;min-width:300px;flex:1 1 320px;">'
+        + '<div style="display:flex;align-items:flex-start;gap:11px;">'
+        +   '<div style="width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#D4A056,#9C7340);color:#17130B;font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none;">' + av + '</div>'
+        +   '<div style="flex:1;min-width:0;">'
+        +     '<div style="font-size:14.5px;font-weight:700;color:#F2F0EC;">' + escapeHtml(nm) + typ + '</div>'
+        +     '<div style="font-size:12px;color:#8A8790;margin-top:2px;">จาก <span style="color:#E9C67F;font-weight:700;">' + code + '</span>' + (date0 ? ' · ' + date0 : '') + '</div>'
+        +   '</div>'
+        +   '<div style="text-align:right;flex:none;"><div style="font-size:18px;font-weight:800;color:#8FE3B3;font-variant-numeric:tabular-nums;line-height:1.1;">' + fmtTHB(dep) + '</div><div style="font-size:10px;color:#8A8790;">มัดจำ</div></div>'
+        + '</div>'
+        + '<div style="font-size:11.5px;color:#8a8579;margin-top:9px;">🕐 แจ้งโอน ' + escapeHtml(_bkStamp(row.paid_notified_at)) + signed + '</div>'
+        + '<div style="display:grid;grid-template-columns:1fr 1.3fr;gap:9px;margin-top:12px;">'
+        +   '<button onclick="viewBookingSlip(\'' + slip + '\')" style="padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#C9C6C0;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">📎 ดูสลิป</button>'
+        +   '<button onclick="confirmBookingMoney(\'' + jc + '\')" style="padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,#4FBE7E,#2F9457);color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">✓ สร้างงาน</button>'
+        + '</div>'
+        + '</div>';
+    });
+
+    box.innerHTML =
+      '<div style="background:linear-gradient(160deg,rgba(95,207,142,.13),rgba(212,160,86,.04));border:1px solid rgba(95,207,142,.38);border-radius:18px;padding:18px 20px;position:relative;overflow:hidden;">'
+      + '<div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:#3FA96A;"></div>'
+      + '<div style="display:flex;align-items:center;gap:11px;margin-bottom:14px;">'
+      +   '<div style="width:38px;height:38px;border-radius:11px;background:rgba(95,207,142,.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;">💸</div>'
+      +   '<div><div style="font-size:16px;font-weight:800;color:#c7f5da;">ลูกค้าโอนมัดจำแล้ว · รอตรวจสลิป</div>'
+      +   '<div style="font-size:12px;color:#8A8790;margin-top:1px;">ตรวจสลิปแล้วกดสร้างงานได้เลย — ไม่ต้องไปหาว่ามาจากใบเสนอไหน</div></div>'
+      +   '<div style="margin-left:auto;background:#3FA96A;color:#fff;font-size:13px;font-weight:800;min-width:26px;height:26px;border-radius:13px;display:flex;align-items:center;justify-content:center;padding:0 8px;">' + rows.length + '</div>'
+      + '</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:11px;">' + items + '</div>'
+      + '</div>';
+    box.style.display = 'block';
+  } catch (e) {
+    console.warn('dashSlips:', e);
+    box.style.display = 'none';
+  }
+  _DASH_SLIPS_BUSY = false;
 }
 
 // ===================================================================
@@ -6683,6 +6787,7 @@ function renderReports(root) {
 
     <div class="tab-row">
       <button class="tab-btn ${REPORTS_TAB === 'overview' ? 'active' : ''}" onclick="setReportsTab('overview')">📊 ภาพรวม</button>
+      <button class="tab-btn ${REPORTS_TAB === 'monthly' ? 'active' : ''}" onclick="setReportsTab('monthly')">📅 รายเดือน</button>
       <button class="tab-btn ${REPORTS_TAB === 'tax' ? 'active' : ''}" onclick="setReportsTab('tax')">🧾 ภาษี</button>
       <button class="tab-btn ${REPORTS_TAB === 'customers' ? 'active' : ''}" onclick="setReportsTab('customers')">👥 ลูกค้า</button>
       <button class="tab-btn ${REPORTS_TAB === 'export' ? 'active' : ''}" onclick="setReportsTab('export')">⬇ ส่งออก CSV</button>
@@ -6696,11 +6801,138 @@ function renderReports(root) {
 function setReportsYear(y) { REPORTS_YEAR = Number(y) || new Date().getFullYear(); renderReports(document.getElementById('main')); }
 function setReportsTab(t) { REPORTS_TAB = t; renderReports(document.getElementById('main')); }
 
+// ═══════════════════════════════════════════════════════════════════
+// v1.1.76 · แท็บ "รายเดือน" (mirror มือถือ v2.9.93)
+// ⛔ ไม่มีสูตรเงินใหม่ · jobRevenue / jobOutstanding ตัวเดิม
+//    ต้นทุน = teamCost + travelCost + otherCost + costItems (สูตรเดียวกับ dashboard)
+// ═══════════════════════════════════════════════════════════════════
+let REPORTS_MONTH = null;   // { y, m } · null = เดือนปัจจุบัน
+
+function _rmCostSplit(j) {
+  let travel = Number(j.travelCost) || 0, other = Number(j.otherCost) || 0;
+  (Array.isArray(j.costItems) ? j.costItems : []).forEach(c => {
+    const p = parseFloat(c && c.price) || 0;
+    const tag = String((c && (c.category || c.name)) || '');
+    if (/เดินทาง|ที่พัก|โรงแรม|น้ำมัน|รถ/.test(tag)) travel += p; else other += p;
+  });
+  return { team: Number(j.teamCost) || 0, travel, other };
+}
+function _rmSummary(y, m) {
+  const jobs = [], booked = []; let cashIn = 0;
+  (JOBS || []).forEach(j => {
+    if (jobCancelled(j)) return;
+    if (_isSameMonth(j.date, y, m)) jobs.push(j);
+    if (_isSameMonth(jobBookingDate(j), y, m)) booked.push(j);   // จองใหม่เดือนนี้
+    (j.payments || []).forEach(p => { if (p && _isSameMonth(p.date, y, m)) cashIn += (Number(p.amount) || 0); });
+  });
+  const bookedSales = booked.reduce((s, j) => s + jobRevenue(j), 0);
+  const exps = (EXPENSES || []).filter(e => e && _isSameMonth(e.date, y, m));
+  const sales = jobs.reduce((s, j) => s + jobRevenue(j), 0);
+  let team = 0, travel = 0, other = 0;
+  jobs.forEach(j => { const c = _rmCostSplit(j); team += c.team; travel += c.travel; other += c.other; });
+  const jobCost = team + travel + other;
+  const expTotal = exps.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+  return { jobs, booked, bookedSales, exps, sales, cashIn, team, travel, other, jobCost, expTotal, profit: sales - jobCost - expTotal, outstanding: jobs.reduce((s, j) => s + jobOutstanding(j), 0) };
+}
+function reportsMonthMove(d) {
+  const now = new Date();
+  const cur = REPORTS_MONTH || { y: now.getFullYear(), m: now.getMonth() };
+  let y = cur.y, m = cur.m + d;
+  if (m < 0) { m = 11; y--; } else if (m > 11) { m = 0; y++; }
+  REPORTS_MONTH = { y, m };
+  renderReportsPane();
+}
+function renderReportsMonthly() {
+  const now = new Date();
+  if (!REPORTS_MONTH) REPORTS_MONTH = { y: now.getFullYear(), m: now.getMonth() };
+  const { y, m } = REPORTS_MONTH;
+  const S = _rmSummary(y, m);
+  const pm = m === 0 ? 11 : m - 1, py = m === 0 ? y - 1 : y;
+  const P = _rmSummary(py, pm), LY = _rmSummary(y - 1, m);
+  const ttl = TH_MONTHS_FULL[m] + ' ' + (y + 543);
+  const isCur = (y === now.getFullYear() && m === now.getMonth());
+  const dow = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+  const d1 = S.profit - P.profit;
+  const pctLY = LY.sales > 0 ? Math.round((S.sales - LY.sales) / LY.sales * 100) : (S.sales > 0 ? 100 : 0);
+  const card = 'background:rgba(255,255,255,0.028);border:1px solid rgba(255,255,255,0.08);border-radius:16px;';
+  const margin = S.sales > 0 ? Math.round(S.profit / S.sales * 100) : 0;
+  const row = (l, v, opt) => { opt = opt || {}; return `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13.5px;color:${opt.head ? '#F4F3F1' : 'var(--ink-mute)'};${opt.head ? 'font-weight:700;' : ''}"><span>${l}${opt.sub ? `<small style="display:block;font-size:11px;color:var(--ink-mute);font-weight:400;margin-top:1px;">${opt.sub}</small>` : ''}</span><span style="font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;color:${opt.col || '#F4F3F1'};">${v}</span></div>`; };
+
+  let jobsHtml = '';
+  if (!S.jobs.length) jobsHtml = `<div style="padding:22px;text-align:center;color:var(--ink-mute);font-size:13px;">ไม่มีงานถ่ายในเดือนนี้</div>`;
+  else {
+    jobsHtml = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead><tr style="color:var(--ink-mute);font-size:11px;text-align:left;"><th style="padding:8px 12px;width:52px;">วันที่</th><th style="padding:8px 12px;">ลูกค้า</th><th style="padding:8px 12px;">สถานที่</th><th style="padding:8px 12px;text-align:right;">ยอดขาย</th><th style="padding:8px 12px;text-align:right;">ทีม</th><th style="padding:8px 12px;text-align:right;">เดินทาง+พัก</th><th style="padding:8px 12px;text-align:right;">อื่นๆ</th><th style="padding:8px 12px;text-align:right;">กำไร</th></tr></thead><tbody>`;
+    S.jobs.slice().sort((a, b) => String(a.date).localeCompare(String(b.date))).forEach(j => {
+      const d = new Date(String(j.date).slice(0, 10) + 'T00:00:00');
+      const dd = isNaN(d.getTime()) ? '–' : d.getDate() + ' ' + dow[d.getDay()];
+      const c = _rmCostSplit(j), rev = jobRevenue(j), pf = rev - (c.team + c.travel + c.other);
+      jobsHtml += `<tr style="border-top:1px solid rgba(255,255,255,0.06);cursor:pointer;" onclick="openJobDetail('${escapeHtml(j.code)}')">
+        <td style="padding:10px 12px;font-weight:700;color:#E0A96D;white-space:nowrap;">${dd}</td>
+        <td style="padding:10px 12px;font-weight:600;">${escapeHtml(j.customer || j.code)}</td>
+        <td style="padding:10px 12px;color:var(--ink-mute);">${escapeHtml(j.loc && j.loc !== '-' ? j.loc : '')}</td>
+        <td style="padding:10px 12px;text-align:right;font-variant-numeric:tabular-nums;">${fmtTHB(rev)}</td>
+        <td style="padding:10px 12px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-mute);">${c.team ? fmtTHB(c.team) : '—'}</td>
+        <td style="padding:10px 12px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-mute);">${c.travel ? fmtTHB(c.travel) : '—'}</td>
+        <td style="padding:10px 12px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-mute);">${c.other ? fmtTHB(c.other) : '—'}</td>
+        <td style="padding:10px 12px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums;color:${pf >= 0 ? '#7FCB9B' : '#F09595'};">${fmtTHB(pf)}</td>
+      </tr>`;
+    });
+    jobsHtml += `<tr style="border-top:2px solid rgba(224,169,109,0.4);font-weight:800;"><td style="padding:10px 12px;" colspan="3">รวม ${S.jobs.length} งาน</td>
+      <td style="padding:10px 12px;text-align:right;">${fmtTHB(S.sales)}</td><td style="padding:10px 12px;text-align:right;">${fmtTHB(S.team)}</td><td style="padding:10px 12px;text-align:right;">${fmtTHB(S.travel)}</td><td style="padding:10px 12px;text-align:right;">${fmtTHB(S.other)}</td><td style="padding:10px 12px;text-align:right;color:#7FCB9B;">${fmtTHB(S.sales - S.jobCost)}</td></tr></tbody></table>`;
+  }
+
+  let expHtml = '';
+  if (S.exps.length) expHtml = `<div style="${card}overflow:hidden;margin-top:16px;">
+      <div style="padding:12px 16px;font-size:11px;letter-spacing:1.5px;color:#E0A96D;font-weight:700;text-transform:uppercase;display:flex;justify-content:space-between;"><span>ค่าใช้จ่ายทั่วไป</span><span style="letter-spacing:0;color:var(--ink-mute);text-transform:none;">${fmtTHB(S.expTotal)}</span></div>`
+    + S.exps.slice().sort((a, b) => String(a.date).localeCompare(String(b.date))).map(e =>
+      `<div style="display:flex;justify-content:space-between;padding:9px 16px;border-top:1px solid rgba(255,255,255,0.06);font-size:13px;"><span>${escapeHtml(e.name || e.desc || e.category || 'ค่าใช้จ่าย')}${e.category ? ` <span style="color:var(--ink-mute);font-size:11px;">· ${escapeHtml(e.category)}</span>` : ''}</span><span style="color:#F09595;font-weight:700;font-variant-numeric:tabular-nums;">${fmtTHB(e.amount)}</span></div>`).join('')
+    + `</div>`;
+
+  return `
+    <div style="display:flex;align-items:center;justify-content:center;gap:22px;padding:6px 0 4px;">
+      <button class="btn btn-ghost" onclick="reportsMonthMove(-1)" style="font-size:22px;padding:2px 14px;">‹</button>
+      <div style="text-align:center;min-width:240px;"><div style="font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:10px;">${escapeHtml(ttl)}${isCur ? '<span style="font-size:10px;font-weight:700;color:#E0A96D;background:rgba(224,169,109,0.14);padding:2px 8px;border-radius:6px;">เดือนนี้</span>' : ''}</div></div>
+      <button class="btn btn-ghost" onclick="reportsMonthMove(1)" style="font-size:22px;padding:2px 14px;">›</button>
+    </div>
+
+    <div style="text-align:center;padding:14px 0 20px;">
+      <div style="font-size:11px;letter-spacing:2.5px;color:#E0A96D;font-weight:700;">กำไรสุทธิ</div>
+      <div style="font-size:44px;font-weight:800;color:${S.profit < 0 ? '#F09595' : '#F4F3F1'};margin-top:4px;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-0.5px;">${fmtTHB(S.profit)}</div>
+      <div style="font-size:12.5px;color:var(--ink-mute);margin-top:8px;"><span style="color:${d1 >= 0 ? '#7FCB9B' : '#F09595'};font-weight:700;">${d1 >= 0 ? '▲ +' : '▼ −'}${fmtTHB(Math.abs(d1))}</span> จากเดือนก่อน &nbsp;·&nbsp; <span style="color:${pctLY >= 0 ? '#7FCB9B' : '#F09595'};font-weight:700;">${pctLY >= 0 ? '▲ +' : '▼ '}${pctLY}%</span> จากปีก่อน</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+      <div style="${card}padding:4px 18px;">
+        ${row('งานถ่าย', S.jobs.length + ' งาน', { head: true, sub: 'ยอดขาย ' + fmtTHB(S.sales) })}
+        ${row('จองใหม่', S.booked.length + ' งาน', { sub: 'มูลค่า ' + fmtTHB(S.bookedSales) })}
+        ${row('เงินเข้าจริง', fmtTHB(S.cashIn), { col: '#7FCB9B' })}
+      </div>
+      <div style="${card}padding:4px 18px;">
+        ${row('ยอดขาย (งานถ่าย)', fmtTHB(S.sales), { head: true })}
+        ${row('− ค่าทีม', '−' + fmtTHB(S.team), { col: '#F09595' })}
+        ${row('− เดินทาง + ที่พัก', '−' + fmtTHB(S.travel), { col: '#F09595' })}
+        ${S.other > 0 ? row('− ต้นทุนงานอื่น', '−' + fmtTHB(S.other), { col: '#F09595' }) : ''}
+        ${row('− ค่าใช้จ่ายทั่วไป', '−' + fmtTHB(S.expTotal), { col: '#F09595' })}
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:12px 0 10px;border-top:1.5px solid rgba(224,169,109,0.4);font-weight:800;"><span style="font-size:14px;">= กำไรสุทธิ<small style="display:block;font-size:11px;color:var(--ink-mute);font-weight:400;">${margin}% ของยอดขาย</small></span><span style="font-size:20px;color:${S.profit < 0 ? '#F09595' : '#F5D9A8'};font-variant-numeric:tabular-nums;">${fmtTHB(S.profit)}</span></div>
+      </div>
+    </div>
+
+    <div style="${card}overflow:hidden;margin-top:16px;">
+      <div style="padding:12px 16px;font-size:11px;letter-spacing:1.5px;color:#E0A96D;font-weight:700;text-transform:uppercase;display:flex;justify-content:space-between;"><span>งานในเดือนนี้</span><span style="letter-spacing:0;color:var(--ink-mute);text-transform:none;">กำไรต่องาน</span></div>
+      ${jobsHtml}
+    </div>
+    ${expHtml}
+    ${S.outstanding > 0 ? `<div style="margin-top:14px;font-size:12.5px;color:var(--ink-mute);text-align:center;">ค้างเก็บของงานเดือนนี้ <b style="color:#F5D9A8;">${fmtTHB(S.outstanding)}</b></div>` : ''}
+  `;
+}
+
 function renderReportsPane() {
   const pane = document.getElementById('reports-pane');
   if (!pane) return;
   switch (REPORTS_TAB) {
     case 'overview':  pane.innerHTML = renderReportsOverview(); break;
+    case 'monthly':   pane.innerHTML = renderReportsMonthly(); break;
     case 'tax':       pane.innerHTML = renderReportsTax(); break;
     case 'customers': pane.innerHTML = renderReportsCustomers(); break;
     case 'export':    pane.innerHTML = renderReportsExport(); break;
