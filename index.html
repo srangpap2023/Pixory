@@ -1000,6 +1000,27 @@
   .dm-job .i .s { font-size:11px; color:#9a9089; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .dm-job .p { flex:none; font-size:14px; font-weight:800; color:#15803d; font-variant-numeric:tabular-nums lining-nums; }
   .dm-job .p.neg { color:#c2410c; }
+  .dm-book { padding:12px 14px; border-bottom:0.5px solid rgba(0,0,0,.06); cursor:pointer; }
+  .dm-book:last-child { border-bottom:none; }
+  .dm-book .top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+  .dm-book .who { font-size:14px; font-weight:700; color:#3a2f25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .dm-book .amt { font-size:14px; font-weight:800; color:#7a5a20; font-variant-numeric:tabular-nums; flex:none; }
+  .dm-book .meta { font-size:11.5px; color:#9a9089; margin-top:3px; }
+  .dm-book .how { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px; font-size:11.5px; color:#5a5348; }
+  .dm-book .how b { color:#3a2f25; }
+  .dm-book .chip { font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:6px; }
+  .dm-book .chip.link { background:rgba(63,169,106,.14); color:#1f7a49; }
+  .dm-book .chip.quote { background:rgba(156,115,64,.14); color:#7a5a20; }
+  .dm-book .chip.manual { background:rgba(0,0,0,.06); color:#5a5348; }
+  .dm-book .src { font-size:10.5px; color:#9a9089; margin-top:4px; }
+  body.dark-theme .dm-book, body.luxe-theme .dm-book { border-color:rgba(255,255,255,.06); }
+  body.dark-theme .dm-book .who, body.luxe-theme .dm-book .who, body.dark-theme .dm-book .how b, body.luxe-theme .dm-book .how b { color:#F2F0EC; }
+  body.dark-theme .dm-book .amt, body.luxe-theme .dm-book .amt { color:#E9C67F; }
+  body.dark-theme .dm-book .how, body.luxe-theme .dm-book .how { color:#B8B4AD; }
+  body.dark-theme .dm-book .chip.link, body.luxe-theme .dm-book .chip.link { background:rgba(95,207,142,.15); color:#8FE3B3; }
+  body.dark-theme .dm-book .chip.quote, body.luxe-theme .dm-book .chip.quote { background:rgba(212,160,86,.15); color:#E9C67F; }
+  body.dark-theme .dm-book .chip.manual, body.luxe-theme .dm-book .chip.manual { background:rgba(255,255,255,.08); color:#B8B4AD; }
+  body.dark-theme .dm-book .src, body.luxe-theme .dm-book .src { color:#6f6f78; }
   .dm-empty { font-size:12.5px; color:#9a9089; text-align:center; padding:16px; background:rgba(0,0,0,.03); border-radius:12px; }
   .dm-note { margin-top:14px; font-size:12px; color:#7c7066; text-align:center; }
   .dm-note b { color:#7a5a20; font-weight:700; }
@@ -8958,7 +8979,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.93';
+const PIXORY_VERSION = '2.9.94';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8969,6 +8990,17 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.94': {
+    date: '2026-09-28',
+    title: 'จองใหม่เดือนนี้ · ใครจอง ปิดขายวันไหน ผ่านทางไหน 🧾',
+    subtitle: 'เพิ่มในแท็บรายเดือน — กดการ์ด "สรุปเดือนนี้" หน้าหลักเข้ามาดูได้เลย',
+    items: [
+      { icon: '🧾', title: 'รายชื่องานที่จองใหม่ในเดือน', desc: 'เห็นทีละงาน: ชื่อลูกค้า · ยอด · วันถ่าย · ปิดขายวันไหน · มัดจำ/ค้าง · ลูกค้ามาจากช่องทางไหน · กดเปิดรายละเอียดงานได้' },
+      { icon: '🔗', title: 'บอกว่าปิดการขายผ่านทางไหน', desc: 'ป้ายสีแยกชัด: ลิงก์ยืนยันการจอง · จากใบเสนอราคา (พร้อมเลขที่) · หรือกรอกเอง' },
+      { icon: '⏱', title: 'เฉลี่ยส่งใบเสนอ → ปิดขายกี่วัน', desc: 'สรุปท้ายบล็อก พร้อมนับว่าเดือนนี้ปิดผ่านลิงก์กี่งาน ใบเสนอกี่งาน' },
+      { icon: '🐞', title: 'แก้: ค่าใช้จ่ายในแท็บรายเดือนขึ้นชื่อ/หมวดไม่ถูก', desc: 'เดิมแสดงเป็นคำว่า "ค่าใช้จ่าย" ทุกรายการ · ตอนนี้แสดงชื่อรายการและหมวดจริงแล้ว' },
+    ]
+  },
   '2.9.93': {
     date: '2026-09-18',
     title: 'สรุปรายเดือน · ดูกำไรทีละเดือน 📅',
@@ -27705,6 +27737,45 @@ function renderDashMonthly() {
   h += row(isEN ? 'Net profit' : '= กำไรสุทธิ', fmt(S.profit), 'total' + (S.profit < 0 ? ' neg' : ''), S.sales > 0 ? Math.round(S.profit / S.sales * 100) + '%' + (isEN ? ' margin' : ' ของยอดขาย') : '');
   h += '</div>';
 
+  // ── จองใหม่เดือนนี้ · ใครจอง ปิดขายวันไหน ผ่านทางไหน ──
+  // v2.9.94 · ช่องทาง: quote.bookingSlip = ผ่านลิงก์จอง · j.fromQuote = จากใบเสนอ · ไม่มี = กรอกเอง
+  if (S.booked.length) {
+    h += '<div class="dm-sec">' + (isEN ? 'New bookings this month' : 'จองใหม่เดือนนี้') + '<span>' + S.booked.length + (isEN ? ' jobs · ' : ' งาน · ') + fmt(S.bookedSales) + '</span></div>';
+    h += '<div class="dm-list">';
+    let nLink = 0, nQuote = 0, nManual = 0, sumDays = 0, nDays = 0;
+    S.booked.slice().sort((a, b) => String(jobBookingDate(b)).localeCompare(String(jobBookingDate(a)))).forEach(j => {
+      const q = j.fromQuote ? (QUOTES || []).find(x => x.code === j.fromQuote) : null;
+      const viaLink = !!(q && q.bookingSlip);
+      let chip;
+      if (viaLink) { nLink++; chip = '<span class="chip link">🔗 ' + (isEN ? 'Booking link' : 'ลิงก์จอง') + '</span>'; }
+      else if (q) { nQuote++; chip = '<span class="chip quote">📄 ' + (isEN ? 'Quote ' : 'ใบเสนอ ') + escapeHtml(q.code) + '</span>'; }
+      else { nManual++; chip = '<span class="chip manual">✍️ ' + (isEN ? 'Manual' : 'กรอกเอง') + '</span>'; }
+      const bd = jobBookingDate(j);
+      if (q && q.dateSent && bd) { const d1 = new Date(String(q.dateSent).slice(0,10)), d2 = new Date(String(bd).slice(0,10)); const dd = (d2 - d1) / 86400000; if (!isNaN(dd) && dd >= 0) { sumDays += dd; nDays++; } }
+      const rev = jobRevenue(j), dep = Number(j.deposit) || 0, out = jobOutstanding(j);
+      const meta = [];
+      if (j.date) meta.push('📅 ' + (isEN ? 'shoot ' : 'ถ่าย ') + _bkDateShort(j.date));
+      if (j.type) meta.push(escapeHtml(j.type));
+      if (j.loc && j.loc !== '-') meta.push(escapeHtml(j.loc));
+      h += '<div class="dm-book" onclick="openJob(\'' + jsStr(j.code) + '\')">'
+         + '<div class="top"><div class="who">' + escapeHtml(j.customer || j.code) + '</div><div class="amt">' + fmt(rev) + '</div></div>'
+         + '<div class="meta">' + meta.join(' · ') + '</div>'
+         + '<div class="how">' + chip + '<span>' + (isEN ? 'closed ' : 'ปิดขาย ') + '<b>' + (bd ? _bkDateShort(bd) : '—') + '</b>'
+         + (dep ? ' · ' + (isEN ? 'deposit ' : 'มัดจำ ') + fmt(dep) : '') + (out > 0 ? ' · ' + (isEN ? 'due ' : 'ค้าง ') + fmt(out) : '') + '</span></div>'
+         + (j.source ? '<div class="src">' + (isEN ? 'from ' : 'ลูกค้ามาจาก ') + escapeHtml(j.source) + '</div>' : '')
+         + '</div>';
+    });
+    h += '</div>';
+    const parts = [];
+    if (nDays) parts.push((isEN ? 'avg quote → close ' : 'เฉลี่ยจากส่งใบเสนอ → ปิดขาย ') + '<b>' + (Math.round(sumDays / nDays * 10) / 10) + (isEN ? ' days' : ' วัน') + '</b>');
+    const ch = [];
+    if (nLink) ch.push((isEN ? 'link ' : 'ลิงก์จอง ') + nLink);
+    if (nQuote) ch.push((isEN ? 'quote ' : 'ใบเสนอ ') + nQuote);
+    if (nManual) ch.push((isEN ? 'manual ' : 'กรอกเอง ') + nManual);
+    if (ch.length) parts.push(ch.join(' · '));
+    if (parts.length) h += '<div class="dm-note">' + parts.join(' &nbsp;·&nbsp; ') + '</div>';
+  }
+
   // ── รายชื่องาน ──
   h += '<div class="dm-sec">' + (isEN ? 'Jobs this month' : 'งานในเดือนนี้') + '<span>' + (isEN ? 'profit per job' : 'กำไรต่องาน') + '</span></div>';
   if (!S.jobs.length) {
@@ -27735,7 +27806,7 @@ function renderDashMonthly() {
     S.exps.slice().sort((a, b) => String(a.date).localeCompare(String(b.date))).forEach(e => {
       const d = new Date(String(e.date).slice(0, 10) + 'T00:00:00');
       const dd = isNaN(d.getTime()) ? '–' : d.getDate();
-      h += '<div class="dm-job"><div class="d">' + dd + '</div><div class="i"><div class="t">' + escapeHtml(e.name || e.desc || e.category || (isEN ? 'Expense' : 'ค่าใช้จ่าย')) + '</div>' + (e.category ? '<div class="s">' + escapeHtml(e.category) + '</div>' : '') + '</div><div class="p neg">' + fmt(e.amount) + '</div></div>';
+      h += '<div class="dm-job"><div class="d">' + dd + '</div><div class="i"><div class="t">' + escapeHtml(e.item || e.name || e.desc || e.cat || e.category || (isEN ? 'Expense' : 'ค่าใช้จ่าย')) + '</div>' + ((e.cat || e.category) ? '<div class="s">' + escapeHtml(e.cat || e.category) + '</div>' : '') + '</div><div class="p neg">' + fmt(e.amount) + '</div></div>';
     });
     h += '</div>';
   }

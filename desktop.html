@@ -3177,12 +3177,22 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.76';
+const PIXORY_DESKTOP_VERSION = '1.1.77';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.1.77': {
+    date: '2026-09-28',
+    title: 'จองใหม่เดือนนี้ · ใครจอง ปิดขายวันไหน ผ่านทางไหน 🧾',
+    subtitle: 'ตารางใหม่ในแท็บรายเดือน',
+    items: [
+      { icon: '🧾', title: 'ตารางงานที่จองใหม่ในเดือน', desc: 'ปิดขายวันไหน · ลูกค้า · วันถ่าย · ช่องทาง (ลิงก์จอง / ใบเสนอ / กรอกเอง) · มาจากไหน · มัดจำ · ค้าง · ยอดขาย · กดแถวเปิดงานได้' },
+      { icon: '⏱', title: 'เฉลี่ยส่งใบเสนอ → ปิดขายกี่วัน', desc: 'สรุปท้ายตาราง + นับช่องทางที่ปิดได้' },
+      { icon: '🐞', title: 'แก้: ค่าใช้จ่ายในแท็บรายเดือนขึ้นชื่อ/หมวดไม่ถูก', desc: 'แสดงชื่อรายการและหมวดจริงแล้ว' },
+    ]
+  },
   '1.1.76': {
     date: '2026-09-18',
     title: 'สรุปรายเดือน · ดูกำไรทีละเดือน 📅',
@@ -6886,8 +6896,46 @@ function renderReportsMonthly() {
   if (S.exps.length) expHtml = `<div style="${card}overflow:hidden;margin-top:16px;">
       <div style="padding:12px 16px;font-size:11px;letter-spacing:1.5px;color:#E0A96D;font-weight:700;text-transform:uppercase;display:flex;justify-content:space-between;"><span>ค่าใช้จ่ายทั่วไป</span><span style="letter-spacing:0;color:var(--ink-mute);text-transform:none;">${fmtTHB(S.expTotal)}</span></div>`
     + S.exps.slice().sort((a, b) => String(a.date).localeCompare(String(b.date))).map(e =>
-      `<div style="display:flex;justify-content:space-between;padding:9px 16px;border-top:1px solid rgba(255,255,255,0.06);font-size:13px;"><span>${escapeHtml(e.name || e.desc || e.category || 'ค่าใช้จ่าย')}${e.category ? ` <span style="color:var(--ink-mute);font-size:11px;">· ${escapeHtml(e.category)}</span>` : ''}</span><span style="color:#F09595;font-weight:700;font-variant-numeric:tabular-nums;">${fmtTHB(e.amount)}</span></div>`).join('')
+      `<div style="display:flex;justify-content:space-between;padding:9px 16px;border-top:1px solid rgba(255,255,255,0.06);font-size:13px;"><span>${escapeHtml(e.item || e.name || e.desc || e.cat || e.category || 'ค่าใช้จ่าย')}${(e.cat || e.category) ? ` <span style="color:var(--ink-mute);font-size:11px;">· ${escapeHtml(e.cat || e.category)}</span>` : ''}</span><span style="color:#F09595;font-weight:700;font-variant-numeric:tabular-nums;">${fmtTHB(e.amount)}</span></div>`).join('')
     + `</div>`;
+
+  // v1.1.77 · จองใหม่เดือนนี้ · ใครจอง ปิดขายวันไหน ผ่านทางไหน (mirror มือถือ v2.9.94)
+  let bookedHtml = '';
+  if (S.booked.length) {
+    let nLink = 0, nQuote = 0, nManual = 0, sumDays = 0, nDays = 0;
+    const rows = S.booked.slice().sort((a, b) => String(jobBookingDate(b)).localeCompare(String(jobBookingDate(a)))).map(j => {
+      const q = j.fromQuote ? (QUOTES || []).find(x => x.code === j.fromQuote) : null;
+      const viaLink = !!(q && q.bookingSlip);
+      let chip;
+      if (viaLink) { nLink++; chip = '<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(95,207,142,.15);color:#8FE3B3;">🔗 ลิงก์จอง</span>'; }
+      else if (q) { nQuote++; chip = '<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(224,169,109,.15);color:#F5D9A8;">📄 ' + escapeHtml(q.code) + '</span>'; }
+      else { nManual++; chip = '<span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.08);color:var(--ink-mute);">✍️ กรอกเอง</span>'; }
+      const bd = jobBookingDate(j);
+      if (q && q.dateSent && bd) { const dd = (new Date(String(bd).slice(0,10)) - new Date(String(q.dateSent).slice(0,10))) / 86400000; if (!isNaN(dd) && dd >= 0) { sumDays += dd; nDays++; } }
+      const rev = jobRevenue(j), dep = Number(j.deposit) || 0, out = jobOutstanding(j);
+      return `<tr style="border-top:1px solid rgba(255,255,255,0.06);cursor:pointer;" onclick="openJobDetail('${escapeHtml(j.code)}')">
+        <td style="padding:10px 12px;font-weight:700;color:#E0A96D;white-space:nowrap;">${bd ? _bkDateShort(bd) : '—'}</td>
+        <td style="padding:10px 12px;"><div style="font-weight:600;">${escapeHtml(j.customer || j.code)}</div><div style="font-size:11px;color:var(--ink-mute);">${escapeHtml(j.type || '')}${j.loc && j.loc !== '-' ? ' · ' + escapeHtml(j.loc) : ''}</div></td>
+        <td style="padding:10px 12px;white-space:nowrap;">${j.date ? _bkDateShort(j.date) : '—'}</td>
+        <td style="padding:10px 12px;">${chip}</td>
+        <td style="padding:10px 12px;color:var(--ink-mute);">${escapeHtml(j.source || '')}</td>
+        <td style="padding:10px 12px;text-align:right;font-variant-numeric:tabular-nums;color:#7FCB9B;">${dep ? fmtTHB(dep) : '—'}</td>
+        <td style="padding:10px 12px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-mute);">${out > 0 ? fmtTHB(out) : '—'}</td>
+        <td style="padding:10px 12px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums;color:#F5D9A8;">${fmtTHB(rev)}</td>
+      </tr>`;
+    }).join('');
+    const parts = [];
+    if (nDays) parts.push('เฉลี่ยจากส่งใบเสนอ → ปิดขาย <b style="color:#F4F3F1;">' + (Math.round(sumDays / nDays * 10) / 10) + ' วัน</b>');
+    const ch = []; if (nLink) ch.push('ลิงก์จอง ' + nLink); if (nQuote) ch.push('ใบเสนอ ' + nQuote); if (nManual) ch.push('กรอกเอง ' + nManual);
+    if (ch.length) parts.push(ch.join(' · '));
+    bookedHtml = `<div style="${card}overflow:hidden;margin-top:16px;">
+      <div style="padding:12px 16px;font-size:11px;letter-spacing:1.5px;color:#E0A96D;font-weight:700;text-transform:uppercase;display:flex;justify-content:space-between;"><span>จองใหม่เดือนนี้</span><span style="letter-spacing:0;color:var(--ink-mute);text-transform:none;">${S.booked.length} งาน · ${fmtTHB(S.bookedSales)}</span></div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead><tr style="color:var(--ink-mute);font-size:11px;text-align:left;"><th style="padding:8px 12px;">ปิดขาย</th><th style="padding:8px 12px;">ลูกค้า</th><th style="padding:8px 12px;">วันถ่าย</th><th style="padding:8px 12px;">ช่องทาง</th><th style="padding:8px 12px;">มาจาก</th><th style="padding:8px 12px;text-align:right;">มัดจำ</th><th style="padding:8px 12px;text-align:right;">ค้าง</th><th style="padding:8px 12px;text-align:right;">ยอดขาย</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+      ${parts.length ? `<div style="padding:10px 16px;font-size:12px;color:var(--ink-mute);border-top:1px solid rgba(255,255,255,0.06);">${parts.join(' &nbsp;·&nbsp; ')}</div>` : ''}
+    </div>`;
+  }
 
   return `
     <div style="display:flex;align-items:center;justify-content:center;gap:22px;padding:6px 0 4px;">
@@ -6918,6 +6966,7 @@ function renderReportsMonthly() {
       </div>
     </div>
 
+    ${bookedHtml}
     <div style="${card}overflow:hidden;margin-top:16px;">
       <div style="padding:12px 16px;font-size:11px;letter-spacing:1.5px;color:#E0A96D;font-weight:700;text-transform:uppercase;display:flex;justify-content:space-between;"><span>งานในเดือนนี้</span><span style="letter-spacing:0;color:var(--ink-mute);text-transform:none;">กำไรต่องาน</span></div>
       ${jobsHtml}
