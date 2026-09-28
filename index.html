@@ -1045,6 +1045,11 @@
   .ts-seg { display:flex; background:rgba(0,0,0,.05); border-radius:10px; padding:3px; margin:0 16px 12px; }
   .ts-seg div { flex:1; text-align:center; padding:8px; font-size:12.5px; color:#9a8c78; border-radius:8px; cursor:pointer; }
   .ts-seg div.on { background:#fff; color:#3a2f25; font-weight:700; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .ts-range { display:flex; justify-content:center; gap:6px; margin:-4px 16px 12px; }
+  .ts-range span { font-size:11.5px; padding:5px 12px; border-radius:20px; border:1px solid rgba(0,0,0,.1); color:#8a7d6c; cursor:pointer; }
+  .ts-range span.on { background:#9C7340; border-color:#9C7340; color:#fff; font-weight:700; }
+  body.dark-theme .ts-range span, body.luxe-theme .ts-range span { border-color:rgba(255,255,255,.14); color:#8A8790; }
+  body.dark-theme .ts-range span.on, body.luxe-theme .ts-range span.on { background:rgba(212,160,86,.22); border-color:rgba(212,160,86,.5); color:#E9C67F; }
   .ts-sum { display:flex; gap:8px; margin:0 16px 12px; }
   .ts-sum > div { flex:1; background:#fff; border:1px solid rgba(0,0,0,.06); border-radius:12px; padding:10px 4px; text-align:center; min-width:0; }
   .ts-sum .v { font-size:16px; font-weight:800; color:#2a2119; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -6089,6 +6094,10 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
           <div class="on" data-tv="person" onclick="setTeamView('person')">👤 รายคน</div>
           <div data-tv="day" onclick="setTeamView('day')">📆 รายวัน</div>
         </div>
+        <div class="ts-range" id="ts-range">
+          <span class="on" data-tr="month" onclick="setTeamRange('month')">เดือนที่เลือก</span>
+          <span data-tr="all" onclick="setTeamRange('all')">ทั้งหมดที่ยังไม่ถ่าย</span>
+        </div>
         <div id="cal-team-content"></div>
       </div>
 
@@ -9079,7 +9088,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.95';
+const PIXORY_VERSION = '2.9.96';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -9090,6 +9099,14 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.96': {
+    date: '2026-09-28',
+    title: 'ตารางทีม · ดู "ทั้งหมดที่ยังไม่ถ่าย" ได้แล้ว 👥',
+    subtitle: 'ไม่ต้องกดเลื่อนทีละเดือน — เห็นทุกงานของแต่ละคนในหน้าเดียว',
+    items: [
+      { icon: '📋', title: 'ปุ่ม "ทั้งหมดที่ยังไม่ถ่าย"', desc: 'ในแท็บทีม สลับจาก "เดือนที่เลือก" เป็นทุกงานตั้งแต่วันนี้ไป · แต่ละคนเห็นเลยว่ามีงานกับเราวันไหนบ้าง (บอกเดือน/ปีกำกับ) ค่าแรงรวมเท่าไหร่' },
+    ]
+  },
   '2.9.95': {
     date: '2026-09-28',
     title: 'ตารางทีม · ใครมีงานวันไหน 👥',
@@ -24676,6 +24693,7 @@ function downloadInvoiceJPEG() {
 let CAL_YEAR = new Date().getFullYear(), CAL_MONTH = new Date().getMonth();
 let CAL_TAB = 'month';      // v2.9.95 · 'month' | 'team'
 let TEAM_VIEW = 'person';   // v2.9.95 · 'person' | 'day'
+let TEAM_RANGE = 'month';   // v2.9.96 · 'month' = เดือนที่เลือก | 'all' = ทุกงานตั้งแต่วันนี้ไป
 function renderCalLegend() {
   const l = document.getElementById('cal-legend');
   l.innerHTML = '';
@@ -24684,7 +24702,7 @@ function renderCalLegend() {
   });
 }
 function renderCalendar() {
-  document.getElementById('cal-month').textContent = monthsFullArray()[CAL_MONTH] + ' ' + displayYear(CAL_YEAR);
+  document.getElementById('cal-month').textContent = (CAL_TAB === 'team' && TEAM_RANGE === 'all') ? 'ทุกงานที่ยังไม่ถ่าย' : (monthsFullArray()[CAL_MONTH] + ' ' + displayYear(CAL_YEAR));
   // v2.9.95 · แท็บทีม render แยก · กริดเดือนไม่ต้องวาดตอนซ่อน
   if (CAL_TAB === 'team') { renderCalTeam(); return; }
   const first = new Date(CAL_YEAR, CAL_MONTH, 1);
@@ -24827,6 +24845,11 @@ function setCalTab(tab) {
   if (tv) tv.style.display = CAL_TAB === 'team' ? '' : 'none';
   renderCalendar();
 }
+function setTeamRange(r) {
+  TEAM_RANGE = r === 'all' ? 'all' : 'month';
+  document.querySelectorAll('#ts-range > span').forEach(d => d.classList.toggle('on', d.getAttribute('data-tr') === TEAM_RANGE));
+  renderCalendar();
+}
 function setTeamView(v) {
   TEAM_VIEW = v === 'day' ? 'day' : 'person';
   document.querySelectorAll('#ts-seg > div').forEach(d => d.classList.toggle('on', d.getAttribute('data-tv') === TEAM_VIEW));
@@ -24862,11 +24885,15 @@ function _tsDaysBetween(a, b) {
   return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
 }
 function _tsBuild(y, m) {
+  // y === null → โหมด "ทั้งหมด": ทุก session ตั้งแต่วันนี้เป็นต้นไป (ไม่จำกัดเดือน)
+  const allMode = (y === null);
+  const todayIso = (typeof _todayLocal === 'function') ? _todayLocal() : '';
   const entries = []; // { job, session, date }
   (JOBS || []).forEach(j => {
     if (!j || (typeof jobCancelled === 'function' && jobCancelled(j))) return;
     getJobSessions(j).forEach(s => {
-      if (!s || !s.date || !_isSameMonth(s.date, y, m)) return;
+      if (!s || !s.date) return;
+      if (allMode ? (s.date < todayIso) : !_isSameMonth(s.date, y, m)) return;
       entries.push({ job: j, session: s, date: s.date });
     });
   });
@@ -24916,12 +24943,14 @@ function _tsBuild(y, m) {
 function renderCalTeam() {
   const el = document.getElementById('cal-team-content');
   if (!el) return;
-  const D = _tsBuild(CAL_YEAR, CAL_MONTH);
+  const allMode = TEAM_RANGE === 'all';
+  const D = allMode ? _tsBuild(null, null) : _tsBuild(CAL_YEAR, CAL_MONTH);
   const isDark = document.body.classList.contains('dark-theme') || document.body.classList.contains('luxe-theme');
+  const _mo = (iso) => { const d = new Date(iso + 'T00:00:00'); return isNaN(d) ? '' : MONTHS_TH_SHORT[d.getMonth()] + (typeof displayYear === 'function' ? ' ' + String(displayYear(d.getFullYear())).slice(-2) : ''); };
   const ink = isDark ? '#17130B' : '#fff';
 
   let html = '<div class="ts-sum">' +
-    '<div><div class="v">' + D.uniqJobs.length + '</div><div class="l">งานเดือนนี้</div></div>' +
+    '<div><div class="v">' + D.uniqJobs.length + '</div><div class="l">' + (allMode ? 'งานรอถ่าย' : 'งานเดือนนี้') + '</div></div>' +
     '<div><div class="v">' + D.busy.length + '</div><div class="l">คนที่มีงาน</div></div>' +
     '<div class="g"><div class="v">' + (D.wageTotal > 0 ? fmtK(D.wageTotal) : '—') + '</div><div class="l">ค่าแรงรวม</div></div>' +
     '<div class="' + (D.incomplete > 0 ? 'r' : '') + '"><div class="v">' + D.incomplete + '</div><div class="l">ทีมยังไม่ครบ</div></div>' +
@@ -24929,7 +24958,7 @@ function renderCalTeam() {
   if (D.hasSame) html += '<div class="ts-alert">⚠ มีคนถูกใส่ชื่อ 2 งานในวันเดียวกัน · เช็กในรายชื่อด้านล่าง</div>';
 
   if (D.entries.length === 0) {
-    html += '<div class="dm-empty">ไม่มีงานในเดือนนี้</div>';
+    html += '<div class="dm-empty">' + (allMode ? 'ไม่มีงานที่รอถ่าย' : 'ไม่มีงานในเดือนนี้') + '</div>';
     el.innerHTML = html; return;
   }
 
@@ -24941,7 +24970,7 @@ function renderCalTeam() {
       const nJobs = p.jobCodes.size;
       const sub = [p.role, nJobs + ' งาน'].filter(Boolean).join(' · ');
       const wageHtml = p.wage > 0 ? fmt(p.wage) : '—';
-      const missHtml = p.wageMissing > 0 ? '<div class="l" style="color:#c0392b;">ยังไม่กรอก ' + p.wageMissing + ' งาน</div>' : '<div class="l">ค่าแรงเดือนนี้</div>';
+      const missHtml = p.wageMissing > 0 ? '<div class="l" style="color:#c0392b;">ยังไม่กรอก ' + p.wageMissing + ' งาน</div>' : '<div class="l">' + (allMode ? 'ค่าแรงรวม' : 'ค่าแรงเดือนนี้') + '</div>';
       html += '<div class="ts-person">' +
         '<div class="ph" onclick="this.parentNode.classList.toggle(\'fold\')">' +
           '<div class="av" style="background:' + p.color + ';color:' + ink + ';">' + escapeHtml(_tsInitials(n)) + '</div>' +
@@ -24958,7 +24987,7 @@ function renderCalTeam() {
         const w = _tsWage(j, n);
         const tags = (it._same ? '<span class="ts-warn">ซ้อน!</span>' : '') + (!it._same && it._adj ? '<span class="ts-tag">ติดกัน</span>' : '');
         html += '<div class="day" onclick="openJob(\'' + jsStr(j.code) + '\')">' +
-          '<div class="d">' + d.getDate() + '<small>' + _tsDayName(it.date) + '</small></div>' +
+          '<div class="d">' + d.getDate() + '<small>' + (allMode ? _mo(it.date) : _tsDayName(it.date)) + '</small></div>' +
           '<div class="i"><div class="t">' + escapeHtml(title) + '</div><div class="s">' + escapeHtml(meta) + tags + '</div></div>' +
           '<div class="w' + (w === null ? ' miss' : '') + '">' + (w === null ? 'ไม่ได้กรอก' : fmt(w)) + '</div>' +
           '</div>';
@@ -24966,7 +24995,7 @@ function renderCalTeam() {
       html += '</div></div>';
     });
     if (D.idle.length) {
-      html += '<div class="ts-idle"><div class="h">ยังไม่มีงานเดือนนี้ · ' + D.idle.length + ' คน</div><div class="ts-chips">' +
+      html += '<div class="ts-idle"><div class="h">' + (allMode ? 'ยังไม่มีงานรอถ่าย' : 'ยังไม่มีงานเดือนนี้') + ' · ' + D.idle.length + ' คน</div><div class="ts-chips">' +
         D.idle.map(n => '<span class="ts-chip"><i style="background:' + D.people[n].color + ';color:' + ink + ';">' + escapeHtml(_tsInitials(n)) + '</i>' + escapeHtml(n) + '</span>').join('') +
         '</div></div>';
     }
@@ -24980,7 +25009,7 @@ function renderCalTeam() {
       const d = new Date(date + 'T00:00:00');
       const isToday = date === todayIso;
       html += '<div class="ts-dv' + (isToday ? ' today' : '') + '">' +
-        '<div class="h"><b>' + _tsDayFull(date) + ' ' + d.getDate() + ' ' + MONTHS_TH_SHORT[d.getMonth()] + '</b><span>' + items.length + ' งาน' + (isToday ? ' · วันนี้' : '') + '</span></div>';
+        '<div class="h"><b>' + _tsDayFull(date) + ' ' + d.getDate() + ' ' + MONTHS_TH_SHORT[d.getMonth()] + (allMode && typeof displayYear === 'function' ? ' ' + String(displayYear(d.getFullYear())).slice(-2) : '') + '</b><span>' + items.length + ' งาน' + (isToday ? ' · วันนี้' : '') + '</span></div>';
       items.forEach(it => {
         const j = it.job, s = it.session;
         const loc = (s.loc && s.loc !== '-') ? s.loc : ((j.loc && j.loc !== '-') ? j.loc : '');

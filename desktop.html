@@ -3221,12 +3221,20 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.78';
+const PIXORY_DESKTOP_VERSION = '1.1.79';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.1.79': {
+    date: '2026-09-28',
+    title: 'ตารางทีม · ดู "ทั้งหมดที่ยังไม่ถ่าย" ได้แล้ว 👥',
+    subtitle: 'ไม่ต้องเลื่อนทีละเดือน — เห็นทุกงานของแต่ละคนในหน้าเดียว',
+    items: [
+      { icon: '📋', title: 'ปุ่ม "ทั้งหมดที่ยังไม่ถ่าย"', desc: 'ในมุมมองทีม สลับจาก "เดือนที่เลือก" เป็นทุกงานตั้งแต่วันนี้ไป · การ์ดแต่ละคนไล่ทุกวันงาน (บอกเดือน/ปี) + ค่าแรงรวม + งานที่ทีมยังไม่ครบทั้งหมด' },
+    ]
+  },
   '1.1.78': {
     date: '2026-09-28',
     title: 'ตารางทีม · ใครมีงานวันไหน 👥',
@@ -5926,6 +5934,11 @@ function addAllJobsToCalendar() {
 
 // v1.1.78 · ปุ่มสลับมุมมองปฏิทิน: เดือน / ทีม (ใช้ร่วมใน header ทั้ง 2 มุมมอง)
 let CAL_VIEW = 'month'; // 'month' | 'team'
+let TEAM_RANGE = 'month'; // v1.1.79 · 'month' | 'all' (ทุกงานตั้งแต่วันนี้ไป)
+function setTeamRange(r) {
+  TEAM_RANGE = r === 'all' ? 'all' : 'month';
+  renderCalendar(document.getElementById('main'));
+}
 function setCalView(v) {
   CAL_VIEW = v === 'team' ? 'team' : 'month';
   renderCalendar(document.getElementById('main'));
@@ -6230,12 +6243,17 @@ function _tsWage(j, name) {
   const n = Number(w); return isNaN(n) ? null : n;
 }
 function _tsBuild(y, m) {
+  // y === null → โหมด "ทั้งหมด": ทุกวันงานตั้งแต่วันนี้เป็นต้นไป
+  const allMode = (y === null);
+  const _t = new Date();
+  const todayIso = _t.getFullYear() + '-' + String(_t.getMonth() + 1).padStart(2, '0') + '-' + String(_t.getDate()).padStart(2, '0');
   const entries = [];
   (JOBS || []).forEach(j => {
     if (!j || jobCancelled(j)) return;
     _getJobOccurrences(j).forEach(o => {
       const d = new Date(o.iso);
-      if (isNaN(d) || d.getFullYear() !== y || d.getMonth() !== m) return;
+      if (isNaN(d)) return;
+      if (allMode ? (o.iso < todayIso) : (d.getFullYear() !== y || d.getMonth() !== m)) return;
       entries.push({ job: j, session: o.session, date: o.iso });
     });
   });
@@ -6277,8 +6295,9 @@ function _tsBuild(y, m) {
   return { entries, people, busy, idle, uniqJobs, wageTotal, incomplete, hasSame: busy.some(n => people[n].warnSame > 0) };
 }
 function renderCalTeam(root) {
-  const D = _tsBuild(CAL_YEAR, CAL_MONTH);
-  const monthName = TH_MONTHS_FULL[CAL_MONTH] + ' ' + (CAL_YEAR + 543);
+  const allMode = TEAM_RANGE === 'all';
+  const D = allMode ? _tsBuild(null, null) : _tsBuild(CAL_YEAR, CAL_MONTH);
+  const monthName = allMode ? 'ทุกงานที่ยังไม่ถ่าย' : (TH_MONTHS_FULL[CAL_MONTH] + ' ' + (CAL_YEAR + 543));
   const TH_M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
   const WD = ['อา','จ','อ','พ','พฤ','ศ','ส'];
   const WD_FULL = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
@@ -6292,7 +6311,7 @@ function renderCalTeam(root) {
 
   // ===== ตาราง คน × วัน =====
   let grid = '';
-  if (D.busy.length) {
+  if (D.busy.length && !allMode) {
     grid += `<div class="ts-grid-wrap"><table class="ts-grid"><thead><tr><th class="nm">ทีม</th>`;
     for (let d = 1; d <= days; d++) {
       const iso = isoOf(d), wd = new Date(CAL_YEAR, CAL_MONTH, d).getDay();
@@ -6329,7 +6348,7 @@ function renderCalTeam(root) {
       const w = _tsWage(j, n);
       const tag = it.same ? '<span class="ts-warn">ซ้อน!</span>' : (it.adj ? '<span class="ts-tag">ติดกัน</span>' : '');
       return `<div class="ts-row" onclick="openJobDetail('${escapeHtml(j.code)}')">
-        <div class="d">${d.getDate()}<small>${WD[d.getDay()]}</small></div>
+        <div class="d">${d.getDate()}<small>${allMode ? TH_M[d.getMonth()] + ' ' + String(d.getFullYear() + 543).slice(-2) : WD[d.getDay()]}</small></div>
         <div class="i"><div class="t">${escapeHtml(j.customer || '-')}${lc ? ' <span>· ' + escapeHtml(lc) + '</span>' : ''}</div><div class="s">${escapeHtml([j.type, time, s.label].filter(Boolean).join(' · '))}${tag}</div></div>
         <div class="w ${w === null ? 'miss' : ''}">${w === null ? 'ไม่ได้กรอก' : fmtTHB(w)}</div>
       </div>`;
@@ -6337,7 +6356,7 @@ function renderCalTeam(root) {
     return `<div class="pxcard ts-person" style="border-radius:18px;background:rgba(28,28,34,0.5);border:1px solid rgba(255,255,255,0.07);overflow:hidden;">
       <div class="ph"><span class="av" style="background:${p.color};">${escapeHtml(_tsInitials(n))}</span>
         <div class="pi"><div class="pn">${escapeHtml(n)}${p.warnSame ? ' <span class="ts-warn">ซ้อน ' + p.warnSame + '</span>' : ''}</div><div class="ps">${escapeHtml([p.role, p.jobCodes.size + ' งาน'].filter(Boolean).join(' · '))}</div></div>
-        <div class="pr"><div class="n">${p.wage > 0 ? fmtTHB(p.wage) : '—'}</div><div class="l${p.wageMissing ? ' miss' : ''}">${p.wageMissing ? 'ยังไม่กรอก ' + p.wageMissing + ' งาน' : 'ค่าแรงเดือนนี้'}</div></div>
+        <div class="pr"><div class="n">${p.wage > 0 ? fmtTHB(p.wage) : '—'}</div><div class="l${p.wageMissing ? ' miss' : ''}">${p.wageMissing ? 'ยังไม่กรอก ' + p.wageMissing + ' งาน' : (allMode ? 'ค่าแรงรวม' : 'ค่าแรงเดือนนี้')}</div></div>
       </div>
       <div class="rows">${rows}</div>
     </div>`;
@@ -6346,10 +6365,10 @@ function renderCalTeam(root) {
   // ===== งานที่ทีมยังไม่ครบ =====
   const needHtml = D.incomplete.length ? `<div class="pxcard" style="border-radius:18px;padding:16px 20px;background:rgba(240,165,139,0.06);border:1px solid rgba(240,165,139,0.25);">
       <div style="font-size:13.5px;color:#F0A58B;font-weight:600;margin-bottom:8px;">⚠ งานที่ยังไม่ระบุทีม / ทีมยังไม่ครบ · ${D.incomplete.length} งาน</div>
-      ${D.incomplete.map(j => { const o = _getJobOccurrences(j).filter(x => { const d = new Date(x.iso); return d.getFullYear() === CAL_YEAR && d.getMonth() === CAL_MONTH; })[0]; const d = o ? new Date(o.iso + 'T00:00:00') : null; const team = Array.isArray(j.team) ? j.team : []; return `<div onclick="openJobDetail('${escapeHtml(j.code)}')" style="display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.05);cursor:pointer;font-size:13px;"><span style="font-family:'Inter';font-weight:600;color:#EFB670;min-width:70px;">${d ? WD_FULL[d.getDay()] + ' ' + d.getDate() : '-'}</span><span style="flex:1;color:#E4E4E7;">${escapeHtml(j.customer || '-')}${j.loc && j.loc !== '-' ? ' <span style="color:#71717A;">· ' + escapeHtml(j.loc) + '</span>' : ''}</span><span style="color:#A1A1AA;font-size:12px;">${team.length ? 'มี ' + team.length + ' คน · ยังไม่ครบ' : 'ยังไม่ระบุทีม'}</span></div>`; }).join('')}
+      ${D.incomplete.map(j => { const o = allMode ? _getJobOccurrences(j).filter(x => x.iso >= todayIso).sort((a, b) => a.iso.localeCompare(b.iso))[0] : _getJobOccurrences(j).filter(x => { const d = new Date(x.iso); return d.getFullYear() === CAL_YEAR && d.getMonth() === CAL_MONTH; })[0]; const d = o ? new Date(o.iso + 'T00:00:00') : null; const team = Array.isArray(j.team) ? j.team : []; return `<div onclick="openJobDetail('${escapeHtml(j.code)}')" style="display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.05);cursor:pointer;font-size:13px;"><span style="font-family:'Inter';font-weight:600;color:#EFB670;min-width:90px;">${d ? WD_FULL[d.getDay()] + ' ' + d.getDate() + (allMode ? ' ' + TH_M[d.getMonth()] : '') : '-'}</span><span style="flex:1;color:#E4E4E7;">${escapeHtml(j.customer || '-')}${j.loc && j.loc !== '-' ? ' <span style="color:#71717A;">· ' + escapeHtml(j.loc) + '</span>' : ''}</span><span style="color:#A1A1AA;font-size:12px;">${team.length ? 'มี ' + team.length + ' คน · ยังไม่ครบ' : 'ยังไม่ระบุทีม'}</span></div>`; }).join('')}
     </div>` : '';
 
-  const idleHtml = D.idle.length ? `<div style="font-size:12.5px;color:#71717A;display:flex;flex-wrap:wrap;gap:6px;align-items:center;"><span style="margin-right:4px;">ยังไม่มีงานเดือนนี้ · ${D.idle.length} คน:</span>${D.idle.map(n => `<span class="ts-chip"><i style="background:${D.people[n].color};">${escapeHtml(_tsInitials(n))}</i>${escapeHtml(n)}</span>`).join('')}</div>` : '';
+  const idleHtml = D.idle.length ? `<div style="font-size:12.5px;color:#71717A;display:flex;flex-wrap:wrap;gap:6px;align-items:center;"><span style="margin-right:4px;">${allMode ? 'ยังไม่มีงานรอถ่าย' : 'ยังไม่มีงานเดือนนี้'} · ${D.idle.length} คน:</span>${D.idle.map(n => `<span class="ts-chip"><i style="background:${D.people[n].color};">${escapeHtml(_tsInitials(n))}</i>${escapeHtml(n)}</span>`).join('')}</div>` : '';
 
   root.innerHTML = `
     <div class="page-header-row">
@@ -6359,19 +6378,23 @@ function renderCalTeam(root) {
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
         ${_calViewToggleHtml()}
-        <button class="cal-nav-btn" onclick="calPrevMonth()" title="เดือนก่อน">‹</button>
+        <span style="display:inline-flex;gap:3px;background:rgba(255,255,255,0.05);border-radius:10px;padding:3px;">
+          <button class="tab-btn ${!allMode ? 'active' : ''}" style="font-size:12px;" onclick="setTeamRange('month')">เดือนที่เลือก</button>
+          <button class="tab-btn ${allMode ? 'active' : ''}" style="font-size:12px;" onclick="setTeamRange('all')">ทั้งหมดที่ยังไม่ถ่าย</button>
+        </span>
+        ${allMode ? '' : `<button class="cal-nav-btn" onclick="calPrevMonth()" title="เดือนก่อน">‹</button>
         <button class="cal-today-btn" onclick="calGoToday()" title="วันนี้" style="min-width:120px;">${monthName}</button>
-        <button class="cal-nav-btn" onclick="calNextMonth()" title="เดือนถัดไป">›</button>
+        <button class="cal-nav-btn" onclick="calNextMonth()" title="เดือนถัดไป">›</button>`}
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:4px 0 18px;">
-      ${card(D.uniqJobs.length, 'งานเดือนนี้')}
+      ${card(D.uniqJobs.length, allMode ? 'งานรอถ่าย' : 'งานเดือนนี้')}
       ${card(D.busy.length, 'คนที่มีงาน')}
       ${card(D.wageTotal > 0 ? fmtTHB(D.wageTotal) : '—', 'ค่าแรงทีมรวม', '#5FCF8E')}
       ${card(D.incomplete.length, 'งานที่ทีมยังไม่ครบ', D.incomplete.length ? '#F0A58B' : '#F4F4F5')}
     </div>
     ${D.hasSame ? `<div style="margin-bottom:14px;padding:10px 14px;border-radius:10px;background:rgba(240,165,139,0.1);color:#F0A58B;font-size:13px;font-weight:600;">⚠ มีคนถูกใส่ชื่อ 2 งานในวันเดียวกัน · ช่องที่มี "!" ในตาราง</div>` : ''}
-    ${D.entries.length === 0 ? `<div class="pxcard" style="border-radius:18px;padding:36px;text-align:center;color:#71717A;background:rgba(28,28,34,0.5);border:1px solid rgba(255,255,255,0.07);">ยังไม่มีงานในเดือนนี้</div>` : (grid || `<div class="pxcard" style="border-radius:18px;padding:28px;text-align:center;color:#71717A;background:rgba(28,28,34,0.5);border:1px solid rgba(255,255,255,0.07);">มีงาน ${D.uniqJobs.length} งาน แต่ยังไม่ได้ใส่ชื่อทีมในงานไหนเลย</div>`)}
+    ${D.entries.length === 0 ? `<div class="pxcard" style="border-radius:18px;padding:36px;text-align:center;color:#71717A;background:rgba(28,28,34,0.5);border:1px solid rgba(255,255,255,0.07);">${allMode ? 'ยังไม่มีงานที่รอถ่าย' : 'ยังไม่มีงานในเดือนนี้'}</div>` : (grid || (allMode && D.busy.length ? '' : `<div class="pxcard" style="border-radius:18px;padding:28px;text-align:center;color:#71717A;background:rgba(28,28,34,0.5);border:1px solid rgba(255,255,255,0.07);">มีงาน ${D.uniqJobs.length} งาน แต่ยังไม่ได้ใส่ชื่อทีมในงานไหนเลย</div>`))}
     ${needHtml ? `<div style="margin-top:18px;">${needHtml}</div>` : ''}
     ${personCards ? `<div style="margin-top:22px;"><div style="font-family:'Fraunces',Georgia,serif;font-size:22px;color:#F4F4F5;margin-bottom:12px;">รายคน</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;">${personCards}</div></div>` : ''}
     ${idleHtml ? `<div style="margin-top:18px;">${idleHtml}</div>` : ''}
