@@ -2864,6 +2864,8 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
 .ts-grid td.nm .t{color:#E4E4E7;font-weight:500;font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;}
 .ts-grid td.nm .c{font-family:'Inter';font-size:11px;color:#A1A1AA;background:rgba(255,255,255,.06);padding:1px 7px;border-radius:10px;}
 .ts-grid tr{height:44px;}
+.ts-grid tr.own td{background:rgba(212,160,86,.04);}
+.ts-grid tr.own td.nm{background:#1b1912;}
 .ts-grid .av,.ts-person .av,.ts-chip i{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;font-weight:700;font-size:11px;color:#17130B;flex:none;font-style:normal;}
 .ts-grid .jb{margin:4px 3px;padding:4px 4px;border-radius:5px;font-size:10.5px;color:#F4F4F5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;position:relative;text-align:left;}
 .ts-grid .jb.dbl{outline:1.5px solid #F0A58B;}
@@ -3221,12 +3223,22 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.79';
+const PIXORY_DESKTOP_VERSION = '1.1.80';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.1.80': {
+    date: '2026-09-28',
+    title: 'ติ๊ก "เจ้าของ" ในทีม · ไม่คิดค่าแรง ⭐',
+    subtitle: 'ตั้งค่า → ทีมงาน → แก้ไข → ติ๊ก "เจ้าของ / ไม่คิดค่าแรง" (ติ๊กได้หลายคน)',
+    items: [
+      { icon: '⭐', title: 'เจ้าของแยกจากลูกทีม', desc: 'ตารางทีม: แถวเจ้าของอยู่บนสุด · การ์ดกลุ่ม "เจ้าของ" แสดง "ไปเอง N งาน" · ค่าแรงรวม/คนที่มีงาน นับเฉพาะลูกทีม' },
+      { icon: '🧾', title: 'ฟอร์มงาน', desc: 'เจ้าของถูกเลือกเข้างานใหม่ให้เอง ไม่มีช่องค่าแรง · แบนเนอร์ "ค่าแรงยังไม่กรอก" ไม่นับเจ้าของ · กด × ถ้าส่งทีมไปแทน' },
+      { icon: '🏷', title: 'ป้าย "ถ่ายเอง" / "ทีมไปแทน"', desc: 'เจ้าของเตือน "เวลาทับ" เฉพาะ 2 งานเวลาชนกันจริง (เช้า/เย็นไม่เตือน)' },
+    ]
+  },
   '1.1.79': {
     date: '2026-09-28',
     title: 'ตารางทีม · ดู "ทั้งหมดที่ยังไม่ถ่าย" ได้แล้ว 👥',
@@ -3798,6 +3810,9 @@ if (typeof window.jobRevenue !== 'function') {
 // v2.9.1 FIX · jobCancelled = ตัวจริง (เดิมเขียน return window.jobCancelled(j) → วนเรียกตัวเอง → stack overflow แครชทั้งหน้า)
 // v2.9.0 · สูตรเงิน 3 ตัว (ตรงกับมือถือเป๊ะ): รายรับจริง(เงินสดตามปีที่รับ) · ค้างเก็บ(งานถ่ายปีนั้น ไม่ยกเลิก) · คาดการณ์=รับจริง+ค้าง
 function jobCancelled(j) { return !!(j && (j.cancelled === true || j.jobStatus === 'ยกเลิก')); }
+// v1.1.80 · เจ้าของ/หุ้นส่วน (ติ๊กได้หลายคนในตั้งค่าทีม) · ไม่คิดค่าแรง · ไม่นับเป็นลูกทีม
+function isOwnerName(n) { const t = (TEAM || []).find(x => x && x.name === n); return !!(t && t.isOwner); }
+function ownerNames() { return (TEAM || []).filter(t => t && t.isOwner).map(t => t.name); }
 function jobEventYear(j) { if (!j || !j.date) return null; var d = new Date(j.date); return isNaN(d.getTime()) ? null : d.getFullYear(); }
 function cashReceivedInYear(Y) {
   var s = 0;
@@ -6262,37 +6277,56 @@ function _tsBuild(y, m) {
   const addPerson = (n) => {
     if (!n || people[n]) return;
     const t = (TEAM || []).find(x => x && x.name === n) || {};
-    people[n] = { name: n, role: t.role || '', color: _tsColor(n), items: [], byDate: {}, jobCodes: new Set(), wage: 0, wageMissing: 0, warnSame: 0 };
+    people[n] = { name: n, role: t.role || '', color: _tsColor(n), isOwner: !!t.isOwner, items: [], byDate: {}, jobCodes: new Set(), wage: 0, wageMissing: 0, warnSame: 0 };
     order.push(n);
   };
   (TEAM || []).forEach(t => t && addPerson(t.name));
   entries.forEach(e => (Array.isArray(e.job.team) ? e.job.team : []).forEach(addPerson));
+  // v1.1.80 · flag ต่อ entry: ownerGoes / soloOwner (ถ่ายเอง ไม่จ้างทีม) / teamOnly (ทีมไปแทน)
+  entries.forEach(e => {
+    const team = Array.isArray(e.job.team) ? e.job.team : [];
+    const owners = team.filter(isOwnerName);
+    e.ownerGoes = owners.length > 0;
+    e.soloOwner = team.length > 0 && owners.length === team.length;
+    e.teamOnly = team.length > 0 && owners.length === 0;
+  });
   entries.forEach(e => (Array.isArray(e.job.team) ? e.job.team : []).forEach(n => {
     const p = people[n]; if (!p) return;
-    const it = { job: e.job, session: e.session, date: e.date, same: false, adj: false };
+    const it = { job: e.job, session: e.session, date: e.date, same: false, adj: false, soloOwner: e.soloOwner, teamOnly: e.teamOnly };
     p.items.push(it);
     (p.byDate[e.date] = p.byDate[e.date] || []).push(it);
     if (!p.jobCodes.has(e.job.code)) {
       p.jobCodes.add(e.job.code);
+      if (p.isOwner) return; // เจ้าของไม่คิดค่าแรง
       const w = _tsWage(e.job, n);
       if (w === null) p.wageMissing++; else p.wage += w;
     }
   }));
   const dayDiff = (a, b) => Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+  // v1.1.80 · เจ้าของ: เตือนเฉพาะเวลาทับกันจริง · ไม่เตือน "ติดกัน"
+  const _overlap = (a, b) => {
+    const sa = a.session || {}, sb = b.session || {};
+    const as = sa.start || '00:00', ae = sa.end || '23:59', bs = sb.start || '00:00', be = sb.end || '23:59';
+    return as < be && bs < ae;
+  };
   order.forEach(n => {
     const p = people[n];
     p.items.forEach((it, i) => {
-      it.same = p.items.some((o, k) => k !== i && o.date === it.date && o.job.code !== it.job.code);
-      it.adj = p.items.some(o => o.job.code !== it.job.code && Math.abs(dayDiff(o.date, it.date)) === 1);
+      const sameDay = p.items.filter((o, k) => k !== i && o.date === it.date && o.job.code !== it.job.code);
+      it.same = p.isOwner ? sameDay.some(o => _overlap(o, it)) : sameDay.length > 0;
+      it.adj = !p.isOwner && p.items.some(o => o.job.code !== it.job.code && Math.abs(dayDiff(o.date, it.date)) === 1);
       if (it.same) p.warnSame++;
     });
   });
   const uniqJobs = Array.from(new Map(entries.map(e => [e.job.code, e.job])).values());
-  const busy = order.filter(n => people[n].items.length > 0).sort((a, b) => people[b].items.length - people[a].items.length || a.localeCompare(b, 'th'));
-  const idle = order.filter(n => people[n].items.length === 0);
+  const owners = order.filter(n => people[n].isOwner);
+  const busy = order.filter(n => !people[n].isOwner && people[n].items.length > 0).sort((a, b) => people[b].items.length - people[a].items.length || a.localeCompare(b, 'th'));
+  const idle = order.filter(n => !people[n].isOwner && people[n].items.length === 0);
   const wageTotal = busy.reduce((s, n) => s + people[n].wage, 0);
   const incomplete = uniqJobs.filter(j => getStageFromJobStatus(j.jobStatus) !== 'closed' && (j.teamStatus === 'incomplete' || !(Array.isArray(j.team) && j.team.length)));
-  return { entries, people, busy, idle, uniqJobs, wageTotal, incomplete, hasSame: busy.some(n => people[n].warnSame > 0) };
+  const soloJobs = new Set(entries.filter(e => e.soloOwner).map(e => e.job.code)).size;
+  const ownerJobs = new Set(entries.filter(e => e.ownerGoes).map(e => e.job.code)).size;
+  return { entries, people, owners, busy, idle, uniqJobs, wageTotal, incomplete, soloJobs, ownerJobs, hasSame: busy.concat(owners).some(n => people[n].warnSame > 0) };
 }
 function renderCalTeam(root) {
   const allMode = TEAM_RANGE === 'all';
@@ -6311,16 +6345,17 @@ function renderCalTeam(root) {
 
   // ===== ตาราง คน × วัน =====
   let grid = '';
-  if (D.busy.length && !allMode) {
+  if ((D.busy.length || D.owners.some(n => D.people[n].items.length)) && !allMode) {
     grid += `<div class="ts-grid-wrap"><table class="ts-grid"><thead><tr><th class="nm">ทีม</th>`;
     for (let d = 1; d <= days; d++) {
       const iso = isoOf(d), wd = new Date(CAL_YEAR, CAL_MONTH, d).getDay();
       grid += `<th class="${iso === todayIso ? 'today' : ''}${(wd === 0 || wd === 6) ? ' we' : ''}"><div>${WD[wd]}</div><b>${d}</b></th>`;
     }
     grid += `</tr></thead><tbody>`;
-    D.busy.forEach(n => {
+    const _rows = D.owners.filter(n => D.people[n].items.length > 0).concat(D.busy);
+    _rows.forEach(n => {
       const p = D.people[n];
-      grid += `<tr><td class="nm"><div class="nmw"><span class="av" style="background:${p.color};">${escapeHtml(_tsInitials(n))}</span><span class="t">${escapeHtml(n)}</span><span class="c">${p.jobCodes.size}</span></div></td>`;
+      grid += `<tr class="${p.isOwner ? 'own' : ''}"><td class="nm"><div class="nmw"><span class="av" style="background:${p.color};">${escapeHtml(_tsInitials(n))}</span><span class="t">${p.isOwner ? '⭐ ' : ''}${escapeHtml(n)}</span><span class="c">${p.jobCodes.size}</span></div></td>`;
       for (let d = 1; d <= days; d++) {
         const iso = isoOf(d), its = p.byDate[iso] || [];
         const wd = new Date(CAL_YEAR, CAL_MONTH, d).getDay();
@@ -6338,7 +6373,7 @@ function renderCalTeam(root) {
   }
 
   // ===== การ์ดรายคน =====
-  const personCards = D.busy.map(n => {
+  const personCard = (n) => {
     const p = D.people[n];
     const rows = p.items.map(it => {
       const j = it.job, s = it.session || {};
@@ -6346,21 +6381,26 @@ function renderCalTeam(root) {
       const lc = locOf(j, s);
       const time = (s.start || '') + (s.end ? '–' + s.end : '');
       const w = _tsWage(j, n);
-      const tag = it.same ? '<span class="ts-warn">ซ้อน!</span>' : (it.adj ? '<span class="ts-tag">ติดกัน</span>' : '');
+      const mates = (Array.isArray(j.team) ? j.team : []).filter(x => x !== n);
+      const tag = (it.same ? '<span class="ts-warn">' + (p.isOwner ? 'เวลาทับ!' : 'ซ้อน!') + '</span>' : (it.adj ? '<span class="ts-tag">ติดกัน</span>' : '')) +
+        (p.isOwner && it.soloOwner ? '<span class="ts-tag">ถ่ายเอง</span>' : '') + (!p.isOwner && it.teamOnly && D.owners.length ? '<span class="ts-tag">ทีมไปแทน</span>' : '');
       return `<div class="ts-row" onclick="openJobDetail('${escapeHtml(j.code)}')">
         <div class="d">${d.getDate()}<small>${allMode ? TH_M[d.getMonth()] + ' ' + String(d.getFullYear() + 543).slice(-2) : WD[d.getDay()]}</small></div>
-        <div class="i"><div class="t">${escapeHtml(j.customer || '-')}${lc ? ' <span>· ' + escapeHtml(lc) + '</span>' : ''}</div><div class="s">${escapeHtml([j.type, time, s.label].filter(Boolean).join(' · '))}${tag}</div></div>
-        <div class="w ${w === null ? 'miss' : ''}">${w === null ? 'ไม่ได้กรอก' : fmtTHB(w)}</div>
+        <div class="i"><div class="t">${escapeHtml(j.customer || '-')}${lc ? ' <span>· ' + escapeHtml(lc) + '</span>' : ''}</div><div class="s">${escapeHtml([j.type, time, s.label, (p.isOwner && mates.length ? 'กับ ' + mates.join(', ') : '')].filter(Boolean).join(' · '))}${tag}</div></div>
+        ${p.isOwner ? '<div class="w miss">ไปเอง</div>' : `<div class="w ${w === null ? 'miss' : ''}">${w === null ? 'ไม่ได้กรอก' : fmtTHB(w)}</div>`}
       </div>`;
     }).join('');
-    return `<div class="pxcard ts-person" style="border-radius:18px;background:rgba(28,28,34,0.5);border:1px solid rgba(255,255,255,0.07);overflow:hidden;">
+    return `<div class="pxcard ts-person${p.isOwner ? ' own' : ''}" style="border-radius:18px;background:${p.isOwner ? 'linear-gradient(135deg,rgba(212,160,86,0.10),rgba(28,28,34,0.5))' : 'rgba(28,28,34,0.5)'};border:1px solid ${p.isOwner ? 'rgba(212,160,86,0.35)' : 'rgba(255,255,255,0.07)'};overflow:hidden;">
       <div class="ph"><span class="av" style="background:${p.color};">${escapeHtml(_tsInitials(n))}</span>
-        <div class="pi"><div class="pn">${escapeHtml(n)}${p.warnSame ? ' <span class="ts-warn">ซ้อน ' + p.warnSame + '</span>' : ''}</div><div class="ps">${escapeHtml([p.role, p.jobCodes.size + ' งาน'].filter(Boolean).join(' · '))}</div></div>
-        <div class="pr"><div class="n">${p.wage > 0 ? fmtTHB(p.wage) : '—'}</div><div class="l${p.wageMissing ? ' miss' : ''}">${p.wageMissing ? 'ยังไม่กรอก ' + p.wageMissing + ' งาน' : (allMode ? 'ค่าแรงรวม' : 'ค่าแรงเดือนนี้')}</div></div>
+        <div class="pi"><div class="pn">${p.isOwner ? '⭐ ' : ''}${escapeHtml(n)}${p.warnSame ? ' <span class="ts-warn">' + (p.isOwner ? 'เวลาทับ ' : 'ซ้อน ') + p.warnSame + '</span>' : ''}</div><div class="ps">${escapeHtml([p.role, (p.isOwner ? 'ไปเอง ' : '') + p.jobCodes.size + ' งาน'].filter(Boolean).join(' · '))}</div></div>
+        ${p.isOwner ? `<div class="pr"><div class="n" style="color:#F4F4F5;font-size:14px;">${p.jobCodes.size} งาน</div><div class="l">ไม่คิดค่าแรง</div></div>`
+                    : `<div class="pr"><div class="n">${p.wage > 0 ? fmtTHB(p.wage) : '—'}</div><div class="l${p.wageMissing ? ' miss' : ''}">${p.wageMissing ? 'ยังไม่กรอก ' + p.wageMissing + ' งาน' : (allMode ? 'ค่าแรงรวม' : 'ค่าแรงเดือนนี้')}</div></div>`}
       </div>
       <div class="rows">${rows}</div>
     </div>`;
-  }).join('');
+  };
+  const ownerCards = D.owners.map(personCard).join('');
+  const personCards = D.busy.map(personCard).join('');
 
   // ===== งานที่ทีมยังไม่ครบ =====
   const needHtml = D.incomplete.length ? `<div class="pxcard" style="border-radius:18px;padding:16px 20px;background:rgba(240,165,139,0.06);border:1px solid rgba(240,165,139,0.25);">
@@ -6389,14 +6429,15 @@ function renderCalTeam(root) {
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:4px 0 18px;">
       ${card(D.uniqJobs.length, allMode ? 'งานรอถ่าย' : 'งานเดือนนี้')}
-      ${card(D.busy.length, 'คนที่มีงาน')}
-      ${card(D.wageTotal > 0 ? fmtTHB(D.wageTotal) : '—', 'ค่าแรงทีมรวม', '#5FCF8E')}
-      ${card(D.incomplete.length, 'งานที่ทีมยังไม่ครบ', D.incomplete.length ? '#F0A58B' : '#F4F4F5')}
+      ${card(D.busy.length, D.owners.length ? 'ลูกทีมที่มีงาน' : 'คนที่มีงาน')}
+      ${card(D.wageTotal > 0 ? fmtTHB(D.wageTotal) : '—', D.owners.length ? 'ค่าแรงลูกทีมรวม' : 'ค่าแรงทีมรวม', '#5FCF8E')}
+      ${D.owners.length ? card(D.soloJobs + ' <span style="font-size:13px;color:#A1A1AA;font-weight:400;">/ ' + D.incomplete.length + '</span>', 'ถ่ายเองล้วน / ทีมยังไม่ครบ') : card(D.incomplete.length, 'งานที่ทีมยังไม่ครบ', D.incomplete.length ? '#F0A58B' : '#F4F4F5')}
     </div>
-    ${D.hasSame ? `<div style="margin-bottom:14px;padding:10px 14px;border-radius:10px;background:rgba(240,165,139,0.1);color:#F0A58B;font-size:13px;font-weight:600;">⚠ มีคนถูกใส่ชื่อ 2 งานในวันเดียวกัน · ช่องที่มี "!" ในตาราง</div>` : ''}
+    ${D.hasSame ? `<div style="margin-bottom:14px;padding:10px 14px;border-radius:10px;background:rgba(240,165,139,0.1);color:#F0A58B;font-size:13px;font-weight:600;">⚠ ${D.busy.some(n => D.people[n].warnSame > 0) ? 'มีลูกทีมถูกใส่ชื่อ 2 งานในวันเดียวกัน' : 'เจ้าของมี 2 งานที่เวลาทับกัน'} · ${allMode ? 'ดูป้ายในการ์ดรายคน' : 'ช่องที่มี "!" ในตาราง'}</div>` : ''}
     ${D.entries.length === 0 ? `<div class="pxcard" style="border-radius:18px;padding:36px;text-align:center;color:#71717A;background:rgba(28,28,34,0.5);border:1px solid rgba(255,255,255,0.07);">${allMode ? 'ยังไม่มีงานที่รอถ่าย' : 'ยังไม่มีงานในเดือนนี้'}</div>` : (grid || (allMode && D.busy.length ? '' : `<div class="pxcard" style="border-radius:18px;padding:28px;text-align:center;color:#71717A;background:rgba(28,28,34,0.5);border:1px solid rgba(255,255,255,0.07);">มีงาน ${D.uniqJobs.length} งาน แต่ยังไม่ได้ใส่ชื่อทีมในงานไหนเลย</div>`))}
     ${needHtml ? `<div style="margin-top:18px;">${needHtml}</div>` : ''}
-    ${personCards ? `<div style="margin-top:22px;"><div style="font-family:'Fraunces',Georgia,serif;font-size:22px;color:#F4F4F5;margin-bottom:12px;">รายคน</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;">${personCards}</div></div>` : ''}
+    ${ownerCards ? `<div style="margin-top:22px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;"><span style="font-family:'Fraunces',Georgia,serif;font-size:22px;color:#F4F4F5;">⭐ เจ้าของ</span><span style="font-size:13px;color:#EFB670;">ไปเอง ${D.ownerJobs} จาก ${D.uniqJobs.length} งาน</span></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;">${ownerCards}</div></div>` : ''}
+    ${personCards ? `<div style="margin-top:22px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;"><span style="font-family:'Fraunces',Georgia,serif;font-size:22px;color:#F4F4F5;">${D.owners.length ? '👥 ลูกทีม' : 'รายคน'}</span>${D.wageTotal > 0 ? `<span style="font-size:13px;color:#5FCF8E;">ค่าแรงรวม ${fmtTHB(D.wageTotal)}</span>` : ''}</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;">${personCards}</div></div>` : ''}
     ${idleHtml ? `<div style="margin-top:18px;">${idleHtml}</div>` : ''}
   `;
 }
@@ -10411,9 +10452,9 @@ function renderSettingsTeam() {
             <tbody>
               ${TEAM.map((t, i) => `
                 <tr onclick="openTeamEdit(${i})">
-                  <td><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${t.color || 'var(--brand)'};margin-right:8px;vertical-align:middle;"></span><strong>${escapeHtml(t.name || '-')}</strong></td>
+                  <td><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${t.color || 'var(--brand)'};margin-right:8px;vertical-align:middle;"></span><strong>${escapeHtml(t.name || '-')}</strong>${t.isOwner ? ' <span style="font-size:10.5px;color:#EFB670;background:rgba(212,160,86,.16);padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px;">⭐ เจ้าของ</span>' : ''}</td>
                   <td>${escapeHtml(t.role || '-')}</td>
-                  <td class="amount-cell">${t.rate ? fmtTHB(t.rate) : '-'}</td>
+                  <td class="amount-cell">${t.isOwner ? '<span class="text-mute">ไม่คิดค่าแรง</span>' : (t.rate ? fmtTHB(t.rate) : '-')}</td>
                   <td class="actions-cell"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); deleteTeam(${i})" style="color:var(--red);">ลบ</button></td>
                 </tr>
               `).join('')}
@@ -10442,6 +10483,11 @@ function openTeamEdit(idx) {
           <div class="form-field"><label>ค่าตอบแทนปกติต่องาน (บาท)</label><input type="number" id="tm-rate" min="0" value="${t.rate || 0}" /></div>
           <div class="form-field"><label>สี</label><input type="color" id="tm-color" value="${escapeHtml(t.color || '#D4A056')}" style="height:40px;padding:2px;" /></div>
         </div>
+        <!-- v1.1.80 · ธงเจ้าของ -->
+        <label style="display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid rgba(212,160,86,.3);background:rgba(212,160,86,.06);cursor:pointer;">
+          <input type="checkbox" id="tm-owner" ${t.isOwner ? 'checked' : ''} style="width:20px;height:20px;accent-color:#D4A056;flex:none;" />
+          <span><span style="display:block;font-weight:600;">⭐ เจ้าของ / ไม่คิดค่าแรง</span><span style="display:block;font-size:12px;color:var(--ink-mute);margin-top:2px;line-height:1.5;">ติ๊กได้หลายคน · ไม่มีช่องค่าแรงในงาน · ไม่นับในค่าแรงทีม · ถูกเลือกให้อัตโนมัติตอนสร้างงานใหม่</span></span>
+        </label>
       </div>
     </div>
     <div class="modal-footer">
@@ -10456,6 +10502,8 @@ async function saveTeam(idx) {
   const role = (document.getElementById('tm-role').value || '').trim();
   const rate = Number(document.getElementById('tm-rate').value) || 0;
   const color = document.getElementById('tm-color').value || '#D4A056';
+  const _ownEl = document.getElementById('tm-owner');
+  const isOwner = !!(_ownEl && _ownEl.checked);
   if (!name) { toast('ใส่ชื่อก่อน', 'error'); return; }
   // v2.9.7 · team ID คงที่ · เก็บ id เดิมตอนแก้ (เดิม TEAM[idx]=entry ทำ id หาย) + propagate rename
   const isEdit = idx >= 0 && TEAM[idx];
@@ -10463,6 +10511,7 @@ async function saveTeam(idx) {
   const id = isEdit ? (TEAM[idx].id || (typeof genTeamId === 'function' ? genTeamId() : undefined))
                     : (typeof genTeamId === 'function' ? genTeamId() : undefined);
   const entry = { id, name, role, rate, color };
+  if (isOwner) entry.isOwner = true;
   if (isEdit) TEAM[idx] = entry; else TEAM.push(entry);
   if (isEdit && oldName !== name && id && typeof renameTeamMember === 'function') {
     const n = renameTeamMember(JOBS, TEAM, id, name);
@@ -14286,6 +14335,8 @@ function openJobModal(code) {
       };
     }
   }
+  // v1.1.80 · งานใหม่: เจ้าของถูกเลือกเข้างานให้เอง (ค่าแรง 0 · เอาออกได้ถ้าส่งทีมไปแทน)
+  if (!j) ownerNames().forEach(n => { st.team.add(n); st.teamWages[n] = 0; });
   // Synthesize session from legacy if needed
   if (st.sessions.length === 0) {
     if (j && j.date) {
@@ -14354,14 +14405,14 @@ function renderTeamUI() {
       return `<button type="button" onclick="toggleTeamMember('${jsStr(t.name)}')"
         style="display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;border:1.5px solid ${c};background:${c};color:white;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px ${c}40;transition:all 0.15s;">
         <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.85);"></span>
-        ${escapeHtml(t.name)}
+        ${t.isOwner ? '⭐ ' : ''}${escapeHtml(t.name)}
       </button>`;
     } else {
       // Inactive · ขาวโปร่ง + dot สีทีม
       return `<button type="button" onclick="toggleTeamMember('${jsStr(t.name)}')"
         style="display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;border:1.5px solid rgba(212,160,86,0.25);background:rgba(255,255,255,0.05);color:#F4F3F1;font-size:12.5px;font-weight:500;cursor:pointer;transition:all 0.15s;">
         <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};"></span>
-        + ${escapeHtml(t.name)}
+        + ${t.isOwner ? '⭐ ' : ''}${escapeHtml(t.name)}
       </button>`;
     }
   }).join('') + _addChipHtml;
@@ -14369,7 +14420,7 @@ function renderTeamUI() {
   const teamList = Array.from(st.team);
   if (teamList.length === 0) { wages.innerHTML = ''; return; }
   // M3 · เตือนถ้าค่าแรงทีมยังไม่ครบ
-  const unsetCount = teamList.filter(n => !st.teamWages[n] || Number(st.teamWages[n]) <= 0).length;
+  const unsetCount = teamList.filter(n => !isOwnerName(n) && (!st.teamWages[n] || Number(st.teamWages[n]) <= 0)).length;
   const warnBanner = unsetCount > 0
     ? `<div style="background:rgba(245,158,11,0.10); border:1px solid rgba(245,158,11,0.30); border-radius:10px; padding:10px 14px; margin-bottom:10px; font-size:12.5px; color:#b45309;">⚠ ค่าแรง ${unsetCount} คนยังไม่กรอก · กำไรขาดทุนจะคำนวณได้ไม่ครบ</div>`
     : '';
@@ -14377,6 +14428,20 @@ function renderTeamUI() {
     const tm = TEAM.find(x => x.name === name);
     const c = (tm && tm.color) || '#888780';
     const role = tm && tm.role ? tm.role : '';
+    // v1.1.80 · เจ้าของ: ค่าแรง 0 เสมอ ไม่มีช่องกรอก
+    if (tm && tm.isOwner) {
+      st.teamWages[name] = 0;
+      return `
+      <div class="form-row" style="margin-top:6px;align-items:center;">
+        <div class="form-field" style="flex:1;">
+          <label style="display:inline-flex;align-items:center;gap:8px;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${c};"></span>⭐ ${escapeHtml(name)}${role ? ` <span style="color:var(--ink-mute);font-size:11px;font-weight:400;">· ${escapeHtml(role)}</span>` : ''} <span style="color:#EFB670;font-size:11px;font-weight:600;">· เจ้าของ · ไม่คิดค่าแรง</span></label>
+        </div>
+        <div class="form-field" style="flex:0 0 auto;align-self:flex-end;padding-bottom:2px;">
+          <button type="button" onclick="toggleTeamMember('${escapeHtml(name)}')" title="ไม่ไปงานนี้ (ส่งทีมไปแทน)"
+            style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(220,38,38,0.35);background:rgba(220,38,38,0.08);color:#dc2626;font-size:16px;cursor:pointer;line-height:1;">×</button>
+        </div>
+      </div>`;
+    }
     const w = Number(st.teamWages[name]) || 0;
     const isUnset = w <= 0;
     return `
