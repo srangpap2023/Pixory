@@ -1039,6 +1039,92 @@
   body.dark-theme .dm-exp, body.luxe-theme .dm-exp { border-color:rgba(255,255,255,.06); }
   body.dark-theme .dm-empty, body.luxe-theme .dm-empty { background:rgba(255,255,255,.03); }
   body.dark-theme .dm-note b, body.luxe-theme .dm-note b { color:#E9C67F; }
+
+  /* v2.9.95 · ปฏิทิน → แท็บ "ทีม" · ใครมีงานวันไหน */
+  .cal-tabs { margin:0 16px 10px; }
+  .ts-seg { display:flex; background:rgba(0,0,0,.05); border-radius:10px; padding:3px; margin:0 16px 12px; }
+  .ts-seg div { flex:1; text-align:center; padding:8px; font-size:12.5px; color:#9a8c78; border-radius:8px; cursor:pointer; }
+  .ts-seg div.on { background:#fff; color:#3a2f25; font-weight:700; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .ts-sum { display:flex; gap:8px; margin:0 16px 12px; }
+  .ts-sum > div { flex:1; background:#fff; border:1px solid rgba(0,0,0,.06); border-radius:12px; padding:10px 4px; text-align:center; min-width:0; }
+  .ts-sum .v { font-size:16px; font-weight:800; color:#2a2119; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ts-sum .l { font-size:10px; color:#8a7d6c; margin-top:2px; white-space:nowrap; }
+  .ts-sum .g .v { color:#2e9e5b; }
+  .ts-sum .r .v { color:#c0392b; }
+  .ts-alert { margin:0 16px 12px; padding:9px 12px; border-radius:10px; background:rgba(192,57,43,.08); color:#c0392b; font-size:12px; font-weight:600; }
+  .ts-person { margin:0 16px 10px; background:#fff; border:1px solid rgba(0,0,0,.06); border-radius:14px; overflow:hidden; }
+  .ts-person .ph { display:flex; align-items:center; gap:11px; padding:12px 14px; cursor:pointer; }
+  .ts-person .av { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; flex:none; }
+  .ts-person .pi { flex:1; min-width:0; }
+  .ts-person .pn { font-size:14.5px; font-weight:700; color:#2a2119; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ts-person .ps { font-size:11.5px; color:#8a7d6c; margin-top:1px; }
+  .ts-person .pr { text-align:right; flex:none; }
+  .ts-person .pr .n { font-size:15px; font-weight:800; color:#9C7340; font-variant-numeric:tabular-nums; }
+  .ts-person .pr .l { font-size:10px; color:#8a7d6c; }
+  .ts-person .days { border-top:1px solid rgba(0,0,0,.06); padding:2px 14px 6px; }
+  .ts-person.fold .days { display:none; }
+  .ts-person .day { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(0,0,0,.05); font-size:12.5px; cursor:pointer; }
+  .ts-person .day:last-child { border-bottom:none; }
+  .ts-person .day .d { width:34px; flex:none; text-align:center; font-weight:800; color:#9C7340; font-variant-numeric:tabular-nums; line-height:1.1; font-size:15px; }
+  .ts-person .day .d small { display:block; font-size:9px; color:#8a7d6c; font-weight:500; }
+  .ts-person .day .i { flex:1; min-width:0; }
+  .ts-person .day .t { font-weight:600; color:#2a2119; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ts-person .day .s { font-size:11px; color:#8a7d6c; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ts-person .day .w { flex:none; font-size:12px; color:#2e9e5b; font-weight:700; font-variant-numeric:tabular-nums; }
+  .ts-person .day .w.miss { color:#b8a898; font-weight:500; font-size:10.5px; }
+  .ts-tag, .ts-warn { display:inline-block; font-size:9.5px; padding:1px 6px; border-radius:5px; margin-left:6px; vertical-align:middle; font-weight:700; }
+  .ts-tag { background:rgba(156,115,64,.12); color:#9C7340; }
+  .ts-warn { background:rgba(192,57,43,.12); color:#c0392b; }
+  .ts-idle { margin:4px 16px 16px; padding:12px 14px; background:rgba(0,0,0,.03); border-radius:14px; }
+  .ts-idle .h { font-size:11.5px; color:#8a7d6c; margin-bottom:8px; }
+  .ts-chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .ts-chip { display:inline-flex; align-items:center; gap:6px; background:rgba(0,0,0,.05); border-radius:20px; padding:3px 10px 3px 3px; font-size:12px; color:#3a2f25; }
+  .ts-chip i { width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:800; font-style:normal; }
+  .ts-chip.miss, .ts-chip.none { border:1px dashed rgba(192,57,43,.5); color:#c0392b; padding-left:10px; background:none; }
+  .ts-dv { margin:0 16px 10px; background:#fff; border:1px solid rgba(0,0,0,.06); border-radius:14px; padding:12px 14px; }
+  .ts-dv.today { border-color:rgba(156,115,64,.5); }
+  .ts-dv .h { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+  .ts-dv .h b { font-size:14px; color:#2a2119; }
+  .ts-dv .h span { font-size:11px; color:#8a7d6c; }
+  .ts-dv .job { padding:8px 0; border-top:1px solid rgba(0,0,0,.05); cursor:pointer; }
+  .ts-dv .job:first-of-type { border-top:none; }
+  .ts-dv .jt { font-size:13px; font-weight:600; color:#2a2119; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ts-dv .jt .tm { display:inline-block; font-size:10.5px; font-weight:800; color:#9C7340; background:rgba(156,115,64,.12); padding:2px 6px; border-radius:5px; margin-right:7px; vertical-align:middle; }
+  .ts-dv .jt .lc { color:#8a7d6c; font-weight:500; }
+  body.dark-theme .ts-seg, body.luxe-theme .ts-seg { background:rgba(255,255,255,.05); }
+  body.dark-theme .ts-seg div, body.luxe-theme .ts-seg div { color:#8A8790; }
+  body.dark-theme .ts-seg div.on, body.luxe-theme .ts-seg div.on { background:rgba(212,160,86,.18); color:#E9C67F; box-shadow:none; }
+  body.dark-theme .ts-sum > div, body.luxe-theme .ts-sum > div,
+  body.dark-theme .ts-person, body.luxe-theme .ts-person,
+  body.dark-theme .ts-dv, body.luxe-theme .ts-dv { background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.07); }
+  body.dark-theme .ts-sum .v, body.luxe-theme .ts-sum .v,
+  body.dark-theme .ts-person .pn, body.luxe-theme .ts-person .pn,
+  body.dark-theme .ts-person .day .t, body.luxe-theme .ts-person .day .t,
+  body.dark-theme .ts-dv .h b, body.luxe-theme .ts-dv .h b,
+  body.dark-theme .ts-dv .jt, body.luxe-theme .ts-dv .jt { color:#F2F0EC; }
+  body.dark-theme .ts-sum .g .v, body.luxe-theme .ts-sum .g .v, body.dark-theme .ts-person .day .w, body.luxe-theme .ts-person .day .w { color:#8FE3B3; }
+  body.dark-theme .ts-sum .r .v, body.luxe-theme .ts-sum .r .v { color:#F0997B; }
+  body.dark-theme .ts-sum .l, body.luxe-theme .ts-sum .l,
+  body.dark-theme .ts-person .ps, body.luxe-theme .ts-person .ps,
+  body.dark-theme .ts-person .pr .l, body.luxe-theme .ts-person .pr .l,
+  body.dark-theme .ts-person .day .s, body.luxe-theme .ts-person .day .s,
+  body.dark-theme .ts-person .day .d small, body.luxe-theme .ts-person .day .d small,
+  body.dark-theme .ts-dv .h span, body.luxe-theme .ts-dv .h span,
+  body.dark-theme .ts-dv .jt .lc, body.luxe-theme .ts-dv .jt .lc,
+  body.dark-theme .ts-idle .h, body.luxe-theme .ts-idle .h { color:#8A8790; }
+  body.dark-theme .ts-person .pr .n, body.luxe-theme .ts-person .pr .n,
+  body.dark-theme .ts-person .day .d, body.luxe-theme .ts-person .day .d,
+  body.dark-theme .ts-dv .jt .tm, body.luxe-theme .ts-dv .jt .tm { color:#E9C67F; }
+  body.dark-theme .ts-dv .jt .tm, body.luxe-theme .ts-dv .jt .tm, body.dark-theme .ts-tag, body.luxe-theme .ts-tag { background:rgba(212,160,86,.16); }
+  body.dark-theme .ts-tag, body.luxe-theme .ts-tag { color:#EFB670; }
+  body.dark-theme .ts-warn, body.luxe-theme .ts-warn, body.dark-theme .ts-alert, body.luxe-theme .ts-alert, body.dark-theme .ts-person .pr .l[style], body.luxe-theme .ts-person .pr .l[style] { color:#F0997B !important; }
+  body.dark-theme .ts-warn, body.luxe-theme .ts-warn, body.dark-theme .ts-alert, body.luxe-theme .ts-alert { background:rgba(224,106,74,.14); }
+  body.dark-theme .ts-person .days, body.luxe-theme .ts-person .days, body.dark-theme .ts-person .day, body.luxe-theme .ts-person .day, body.dark-theme .ts-dv .job, body.luxe-theme .ts-dv .job { border-color:rgba(255,255,255,.06); }
+  body.dark-theme .ts-person .day .w.miss, body.luxe-theme .ts-person .day .w.miss { color:#6f6f78; }
+  body.dark-theme .ts-idle, body.luxe-theme .ts-idle { background:rgba(255,255,255,.03); }
+  body.dark-theme .ts-chip, body.luxe-theme .ts-chip { background:rgba(255,255,255,.07); color:#F2F0EC; }
+  body.dark-theme .ts-chip.miss, body.luxe-theme .ts-chip.miss, body.dark-theme .ts-chip.none, body.luxe-theme .ts-chip.none { background:none; color:#F0997B; border-color:rgba(224,106,74,.6); }
+  body.dark-theme .ts-dv.today, body.luxe-theme .ts-dv.today { border-color:rgba(212,160,86,.55); }
   .dash-pane { animation: dashFade .18s ease; }
   @keyframes dashFade { from { opacity:0; } to { opacity:1; } }
   body.luxe-theme .dash-tabs { border-bottom-color:rgba(255,255,255,0.12); }
@@ -5986,14 +6072,28 @@ html body .auth-screen .auth-meta{color:#6f665a !important;}
         <button class="icon-btn" onclick="toggleLegend()">🎨</button>
       </div>
 
+      <!-- v2.9.95 · ตัวเลือกเดือนใช้ร่วมกันทั้งแท็บ "เดือน" และ "ทีม" -->
+      <div class="cal-header">
+        <div class="nav-btn" onclick="changeMonth(-1)">‹</div>
+        <div class="month-title" id="cal-month">พฤศจิกายน 2026</div>
+        <div class="nav-btn" onclick="changeMonth(1)">›</div>
+      </div>
+      <div class="dash-tabs cal-tabs" id="cal-tabs">
+        <button class="dash-tab active" data-ctab="month" onclick="setCalTab('month')">📅 เดือน</button>
+        <button class="dash-tab" data-ctab="team" onclick="setCalTab('team')">👥 ทีม</button>
+      </div>
+
+      <!-- v2.9.95 · แท็บทีม · ใครมีงานวันไหน / วันไหนใครไป -->
+      <div id="cal-team-view" style="display:none;">
+        <div class="ts-seg" id="ts-seg">
+          <div class="on" data-tv="person" onclick="setTeamView('person')">👤 รายคน</div>
+          <div data-tv="day" onclick="setTeamView('day')">📆 รายวัน</div>
+        </div>
+        <div id="cal-team-content"></div>
+      </div>
+
       <!-- v1.9.8 · Month view เท่านั้น (รื้อ agenda ออก) · swipe ซ้ายขวาเปลี่ยนเดือนได้ -->
       <div id="cal-month-view">
-        <div class="cal-header">
-          <div class="nav-btn" onclick="changeMonth(-1)">‹</div>
-          <div class="month-title" id="cal-month">พฤศจิกายน 2026</div>
-          <div class="nav-btn" onclick="changeMonth(1)">›</div>
-        </div>
-
         <div class="legend" id="cal-legend"></div>
 
         <div class="cal-grid">
@@ -8979,7 +9079,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.94';
+const PIXORY_VERSION = '2.9.95';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -8990,6 +9090,16 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.95': {
+    date: '2026-09-28',
+    title: 'ตารางทีม · ใครมีงานวันไหน 👥',
+    subtitle: 'แท็บใหม่ในหน้าปฏิทิน — เห็นทั้งทีมในเดือนเดียว ไม่ต้องเปิดทีละงาน',
+    items: [
+      { icon: '👤', title: 'มุมมอง "รายคน"', desc: 'การ์ดแต่ละคน: มีกี่งาน วันไหน งานอะไร ค่าแรงรวมเดือนนี้ · เตือน "ซ้อน!" ถ้าใส่ชื่อ 2 งานวันเดียวกัน และ "ติดกัน" ถ้าถ่ายวันติดกัน · คนที่ยังไม่มีงานอยู่ท้ายลิสต์' },
+      { icon: '📆', title: 'มุมมอง "รายวัน"', desc: 'ไล่ทีละวันว่าใครไปงานไหนบ้าง · งานที่ยังไม่ระบุทีมหรือทีมยังไม่ครบขึ้น ⚠ ให้เห็นก่อนถึงวันงาน' },
+      { icon: '📊', title: 'สรุปหัวหน้า', desc: 'งานเดือนนี้ · คนที่มีงาน · ค่าแรงรวม · งานที่ทีมยังไม่ครบ · กด ‹ › เลื่อนเดือนได้เหมือนปฏิทิน · แตะชื่องานเปิดรายละเอียดได้ทันที' },
+    ]
+  },
   '2.9.94': {
     date: '2026-09-28',
     title: 'จองใหม่เดือนนี้ · ใครจอง ปิดขายวันไหน ผ่านทางไหน 🧾',
@@ -24564,6 +24674,8 @@ function downloadInvoiceJPEG() {
 
 // ========== CALENDAR ==========
 let CAL_YEAR = new Date().getFullYear(), CAL_MONTH = new Date().getMonth();
+let CAL_TAB = 'month';      // v2.9.95 · 'month' | 'team'
+let TEAM_VIEW = 'person';   // v2.9.95 · 'person' | 'day'
 function renderCalLegend() {
   const l = document.getElementById('cal-legend');
   l.innerHTML = '';
@@ -24573,6 +24685,8 @@ function renderCalLegend() {
 }
 function renderCalendar() {
   document.getElementById('cal-month').textContent = monthsFullArray()[CAL_MONTH] + ' ' + displayYear(CAL_YEAR);
+  // v2.9.95 · แท็บทีม render แยก · กริดเดือนไม่ต้องวาดตอนซ่อน
+  if (CAL_TAB === 'team') { renderCalTeam(); return; }
   const first = new Date(CAL_YEAR, CAL_MONTH, 1);
   const last = new Date(CAL_YEAR, CAL_MONTH + 1, 0);
   const startDow = first.getDay();
@@ -24700,6 +24814,190 @@ function changeMonth(delta) {
   if (CAL_MONTH > 11) { CAL_MONTH = 0; CAL_YEAR++; }
   if (CAL_MONTH < 0) { CAL_MONTH = 11; CAL_YEAR--; }
   renderCalendar();
+}
+
+// ========== v2.9.95 · แท็บ "ทีม" ในปฏิทิน · ใครมีงานวันไหน ==========
+// ใช้ข้อมูลที่มีอยู่แล้ว: j.team (ชื่อ) · j.teamWages (ค่าแรงต่อคน) · sessions/date · j.teamStatus
+// อ่านอย่างเดียว ไม่แก้ข้อมูลใด ๆ
+function setCalTab(tab) {
+  CAL_TAB = tab === 'team' ? 'team' : 'month';
+  document.querySelectorAll('#cal-tabs .dash-tab').forEach(b => b.classList.toggle('active', b.getAttribute('data-ctab') === CAL_TAB));
+  const mv = document.getElementById('cal-month-view'), tv = document.getElementById('cal-team-view');
+  if (mv) mv.style.display = CAL_TAB === 'month' ? '' : 'none';
+  if (tv) tv.style.display = CAL_TAB === 'team' ? '' : 'none';
+  renderCalendar();
+}
+function setTeamView(v) {
+  TEAM_VIEW = v === 'day' ? 'day' : 'person';
+  document.querySelectorAll('#ts-seg > div').forEach(d => d.classList.toggle('on', d.getAttribute('data-tv') === TEAM_VIEW));
+  renderCalTeam();
+}
+// ค่าแรงของคนนี้ในงานนี้ · null = ยังไม่กรอก (ไม่เดาจาก rate เพื่อให้ตรงกับต้นทุนงานจริง)
+function _tsWage(j, name) {
+  const w = j && j.teamWages ? j.teamWages[name] : undefined;
+  if (w === undefined || w === null || w === '') return null;
+  const n = Number(w);
+  return isNaN(n) ? null : n;
+}
+function _tsInitials(name) {
+  const s = String(name || '').trim();
+  if (!s) return '?';
+  // ตัดคำนำหน้า "พี่" เพื่อให้ตัวย่อสื่อชื่อจริง
+  const core = s.replace(/^พี่/, '') || s;
+  const parts = core.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2 && /^[A-Za-z]/.test(parts[0]) && /^[A-Za-z]/.test(parts[1])) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return Array.from(core).slice(0, 2).join('');
+}
+function _tsDayName(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  const arr = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+  return isNaN(d) ? '' : arr[d.getDay()];
+}
+function _tsDayFull(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  const arr = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
+  return isNaN(d) ? '' : arr[d.getDay()];
+}
+function _tsDaysBetween(a, b) {
+  return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+}
+function _tsBuild(y, m) {
+  const entries = []; // { job, session, date }
+  (JOBS || []).forEach(j => {
+    if (!j || (typeof jobCancelled === 'function' && jobCancelled(j))) return;
+    getJobSessions(j).forEach(s => {
+      if (!s || !s.date || !_isSameMonth(s.date, y, m)) return;
+      entries.push({ job: j, session: s, date: s.date });
+    });
+  });
+  entries.sort((a, b) => a.date.localeCompare(b.date) || String(a.session.start || '').localeCompare(String(b.session.start || '')));
+
+  // รวมชื่อ: ทีมหลักทุกคน + ชื่อที่อยู่ในงาน (เผื่อคนที่ถูกลบออกจากทีมแล้ว)
+  const people = {};
+  const order = [];
+  const addPerson = (n) => {
+    if (!n || people[n]) return;
+    const t = (TEAM || []).find(x => x && x.name === n) || {};
+    people[n] = { name: n, role: t.role || '', color: colorFor(n), items: [], jobCodes: new Set(), wage: 0, wageMissing: 0, warnSame: 0, warnAdj: 0 };
+    order.push(n);
+  };
+  (TEAM || []).forEach(t => t && addPerson(t.name));
+  entries.forEach(e => (Array.isArray(e.job.team) ? e.job.team : []).forEach(addPerson));
+
+  entries.forEach(e => {
+    (Array.isArray(e.job.team) ? e.job.team : []).forEach(n => {
+      const p = people[n]; if (!p) return;
+      p.items.push({ job: e.job, session: e.session, date: e.date }); // สำเนาต่อคน · flag ซ้อน/ติดกันแยกกันได้
+      if (!p.jobCodes.has(e.job.code)) {
+        p.jobCodes.add(e.job.code);
+        const w = _tsWage(e.job, n);
+        if (w === null) p.wageMissing++; else p.wage += w;
+      }
+    });
+  });
+  // เตือน: วันเดียวกันมี 2 งาน (ซ้อน) · วันติดกัน
+  order.forEach(n => {
+    const p = people[n];
+    p.items.forEach((it, i) => {
+      it._same = p.items.some((o, k) => k !== i && o.date === it.date && o.job.code !== it.job.code);
+      it._adj = p.items.some((o) => o.job.code !== it.job.code && Math.abs(_tsDaysBetween(o.date, it.date)) === 1);
+      if (it._same) p.warnSame++;
+    });
+  });
+
+  const uniqJobs = Array.from(new Map(entries.map(e => [e.job.code, e.job])).values());
+  const busy = order.filter(n => people[n].items.length > 0);
+  const idle = order.filter(n => people[n].items.length === 0);
+  const wageTotal = busy.reduce((s, n) => s + people[n].wage, 0);
+  const incomplete = uniqJobs.filter(j => getStageFromJobStatus(j.jobStatus) !== 'closed' && (j.teamStatus === 'incomplete' || !(Array.isArray(j.team) && j.team.length))).length;
+  const hasSame = busy.some(n => people[n].warnSame > 0);
+  return { entries, people, busy, idle, uniqJobs, wageTotal, incomplete, hasSame };
+}
+function renderCalTeam() {
+  const el = document.getElementById('cal-team-content');
+  if (!el) return;
+  const D = _tsBuild(CAL_YEAR, CAL_MONTH);
+  const isDark = document.body.classList.contains('dark-theme') || document.body.classList.contains('luxe-theme');
+  const ink = isDark ? '#17130B' : '#fff';
+
+  let html = '<div class="ts-sum">' +
+    '<div><div class="v">' + D.uniqJobs.length + '</div><div class="l">งานเดือนนี้</div></div>' +
+    '<div><div class="v">' + D.busy.length + '</div><div class="l">คนที่มีงาน</div></div>' +
+    '<div class="g"><div class="v">' + (D.wageTotal > 0 ? fmtK(D.wageTotal) : '—') + '</div><div class="l">ค่าแรงรวม</div></div>' +
+    '<div class="' + (D.incomplete > 0 ? 'r' : '') + '"><div class="v">' + D.incomplete + '</div><div class="l">ทีมยังไม่ครบ</div></div>' +
+    '</div>';
+  if (D.hasSame) html += '<div class="ts-alert">⚠ มีคนถูกใส่ชื่อ 2 งานในวันเดียวกัน · เช็กในรายชื่อด้านล่าง</div>';
+
+  if (D.entries.length === 0) {
+    html += '<div class="dm-empty">ไม่มีงานในเดือนนี้</div>';
+    el.innerHTML = html; return;
+  }
+
+  if (TEAM_VIEW === 'person') {
+    // ===== รายคน =====
+    D.busy.sort((a, b) => D.people[b].items.length - D.people[a].items.length || a.localeCompare(b, 'th'));
+    D.busy.forEach(n => {
+      const p = D.people[n];
+      const nJobs = p.jobCodes.size;
+      const sub = [p.role, nJobs + ' งาน'].filter(Boolean).join(' · ');
+      const wageHtml = p.wage > 0 ? fmt(p.wage) : '—';
+      const missHtml = p.wageMissing > 0 ? '<div class="l" style="color:#c0392b;">ยังไม่กรอก ' + p.wageMissing + ' งาน</div>' : '<div class="l">ค่าแรงเดือนนี้</div>';
+      html += '<div class="ts-person">' +
+        '<div class="ph" onclick="this.parentNode.classList.toggle(\'fold\')">' +
+          '<div class="av" style="background:' + p.color + ';color:' + ink + ';">' + escapeHtml(_tsInitials(n)) + '</div>' +
+          '<div class="pi"><div class="pn">' + escapeHtml(n) + (p.warnSame > 0 ? ' <span class="ts-warn">ซ้อน ' + p.warnSame + '</span>' : '') + '</div><div class="ps">' + escapeHtml(sub) + '</div></div>' +
+          '<div class="pr"><div class="n">' + wageHtml + '</div>' + missHtml + '</div>' +
+        '</div><div class="days">';
+      p.items.forEach(it => {
+        const j = it.job, s = it.session;
+        const d = new Date(it.date + 'T00:00:00');
+        const loc = (s.loc && s.loc !== '-') ? s.loc : ((j.loc && j.loc !== '-') ? j.loc : '');
+        const title = (j.customer || '-') + (loc ? ' · ' + loc : '');
+        const time = (s.start ? s.start : '') + (s.end ? '–' + s.end : '');
+        const meta = [j.type, time, s.label].filter(Boolean).join(' · ');
+        const w = _tsWage(j, n);
+        const tags = (it._same ? '<span class="ts-warn">ซ้อน!</span>' : '') + (!it._same && it._adj ? '<span class="ts-tag">ติดกัน</span>' : '');
+        html += '<div class="day" onclick="openJob(\'' + jsStr(j.code) + '\')">' +
+          '<div class="d">' + d.getDate() + '<small>' + _tsDayName(it.date) + '</small></div>' +
+          '<div class="i"><div class="t">' + escapeHtml(title) + '</div><div class="s">' + escapeHtml(meta) + tags + '</div></div>' +
+          '<div class="w' + (w === null ? ' miss' : '') + '">' + (w === null ? 'ไม่ได้กรอก' : fmt(w)) + '</div>' +
+          '</div>';
+      });
+      html += '</div></div>';
+    });
+    if (D.idle.length) {
+      html += '<div class="ts-idle"><div class="h">ยังไม่มีงานเดือนนี้ · ' + D.idle.length + ' คน</div><div class="ts-chips">' +
+        D.idle.map(n => '<span class="ts-chip"><i style="background:' + D.people[n].color + ';color:' + ink + ';">' + escapeHtml(_tsInitials(n)) + '</i>' + escapeHtml(n) + '</span>').join('') +
+        '</div></div>';
+    }
+  } else {
+    // ===== รายวัน =====
+    const groups = {};
+    D.entries.forEach(e => { (groups[e.date] = groups[e.date] || []).push(e); });
+    const todayIso = (typeof _todayLocal === 'function') ? _todayLocal() : '';
+    Object.keys(groups).sort().forEach(date => {
+      const items = groups[date];
+      const d = new Date(date + 'T00:00:00');
+      const isToday = date === todayIso;
+      html += '<div class="ts-dv' + (isToday ? ' today' : '') + '">' +
+        '<div class="h"><b>' + _tsDayFull(date) + ' ' + d.getDate() + ' ' + MONTHS_TH_SHORT[d.getMonth()] + '</b><span>' + items.length + ' งาน' + (isToday ? ' · วันนี้' : '') + '</span></div>';
+      items.forEach(it => {
+        const j = it.job, s = it.session;
+        const loc = (s.loc && s.loc !== '-') ? s.loc : ((j.loc && j.loc !== '-') ? j.loc : '');
+        const team = Array.isArray(j.team) ? j.team : [];
+        const closed = getStageFromJobStatus(j.jobStatus) === 'closed';
+        const needTeam = !closed && (j.teamStatus === 'incomplete' || team.length === 0);
+        html += '<div class="job" onclick="openJob(\'' + jsStr(j.code) + '\')">' +
+          '<div class="jt">' + (s.start ? '<span class="tm">' + escapeHtml(s.start) + '</span>' : '') + escapeHtml(j.customer || '-') + (loc ? '<span class="lc"> · ' + escapeHtml(loc) + '</span>' : '') + '</div>' +
+          '<div class="ts-chips">' +
+            (team.length ? team.map(n => '<span class="ts-chip"><i style="background:' + colorFor(n) + ';color:' + ink + ';">' + escapeHtml(_tsInitials(n)) + '</i>' + escapeHtml(n) + '</span>').join('') : '<span class="ts-chip none">ยังไม่ระบุทีม</span>') +
+            (needTeam && team.length ? '<span class="ts-chip miss">⚠ ทีมยังไม่ครบ</span>' : '') +
+          '</div></div>';
+      });
+      html += '</div>';
+    });
+  }
+  el.innerHTML = html;
 }
 
 // v1.9.33 · Restore calendar swipe-to-change-month gesture (was missing → swipe broken)

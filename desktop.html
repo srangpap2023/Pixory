@@ -2849,6 +2849,50 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
 }
 @keyframes rdUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion: reduce){ *{animation:none !important} }
+
+/* v1.1.78 · ปฏิทิน → มุมมองทีม (ตาราง คน × วัน + การ์ดรายคน) */
+.ts-grid-wrap{overflow-x:auto;border-radius:18px;border:1px solid rgba(255,255,255,.07);background:rgba(28,28,34,.5);}
+.ts-grid{border-collapse:separate;border-spacing:0;min-width:100%;font-size:12px;}
+.ts-grid th,.ts-grid td{padding:0;text-align:center;border-bottom:1px solid rgba(255,255,255,.05);border-right:1px solid rgba(255,255,255,.03);}
+.ts-grid th{padding:8px 0 6px;color:#71717A;font-weight:500;font-size:10.5px;line-height:1.2;min-width:38px;}
+.ts-grid th b{display:block;font-family:'Inter';font-size:13px;color:#C9C4BB;font-weight:500;margin-top:1px;}
+.ts-grid th.we,.ts-grid td.we{background:rgba(255,255,255,.015);}
+.ts-grid th.today b{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:12px;background:linear-gradient(135deg,#D4A056,#9C7340);color:#0A0A0E;font-weight:600;}
+.ts-grid td.today{background:rgba(212,160,86,.06);}
+.ts-grid .nm{position:sticky;left:0;z-index:1;background:#16161b;text-align:left;padding:8px 14px;min-width:190px;white-space:nowrap;border-right:1px solid rgba(255,255,255,.08);}
+.ts-grid td.nm .nmw{display:flex;align-items:center;gap:9px;}
+.ts-grid td.nm .t{color:#E4E4E7;font-weight:500;font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;}
+.ts-grid td.nm .c{font-family:'Inter';font-size:11px;color:#A1A1AA;background:rgba(255,255,255,.06);padding:1px 7px;border-radius:10px;}
+.ts-grid tr{height:44px;}
+.ts-grid .av,.ts-person .av,.ts-chip i{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;font-weight:700;font-size:11px;color:#17130B;flex:none;font-style:normal;}
+.ts-grid .jb{margin:4px 3px;padding:4px 4px;border-radius:5px;font-size:10.5px;color:#F4F4F5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;position:relative;text-align:left;}
+.ts-grid .jb.dbl{outline:1.5px solid #F0A58B;}
+.ts-grid .jb em{position:absolute;right:2px;top:1px;font-style:normal;font-weight:800;color:#F0A58B;}
+.ts-person .ph{display:flex;align-items:center;gap:12px;padding:14px 18px;}
+.ts-person .av{width:38px;height:38px;border-radius:11px;font-size:14px;}
+.ts-person .pi{flex:1;min-width:0;}
+.ts-person .pn{font-size:14.5px;font-weight:600;color:#F4F4F5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ts-person .ps{font-size:12px;color:#71717A;margin-top:1px;}
+.ts-person .pr{text-align:right;flex:none;}
+.ts-person .pr .n{font-family:'Inter';font-weight:600;font-size:16px;color:#EFB670;}
+.ts-person .pr .l{font-size:10.5px;color:#71717A;}
+.ts-person .pr .l.miss{color:#F0A58B;}
+.ts-person .rows{border-top:1px solid rgba(255,255,255,.06);padding:4px 18px 8px;}
+.ts-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;font-size:13px;}
+.ts-row:last-child{border-bottom:none;}
+.ts-row .d{width:34px;flex:none;text-align:center;font-family:'Inter';font-weight:600;font-size:15px;color:#EFB670;line-height:1.1;}
+.ts-row .d small{display:block;font-family:'Sarabun',sans-serif;font-size:9.5px;color:#71717A;font-weight:400;}
+.ts-row .i{flex:1;min-width:0;}
+.ts-row .t{color:#E4E4E7;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ts-row .t span{color:#71717A;font-weight:400;}
+.ts-row .s{font-size:11.5px;color:#71717A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ts-row .w{flex:none;font-family:'Inter';font-weight:600;font-size:12.5px;color:#5FCF8E;}
+.ts-row .w.miss{color:#52525B;font-weight:400;font-size:11px;font-family:'Sarabun',sans-serif;}
+.ts-tag,.ts-warn{display:inline-block;font-size:9.5px;padding:1px 6px;border-radius:5px;margin-left:6px;vertical-align:middle;font-weight:700;}
+.ts-tag{background:rgba(212,160,86,.16);color:#EFB670;}
+.ts-warn{background:rgba(240,165,139,.16);color:#F0A58B;}
+.ts-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border-radius:20px;padding:3px 10px 3px 3px;font-size:12px;color:#E4E4E7;}
+.ts-chip i{width:22px;height:22px;border-radius:50%;font-size:10px;}
 </style>
 </head>
 <body>
@@ -3177,12 +3221,22 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.77';
+const PIXORY_DESKTOP_VERSION = '1.1.78';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.1.78': {
+    date: '2026-09-28',
+    title: 'ตารางทีม · ใครมีงานวันไหน 👥',
+    subtitle: 'ปุ่ม "ทีม" ในหน้าปฏิทิน — เห็นทั้งเดือนในตารางเดียว',
+    items: [
+      { icon: '📊', title: 'ตาราง คน × วัน', desc: 'แถวละคน คอลัมน์ละวัน · ช่องที่มีงานเป็นสีของคนนั้น · วันเดียว 2 งานขึ้น "!" · เอาเมาส์ชี้ดูรายละเอียด · คลิกเปิดงาน' },
+      { icon: '👤', title: 'การ์ดรายคน', desc: 'กี่งาน วันไหน งานอะไร ค่าแรงรวมเดือนนี้ · เตือน "ซ้อน!" / "ติดกัน" · บอกถ้ายังไม่กรอกค่าแรง' },
+      { icon: '⚠', title: 'งานที่ทีมยังไม่ครบ', desc: 'ลิสต์แยกให้เห็นก่อนถึงวันงาน · พร้อมคนที่ยังไม่มีงานเดือนนี้ท้ายหน้า' },
+    ]
+  },
   '1.1.77': {
     date: '2026-09-28',
     title: 'จองใหม่เดือนนี้ · ใครจอง ปิดขายวันไหน ผ่านทางไหน 🧾',
@@ -5870,7 +5924,21 @@ function addAllJobsToCalendar() {
   _deliverICS(res.ics, 'pixory-jobs.ics', '📅 เปิดไฟล์ปฏิทินแล้ว · ' + res.count + ' งาน');
 }
 
+// v1.1.78 · ปุ่มสลับมุมมองปฏิทิน: เดือน / ทีม (ใช้ร่วมใน header ทั้ง 2 มุมมอง)
+let CAL_VIEW = 'month'; // 'month' | 'team'
+function setCalView(v) {
+  CAL_VIEW = v === 'team' ? 'team' : 'month';
+  renderCalendar(document.getElementById('main'));
+}
+function _calViewToggleHtml() {
+  return `<span style="display:inline-flex;gap:3px;background:rgba(255,255,255,0.05);border-radius:10px;padding:3px;margin-right:6px;">
+    <button class="tab-btn ${CAL_VIEW !== 'team' ? 'active' : ''}" style="font-size:12px;" onclick="setCalView('month')">📅 เดือน</button>
+    <button class="tab-btn ${CAL_VIEW === 'team' ? 'active' : ''}" style="font-size:12px;" onclick="setCalView('team')">👥 ทีม</button>
+  </span>`;
+}
+
 function renderCalendar(root) {
+  if (CAL_VIEW === 'team') { renderCalTeam(root); return; }
   const today = new Date();
   const todayY = today.getFullYear();
   const todayM = today.getMonth();
@@ -5940,6 +6008,7 @@ function renderCalendar(root) {
         <div class="page-subtitle">${escapeHtml(monthName)} · ${uniqueMonthJobs.length} ${t('tbl.jobs')}</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
+        ${_calViewToggleHtml()}
         <button class="cal-nav-btn" onclick="calPrevMonth()" title="เดือนก่อน">‹</button>
         <button class="cal-today-btn" onclick="calGoToday()" title="วันนี้" style="min-width:120px;">${monthName}</button>
         <button class="cal-nav-btn" onclick="calNextMonth()" title="เดือนถัดไป">›</button>
@@ -6134,6 +6203,178 @@ function renderCalendar(root) {
         </div>
       `;
     })()}
+  `;
+}
+
+// ===================================================================
+// v1.1.78 · ปฏิทิน → มุมมอง "ทีม" · ตาราง คน × วัน + รายละเอียดรายคน
+// อ่านจาก j.team / j.teamWages / sessions · ไม่แก้ข้อมูล
+// ===================================================================
+const _TS_PALETTE = ['#D4A056', '#7FB0E0', '#5FCF8E', '#C4B5FD', '#F0997B', '#F5D06F', '#6FD3C7', '#E58FB5'];
+function _tsColor(name) {
+  const t = (TEAM || []).find(x => x && x.name === name);
+  if (t && t.color) return t.color;
+  let h = 0; for (const ch of String(name || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return _TS_PALETTE[h % _TS_PALETTE.length];
+}
+function _tsInitials(name) {
+  const s = String(name || '').trim(); if (!s) return '?';
+  const core = s.replace(/^พี่/, '') || s;
+  const parts = core.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2 && /^[A-Za-z]/.test(parts[0]) && /^[A-Za-z]/.test(parts[1])) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return Array.from(core).slice(0, 2).join('');
+}
+function _tsWage(j, name) {
+  const w = j && j.teamWages ? j.teamWages[name] : undefined;
+  if (w === undefined || w === null || w === '') return null;
+  const n = Number(w); return isNaN(n) ? null : n;
+}
+function _tsBuild(y, m) {
+  const entries = [];
+  (JOBS || []).forEach(j => {
+    if (!j || jobCancelled(j)) return;
+    _getJobOccurrences(j).forEach(o => {
+      const d = new Date(o.iso);
+      if (isNaN(d) || d.getFullYear() !== y || d.getMonth() !== m) return;
+      entries.push({ job: j, session: o.session, date: o.iso });
+    });
+  });
+  entries.sort((a, b) => a.date.localeCompare(b.date) || String(a.session && a.session.start || '').localeCompare(String(b.session && b.session.start || '')));
+  const people = {}, order = [];
+  const addPerson = (n) => {
+    if (!n || people[n]) return;
+    const t = (TEAM || []).find(x => x && x.name === n) || {};
+    people[n] = { name: n, role: t.role || '', color: _tsColor(n), items: [], byDate: {}, jobCodes: new Set(), wage: 0, wageMissing: 0, warnSame: 0 };
+    order.push(n);
+  };
+  (TEAM || []).forEach(t => t && addPerson(t.name));
+  entries.forEach(e => (Array.isArray(e.job.team) ? e.job.team : []).forEach(addPerson));
+  entries.forEach(e => (Array.isArray(e.job.team) ? e.job.team : []).forEach(n => {
+    const p = people[n]; if (!p) return;
+    const it = { job: e.job, session: e.session, date: e.date, same: false, adj: false };
+    p.items.push(it);
+    (p.byDate[e.date] = p.byDate[e.date] || []).push(it);
+    if (!p.jobCodes.has(e.job.code)) {
+      p.jobCodes.add(e.job.code);
+      const w = _tsWage(e.job, n);
+      if (w === null) p.wageMissing++; else p.wage += w;
+    }
+  }));
+  const dayDiff = (a, b) => Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+  order.forEach(n => {
+    const p = people[n];
+    p.items.forEach((it, i) => {
+      it.same = p.items.some((o, k) => k !== i && o.date === it.date && o.job.code !== it.job.code);
+      it.adj = p.items.some(o => o.job.code !== it.job.code && Math.abs(dayDiff(o.date, it.date)) === 1);
+      if (it.same) p.warnSame++;
+    });
+  });
+  const uniqJobs = Array.from(new Map(entries.map(e => [e.job.code, e.job])).values());
+  const busy = order.filter(n => people[n].items.length > 0).sort((a, b) => people[b].items.length - people[a].items.length || a.localeCompare(b, 'th'));
+  const idle = order.filter(n => people[n].items.length === 0);
+  const wageTotal = busy.reduce((s, n) => s + people[n].wage, 0);
+  const incomplete = uniqJobs.filter(j => getStageFromJobStatus(j.jobStatus) !== 'closed' && (j.teamStatus === 'incomplete' || !(Array.isArray(j.team) && j.team.length)));
+  return { entries, people, busy, idle, uniqJobs, wageTotal, incomplete, hasSame: busy.some(n => people[n].warnSame > 0) };
+}
+function renderCalTeam(root) {
+  const D = _tsBuild(CAL_YEAR, CAL_MONTH);
+  const monthName = TH_MONTHS_FULL[CAL_MONTH] + ' ' + (CAL_YEAR + 543);
+  const TH_M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const WD = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+  const WD_FULL = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
+  const days = new Date(CAL_YEAR, CAL_MONTH + 1, 0).getDate();
+  const tt = new Date();
+  const todayIso = tt.getFullYear() + '-' + String(tt.getMonth() + 1).padStart(2, '0') + '-' + String(tt.getDate()).padStart(2, '0');
+  const isoOf = (d) => CAL_YEAR + '-' + String(CAL_MONTH + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+  const locOf = (j, s) => _effectiveLoc(j, s);
+
+  const card = (v, l, col) => `<div class="pxcard" style="border-radius:16px;padding:14px 18px;background:rgba(28,28,34,0.5);border:1px solid rgba(255,255,255,0.07);min-width:0;"><div style="font-family:'Inter';font-weight:600;font-size:22px;color:${col || '#F4F4F5'};">${v}</div><div style="font-size:12px;color:#71717A;margin-top:2px;">${l}</div></div>`;
+
+  // ===== ตาราง คน × วัน =====
+  let grid = '';
+  if (D.busy.length) {
+    grid += `<div class="ts-grid-wrap"><table class="ts-grid"><thead><tr><th class="nm">ทีม</th>`;
+    for (let d = 1; d <= days; d++) {
+      const iso = isoOf(d), wd = new Date(CAL_YEAR, CAL_MONTH, d).getDay();
+      grid += `<th class="${iso === todayIso ? 'today' : ''}${(wd === 0 || wd === 6) ? ' we' : ''}"><div>${WD[wd]}</div><b>${d}</b></th>`;
+    }
+    grid += `</tr></thead><tbody>`;
+    D.busy.forEach(n => {
+      const p = D.people[n];
+      grid += `<tr><td class="nm"><div class="nmw"><span class="av" style="background:${p.color};">${escapeHtml(_tsInitials(n))}</span><span class="t">${escapeHtml(n)}</span><span class="c">${p.jobCodes.size}</span></div></td>`;
+      for (let d = 1; d <= days; d++) {
+        const iso = isoOf(d), its = p.byDate[iso] || [];
+        const wd = new Date(CAL_YEAR, CAL_MONTH, d).getDay();
+        let cell = '';
+        if (its.length) {
+          const first = its[0];
+          const tip = its.map(it => (it.job.customer || '-') + (locOf(it.job, it.session) ? ' · ' + locOf(it.job, it.session) : '') + (it.session && it.session.start ? ' · ' + it.session.start : '')).join('\n');
+          cell = `<div class="jb ${its.length > 1 ? 'dbl' : ''}" title="${escapeHtml(tip)}" onclick="openJobDetail('${escapeHtml(first.job.code)}')" style="background:${p.color}22;border-left:3px solid ${p.color};">${escapeHtml(String(first.job.customer || '-').slice(0, 6))}${its.length > 1 ? '<em>!</em>' : ''}</div>`;
+        }
+        grid += `<td class="${iso === todayIso ? 'today' : ''}${(wd === 0 || wd === 6) ? ' we' : ''}">${cell}</td>`;
+      }
+      grid += `</tr>`;
+    });
+    grid += `</tbody></table></div>`;
+  }
+
+  // ===== การ์ดรายคน =====
+  const personCards = D.busy.map(n => {
+    const p = D.people[n];
+    const rows = p.items.map(it => {
+      const j = it.job, s = it.session || {};
+      const d = new Date(it.date + 'T00:00:00');
+      const lc = locOf(j, s);
+      const time = (s.start || '') + (s.end ? '–' + s.end : '');
+      const w = _tsWage(j, n);
+      const tag = it.same ? '<span class="ts-warn">ซ้อน!</span>' : (it.adj ? '<span class="ts-tag">ติดกัน</span>' : '');
+      return `<div class="ts-row" onclick="openJobDetail('${escapeHtml(j.code)}')">
+        <div class="d">${d.getDate()}<small>${WD[d.getDay()]}</small></div>
+        <div class="i"><div class="t">${escapeHtml(j.customer || '-')}${lc ? ' <span>· ' + escapeHtml(lc) + '</span>' : ''}</div><div class="s">${escapeHtml([j.type, time, s.label].filter(Boolean).join(' · '))}${tag}</div></div>
+        <div class="w ${w === null ? 'miss' : ''}">${w === null ? 'ไม่ได้กรอก' : fmtTHB(w)}</div>
+      </div>`;
+    }).join('');
+    return `<div class="pxcard ts-person" style="border-radius:18px;background:rgba(28,28,34,0.5);border:1px solid rgba(255,255,255,0.07);overflow:hidden;">
+      <div class="ph"><span class="av" style="background:${p.color};">${escapeHtml(_tsInitials(n))}</span>
+        <div class="pi"><div class="pn">${escapeHtml(n)}${p.warnSame ? ' <span class="ts-warn">ซ้อน ' + p.warnSame + '</span>' : ''}</div><div class="ps">${escapeHtml([p.role, p.jobCodes.size + ' งาน'].filter(Boolean).join(' · '))}</div></div>
+        <div class="pr"><div class="n">${p.wage > 0 ? fmtTHB(p.wage) : '—'}</div><div class="l${p.wageMissing ? ' miss' : ''}">${p.wageMissing ? 'ยังไม่กรอก ' + p.wageMissing + ' งาน' : 'ค่าแรงเดือนนี้'}</div></div>
+      </div>
+      <div class="rows">${rows}</div>
+    </div>`;
+  }).join('');
+
+  // ===== งานที่ทีมยังไม่ครบ =====
+  const needHtml = D.incomplete.length ? `<div class="pxcard" style="border-radius:18px;padding:16px 20px;background:rgba(240,165,139,0.06);border:1px solid rgba(240,165,139,0.25);">
+      <div style="font-size:13.5px;color:#F0A58B;font-weight:600;margin-bottom:8px;">⚠ งานที่ยังไม่ระบุทีม / ทีมยังไม่ครบ · ${D.incomplete.length} งาน</div>
+      ${D.incomplete.map(j => { const o = _getJobOccurrences(j).filter(x => { const d = new Date(x.iso); return d.getFullYear() === CAL_YEAR && d.getMonth() === CAL_MONTH; })[0]; const d = o ? new Date(o.iso + 'T00:00:00') : null; const team = Array.isArray(j.team) ? j.team : []; return `<div onclick="openJobDetail('${escapeHtml(j.code)}')" style="display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.05);cursor:pointer;font-size:13px;"><span style="font-family:'Inter';font-weight:600;color:#EFB670;min-width:70px;">${d ? WD_FULL[d.getDay()] + ' ' + d.getDate() : '-'}</span><span style="flex:1;color:#E4E4E7;">${escapeHtml(j.customer || '-')}${j.loc && j.loc !== '-' ? ' <span style="color:#71717A;">· ' + escapeHtml(j.loc) + '</span>' : ''}</span><span style="color:#A1A1AA;font-size:12px;">${team.length ? 'มี ' + team.length + ' คน · ยังไม่ครบ' : 'ยังไม่ระบุทีม'}</span></div>`; }).join('')}
+    </div>` : '';
+
+  const idleHtml = D.idle.length ? `<div style="font-size:12.5px;color:#71717A;display:flex;flex-wrap:wrap;gap:6px;align-items:center;"><span style="margin-right:4px;">ยังไม่มีงานเดือนนี้ · ${D.idle.length} คน:</span>${D.idle.map(n => `<span class="ts-chip"><i style="background:${D.people[n].color};">${escapeHtml(_tsInitials(n))}</i>${escapeHtml(n)}</span>`).join('')}</div>` : '';
+
+  root.innerHTML = `
+    <div class="page-header-row">
+      <div>
+        <div class="page-title" style="font-family:'Fraunces',Georgia,serif;font-weight:400;font-size:30px;letter-spacing:-0.01em;">ตารางทีม</div>
+        <div class="page-subtitle">${escapeHtml(monthName)} · ใครมีงานวันไหน · ${D.uniqJobs.length} งาน</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        ${_calViewToggleHtml()}
+        <button class="cal-nav-btn" onclick="calPrevMonth()" title="เดือนก่อน">‹</button>
+        <button class="cal-today-btn" onclick="calGoToday()" title="วันนี้" style="min-width:120px;">${monthName}</button>
+        <button class="cal-nav-btn" onclick="calNextMonth()" title="เดือนถัดไป">›</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:4px 0 18px;">
+      ${card(D.uniqJobs.length, 'งานเดือนนี้')}
+      ${card(D.busy.length, 'คนที่มีงาน')}
+      ${card(D.wageTotal > 0 ? fmtTHB(D.wageTotal) : '—', 'ค่าแรงทีมรวม', '#5FCF8E')}
+      ${card(D.incomplete.length, 'งานที่ทีมยังไม่ครบ', D.incomplete.length ? '#F0A58B' : '#F4F4F5')}
+    </div>
+    ${D.hasSame ? `<div style="margin-bottom:14px;padding:10px 14px;border-radius:10px;background:rgba(240,165,139,0.1);color:#F0A58B;font-size:13px;font-weight:600;">⚠ มีคนถูกใส่ชื่อ 2 งานในวันเดียวกัน · ช่องที่มี "!" ในตาราง</div>` : ''}
+    ${D.entries.length === 0 ? `<div class="pxcard" style="border-radius:18px;padding:36px;text-align:center;color:#71717A;background:rgba(28,28,34,0.5);border:1px solid rgba(255,255,255,0.07);">ยังไม่มีงานในเดือนนี้</div>` : (grid || `<div class="pxcard" style="border-radius:18px;padding:28px;text-align:center;color:#71717A;background:rgba(28,28,34,0.5);border:1px solid rgba(255,255,255,0.07);">มีงาน ${D.uniqJobs.length} งาน แต่ยังไม่ได้ใส่ชื่อทีมในงานไหนเลย</div>`)}
+    ${needHtml ? `<div style="margin-top:18px;">${needHtml}</div>` : ''}
+    ${personCards ? `<div style="margin-top:22px;"><div style="font-family:'Fraunces',Georgia,serif;font-size:22px;color:#F4F4F5;margin-bottom:12px;">รายคน</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;">${personCards}</div></div>` : ''}
+    ${idleHtml ? `<div style="margin-top:18px;">${idleHtml}</div>` : ''}
   `;
 }
 
