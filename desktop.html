@@ -3223,12 +3223,23 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.80';
+const PIXORY_DESKTOP_VERSION = '1.1.81';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.1.81': {
+    date: '2026-10-07',
+    title: 'บรีฟงาน · เงินรอเข้า · งานหลายวันแยกแถว 📝💰',
+    subtitle: 'ใช้ได้ทั้งคอมและมือถือ ข้อมูลซิงก์กัน',
+    items: [
+      { icon: '📝', title: 'บรีฟงาน', desc: 'ปุ่ม "📝 บรีฟ" ทุกแถว/การ์ดงาน และในหน้ารายละเอียดงาน · 6 หัวข้อ ข้อตกลง/ช็อตห้ามพลาดติ๊กได้ · โหมดอ่านก่อนไป · ปุ่มคัดลอกบรีฟส่งทีม' },
+      { icon: '💰', title: 'สรุป → แท็บ "เงินรอเข้า"', desc: 'งานที่ยังไม่ถ่าย: ค้างเก็บ − ต้นทุน = คงเหลือจริง รายเดือน + สะสม · งานทั้งหมด: แยกปี/เดือน ขาย ต้นทุน กำไร รับแล้ว ค้าง · คลิกเดือนกางรายงาน' },
+      { icon: '🗓', title: 'งานหลายวัน แยกแถวตามวันถ่าย', desc: 'หน้างาน (รายการ/การ์ด) ขึ้นทุกวันถ่ายในเดือนของวันนั้น · ยอดเงินอยู่ที่แถววันงานหลัก · แท็บ "ค้างชำระ" ยังเป็น 1 งาน 1 แถว' },
+      { icon: '🛠', title: 'แก้สถานะอัตโนมัติ', desc: 'งานหลายวันย้ายเป็น "รอส่งงาน" หลังวันถ่ายสุดท้ายเท่านั้น' },
+    ]
+  },
   '1.1.80': {
     date: '2026-09-28',
     title: 'ติ๊ก "เจ้าของ" ในทีม · ไม่คิดค่าแรง ⭐',
@@ -6639,27 +6650,49 @@ function _filteredJobs() {
       : (a.date || '').localeCompare(b.date || ''));
 }
 
-// v1.1.62 · จัดกลุ่มงานตามเดือน/ปี (ใช้ร่วมมุมมองรายการ + การ์ด) · list เรียงตามวันมาแล้ว
-function _jobMonthSegs(list) {
+// v1.1.81 · งานหลายวัน → 1 วันถ่าย = 1 entry (การ์ด/แถว) · เงินอยู่ที่ entry วันงานหลัก (j.date) ใบเดียว
+//   แท็บ "ค้างชำระ" ยังเป็น 1 งาน 1 แถว (เรียงตามยอดค้าง)
+function _jobEntries(list) {
+  if (JOBS_TAB === 'unpaid') return list.map(j => ({ j: j, date: j.date, main: true, k: 0, n: 1, sess: [] }));
+  const ents = [];
+  list.forEach(j => {
+    const dates = Array.from(new Set((j.sessions || []).map(s => s && s.date).filter(Boolean))).sort();
+    if (dates.length < 2) { ents.push({ j: j, date: j.date, main: true, k: 0, n: 1, sess: [] }); return; }
+    let mainIdx = dates.indexOf(j.date); if (mainIdx < 0) mainIdx = dates.length - 1;
+    dates.forEach((d, i) => ents.push({ j: j, date: d, main: i === mainIdx, k: i + 1, n: dates.length, sess: (j.sessions || []).filter(x => x && x.date === d) }));
+  });
+  const desc = (JOBS_TAB === 'closed');
+  ents.sort((a, b) => desc ? (b.date || '').localeCompare(a.date || '') : (a.date || '').localeCompare(b.date || ''));
+  return ents;
+}
+// v1.1.62 · จัดกลุ่มงานตามเดือน/ปี (ใช้ร่วมมุมมองรายการ + การ์ด) · v1.1.81 รับ entries · นับ/รวมยอดเฉพาะ entry หลัก
+function _jobMonthSegs(ents) {
   const segs = [];
-  list.forEach(function (j) {
-    const d = new Date(j.date); const bad = isNaN(d.getTime());
+  ents.forEach(function (e) {
+    const d = new Date(e.date); const bad = isNaN(d.getTime());
     const y = bad ? null : d.getFullYear(); const m = bad ? -1 : d.getMonth();
-    const last = segs[segs.length - 1];
-    if (last && last.bad === bad && last.y === y && last.m === m) { last.jobs.push(j); last.sum += Number(j.sell) || 0; }
-    else segs.push({ bad: bad, y: y, m: m, jobs: [j], sum: Number(j.sell) || 0 });
+    let last = segs[segs.length - 1];
+    if (!(last && last.bad === bad && last.y === y && last.m === m)) { last = { bad: bad, y: y, m: m, items: [], cnt: 0, subCnt: 0, sum: 0 }; segs.push(last); }
+    last.items.push(e);
+    if (e.main) { last.cnt++; last.sum += Number(e.j.sell) || 0; } else last.subCnt++;
   });
   return segs;
 }
 function _jobMonthHeadHtml(seg, span) {
   const beY = seg.bad ? '' : (seg.y + 543);
   const title = seg.bad ? 'ไม่ระบุวันงาน' : (TH_MONTHS_FULL[seg.m] + ' <span style="color:#D4A056;">' + beY + '</span>');
-  return '<div style="' + (span ? 'grid-column:1/-1;' : '') + 'display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:0 4px 9px;margin:18px 0 12px;border-bottom:1.5px solid rgba(212,160,86,.32);"><div style="font-family:Fraunces,serif;font-size:18px;font-weight:600;color:#F4F4F5;">' + title + '</div><div style="font-size:12px;color:#8A8790;white-space:nowrap;"><b style="color:#C9C7C2;">' + seg.jobs.length + ' งาน</b> · ' + fmtTHB(seg.sum) + '</div></div>';
+  return '<div style="' + (span ? 'grid-column:1/-1;' : '') + 'display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:0 4px 9px;margin:18px 0 12px;border-bottom:1.5px solid rgba(212,160,86,.32);"><div style="font-family:Fraunces,serif;font-size:18px;font-weight:600;color:#F4F4F5;">' + title + '</div><div style="font-size:12px;color:#8A8790;white-space:nowrap;"><b style="color:#C9C7C2;">' + seg.cnt + ' งาน</b>' + (seg.subCnt ? ' + ' + seg.subCnt + ' นัดถ่ายย่อย' : '') + ' · ' + fmtTHB(seg.sum) + '</div></div>';
 }
 function _jobYearDivHtml(y, span) {
   return '<div style="' + (span ? 'grid-column:1/-1;' : '') + 'display:flex;align-items:center;gap:14px;margin:16px 2px 8px;"><div style="font-family:Fraunces,serif;font-size:24px;font-weight:700;color:#D4A056;">' + (y + 543) + '</div><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(212,160,86,.45),transparent);"></div></div>';
 }
 
+// v1.1.81 · ป้าย "วันที่ k/n · ชื่อ session · เวลา" ของ entry งานหลายวัน
+function _jobSessTagHtml(e) {
+  const s0 = e.sess[0] || {};
+  const lab = e.sess.map(x => x.label).filter(Boolean).join(' + ');
+  return '<span style="display:inline-block;font-size:10.5px;font-weight:600;color:#EFB670;background:rgba(212,160,86,0.16);padding:2px 8px;border-radius:6px;margin-bottom:4px;white-space:nowrap;">วันที่ ' + e.k + '/' + e.n + (lab ? ' · ' + escapeHtml(lab) : '') + (s0.start ? ' · ' + escapeHtml(s0.start) : '') + '</span>';
+}
 // v1.1.63 · แสดงช่วงวันของงานหลายเซสชัน (parity มือถือ) · ใช้ทั้งมุมมองรายการ + การ์ด
 function _jobDateDisplay(j) {
   const TH_MS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
@@ -6686,28 +6719,44 @@ function renderJobsTable() {
   // v1.1.22 · ลิสต์แถว flex ตามดีไซน์ Joe (Pixory Jobs)
   const TH_MS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
   const SC = { wait_shoot: '#D4A056', wait_deliver: '#7FB0E0', closed: '#5FCF8E' };
-  return _jobMonthSegs(filtered).map((seg, si, arr) => {
+  const _dOf = iso => ({ d: parseInt(String(iso).slice(8, 10), 10), m: TH_MS[parseInt(String(iso).slice(5, 7), 10) - 1] || '' });
+  return _jobMonthSegs(_jobEntries(filtered)).map((seg, si, arr) => {
     let head = '';
     const prevY = si > 0 ? arr[si - 1].y : null;
     if (!seg.bad && seg.y !== prevY) head += _jobYearDivHtml(seg.y, false);
     head += _jobMonthHeadHtml(seg, false);
-    const rows = seg.jobs.map((j, idx) => {
+    const rows = seg.items.map((e, idx) => {
+      const j = e.j;
       const stage = getStageFromJobStatus(j.jobStatus);
       const sc = SC[stage] || '#D4A056';
+      const sep = idx < seg.items.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.05);' : '';
+      const tooltip = _jobSessionsTooltip(j);
+      const tag = e.n > 1 ? _jobSessTagHtml(e) : '';
+      if (!e.main) {
+        const md = _dOf(j.date), ed = _dOf(e.date);
+        const sLoc = (e.sess.map(x => x.loc).filter(x => x && x !== '-')[0]) || _effectiveLoc(j, null) || '';
+        return `<div onclick="openJobDetail('${escapeHtml(j.code)}')"${tooltip ? ` title="${escapeHtml(tooltip)}"` : ''} style="display:flex;align-items:center;gap:20px;padding:14px 20px;${sep}cursor:pointer;background:rgba(212,160,86,0.03);">
+        <div style="min-width:48px;text-align:center;flex:none;opacity:.8;"><div style="font-family:'Fraunces',Georgia,serif;font-weight:300;font-size:23px;color:#EFB670;line-height:1.1;">${ed.d}</div><div style="font-size:10px;color:#71717A;margin-top:2px;">${ed.m}</div></div>
+        <div style="flex:1;min-width:0;">${tag}<div style="font-size:15px;color:#D4D4D8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(j.customer || '-')}</div><div style="font-size:12.5px;color:#71717A;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${sLoc ? '📍 ' + escapeHtml(sLoc) + ' · ' : ''}วันงานหลัก ${md.d} ${md.m} · ยอดเงินดูที่แถววันงาน</div></div>
+        ${_briefBtnHtml(j)}
+        <div style="width:120px;flex:none;"></div>
+        <svg width="8" height="14" viewBox="0 0 8 14" style="flex:none;"><path d="M1 1l6 6-6 6" stroke="#5a5a63" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>`;
+      }
       const remain = jobOutstanding(j);
       const occs = _getJobOccurrences(j);
-      const firstSess = occs.length ? occs[0].session : null;
-      const iso = j.date || (occs.length ? occs[0].iso : '');
-      const dd = _jobDateDisplay(j);
+      let firstSess = occs.length ? occs[0].session : null;
+      let dd = _jobDateDisplay(j);
+      if (e.n > 1) { const ed = _dOf(e.date); dd = { big: String(ed.d), small: ed.m, multi: false }; if (e.sess[0]) firstSess = e.sess[0]; }
       const loc = _effectiveLoc(j, firstSess) || '';
       const sub = (j.type || '') + (loc ? ' · ' + loc : '');
-      const tooltip = _jobSessionsTooltip(j);
       const teamWarn = (j.teamStatus === 'incomplete' && stage !== 'closed')
         ? `<span style="font-size:9.5px;color:#E27A72;background:#E27A721f;padding:2px 7px;border-radius:6px;white-space:nowrap;">${escapeHtml(t('job.teamWarnPill'))}</span>` : '';
-      return `<div onclick="openJobDetail('${escapeHtml(j.code)}')"${tooltip ? ` title="${escapeHtml(tooltip)}"` : ''} style="display:flex;align-items:center;gap:20px;padding:16px 20px;${idx < seg.jobs.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.05);' : ''}cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background=''">
+      return `<div onclick="openJobDetail('${escapeHtml(j.code)}')"${tooltip ? ` title="${escapeHtml(tooltip)}"` : ''} style="display:flex;align-items:center;gap:20px;padding:16px 20px;${sep}cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background=''">
         <div style="min-width:48px;text-align:center;flex:none;"><div style="font-family:'Fraunces',Georgia,serif;font-weight:300;font-size:${dd.multi ? '15px' : '23px'};color:#EFB670;line-height:1.1;white-space:nowrap;">${dd.big}</div><div style="font-size:10px;color:#71717A;margin-top:2px;white-space:nowrap;">${dd.small}</div></div>
-        <div style="flex:1;min-width:0;"><div style="font-size:15px;color:#F4F4F5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(j.customer || '-')}</div><div style="font-size:12.5px;color:#71717A;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(sub)}</div></div>
+        <div style="flex:1;min-width:0;">${tag}<div style="font-size:15px;color:#F4F4F5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(j.customer || '-')}</div><div style="font-size:12.5px;color:#71717A;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(sub)}</div></div>
         <div style="flex:none;display:flex;align-items:center;gap:6px;">${teamWarn}<span style="font-size:11.5px;font-weight:500;color:${sc};background:${sc}1f;padding:5px 13px;border-radius:8px;white-space:nowrap;">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span></div>
+        ${_briefBtnHtml(j)}
         <div style="width:120px;text-align:right;flex:none;"><div style="font-family:'Inter';font-weight:600;font-size:16px;color:#F4F4F5;">${fmtTHB(j.sell)}</div>${remain > 0 ? `<div style="font-size:10.5px;color:#EFB670;margin-top:2px;">เหลือ ${fmtTHB(remain)}</div>` : ''}</div>
         <svg width="8" height="14" viewBox="0 0 8 14" style="flex:none;"><path d="M1 1l6 6-6 6" stroke="#5a5a63" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>`;
@@ -6729,33 +6778,48 @@ function renderJobsCards() {
   const TH_MS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
   const SC = { wait_shoot: '#D4A056', wait_deliver: '#7FB0E0', closed: '#5FCF8E' };
   return `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
-    ${_jobMonthSegs(filtered).map((seg, si, arr) => {
+    ${_jobMonthSegs(_jobEntries(filtered)).map((seg, si, arr) => {
       let head = '';
       const prevY = si > 0 ? arr[si - 1].y : null;
       if (!seg.bad && seg.y !== prevY) head += _jobYearDivHtml(seg.y, true);
       head += _jobMonthHeadHtml(seg, true);
-      const cards = seg.jobs.map(j => {
+      const cards = seg.items.map(e => {
+      const j = e.j;
       const stage = getStageFromJobStatus(j.jobStatus);
       const sc = SC[stage] || '#D4A056';
+      const tooltip = _jobSessionsTooltip(j);
+      const tag = e.n > 1 ? _jobSessTagHtml(e) : '';
+      const dOne = parseInt(String(e.date).slice(8, 10), 10) + ' ' + (TH_MS[parseInt(String(e.date).slice(5, 7), 10) - 1] || '');
+      if (!e.main) {
+        const mainD = parseInt(String(j.date).slice(8, 10), 10) + ' ' + (TH_MS[parseInt(String(j.date).slice(5, 7), 10) - 1] || '');
+        const sLoc = (e.sess.map(x => x.loc).filter(x => x && x !== '-')[0]) || _effectiveLoc(j, null) || '';
+        return `<div class="pxcard" onclick="openJobDetail('${escapeHtml(j.code)}')"${tooltip ? ` title="${escapeHtml(tooltip)}"` : ''} style="border-radius:16px;padding:17px 19px;background:rgba(28,28,34,0.35);border:1px dashed rgba(212,160,86,0.3);display:flex;flex-direction:column;gap:10px;cursor:pointer;">
+        <div>${tag}<div style="font-size:15.5px;color:#D4D4D8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(j.customer || '-')}</div></div>
+        ${sLoc ? `<div style="font-size:12px;color:#A1A1AA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📍 ${escapeHtml(sLoc)}</div>` : ''}
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px dashed rgba(255,255,255,0.08);padding-top:10px;">
+          <span style="font-size:12px;color:#A1A1AA;">${escapeHtml(dOne)} <span style="color:#71717A;">· วันงานหลัก ${escapeHtml(mainD)}</span></span>
+          ${_briefBtnHtml(j)}
+        </div>
+      </div>`;
+      }
       const remain = jobOutstanding(j);
       const occs = _getJobOccurrences(j);
-      const firstSess = occs.length ? occs[0].session : null;
-      const iso = j.date || (occs.length ? occs[0].iso : '');
+      let firstSess = occs.length ? occs[0].session : null;
       const _dd = _jobDateDisplay(j);
-      const dchip = _dd.big + (_dd.small ? ' ' + _dd.small : '');
+      let dchip = _dd.big + (_dd.small ? ' ' + _dd.small : '');
+      if (e.n > 1) { dchip = dOne; if (e.sess[0]) firstSess = e.sess[0]; }
       const loc = _effectiveLoc(j, firstSess) || '';
-      const tooltip = _jobSessionsTooltip(j);
       const teamWarn = (j.teamStatus === 'incomplete' && stage !== 'closed')
         ? `<span style="font-size:9px;color:#E27A72;background:#E27A721f;padding:2px 7px;border-radius:6px;white-space:nowrap;">${escapeHtml(t('job.teamWarnPill'))}</span>` : '';
       return `<div class="pxcard" onclick="openJobDetail('${escapeHtml(j.code)}')"${tooltip ? ` title="${escapeHtml(tooltip)}"` : ''} style="border-radius:16px;padding:17px 19px;background:rgba(28,28,34,0.55);border:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;gap:12px;cursor:pointer;">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
-          <div style="min-width:0;"><div style="font-size:15.5px;color:#F4F4F5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(j.customer || '-')}</div><div style="font-size:12px;color:#71717A;margin-top:3px;">${escapeHtml(j.type || '-')}</div></div>
+          <div style="min-width:0;">${tag}<div style="font-size:15.5px;color:#F4F4F5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(j.customer || '-')}</div><div style="font-size:12px;color:#71717A;margin-top:3px;">${escapeHtml(j.type || '-')}</div></div>
           <div style="flex:none;display:flex;align-items:center;gap:6px;">${teamWarn}<span style="font-size:10.5px;font-weight:500;color:${sc};background:${sc}1f;padding:4px 10px;border-radius:7px;white-space:nowrap;">${escapeHtml(j.jobStatus || 'รอถ่าย')}</span></div>
         </div>
         ${loc ? `<div style="font-size:12px;color:#A1A1AA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📍 ${escapeHtml(loc)}</div>` : ''}
-        <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;">
           <span style="font-size:12px;color:#A1A1AA;">${escapeHtml(dchip)}</span>
-          <div style="text-align:right;"><span style="font-family:'Inter';font-weight:600;font-size:15px;color:#F4F4F5;">${fmtTHB(j.sell)}</span>${remain > 0 ? `<div style="font-size:10.5px;color:#EFB670;margin-top:2px;">เหลือ ${fmtTHB(remain)}</div>` : ''}</div>
+          <div style="display:flex;align-items:center;gap:10px;">${_briefBtnHtml(j)}<div style="text-align:right;"><span style="font-family:'Inter';font-weight:600;font-size:15px;color:#F4F4F5;">${fmtTHB(j.sell)}</span>${remain > 0 ? `<div style="font-size:10.5px;color:#EFB670;margin-top:2px;">เหลือ ${fmtTHB(remain)}</div>` : ''}</div></div>
         </div>
       </div>`;
       }).join('');
@@ -6772,9 +6836,16 @@ function getStageFromJobStatus(label) {
 }
 
 // v1.0.32 · parity with mobile · returns true if "shoot date + 1 day at 05:00 local time" has passed
+// v2.9.98/v1.1.81 · วันถ่ายสุดท้ายของงาน (งานหลายวัน) · กันงานเลื่อนเป็น "รอส่งงาน" หลังวันถ่ายแรก (เช่น วันพรี) ทั้งที่ยังไม่ถึงวันแต่ง
+function jobLastShootDate(j) {
+  if (!j) return '';
+  let last = j.date || '';
+  (Array.isArray(j.sessions) ? j.sessions : []).forEach(s => { if (s && s.date && s.date > last) last = s.date; });
+  return last;
+}
 function jobShootDatePassed(j) {
   if (!j || !j.date) return false;
-  const shoot = new Date(j.date);
+  const shoot = new Date(jobLastShootDate(j));
   if (isNaN(shoot.getTime())) return false;
   shoot.setDate(shoot.getDate() + 1);
   shoot.setHours(5, 0, 0, 0);
@@ -7103,6 +7174,7 @@ function renderReports(root) {
     <div class="tab-row">
       <button class="tab-btn ${REPORTS_TAB === 'overview' ? 'active' : ''}" onclick="setReportsTab('overview')">📊 ภาพรวม</button>
       <button class="tab-btn ${REPORTS_TAB === 'monthly' ? 'active' : ''}" onclick="setReportsTab('monthly')">📅 รายเดือน</button>
+      <button class="tab-btn ${REPORTS_TAB === 'cashflow' ? 'active' : ''}" onclick="setReportsTab('cashflow')">💰 เงินรอเข้า</button>
       <button class="tab-btn ${REPORTS_TAB === 'tax' ? 'active' : ''}" onclick="setReportsTab('tax')">🧾 ภาษี</button>
       <button class="tab-btn ${REPORTS_TAB === 'customers' ? 'active' : ''}" onclick="setReportsTab('customers')">👥 ลูกค้า</button>
       <button class="tab-btn ${REPORTS_TAB === 'export' ? 'active' : ''}" onclick="setReportsTab('export')">⬇ ส่งออก CSV</button>
@@ -7114,6 +7186,91 @@ function renderReports(root) {
 }
 
 function setReportsYear(y) { REPORTS_YEAR = Number(y) || new Date().getFullYear(); renderReports(document.getElementById('main')); }
+// ===================================================================
+// v1.1.81 · รายงาน → แท็บ "💰 เงินรอเข้า" (parity มือถือ v2.9.98) · อ่านอย่างเดียว
+//   wait = งานรอถ่าย: ค้างเก็บ (jobOutstanding) − ต้นทุนงาน · all = ทุกงานแยกปี/เดือน: ขาย − ต้นทุน = กำไร
+// ===================================================================
+let RCF_MODE = 'wait', RCF_YEAR = 'all';
+function _rcfJobCost(j) {
+  const ci = Array.isArray(j.costItems) ? j.costItems.reduce((s, c) => s + (parseFloat(c && c.price) || 0), 0) : 0;
+  return (Number(j.teamCost) || 0) + (Number(j.travelCost) || 0) + (Number(j.otherCost) || 0) + ci;
+}
+function _rcfRows(mode) {
+  return (JOBS || []).filter(j => j && !jobCancelled(j) && (mode !== 'wait' || getStageFromJobStatus(j.jobStatus) === 'wait_shoot'))
+    .map(j => { const rev = jobRevenue(j), out = jobOutstanding(j); return { j: j, d: String(j.date || ''), rev: rev, paid: rev - out, out: out, cost: _rcfJobCost(j), done: getStageFromJobStatus(j.jobStatus) !== 'wait_shoot' }; })
+    .sort((a, b) => a.d.localeCompare(b.d));
+}
+function _rcfSum(rows) { return rows.reduce((a, r) => { a.rev += r.rev; a.paid += r.paid; a.out += r.out; a.cost += r.cost; return a; }, { rev: 0, paid: 0, out: 0, cost: 0 }); }
+function setRcfMode(m) { RCF_MODE = m === 'all' ? 'all' : 'wait'; renderReportsPane(); }
+function setRcfYear(y) { RCF_YEAR = y; renderReportsPane(); }
+function _rcfToggle(id) { document.querySelectorAll('[data-rcf="' + id + '"]').forEach(tr => { tr.style.display = tr.style.display === 'none' ? '' : 'none'; }); const ch = document.getElementById('rcfch-' + id); if (ch) ch.style.transform = ch.style.transform ? '' : 'rotate(90deg)'; }
+function renderReportsCashflow() {
+  const TH_M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const wait = RCF_MODE === 'wait';
+  let rows = _rcfRows(RCF_MODE);
+  const seg = (m, l) => `<button class="tab-btn ${RCF_MODE === m ? 'active' : ''}" onclick="setRcfMode('${m}')">${l}</button>`;
+  let yrs = '';
+  if (!wait) {
+    const ys = Array.from(new Set(rows.map(r => r.d.slice(0, 4)).filter(y => /^\d{4}$/.test(y)))).sort();
+    if (RCF_YEAR !== 'all' && ys.indexOf(RCF_YEAR) < 0) RCF_YEAR = 'all';
+    const chip = (y, l) => `<span onclick="setRcfYear('${y}')" style="font-size:12px;padding:6px 13px;border-radius:20px;cursor:pointer;${RCF_YEAR === y ? 'background:rgba(212,160,86,0.22);color:#EFB670;font-weight:600;border:1px solid rgba(212,160,86,0.5);' : 'color:#A1A1AA;border:1px solid rgba(255,255,255,0.12);'}">${l}</span>`;
+    yrs = `<div style="display:flex;gap:6px;flex-wrap:wrap;">${chip('all', 'ทุกปี · ' + rows.length)}${ys.map(y => chip(y, (+y + 543) + ' · ' + rows.filter(r => r.d.startsWith(y)).length + ' งาน')).join('')}</div>`;
+    if (RCF_YEAR !== 'all') rows = rows.filter(r => r.d.startsWith(RCF_YEAR));
+  }
+  const S = _rcfSum(rows);
+  const card = (v, l, st) => `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 14px;${st || ''}"><div style="font-family:'Inter';font-size:20px;font-weight:600;">${v}</div><div style="font-size:11.5px;color:#71717A;margin-top:2px;">${l}</div></div>`;
+  let kpi;
+  if (wait) kpi = card(fmtTHB(S.rev), 'ยอดขาย ' + rows.length + ' งานที่ยังไม่ถ่าย') + card(`<span style="color:#8FE3B3">${fmtTHB(S.paid)}</span>`, 'มัดจำ/รับแล้ว') + card(`<span style="color:#5FCF8E">${fmtTHB(S.out)}</span>`, 'ค้างเก็บ (เงินที่จะเข้า)') + card(`<span style="color:#F0A58B">${fmtTHB(S.cost)}</span>`, 'ต้นทุนที่ต้องจ่าย') + card(`<span style="color:#EFB670">${fmtTHB(S.out - S.cost)}</span>`, 'คงเหลือจริง', 'background:linear-gradient(135deg,rgba(212,160,86,0.2),rgba(28,28,34,0.6));border-color:rgba(212,160,86,0.4);');
+  else kpi = card(fmtTHB(S.rev), 'ยอดขาย ' + rows.length + ' งาน') + card(`<span style="color:#F0A58B">${fmtTHB(S.cost)}</span>`, 'ต้นทุนงาน') + card(`<span style="color:#EFB670">${fmtTHB(S.rev - S.cost)}</span>`, 'กำไรจากงาน', 'background:linear-gradient(135deg,rgba(212,160,86,0.2),rgba(28,28,34,0.6));border-color:rgba(212,160,86,0.4);') + card(`<span style="color:#8FE3B3">${fmtTHB(S.paid)}</span>`, 'รับเงินแล้ว') + card(`<span style="color:#F0A58B">${fmtTHB(S.out)}</span>`, 'ค้างเก็บ');
+  // group
+  const G = {};
+  rows.forEach(r => { const y = /^\d{4}/.test(r.d) ? r.d.slice(0, 4) : '----'; const m = /^\d{4}-\d{2}/.test(r.d) ? r.d.slice(0, 7) : '----'; (G[y] = G[y] || {}); (G[y][m] = G[y][m] || []).push(r); });
+  let mx = 1;
+  Object.values(G).forEach(ms => Object.values(ms).forEach(v => { const s = _rcfSum(v); mx = Math.max(mx, wait ? s.out : s.rev); }));
+  const bar = (a, b, wa) => `<div style="position:relative;height:7px;width:150px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;"><i style="position:absolute;left:0;top:0;height:100%;width:${a}%;background:#5FCF8E;border-radius:4px;"></i><i style="position:absolute;left:${wa ? 0 : a}%;top:0;height:100%;width:${b}%;background:${wa ? '#E06A4A' : '#F0997B'};opacity:.85;border-radius:4px;"></i></div>`;
+  const head = wait
+    ? '<tr><th style="width:24px;"></th><th>เดือน</th><th class="text-right">งาน</th><th class="text-right">ขาย</th><th class="text-right">มัดจำแล้ว</th><th class="text-right">เงินเข้า (ค้างเก็บ)</th><th class="text-right">ต้นทุน</th><th class="text-right">คงเหลือ</th><th class="text-right">สะสม</th><th></th></tr>'
+    : '<tr><th style="width:24px;"></th><th>เดือน</th><th class="text-right">งาน</th><th class="text-right">ขาย</th><th class="text-right">ต้นทุน</th><th class="text-right">กำไร</th><th class="text-right">รับแล้ว</th><th class="text-right">ค้างเก็บ</th><th></th></tr>';
+  let body = '', cum = 0, gid = 0;
+  const ykeys = Object.keys(G).sort();
+  ykeys.forEach(y => {
+    const yl = Object.values(G[y]).flat(), ys = _rcfSum(yl);
+    if (!wait || ykeys.length > 1) body += `<tr><td colspan="${wait ? 10 : 9}" style="padding:14px 8px 6px;font-family:'Fraunces',serif;font-size:18px;color:#D4A056;border-bottom:1px solid rgba(212,160,86,0.3);">${y === '----' ? 'ไม่ระบุวัน' : (+y + 543)} <span style="font-family:'Sarabun';font-size:12px;color:#71717A;">· ${yl.length} งาน · ${wait ? 'ค้าง ' + fmtTHB(ys.out) : 'ขาย ' + fmtTHB(ys.rev) + ' · กำไร ' + fmtTHB(ys.rev - ys.cost)}</span></td></tr>`;
+    Object.keys(G[y]).sort().forEach(m => {
+      const v = G[y][m], s = _rcfSum(v); gid++;
+      const lab = m === '----' ? 'ไม่ระบุวัน' : TH_M[+m.slice(5) - 1] + ' ' + (+y + 543);
+      const neg = wait ? v.filter(r => r.out - r.cost < 0).length : 0;
+      const ch = `<span id="rcfch-${gid}" style="display:inline-block;color:#71717A;transition:transform .15s;">›</span>`;
+      if (wait) {
+        const n = s.out - s.cost; cum += n;
+        body += `<tr onclick="_rcfToggle(${gid})" style="cursor:pointer;"><td>${ch}</td><td><b>${lab}</b>${neg ? ` <span style="font-size:11px;color:#F0A58B;">⚠ ติดลบ ${neg}</span>` : ''}</td><td class="text-right">${v.length}</td><td class="text-right">${fmtTHB(s.rev)}</td><td class="text-right" style="color:#8FE3B3;">${fmtTHB(s.paid)}</td><td class="text-right" style="color:#5FCF8E;font-weight:600;">${fmtTHB(s.out)}</td><td class="text-right" style="color:#F0A58B;">${fmtTHB(s.cost)}</td><td class="text-right" style="color:#EFB670;font-weight:700;">${fmtTHB(n)}</td><td class="text-right">${fmtTHB(cum)}</td><td>${bar(Math.round(s.out / mx * 100), Math.round(Math.min(s.cost, mx) / mx * 100), true)}</td></tr>`;
+      } else {
+        const pw = Math.round(s.paid / mx * 100);
+        body += `<tr onclick="_rcfToggle(${gid})" style="cursor:pointer;"><td>${ch}</td><td><b>${lab}</b></td><td class="text-right">${v.length}</td><td class="text-right">${fmtTHB(s.rev)}</td><td class="text-right" style="color:#F0A58B;">${fmtTHB(s.cost)}</td><td class="text-right" style="color:#EFB670;font-weight:700;">${fmtTHB(s.rev - s.cost)}</td><td class="text-right" style="color:#8FE3B3;">${fmtTHB(s.paid)}</td><td class="text-right" style="color:${s.out > 0 ? '#F0A58B' : '#5FCF8E'};">${s.out > 0 ? fmtTHB(s.out) : 'ครบ ✓'}</td><td>${bar(pw, Math.round(s.out / mx * 100), false)}</td></tr>`;
+      }
+      v.forEach(r => {
+        const n = wait ? r.out - r.cost : r.rev - r.cost;
+        const dnum = /^\d{4}-\d{2}-\d{2}/.test(r.d) ? (+r.d.slice(8, 10)) + ' ' + TH_M[+r.d.slice(5, 7) - 1] : '–';
+        const pill = wait ? (r.cost ? '' : ' <span style="font-size:10px;color:#71717A;">· ถ่ายเอง</span>') : (r.done ? ' <span style="font-size:10px;color:#8FE3B3;background:rgba(95,207,142,0.14);padding:1px 6px;border-radius:5px;">ถ่ายแล้ว</span>' : ' <span style="font-size:10px;color:#EFB670;background:rgba(212,160,86,0.16);padding:1px 6px;border-radius:5px;">รอถ่าย</span>');
+        const tdS = 'style="font-size:12.5px;color:#A1A1AA;background:rgba(255,255,255,0.015);"';
+        body += wait
+          ? `<tr data-rcf="${gid}" style="display:none;cursor:pointer;" onclick="openJobDetail('${jsStr(r.j.code)}')"><td ${tdS}></td><td ${tdS}><span style="color:#EFB670;margin-right:6px;">${dnum}</span><span style="color:#E4E4E7;">${escapeHtml(r.j.customer || '-')}</span>${pill}</td><td ${tdS}></td><td class="text-right" ${tdS}>${fmtTHB(r.rev)}</td><td class="text-right" ${tdS}>${fmtTHB(r.paid)}</td><td class="text-right" ${tdS}>${fmtTHB(r.out)}</td><td class="text-right" ${tdS}>${r.cost ? fmtTHB(r.cost) : '—'}</td><td class="text-right" ${tdS}><b style="color:${n < 0 ? '#F0A58B' : '#E4E4E7'};">${fmtTHB(n)}</b></td><td ${tdS}></td><td ${tdS}></td></tr>`
+          : `<tr data-rcf="${gid}" style="display:none;cursor:pointer;" onclick="openJobDetail('${jsStr(r.j.code)}')"><td ${tdS}></td><td ${tdS}><span style="color:#EFB670;margin-right:6px;">${dnum}</span><span style="color:#E4E4E7;">${escapeHtml(r.j.customer || '-')}</span>${pill}</td><td ${tdS}></td><td class="text-right" ${tdS}>${fmtTHB(r.rev)}</td><td class="text-right" ${tdS}>${r.cost ? fmtTHB(r.cost) : '—'}</td><td class="text-right" ${tdS}><b style="color:${n < 0 ? '#F0A58B' : '#E4E4E7'};">${fmtTHB(n)}</b></td><td class="text-right" ${tdS}>${fmtTHB(r.paid)}</td><td class="text-right" ${tdS}>${r.out > 0 ? fmtTHB(r.out) : '—'}</td><td ${tdS}></td></tr>`;
+      });
+    });
+  });
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+      <div style="display:flex;gap:4px;">${seg('wait', '⏳ งานที่ยังไม่ถ่าย')}${seg('all', '📋 งานทั้งหมด')}</div>
+      ${yrs}
+    </div>
+    ${rows.length ? `<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:16px;">${kpi}</div>
+    <div class="glass-card" style="padding:6px 8px;"><table class="data-table">${head}${body}</table></div>
+    <div style="font-size:11.5px;color:#71717A;margin-top:10px;line-height:1.6;">${wait ? 'นับเงินเข้า/จ่ายในเดือนวันงาน · มัดจำที่ได้แล้วไม่นับซ้ำ · ยังไม่หักค่าใช้จ่ายร้านและภาษี · ⚠ = ต้นทุนมากกว่ายอดที่ยังเก็บได้' : 'กำไร = ยอดขาย − ต้นทุนงาน (ยังไม่หักค่าใช้จ่ายร้านและภาษี) · จัดกลุ่มตามวันงาน'} · คลิกแถวเดือนเพื่อกางรายงาน · คลิกงานเพื่อเปิด</div>`
+    : `<div class="glass-card"><div class="empty-state"><div class="emoji">💰</div><div class="title">${wait ? 'ไม่มีงานที่รอถ่าย' : 'ยังไม่มีงาน'}</div></div></div>`}
+  `;
+}
+
 function setReportsTab(t) { REPORTS_TAB = t; renderReports(document.getElementById('main')); }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -7287,6 +7444,7 @@ function renderReportsPane() {
   switch (REPORTS_TAB) {
     case 'overview':  pane.innerHTML = renderReportsOverview(); break;
     case 'monthly':   pane.innerHTML = renderReportsMonthly(); break;
+    case 'cashflow':  pane.innerHTML = renderReportsCashflow(); break;
     case 'tax':       pane.innerHTML = renderReportsTax(); break;
     case 'customers': pane.innerHTML = renderReportsCustomers(); break;
     case 'export':    pane.innerHTML = renderReportsExport(); break;
@@ -14653,6 +14811,7 @@ async function saveJob() {
     payStatus,
     // Invoice
     invoice: existing?.invoice,
+    brief: existing?.brief,   // v1.1.81 · บรีฟงาน (ไม่อยู่ในฟอร์ม) · กันหายตอนแก้งาน
     // Tax
     ...taxSnap,
     // Tracking
@@ -14727,6 +14886,185 @@ async function saveJob() {
 // JOB DETAIL · view + actions (Payment, Edit, Delete)
 // ===================================================================
 
+
+// ===================================================================
+// v1.1.81 · บรีฟงาน (Job Brief) · parity มือถือ v2.9.98 · เก็บใน j.brief · ไม่แตะเงิน
+// ===================================================================
+const BRIEF_SECTIONS = [
+  { k: 'want',     icon: '💬', h: 'ลูกค้าอยากได้',              kind: 'text', ph: 'โทนภาพ · สไตล์ที่ชอบ · คนสำคัญที่อยากได้รูปเยอะๆ' },
+  { k: 'agreed',   icon: '🤝', h: 'สิ่งที่ตกลงกันไว้',           kind: 'list', ph: 'เช่น ส่งไฟล์ภายใน 30 วัน', add: 'เพิ่มข้อตกลง' },
+  { k: 'shots',    icon: '📸', h: 'ช็อตห้ามพลาด',              kind: 'list', ph: 'เช่น รดน้ำสังข์ — คุณยาย', add: 'เพิ่มช็อต' },
+  { k: 'timeline', icon: '⏰', h: 'ลำดับเวลาวันงาน',           kind: 'time', ph: 'เช่น แห่ขันหมาก (ฤกษ์)', add: 'เพิ่มเวลา' },
+  { k: 'people',   icon: '👤', h: 'คนสำคัญ / ผู้ประสานหน้างาน', kind: 'text', ph: 'ชื่อ · เบอร์ · หน้าที่' },
+  { k: 'caution',  icon: '⚠️', h: 'ข้อควรระวัง',               kind: 'text', ph: 'สิ่งที่ห้ามทำ · เรื่องที่ต้องระวัง', warn: true }
+];
+function _briefOf(j) {
+  const b = (j && j.brief && typeof j.brief === 'object') ? j.brief : {};
+  return {
+    want: b.want || '', people: b.people || '', caution: b.caution || '',
+    agreed: Array.isArray(b.agreed) ? b.agreed : [], shots: Array.isArray(b.shots) ? b.shots : [],
+    timeline: Array.isArray(b.timeline) ? b.timeline : [], extra: Array.isArray(b.extra) ? b.extra : [],
+    updatedAt: b.updatedAt || ''
+  };
+}
+function _briefSecFilled(b, k) {
+  const v = b[k];
+  if (Array.isArray(v)) return v.some(x => x && String(x.t || x.h || '').trim());
+  return !!String(v || '').trim();
+}
+function briefCount(j) {
+  if (!j || !j.brief) return 0;
+  const b = _briefOf(j);
+  let n = BRIEF_SECTIONS.filter(s => _briefSecFilled(b, s.k)).length;
+  n += b.extra.filter(x => x && (String(x.h || '').trim() || String(x.t || '').trim())).length;
+  return n;
+}
+function _briefBtnHtml(j) {
+  const n = briefCount(j);
+  const st = n
+    ? 'border:1px solid rgba(212,160,86,0.45);background:rgba(212,160,86,0.12);color:#EFB670;'
+    : 'border:1px dashed rgba(255,255,255,0.2);background:none;color:#8A8790;';
+  return `<span onclick="event.stopPropagation(); openBriefModal('${jsStr(j.code)}')" title="บรีฟงาน" style="flex:none;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:9px;white-space:nowrap;cursor:pointer;${st}">📝 บรีฟ${n ? ` <b style="background:#EFB670;color:#17130B;border-radius:7px;padding:0 6px;font-size:10px;">${n}</b>` : ''}</span>`;
+}
+let BRIEF_CODE = null, BRIEF_MODE = 'edit', _briefTimer = null;
+function _briefJob() { return (JOBS || []).find(x => x && x.code === BRIEF_CODE) || null; }
+function openBriefModal(code) {
+  const j = (JOBS || []).find(x => x && x.code === code);
+  if (!j) { toast('ไม่พบงาน', 'error'); return; }
+  BRIEF_CODE = code;
+  BRIEF_MODE = briefCount(j) > 0 ? 'read' : 'edit';
+  openModalWithHtml('<div id="brief-modal-root"></div>');
+  renderBriefModal();
+}
+function closeBriefModal() { _briefFlush(); closeModal(); try { if (CURRENT_PAGE === 'jobs') renderJobs(document.getElementById('main')); } catch (e) {} }
+function setBriefMode(m) { _briefFlush(); BRIEF_MODE = m === 'read' ? 'read' : 'edit'; renderBriefModal(); }
+function _briefMut(fn) {
+  const j = _briefJob(); if (!j) return;
+  const b = _briefOf(j); fn(b); j.brief = b;
+  if (_briefTimer) clearTimeout(_briefTimer);
+  _briefTimer = setTimeout(_briefFlush, 700);
+}
+function _briefFlush() {
+  if (!_briefTimer) return;
+  clearTimeout(_briefTimer); _briefTimer = null;
+  const j = _briefJob(); if (!j || !j.brief) return;
+  j.brief.updatedAt = new Date().toISOString();
+  try { saveData(); } catch (e) { console.warn('brief save:', e); }
+}
+function briefSet(k, v) { _briefMut(b => { b[k] = v; }); }
+function briefItem(k, i, f, v) { _briefMut(b => { if (b[k][i]) b[k][i][f] = v; }); }
+function briefToggle(k, i) { _briefMut(b => { if (b[k][i]) b[k][i].d = !b[k][i].d; }); _briefFlush(); renderBriefModal(); }
+function briefAdd(k) {
+  _briefMut(b => { b[k].push(k === 'timeline' ? { tm: '', t: '' } : (k === 'extra' ? { h: '', t: '' } : { t: '', d: false })); });
+  renderBriefModal();
+  setTimeout(() => { const els = document.querySelectorAll('[data-brief-last="' + k + '"]'); const el = els[els.length - 1]; if (el) el.focus(); }, 50);
+}
+function briefDel(k, i) { _briefMut(b => { b[k].splice(i, 1); }); _briefFlush(); renderBriefModal(); }
+function _briefSortTimeline() { _briefMut(b => { b.timeline.sort((x, y) => String(x.tm || '99:99').localeCompare(String(y.tm || '99:99'))); }); renderBriefModal(); }
+function renderBriefModal() {
+  const root = document.getElementById('brief-modal-root');
+  const j = _briefJob();
+  if (!root || !j) return;
+  const b = _briefOf(j), read = BRIEF_MODE === 'read', esc = escapeHtml;
+  const inp = 'width:100%;font-family:inherit;font-size:13.5px;padding:8px 10px;border-radius:9px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:#F4F4F5;min-width:0;';
+  const xBtn = (k, i) => `<span onclick="briefDel('${k}',${i})" style="color:#F0A58B;font-size:18px;cursor:pointer;padding:0 6px;line-height:1;">×</span>`;
+  const box = (k, i, on) => `<span onclick="briefToggle('${k}',${i})" style="flex:none;width:20px;height:20px;border-radius:6px;border:1.5px solid ${on ? '#5FCF8E' : 'rgba(212,160,86,0.6)'};background:${on ? '#5FCF8E' : 'none'};display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#17130B;cursor:pointer;">${on ? '✓' : ''}</span>`;
+  const segBtn = (m, lbl) => `<span onclick="setBriefMode('${m}')" style="font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;${BRIEF_MODE === m ? 'background:rgba(212,160,86,0.22);color:#EFB670;font-weight:600;' : 'color:#A1A1AA;'}">${lbl}</span>`;
+  let dd = j.date || '';
+  try { const d = new Date(j.date); if (!isNaN(d)) dd = fmtDateTH(j.date); } catch (e) {}
+  const team = (Array.isArray(j.team) ? j.team : []).join(', ');
+  const ci = (typeof CUSTOMER_INFO !== 'undefined' && CUSTOMER_INFO[j.customer]) || {};
+  const phone = j.custPhone || ci.phone || '', line = j.custLine || ci.line || '';
+  const loc = (j.loc && j.loc !== '-') ? j.loc : '';
+  let secs = '', shown = 0;
+  BRIEF_SECTIONS.forEach(sec => {
+    const filled = _briefSecFilled(b, sec.k);
+    if (read && !filled) return;
+    shown++;
+    let body = '', meta = '';
+    if (sec.kind === 'text') {
+      body = read ? `<div style="font-size:14.5px;line-height:1.7;white-space:pre-wrap;color:#E4E4E7;">${esc(b[sec.k])}</div>`
+        : `<textarea rows="3" placeholder="${esc(sec.ph)}" oninput="briefSet('${sec.k}', this.value)" style="${inp}resize:vertical;">${esc(b[sec.k])}</textarea>`;
+    } else if (sec.kind === 'list') {
+      const items = b[sec.k];
+      const tot = items.filter(x => x && String(x.t || '').trim()).length, done = items.filter(x => x && x.d && String(x.t || '').trim()).length;
+      if (tot) meta = done + '/' + tot;
+      body = items.map((it, i) => {
+        if (read && !String(it.t || '').trim()) return '';
+        return read
+          ? `<div style="display:flex;gap:10px;align-items:center;padding:5px 0;font-size:14.5px;">${box(sec.k, i, it.d)}<span onclick="briefToggle('${sec.k}',${i})" style="cursor:pointer;${it.d ? 'text-decoration:line-through;opacity:.5;' : ''}">${esc(it.t)}</span></div>`
+          : `<div style="display:flex;gap:8px;align-items:center;padding:4px 0;">${box(sec.k, i, it.d)}<input type="text" data-brief-last="${sec.k}" value="${esc(it.t || '')}" placeholder="${esc(sec.ph)}" oninput="briefItem('${sec.k}',${i},'t',this.value)" style="${inp}flex:1;${it.d ? 'text-decoration:line-through;opacity:.6;' : ''}">${xBtn(sec.k, i)}</div>`;
+      }).join('');
+      if (!read) body += `<div onclick="briefAdd('${sec.k}')" style="font-size:12.5px;color:#EFB670;font-weight:600;margin-top:6px;cursor:pointer;">＋ ${sec.add}</div>`;
+    } else {
+      const items = b.timeline;
+      body = read
+        ? `<div style="display:grid;grid-template-columns:60px 1fr;gap:6px 12px;font-size:14.5px;">${items.filter(it => String(it.t || '').trim() || it.tm).map(it => `<b style="color:#EFB670;font-family:'Inter';">${esc(it.tm || '—')}</b><span>${esc(it.t || '')}</span>`).join('')}</div>`
+        : items.map((it, i) => `<div style="display:flex;gap:8px;align-items:center;padding:4px 0;"><input type="time" value="${esc(it.tm || '')}" onchange="briefItem('timeline',${i},'tm',this.value); _briefSortTimeline()" style="${inp}width:110px;flex:none;"><input type="text" data-brief-last="timeline" value="${esc(it.t || '')}" placeholder="${esc(sec.ph)}" oninput="briefItem('timeline',${i},'t',this.value)" style="${inp}flex:1;">${xBtn('timeline', i)}</div>`).join('') + `<div onclick="briefAdd('timeline')" style="font-size:12.5px;color:#EFB670;font-weight:600;margin-top:6px;cursor:pointer;">＋ ${sec.add}</div>`;
+    }
+    secs += `<div style="background:${sec.warn ? 'rgba(240,165,139,0.07)' : 'rgba(255,255,255,0.03)'};border:1px solid ${sec.warn ? 'rgba(240,165,139,0.3)' : 'rgba(255,255,255,0.07)'};border-radius:14px;padding:13px 15px;margin-bottom:10px;"><div style="display:flex;align-items:center;font-size:13px;font-weight:600;color:${sec.warn ? '#F0A58B' : '#EFB670'};margin-bottom:8px;">${sec.icon} ${sec.h}${meta ? `<span style="margin-left:auto;font-size:11px;color:#71717A;font-weight:400;">${meta}</span>` : ''}</div>${body}</div>`;
+  });
+  b.extra.forEach((x, i) => {
+    const filled = String(x.h || '').trim() || String(x.t || '').trim();
+    if (read && !filled) return;
+    shown++;
+    secs += read
+      ? `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:13px 15px;margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:#EFB670;margin-bottom:8px;">📌 ${esc(x.h || 'หัวข้ออื่น')}</div><div style="font-size:14.5px;line-height:1.7;white-space:pre-wrap;color:#E4E4E7;">${esc(x.t || '')}</div></div>`
+      : `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:13px 15px;margin-bottom:10px;"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">📌<input type="text" data-brief-last="extra" value="${esc(x.h || '')}" placeholder="ชื่อหัวข้อ เช่น ชุด/คอสตูม" oninput="briefItem('extra',${i},'h',this.value)" style="${inp}flex:1;">${xBtn('extra', i)}</div><textarea rows="3" oninput="briefItem('extra',${i},'t',this.value)" style="${inp}resize:vertical;">${esc(x.t || '')}</textarea></div>`;
+  });
+  if (read && shown === 0) secs += `<div style="text-align:center;padding:30px;color:#71717A;font-size:14px;line-height:1.8;">ยังไม่มีบรีฟสำหรับงานนี้<br><span onclick="setBriefMode('edit')" style="color:#EFB670;font-weight:600;cursor:pointer;">✎ เริ่มเขียนบรีฟ</span></div>`;
+  const notes = (typeof NOTES !== 'undefined' ? NOTES : []).filter(n => n && n.jobCode === j.code);
+  if (notes.length) secs += `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:13px 15px;margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:#EFB670;margin-bottom:6px;">🗒 บันทึกที่ผูกกับงานนี้ (${notes.length})</div>${notes.map(n => `<div onclick="_briefFlush(); openNoteModal('${jsStr(n.id)}')" style="padding:6px 0;border-top:1px solid rgba(255,255,255,0.05);cursor:pointer;font-size:13px;"><b style="font-weight:600;">${esc(n.title || '(ไม่มีชื่อ)')}</b>${n.body ? `<div style="font-size:12px;color:#71717A;">${esc(n.body.length > 100 ? n.body.slice(0, 100) + '…' : n.body)}</div>` : ''}</div>`).join('')}</div>`;
+  const quick = (lbl, href, on) => on ? `<a href="${href}" target="_blank" rel="noopener" style="flex:1;text-align:center;font-size:12px;padding:8px;border-radius:9px;background:rgba(255,255,255,0.05);color:#E4E4E7;text-decoration:none;">${lbl}</a>` : `<span style="flex:1;text-align:center;font-size:12px;padding:8px;border-radius:9px;background:rgba(255,255,255,0.03);color:#52525B;">${lbl}</span>`;
+  root.innerHTML = `
+    <div class="modal-header">
+      <div><div class="modal-title">📝 บรีฟงาน</div><div class="text-mute text-sm">${esc(j.customer || '-')} · ${esc(dd)}${loc ? ' · ' + esc(loc) : ''}${team ? ' · ทีม: ' + esc(team) : ''}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;"><div style="display:flex;gap:2px;background:rgba(255,255,255,0.05);border-radius:10px;padding:3px;">${segBtn('edit', 'แก้ไข')}${segBtn('read', 'อ่านก่อนไป')}</div><button class="modal-close" onclick="closeBriefModal()">✕</button></div>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        ${phone ? `<span onclick="navigator.clipboard && navigator.clipboard.writeText('${jsStr(phone)}'); toast('คัดลอกเบอร์แล้ว','success')" style="flex:1;text-align:center;font-size:12px;padding:8px;border-radius:9px;background:rgba(255,255,255,0.05);color:#E4E4E7;cursor:pointer;">📞 ${esc(phone)}</span>` : quick('📞 โทร', '', false)}
+        ${line ? `<span onclick="navigator.clipboard && navigator.clipboard.writeText('${jsStr(line)}'); toast('คัดลอก LINE ID แล้ว','success')" style="flex:1;text-align:center;font-size:12px;padding:8px;border-radius:9px;background:rgba(255,255,255,0.05);color:#E4E4E7;cursor:pointer;">💬 ${esc(line)}</span>` : quick('💬 LINE', '', false)}
+        ${quick('🗺 แผนที่', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(loc), !!loc)}
+        <span onclick="_briefFlush(); openJobDetail('${jsStr(j.code)}')" style="flex:1;text-align:center;font-size:12px;padding:8px;border-radius:9px;background:rgba(255,255,255,0.05);color:#E4E4E7;cursor:pointer;">📂 เปิดงาน</span>
+      </div>
+      ${secs}
+      ${b.updatedAt ? `<div style="text-align:center;font-size:11px;color:#71717A;margin-top:4px;">แก้ล่าสุด ${esc(new Date(b.updatedAt).toLocaleString('th-TH'))}</div>` : ''}
+    </div>
+    <div class="modal-footer">
+      ${read ? '' : `<button class="btn btn-ghost" onclick="briefAdd('extra')">＋ หัวข้ออื่น</button>`}
+      <button class="btn btn-ghost" onclick="copyBriefText()">📋 คัดลอกบรีฟส่งทีม</button>
+      <button class="btn btn-primary" onclick="closeBriefModal()">เสร็จ</button>
+    </div>`;
+}
+function briefShareText(j) {
+  const b = _briefOf(j);
+  const L = [];
+  let ds = j.date || '';
+  try { if (j.date) ds = fmtDateTH(j.date); } catch (e) {}
+  L.push('📝 บรีฟงาน · ' + (j.customer || '-'));
+  L.push('📅 ' + ds + ((j.loc && j.loc !== '-') ? ' · 📍 ' + j.loc : ''));
+  const ss = (Array.isArray(j.sessions) ? j.sessions : []).filter(s => s && s.date).slice().sort((a, b) => (a.date + (a.start || '')).localeCompare(b.date + (b.start || '')));
+  if (ss.length > 1) ss.forEach((s, i) => L.push('   วันที่ ' + (i + 1) + ': ' + (() => { try { return fmtDateTH(s.date); } catch (e) { return s.date; } })() + (s.label ? ' · ' + s.label : '') + (s.start ? ' · ' + s.start : '') + (s.loc ? ' · ' + s.loc : '')));
+  if (Array.isArray(j.team) && j.team.length) L.push('👥 ทีม: ' + j.team.join(', '));
+  BRIEF_SECTIONS.forEach(sec => {
+    if (!_briefSecFilled(b, sec.k)) return;
+    L.push(''); L.push(sec.icon + ' ' + sec.h);
+    if (sec.kind === 'text') L.push(String(b[sec.k]).trim());
+    else if (sec.kind === 'list') b[sec.k].filter(x => x && String(x.t || '').trim()).forEach(x => L.push((x.d ? '✅ ' : '▫️ ') + x.t));
+    else b.timeline.filter(x => x && (String(x.t || '').trim() || x.tm)).forEach(x => L.push((x.tm || '—') + '  ' + (x.t || '')));
+  });
+  b.extra.filter(x => x && (String(x.h || '').trim() || String(x.t || '').trim())).forEach(x => { L.push(''); L.push('📌 ' + (x.h || 'หัวข้ออื่น')); if (x.t) L.push(String(x.t).trim()); });
+  return L.join('\n');
+}
+function copyBriefText() {
+  _briefFlush();
+  const j = _briefJob(); if (!j) return;
+  if (!briefCount(j)) { toast('ยังไม่มีบรีฟให้คัดลอก', 'warn'); return; }
+  const txt = briefShareText(j);
+  try { navigator.clipboard.writeText(txt).then(() => toast('✓ คัดลอกบรีฟแล้ว · ไปวางในกลุ่ม LINE ได้เลย', 'success'), () => window.prompt('คัดลอก:', txt)); }
+  catch (e) { window.prompt('คัดลอก:', txt); }
+}
 
 function openJobDetail(code) {
   const j = JOBS.find(x => x.code === code);
@@ -15108,6 +15446,14 @@ function renderJobDetailHtml(j) {
           <div style="font-size:13px;line-height:1.6;color:var(--ink-soft);white-space:pre-wrap;background:rgba(0,0,0,0.025);padding:10px 12px;border-radius:8px;">${escapeHtml(j.note)}</div>
         </div>
       ` : ''}
+
+      <!-- v1.1.81 · บรีฟงาน -->
+      <div class="form-section" onclick="openBriefModal('${jsStr(j.code)}')" style="cursor:pointer;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div><div class="form-section-title" style="margin:0;">📋 บรีฟงาน</div><div style="font-size:12px;color:var(--ink-mute);margin-top:3px;">${briefCount(j) ? 'มี ' + briefCount(j) + ' หัวข้อ · ข้อตกลง ช็อตห้ามพลาด ลำดับเวลา' : 'ยังไม่มีบรีฟ · จดสิ่งที่คุยกับลูกค้าไว้อ่านก่อนไปงาน'}</div></div>
+          <span style="background:rgba(212,160,86,0.12);color:#D4A056;font-size:12px;font-weight:600;padding:6px 12px;border-radius:20px;white-space:nowrap;">เปิดบรีฟ ›</span>
+        </div>
+      </div>
 
       <!-- v1.1.70 · บันทึกของงานนี้ (โน้ตที่ผูก jobCode) -->
       <div class="form-section">
