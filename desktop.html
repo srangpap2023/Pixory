@@ -3223,12 +3223,20 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.81';
+const PIXORY_DESKTOP_VERSION = '1.1.82';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.1.82': {
+    date: '2026-10-07',
+    title: 'แก้: แก้งานบนคอมแล้วข้อมูลบางส่วนหาย 🛠',
+    subtitle: 'ข้อมูลที่ไม่อยู่ในฟอร์มแก้ไขงาน ตอนนี้ถูกเก็บไว้ครบ',
+    items: [
+      { icon: '🛠', title: 'กด "บันทึก" ในฟอร์มแก้งานบนคอม ข้อมูลเดิมไม่หายแล้ว', desc: 'เดิมสลิปมัดจำจากลิงก์จอง · สถานะงานยกเลิก (กรณียกเลิกด้วยปุ่ม) · บรีฟงาน · ข้อมูลเงินคืน ฯลฯ อาจหายเมื่อแก้งานบนคอม · ตอนนี้เก็บไว้ครบเหมือนบนมือถือ · ช่องที่แก้ในฟอร์มยังบันทึกตามที่แก้' },
+    ]
+  },
   '1.1.81': {
     date: '2026-10-07',
     title: 'บรีฟงาน · เงินรอเข้า · งานหลายวันแยกแถว 📝💰',
@@ -14841,6 +14849,10 @@ async function saveJob() {
   if (st.editing) {
     const idx = JOBS.findIndex(j => j.code === st.editing);
     if (idx >= 0) {
+      // v1.1.81 · เก็บฟิลด์เดิมที่ไม่อยู่ในฟอร์มไว้ (parity มือถือ ...existing) · เดิมแก้งานบนคอมแล้ว
+      //   bookingSlip / cancelled / _cancelledAt / depositRefunded / brief / _autoAdvancedAt ฯลฯ หายเงียบ
+      //   ฟิลด์ที่ฟอร์มตั้งค่าไว้ (รวมค่า null/'' ที่ตั้งใจล้าง) ยังชนะเสมอ เพราะเติมเฉพาะคีย์ที่ job ไม่มี
+      if (existing) Object.keys(existing).forEach(k => { if (!(k in job)) job[k] = existing[k]; });
       JOBS[idx] = job;
       // v1.0.82 · A1 fix (parity มือถือ) · มัดจำเปลี่ยนตอนแก้งาน → ปรับ payments[] ตามด้วย
       // (payments[] = ฐานยอดยื่นภาษีเกณฑ์เงินสด · เดิมแก้แค่ scalar → เงินส่วนต่างหายจากชีตยอดยื่นเงียบๆ)
