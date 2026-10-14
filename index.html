@@ -8900,6 +8900,12 @@ function getMoneyStatus(j) {
   if (paid > 0) return 'partial';                           // 🟡 มีมัดจำ · ค้าง ฿X
   return 'none';                                            // 🔴 ยังไม่ได้รับเงิน
 }
+// v2.9.99 · AUDIT 1.2 · ป้ายสถานะเงิน (แสดงผลเท่านั้น · ไม่เขียนลงข้อมูล) · งานที่ปิดยอดผ่านใบเรียกเก็บแล้ว = "ชำระครบ" เสมอ
+//   แก้ 21 งานในระบบที่ป้ายเก็บไว้ถอยเป็น "มัดจำแล้ว" หลังแก้งาน (บั๊กเดิม) · กรณีอื่นใช้ค่าที่เก็บไว้ตามเดิม
+function payPillStatus(j) {
+  if (j && j.invoice && j.invoice.balancePaid) return 'ชำระครบ';
+  return (j && j.payStatus) || 'รอมัดจำ';
+}
 const SOURCES = ['Facebook','Instagram','Instagram DM','LINE','Website','เว็บไซต์','Referral','เพื่อนแนะนำ','ลูกค้าเก่ากลับมา','Walk-in','อื่นๆ'];
 const EXPENSE_CATS = ['เดินทาง','ที่พัก','อุปกรณ์ถ่าย','เช่าอุปกรณ์','ค่ากินทีม','Software/Subscription','Marketing/โฆษณา','ค่าตัดต่อจ้างนอก','อื่นๆ'];
 
@@ -9271,7 +9277,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.98';
+const PIXORY_VERSION = '2.9.99';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -9282,6 +9288,18 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.99': {
+    date: '2026-10-14',
+    title: 'แก้ 5 จุดจากการตรวจสอบระบบ 🛠',
+    subtitle: 'ข้อมูลงานและลูกค้าไม่ถูกเปลี่ยนเองตอนกด "บันทึกการแก้ไข" อีกต่อไป',
+    items: [
+      { icon: '🛠', title: 'แก้งานแล้ว สถานะงานไม่ถอยกลับ', desc: 'เดิมแก้อะไรก็ตามในงาน (แม้แค่เบอร์โทร) สถานะจะกลับเป็น "รอถ่าย" และถูกเลื่อนเป็น "รอส่งงาน" เอง · ตอนนี้คงสถานะเดิมไว้' },
+      { icon: '💰', title: 'งานที่ชำระครบผ่านใบเรียกเก็บ ป้ายเงินไม่ถอยเป็น "มัดจำแล้ว"', desc: 'เฉพาะป้ายสถานะที่แสดง · ยอดเงิน/ยอดค้าง/รายงานไม่เปลี่ยน · งานที่เคยโดนไปแล้วจะขึ้น "ชำระครบ" ถูกต้องทันที' },
+      { icon: '👤', title: 'บันทึกข้อมูลลูกค้าแล้ว ชื่อผู้ติดต่อ/ตำแหน่ง/เลข PO ไม่หาย', desc: 'ช่องสำหรับใบกำกับภาษีที่กรอกไว้ในฟอร์มงานหรือบนคอม ถูกเก็บไว้ครบ' },
+      { icon: '📅', title: 'แก้งานเก่าที่ไม่มีวันรับมัดจำ ระบบไม่ตั้งเป็น "วันนี้" ให้เอง', desc: 'ใช้วันที่ของรายการรับเงินมัดจำแทน · เงินไม่ย้ายเดือน/ปีในรายงานเงินสด' },
+      { icon: '📣', title: 'แก้งานที่ช่องทางลูกค้าเป็นชื่อเก่า ช่องทางไม่หาย', desc: 'ช่องทางที่ไม่อยู่ในลิสต์ปัจจุบันจะโชว์เป็นตัวเลือกให้เลือกต่อได้' },
+    ]
+  },
   '2.9.98': {
     date: '2026-10-07',
     title: 'บรีฟงาน · เงินที่รอเข้า · งานหลายวันแยกการ์ด 📝💰',
@@ -17028,8 +17046,9 @@ function openJob(code) {
     ? ''
     : 'ยังไม่ระบุต้นทุน (ทีม/เดินทาง/อื่นๆ) · ตัวเลขนี้คือยอดขายก่อนหักต้นทุนภายใน';
   let pp = document.getElementById('job-pay-pill');
-  pp.className = 'pill ' + (j.payStatus === 'ชำระครบ' ? 'paid' : j.payStatus === 'มัดจำแล้ว' ? 'deposit' : 'unpaid');
-  pp.textContent = statusLabel(j.payStatus);
+  { const _ps = payPillStatus(j); // v2.9.99 · AUDIT 1.2
+  pp.className = 'pill ' + (_ps === 'ชำระครบ' ? 'paid' : _ps === 'มัดจำแล้ว' ? 'deposit' : 'unpaid');
+  pp.textContent = statusLabel(_ps); }
   let sp = document.getElementById('job-status-pill');
   sp.className = 'pill ' + (getStageFromJobStatus(j.jobStatus) === 'closed' ? 'closed' : 'booked');
   sp.textContent = statusLabel(j.jobStatus);
@@ -20072,7 +20091,8 @@ function editCurrentJob() {
   document.getElementById('add-location').value = j.loc || '';
   document.getElementById('addDiscount').value = j.discount || 0;
   document.getElementById('addDeposit').value = j.deposit || 0;
-  { const _dd = document.getElementById('addDateDeposit'); if (_dd) _dd.value = String(j.dateDeposit || j.depositPaidDate || _todayLocal()).slice(0,10); } // v2.9.72 · โหลดวันรับมัดจำจริงของงาน
+  // v2.9.72 · โหลดวันรับมัดจำจริงของงาน · v2.9.99 AUDIT 2.3 · งานเก่าไม่มีวันรับมัดจำ → ใช้วันที่ของรายการรับเงินมัดจำ (ไม่ใช่ "วันนี้" ซึ่งจะย้ายเงินข้ามเดือน/ปีตอนเซฟ)
+  { const _dd = document.getElementById('addDateDeposit'); if (_dd) { const _dp = (j.payments || []).find(p => p && p.type === 'deposit' && p.date); _dd.value = String(j.dateDeposit || j.depositPaidDate || (_dp && _dp.date) || _todayLocal()).slice(0,10); } }
   document.getElementById('addTravelCost').value = j.travelCost || 0;
   document.getElementById('addOtherCost').value = j.otherCost || 0;
   document.getElementById('addExtraTime').value = j.extraTime || 0;
@@ -20080,6 +20100,8 @@ function editCurrentJob() {
   // Type chip + Source dropdown
   populateJobTypeChips('add-type-row', j.type);
   populateSourceDropdown();
+  // v2.9.99 · AUDIT 2.4 · ช่องทางเดิมไม่อยู่ในลิสต์ → เพิ่มเป็นตัวเลือกชั่วคราว (กันค่าหายตอนเซฟ)
+  if (j.source && !SOURCES.includes(j.source)) { const _o = document.createElement('option'); _o.value = j.source; _o.textContent = j.source; document.getElementById('addSource').appendChild(_o); }
   document.getElementById('addSource').value = j.source || (SOURCES[0] || 'Facebook');
   renderSessions('add');
   renderAddJobScreen();
@@ -20206,6 +20228,14 @@ function collectAddFormData() {
   let payStatus = 'รอมัดจำ';
   if (deposit > 0 && remain > 0) payStatus = 'มัดจำแล้ว';
   if (remain === 0 && deposit > 0) payStatus = 'ชำระครบ';
+  // v2.9.99 · AUDIT 1.2 · งานที่ปิดยอดผ่านใบเรียกเก็บแล้ว (invoice.balancePaid) · แก้งานแล้วห้ามถอยป้ายเป็น "มัดจำแล้ว"
+  //   (deposit = ยอดสะสมไม่รวม payment type 'balance' โดยออกแบบ → sell−deposit > 0 ทั้งที่จ่ายครบ) · ไม่แตะยอดเงินใดๆ
+  let _editingBalPaid = false;
+  if (_editJobCode) {
+    const _ex = JOBS.find(j => j.code === _editJobCode);
+    if (_ex && _ex.invoice && _ex.invoice.balancePaid) { _editingBalPaid = true; payStatus = 'ชำระครบ'; }
+  }
+  const _remainForSave = _editingBalPaid ? 0 : remain;
 
   // Denormalize customer type + tax info into JOB record (Tax T1)
   // Snapshot at save time so historical jobs don't change when customer type is later edited
@@ -20277,11 +20307,13 @@ function collectAddFormData() {
     qr: ADD_ADDONS.qr || null,
     other: ADD_ADDONS.profile || null,
     addons: {...ADD_ADDONS}, // v2.8.8 · เก็บบริการเสริมครบทุกตัว (เดิมเก็บแค่ qr/other → ตัวใหม่หาย)
-    total, sell, discount, deposit, remain,
+    total, sell, discount, deposit, remain: _remainForSave,
     payStatus,
-    jobStatus: 'รอถ่าย', // v2.5.0 · was 'จอง'
-    delivery: 'ยังไม่ถ่าย', // legacy field · UI hidden but preserved
-    source: document.getElementById('addSource').value,
+    // v2.9.99 · AUDIT 1.1 · แก้งาน = คงสถานะเดิม (เดิมใส่ 'รอถ่าย' ตายตัว → ...data ทับ → งานปิดแล้วถอยเป็นรอถ่าย/รอส่งงาน)
+    jobStatus: (_editJobCode && (JOBS.find(j => j.code === _editJobCode) || {}).jobStatus) || 'รอถ่าย', // v2.5.0 · was 'จอง'
+    delivery: (_editJobCode && (JOBS.find(j => j.code === _editJobCode) || {}).delivery) || 'ยังไม่ถ่าย', // legacy field · UI hidden but preserved
+    // v2.9.99 · AUDIT 2.4 · ช่องทางเดิมที่ไม่อยู่ในลิสต์ → dropdown ให้ค่าว่าง → ใช้ค่าเดิมของงานแทน (ไม่ล้างทิ้ง)
+    source: document.getElementById('addSource').value || (_editJobCode && (JOBS.find(j => j.code === _editJobCode) || {}).source) || '',
     teamCost, travelCost, otherCost,
     profit,
     note: document.getElementById('addNote').value || ''
@@ -25048,8 +25080,8 @@ function renderMonthJobsList() {
       const startStr = s.start || '—';
       let pillBg = 'rgba(226,122,114,0.16)', pillFg = '#E27A72', pillTxt = 'รอ';
       if (isClosed) { pillBg = 'rgba(255,255,255,0.06)'; pillFg = '#A1A1AA'; pillTxt = 'ปิด'; }
-      else if (j.payStatus === 'ชำระครบ') { pillBg = 'rgba(95,207,142,0.16)'; pillFg = '#5FCF8E'; pillTxt = 'ครบ'; }
-      else if (j.payStatus === 'มัดจำแล้ว') { pillBg = 'rgba(212,160,86,0.16)'; pillFg = '#EFB670'; pillTxt = 'มัดจำ'; }
+      else if (payPillStatus(j) === 'ชำระครบ') { pillBg = 'rgba(95,207,142,0.16)'; pillFg = '#5FCF8E'; pillTxt = 'ครบ'; } // v2.9.99 · AUDIT 1.2
+      else if (payPillStatus(j) === 'มัดจำแล้ว') { pillBg = 'rgba(212,160,86,0.16)'; pillFg = '#EFB670'; pillTxt = 'มัดจำ'; }
       const safeCode = (j.code || '').replace(/'/g, "\\'");
       const opacity = (isClosed) ? '0.65' : '1';
       const borderColor = isClosed ? 'rgba(255,255,255,0.12)' : '#D4A056';
@@ -25470,7 +25502,9 @@ function saveCustomerInfo() {
     (_prev.taxAddress || '') !== taxAddress ||
     (_prev.type || 'B2C') !== type
   );
+  // v2.9.99 · AUDIT 1.3 · merge ทับเฉพาะช่องในฟอร์ม · คงช่องอื่น (contactPerson/contactPosition/poNumber ฯลฯ ที่ฟอร์มใบกำกับ/คอมเขียนไว้) · เดิมสร้างก้อนใหม่ทั้งหมด → หาย
   CUSTOMER_INFO[_currentCustomer] = {
+    ...(CUSTOMER_INFO[_currentCustomer] || {}),
     nickname: document.getElementById('cust-nickname').value,
     phone: document.getElementById('cust-phone').value,
     line: document.getElementById('cust-line').value,

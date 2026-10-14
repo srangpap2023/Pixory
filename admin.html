@@ -1291,7 +1291,9 @@ function enterApp(user) {
   window._ADMIN_USER = user; // v3.3 · ใช้ตอนสมัคร push subscription
   loadDashboard(true);
   if (_refreshTimer) clearInterval(_refreshTimer);
-  _refreshTimer = setInterval(() => loadDashboard(false), REFRESH_INTERVAL_MS);
+  // v4.1 · AUDIT 4.3 · ดึงเฉพาะตอนแท็บเปิดดูอยู่ (เดิมดึง user_presence ทั้งตารางทุก 10 วิ แม้อยู่เบื้องหลัง ≈ 3MB/ชม.)
+  _refreshTimer = setInterval(() => { if (document.visibilityState === 'visible') loadDashboard(false); }, REFRESH_INTERVAL_MS);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') loadDashboard(false); });
   subscribeToRealtime();
   loadInbox();        // v3.3 · แชท · fire-and-forget
   initAdminPushUI();  // v3.3 · ปุ่มพุช · fire-and-forget
@@ -1689,11 +1691,13 @@ function processRows(rows) {
     const updatedAt = new Date(row.updated_at).getTime();
     // v2.4 · signup approximation = earliest created_at across user's rows (multi-device)
     // Mark as fallback when we don't have a real created_at, so cohort/TTFQ can exclude
-    const hasSignup = !!row.created_at;
-    const signupAt = hasSignup ? new Date(row.created_at).getTime() : updatedAt;
     // v2.7 · วันสมัครจริง = เวลาที่กดยอมรับเงื่อนไขตอนสมัคร (PROFILE.consent.consentedAt)
     const consentRaw = profile.consent && profile.consent.consentedAt;
     const joinedAt = consentRaw ? new Date(consentRaw).getTime() : null;
+    // v4.1 · AUDIT 1.4 · ตาราง user_data ไม่มีคอลัมน์ created_at (select แล้ว 42703) → hasSignup เป็น false ตลอด → TTFQ + D7/D30 ว่างมาตลอด
+    //   ใช้ joinedAt (consent · มี 122/131 บัญชี) เป็นวันสมัครจริงแทน · บัญชีที่ไม่มี consent ยังถูกตัดออกจาก cohort ตามเดิม
+    const hasSignup = !!joinedAt;
+    const signupAt = hasSignup ? joinedAt : updatedAt;
     const jobs = Array.isArray(d.JOBS) ? d.JOBS : [];
     const quotes = Array.isArray(d.QUOTES) ? d.QUOTES : [];
     const customers = d.CUSTOMER_INFO || {};
@@ -2512,7 +2516,8 @@ function renderMetricGMV(users) {
   let cashIn = 0;
   users.forEach(u => {
     (u.jobs || []).forEach(j => {
-      gmv += parseFloat(j.sell) || 0;
+      // v4.1 · AUDIT 8 · ตัดงานยกเลิกออกจาก GMV (ให้ตรงกับ North Star) · เงินที่รับจริงยังนับ
+      if (!(j && (j.cancelled === true || j.jobStatus === 'ยกเลิก'))) gmv += parseFloat(j.sell) || 0;
       (j.payments || []).forEach(p => { cashIn += parseFloat(p.amount) || 0; });
     });
   });

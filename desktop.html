@@ -3223,12 +3223,24 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.82';
+const PIXORY_DESKTOP_VERSION = '1.1.83';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.1.83': {
+    date: '2026-10-14',
+    title: 'แก้ 5 จุดจากการตรวจสอบระบบ 🛠',
+    subtitle: 'แก้งาน/ใบเสนอ/บัญชีธนาคารบนคอม แล้วข้อมูลเดิมไม่ถูกเปลี่ยนเอง',
+    items: [
+      { icon: '💰', title: 'งานที่ชำระครบผ่านใบเรียกเก็บ ป้ายเงินไม่ถอยเป็น "มัดจำแล้ว"', desc: 'เฉพาะป้ายสถานะที่บันทึก · ยอดเงิน/ยอดค้าง/รายงานไม่เปลี่ยน' },
+      { icon: '📄', title: 'แก้ใบเสนอแล้ว ข้อมูลลิงก์จอง/สลิป/วันสร้างไม่หาย', desc: 'ฟิลด์ที่ไม่อยู่ในฟอร์มถูกเก็บไว้ครบ (เหมือนที่แก้ฟอร์มงานไปใน 1.1.82)' },
+      { icon: '🏦', title: 'แก้บัญชีธนาคารแล้ว ชื่อธนาคารเต็ม (ที่ตั้งจากมือถือ) ไม่ถูกทับด้วยตัวย่อ', desc: 'ถ้าตัวย่อไม่เปลี่ยน ชื่อเต็มเดิมยังอยู่' },
+      { icon: '📅', title: 'แก้งานเก่าที่ไม่มีวันรับมัดจำ ระบบไม่ตั้งเป็น "วันนี้" ให้เอง', desc: 'ใช้วันที่ของรายการรับเงินมัดจำแทน · เงินไม่ย้ายเดือน/ปีในรายงานเงินสด' },
+      { icon: '📣', title: 'แก้งานที่ช่องทางลูกค้าเป็นชื่อเก่า ช่องทางไม่ถูกเปลี่ยนเอง', desc: 'ช่องทางที่ไม่อยู่ในลิสต์ปัจจุบันจะโชว์เป็นตัวเลือกให้เลือกต่อได้' },
+    ]
+  },
   '1.1.82': {
     date: '2026-10-07',
     title: 'แก้: แก้งานบนคอมแล้วข้อมูลบางส่วนหาย 🛠',
@@ -10585,7 +10597,10 @@ async function saveBank(idx) {
   const acc = (document.getElementById('bk-acc').value || '').trim();
   const holder = (document.getElementById('bk-holder').value || '').trim();
   if (!bank || !acc || !holder) { toast('กรอกข้อมูลให้ครบ', 'error'); return; }
-  const entry = { bank, name: bank, acc, holder };
+  // v1.1.83 · AUDIT 2.2 · มือถือเก็บ name = ชื่อเต็ม · bank = ตัวย่อ · คอมมีช่องเดียว → คงชื่อเต็มเดิมไว้ถ้าตัวย่อไม่เปลี่ยน · คงคีย์อื่นของมือถือด้วย
+  const _prev = (idx >= 0 && BANKS[idx]) ? BANKS[idx] : null;
+  const _keepName = (_prev && _prev.name && _prev.bank === bank) ? _prev.name : bank;
+  const entry = { ...(_prev || {}), bank, name: _keepName, acc, holder };
   if (idx >= 0) BANKS[idx] = entry; else BANKS.push(entry);
   await saveData();
   closeModal();
@@ -13335,6 +13350,7 @@ function renderFormBody(ctx, item) {
             <label>ช่องทาง</label>
             <select id="${ctx}-source">
               ${SOURCES.map(s => `<option value="${escapeHtml(s)}" ${(item && item.source === s) ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('')}
+              ${(item && item.source && !SOURCES.includes(item.source)) ? `<option value="${escapeHtml(item.source)}" selected>${escapeHtml(item.source)}</option>` : ''}
             </select>
           </div>
         ` : ''}
@@ -13456,7 +13472,7 @@ function renderFormBody(ctx, item) {
       </div>
       ${isJob ? `<!-- v1.1.57 · วันรับมัดจำ (แก้บั๊กวันติดจากงานเก่า + ให้แก้วันโอนจริงได้) -->
       <div class="form-row">
-        <div class="form-field"><label>วันรับมัดจำ</label><input type="date" id="${ctx}-datedeposit" value="${item ? String(item.dateDeposit || item.depositPaidDate || TODAY_ISO()).slice(0,10) : TODAY_ISO()}" /><div class="hint">ค่าเริ่มต้น = วันนี้ · เปลี่ยนได้ถ้าลูกค้าโอนคนละวัน / แก้งานเก่าที่วันผิด</div></div>
+        <div class="form-field"><label>วันรับมัดจำ</label><input type="date" id="${ctx}-datedeposit" value="${item ? String(item.dateDeposit || item.depositPaidDate || (((item.payments || []).find(p => p && p.type === 'deposit' && p.date) || {}).date) || TODAY_ISO()).slice(0,10) : TODAY_ISO()}" /><div class="hint">ค่าเริ่มต้น = วันนี้ · เปลี่ยนได้ถ้าลูกค้าโอนคนละวัน / แก้งานเก่าที่วันผิด</div></div>
         <div class="form-field"></div>
       </div>` : ''}
       ${!isJob ? (() => {
@@ -14398,6 +14414,8 @@ async function saveQuote(status) {
   };
   // Preserve convertedJobCode if exists
   if (existing && existing.convertedJobCode) quote.convertedJobCode = existing.convertedJobCode;
+  // v1.1.83 · AUDIT 2.1 · เก็บฟิลด์เดิมที่ไม่อยู่ในฟอร์มไว้ (bookingToken / bookingSlip / _createdAt ฯลฯ · parity มือถือ ...old) · ฟิลด์ในฟอร์มยังชนะเสมอ
+  if (existing) Object.keys(existing).forEach(k => { if (!(k in quote)) quote[k] = existing[k]; });
 
   // Derive type
   quote.type = deriveJobType(quote);
@@ -14758,10 +14776,12 @@ async function saveJob() {
     var old = (existing && Array.isArray(existing.teamMembers)) ? existing.teamMembers.find(function (e) { return e && e.name === n; }) : null;
     return { id: master ? master.id : (old ? old.id : null), name: n, wage: Number(teamWages[n]) || 0 };
   });
-  const remain = Math.max(0, c.sell - deposit);
+  let remain = Math.max(0, c.sell - deposit);
   let payStatus = 'รอมัดจำ';
   if (remain === 0 && c.sell > 0) payStatus = 'ชำระครบ';
   else if (deposit > 0) payStatus = 'มัดจำแล้ว';
+  // v1.1.83 · AUDIT 1.2 · งานที่ปิดยอดผ่านใบเรียกเก็บแล้ว · แก้งานแล้วห้ามถอยป้ายเป็น "มัดจำแล้ว" (parity มือถือ v2.9.99) · ไม่แตะยอดเงิน
+  if (existing && existing.invoice && existing.invoice.balancePaid) { payStatus = 'ชำระครบ'; remain = 0; }
 
   const job = {
     code,
