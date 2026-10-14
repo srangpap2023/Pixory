@@ -890,6 +890,62 @@
   </div>
 
   <!-- ============ VIEW: SETTINGS ============ -->
+  <!-- ============ VIEW: SYSTEM (v4.3 · AUDIT รอบ 3 · มอนิเตอร์ระบบ) ============ -->
+  <div class="view" id="view-system">
+    <div style="padding: 16px 22px 8px; display:flex; align-items:flex-end; gap:10px;">
+      <div style="flex:1;">
+        <div style="font-size: 22px; font-weight: 800; color: white;">🛠 ระบบ</div>
+        <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">ใครใช้งานจริง · เวอร์ชัน · ข้อผิดพลาด · cron · ขนาดข้อมูล</div>
+      </div>
+      <button class="see-all" onclick="loadSystemView(true)" style="background:rgba(255,255,255,.06);padding:7px 12px;border-radius:9px;font-size:11.5px;color:var(--accent-2);border:none;font-family:inherit;cursor:pointer;">↻ รีเฟรช</button>
+    </div>
+    <div id="sys-sql-note" style="display:none;margin:0 22px 10px;padding:10px 12px;border-radius:10px;background:rgba(216,112,74,.12);border:1px solid rgba(216,112,74,.3);font-size:11.5px;color:var(--accent-2);line-height:1.5;"></div>
+
+    <div class="panel">
+      <div class="panel-title">🟢 ใช้งานจริงตอนนี้ <span id="sys-live-sub" style="font-size:11px;color:var(--muted);font-weight:400;"></span></div>
+      <div id="sys-live" style="font-size:12px;"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">📱 เวอร์ชันรายเครื่อง <span style="font-size:11px;color:var(--muted);font-weight:400;">· จากเครื่องที่ส่งสัญญาณใน 30 วัน</span></div>
+      <div id="sys-versions" style="font-size:12px;"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">📄 เอกสารที่ถูกใช้ <span style="font-size:11px;color:var(--muted);font-weight:400;">· นับจากแอป v2.9.101+/v1.1.85+</span></div>
+      <div id="sys-docs" style="font-size:12px;"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">⏱ Cron / Edge Functions</div>
+      <div id="sys-cron" style="font-size:12px;"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">🐞 ข้อผิดพลาดจากเครื่องผู้ใช้ <span id="sys-err-sub" style="font-size:11px;color:var(--muted);font-weight:400;"></span></div>
+      <div id="sys-errors" style="font-size:11.5px;"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">💾 ขนาดข้อมูลต่อบัญชี <span id="sys-size-sub" style="font-size:11px;color:var(--muted);font-weight:400;"></span></div>
+      <div id="sys-sizes" style="font-size:12px;"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">🔔 พุช · 🧾 สลิป</div>
+      <div id="sys-push" style="font-size:12px;"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">🚫 บัญชีที่ไม่นับในสถิติ <span style="font-size:11px;color:var(--muted);font-weight:400;">· แอดมิน/บัญชีทดสอบ (เก็บในเครื่องนี้)</span></div>
+      <div id="sys-exclude" style="font-size:12px;"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <select id="sys-exclude-sel" style="flex:1;background:rgba(255,255,255,.05);color:white;border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:8px;font-family:inherit;font-size:12px;"></select>
+        <button onclick="sysExcludeAdd()" style="background:rgba(255,255,255,.08);color:white;border:none;border-radius:9px;padding:8px 12px;font-family:inherit;font-size:12px;cursor:pointer;">+ ไม่นับ</button>
+      </div>
+    </div>
+  </div>
+
   <div class="view" id="view-settings">
     <div style="padding: 16px 22px 8px;">
       <div style="font-size: 22px; font-weight: 800; color: white;">⚙ ตั้งค่า</div>
@@ -1009,6 +1065,10 @@
     <button class="tab-item" onclick="switchTab('insights')" data-tab="insights">
       <div class="ic">📊</div>
       <div class="lbl">Insights</div>
+    </button>
+    <button class="tab-item" onclick="switchTab('system')" data-tab="system">
+      <div class="ic">🛠</div>
+      <div class="lbl">ระบบ</div>
     </button>
     <button class="tab-item" onclick="switchTab('settings')" data-tab="settings">
       <div class="ic">⚙</div>
@@ -1347,6 +1407,7 @@ function switchTab(tab) {
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + tab));
   document.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   if (tab === 'inbox') loadInbox(); // v3.3 · refresh ทุกครั้งที่เข้า
+  if (tab === 'system') loadSystemView(false); // v4.3 · โหลดเมื่อเปิดดู (ประหยัด egress)
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1653,10 +1714,15 @@ async function loadDashboard(showLoading) {
     }
     // v3.4 · สถานะออนไลน์จากตารางจิ๋ว user_presence (ไม่พ่วง blob) · ตารางยังไม่สร้าง = ข้ามเงียบๆ
     try {
-      const { data: pr, error: pe } = await SUPABASE.from('user_presence').select('user_id,last_seen');
-      if (!pe) { window._PRESENCE = {}; (pr || []).forEach(p => { window._PRESENCE[p.user_id] = new Date(p.last_seen).getTime(); }); }
+      // v4.3 · ดึงคอลัมน์ใหม่ (active_at/platform/app_version) · ถ้ายังไม่รัน SQL → ถอยไปแบบเดิม
+      let pr = null, pe = null;
+      if (!window._presenceLegacyCols) { const r = await SUPABASE.from('user_presence').select('user_id,last_seen,active_at,platform,app_version,session_id'); pr = r.data; pe = r.error; if (pe && /column|schema cache/i.test(String(pe.message || ''))) window._presenceLegacyCols = true; }
+      if (window._presenceLegacyCols) { const r = await SUPABASE.from('user_presence').select('user_id,last_seen'); pr = r.data; pe = r.error; }
+      if (!pe) { window._PRESENCE = {}; window._PRESENCE_ROWS = pr || []; (pr || []).forEach(p => { window._PRESENCE[p.user_id] = new Date(p.last_seen).getTime(); }); }
     } catch (e) { /* ตารางยังไม่มี · ใช้ updated_at ตามเดิม */ }
-    _lastUsers = processRows(Array.from(window._rawRowsCache.values()));
+    // v4.3 · AUDIT · ตัดบัญชีแอดมิน/ทดสอบออกจากทุกสถิติ (รายการเก็บใน localStorage + ตัวเองเสมอ)
+    const _ex = sysExcludeSet();
+    _lastUsers = processRows(Array.from(window._rawRowsCache.values()).filter(r => !_ex.has(r.user_id)));
     renderAll(_lastUsers, { notify: true });   // v3.7 · fetch จริง → เช็คแจ้งเตือนได้
   } catch (e) {
     document.getElementById('activity-feed').innerHTML = `<div class="empty"><div class="icon">⚠️</div><div class="title">Error</div><div style="font-size:11px;margin-top:6px;">${escapeHtml(e.message || e)}</div></div>`;
@@ -3007,6 +3073,109 @@ function formatActionLabel(la) {
   const ago = la.at ? formatLastSeen(Math.floor((Date.now() - new Date(la.at).getTime())/1000)) : '';
   return `<b>${label}</b>${la.code ? ' · ' + escapeHtml(la.code) : ''} · ${ago}`;
 }
+
+// ============ v4.3 · AUDIT รอบ 3 · SYSTEM VIEW (มอนิเตอร์ระบบ) ============
+const SYS_EXCLUDE_KEY = 'pixory.admin.excludeIds';
+function sysExcludeSet() {
+  const set = new Set();
+  try { (JSON.parse(localStorage.getItem(SYS_EXCLUDE_KEY) || '[]') || []).forEach(id => set.add(id)); } catch (e) {}
+  if (window._ADMIN_USER && window._ADMIN_USER.id) set.add(window._ADMIN_USER.id);
+  return set;
+}
+function sysExcludeSave(set) { try { const self = window._ADMIN_USER && window._ADMIN_USER.id; localStorage.setItem(SYS_EXCLUDE_KEY, JSON.stringify(Array.from(set).filter(id => id !== self))); } catch (e) {} }
+function sysExcludeAdd() { const sel = document.getElementById('sys-exclude-sel'); if (!sel || !sel.value) return; const set = sysExcludeSet(); set.add(sel.value); sysExcludeSave(set); loadDashboard(false); renderSysExclude(); }
+function sysExcludeRemove(id) { const set = sysExcludeSet(); set.delete(id); sysExcludeSave(set); loadDashboard(false); renderSysExclude(); }
+function _sysShopOf(uid) {
+  const r = window._rawRowsCache && window._rawRowsCache.get(uid); const d = r && r.data || {};
+  const shop = String((d.PROFILE || {}).shop || '').trim(); const email = String((d._meta || {}).email || '');
+  return shop || (email ? (_notifPrefs.redact ? redactEmail(email) : email).split('@')[0] : uid.slice(0, 8));
+}
+function renderSysExclude() {
+  const el = document.getElementById('sys-exclude'), sel = document.getElementById('sys-exclude-sel'); if (!el || !sel) return;
+  const set = sysExcludeSet(); const self = window._ADMIN_USER && window._ADMIN_USER.id;
+  el.innerHTML = Array.from(set).map(id => `<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border-radius:20px;padding:4px 10px;margin:0 6px 6px 0;">${escapeHtml(_sysShopOf(id))}${id === self ? ' <span style="color:var(--muted);font-size:10px;">(ฉัน)</span>' : ` <button onclick="sysExcludeRemove('${id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;">✕</button>`}</span>`).join('') || '<div style="color:var(--muted);">ยังไม่มี</div>';
+  const rows = window._rawRowsCache ? Array.from(window._rawRowsCache.values()) : [];
+  sel.innerHTML = '<option value="">เลือกบัญชี…</option>' + rows.filter(r => !set.has(r.user_id)).map(r => `<option value="${r.user_id}">${escapeHtml(_sysShopOf(r.user_id))}</option>`).join('');
+}
+const _fmtAgo = (t) => { if (!t) return '—'; const s = Math.floor((Date.now() - new Date(t).getTime()) / 1000); return formatLastSeen(s); };
+const _plat = (p) => p === 'desktop' ? '🖥 คอม' : p === 'mobile' ? '📱 มือถือ' : '❔';
+let _sysLoading = false;
+async function loadSystemView(force) {
+  if (_sysLoading) return; _sysLoading = true;
+  const ex = sysExcludeSet();
+  const note = document.getElementById('sys-sql-note'); const notes = [];
+  try {
+    // ── 1) ใช้งานจริงตอนนี้ + เวอร์ชัน ──
+    const liveEl = document.getElementById('sys-live'), verEl = document.getElementById('sys-versions');
+    let rows = window._PRESENCE_ROWS || [];
+    if (force || !rows.length) { try { const r = await SUPABASE.from('user_presence').select('user_id,last_seen,active_at,platform,app_version,session_id'); if (!r.error) { rows = r.data || []; window._PRESENCE_ROWS = rows; } else if (/column|schema cache/i.test(String(r.error.message || ''))) window._presenceLegacyCols = true; } catch (e) {} }
+    if (window._presenceLegacyCols || !rows.length || rows.every(r => !('active_at' in r))) {
+      notes.push('ยังไม่ได้รัน SQL ก้อน A (DEPLOY_monitoring_v2.md) → ยังแยก "ใช้งานจริง" กับ "เปิดค้าง" ไม่ได้');
+      if (liveEl) liveEl.innerHTML = '<div style="color:var(--muted);">รอรัน SQL</div>';
+    } else {
+      const now = Date.now(); const vis = rows.filter(r => !ex.has(r.user_id));
+      const act = vis.filter(r => r.active_at && now - new Date(r.active_at).getTime() < 5 * 60000);
+      const idle = vis.filter(r => !act.includes(r) && r.last_seen && now - new Date(r.last_seen).getTime() < 3 * 60000);
+      const dayStart = new Date(now + 7 * 3600000); dayStart.setUTCHours(0, 0, 0, 0); const sinceDay = dayStart.getTime() - 7 * 3600000;
+      const today = vis.filter(r => r.active_at && new Date(r.active_at).getTime() >= sinceDay);
+      const oldClients = vis.filter(r => !r.platform && r.last_seen && now - new Date(r.last_seen).getTime() < 7 * 86400000).length;
+      document.getElementById('sys-live-sub').textContent = `· วันนี้ ${today.length} ร้าน · เปิดค้าง ${idle.length}` + (oldClients ? ` · เวอร์ชันเก่า (ไม่ส่งสัญญาณใช้งาน) ${oldClients}` : '');
+      const row = (r, tag) => `<div style="display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);"><span style="width:8px;height:8px;border-radius:50%;background:${tag === 'act' ? 'var(--green)' : 'var(--yellow)'};flex-shrink:0;"></span><span style="flex:1;color:white;">${escapeHtml(_sysShopOf(r.user_id))}</span><span style="color:var(--muted);">${_plat(r.platform)}${r.app_version ? ' v' + escapeHtml(r.app_version) : ''}</span><span style="color:var(--muted);min-width:70px;text-align:right;">${tag === 'act' ? 'ใช้อยู่ · ' + _fmtAgo(r.active_at) : 'เปิดค้าง · ' + _fmtAgo(r.active_at)}</span></div>`;
+      const todayRows = today.filter(r => !act.includes(r) && !idle.includes(r)).sort((a, b) => new Date(b.active_at) - new Date(a.active_at)).slice(0, 15);
+      liveEl.innerHTML = (act.map(r => row(r, 'act')).join('') + idle.map(r => row(r, 'idle')).join('')) || '<div style="color:var(--muted);padding:6px 0;">ไม่มีใครใช้งานอยู่ตอนนี้</div>';
+      if (todayRows.length) liveEl.innerHTML += '<div style="color:var(--muted);font-size:10.5px;margin-top:8px;">ใช้งานวันนี้ก่อนหน้า</div>' + todayRows.map(r => `<div style="display:flex;gap:8px;padding:5px 0;color:var(--muted);"><span style="flex:1;color:#ddd;">${escapeHtml(_sysShopOf(r.user_id))}</span><span>${_plat(r.platform)}</span><span style="min-width:70px;text-align:right;">${_fmtAgo(r.active_at)}</span></div>`).join('');
+      // versions (30 วัน)
+      const recent = vis.filter(r => r.last_seen && now - new Date(r.last_seen).getTime() < 30 * 86400000);
+      const byV = {}; recent.forEach(r => { const k = (r.platform || 'เก่า') + '|' + (r.app_version || '—'); byV[k] = (byV[k] || 0) + 1; });
+      const list = Object.entries(byV).sort((a, b) => b[1] - a[1]);
+      verEl.innerHTML = list.map(([k, n]) => { const [p, v] = k.split('|'); return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);"><span>${_plat(p)} <span style="color:white;">v${escapeHtml(v)}</span></span><span style="color:var(--accent-2);font-weight:700;">${n}</span></div>`; }).join('') || '<div style="color:var(--muted);">ยังไม่มีข้อมูล (รอผู้ใช้เปิดแอปเวอร์ชันใหม่)</div>';
+    }
+    // ── 2) เอกสารที่ถูกใช้ (จาก PROFILE.docCounts ใน blob ที่โหลดแล้ว · ไม่ดึงเพิ่ม) ──
+    const docEl = document.getElementById('sys-docs');
+    const agg = {}; const usersBy = {}; const TH = { booking: 'ใบสรุปการจอง', quote: 'ใบเสนอราคา', quote_from_job: 'ใบเสนอจากงาน', invoice: 'ใบเรียกเก็บ/ใบเสร็จ', other: 'อื่นๆ' };
+    (window._rawRowsCache ? Array.from(window._rawRowsCache.values()) : []).forEach(r => { if (ex.has(r.user_id)) return; const dc = (r.data && r.data.PROFILE && r.data.PROFILE.docCounts) || {}; Object.entries(dc).forEach(([k, n]) => { agg[k] = (agg[k] || 0) + (Number(n) || 0); usersBy[k] = (usersBy[k] || 0) + 1; }); });
+    const dl = Object.entries(agg).sort((a, b) => b[1] - a[1]);
+    docEl.innerHTML = dl.length ? dl.map(([k, n]) => `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);"><span style="color:white;">${escapeHtml(TH[k] || k)}</span><span><span style="color:var(--accent-2);font-weight:700;">${n}</span> <span style="color:var(--muted);">ครั้ง · ${usersBy[k]} ร้าน</span></span></div>`).join('') : '<div style="color:var(--muted);">ยังไม่มีข้อมูล · จะเริ่มนับเมื่อผู้ใช้ออกเอกสารด้วยแอปเวอร์ชันใหม่</div>';
+    // ── 3) cron_runs ──
+    const cronEl = document.getElementById('sys-cron');
+    try {
+      const r = await SUPABASE.from('cron_runs').select('fn,ran_at,ok,ms,summary').order('ran_at', { ascending: false }).limit(60);
+      if (r.error) throw r.error;
+      const latest = {}; (r.data || []).forEach(x => { if (!latest[x.fn]) latest[x.fn] = x; });
+      const expect = { notify_online: 10 * 60000, send_balance_due: 26 * 3600000 };
+      const fns = Array.from(new Set(['notify_online', 'send_balance_due'].concat(Object.keys(latest))));
+      cronEl.innerHTML = fns.map(fn => { const x = latest[fn]; const stale = !x || (Date.now() - new Date(x.ran_at).getTime()) > (expect[fn] || 86400000); const ok = x && x.ok && !stale; const sm = x && x.summary ? Object.entries(x.summary).filter(([k, v]) => typeof v === 'number' && v > 0).map(([k, v]) => k + ' ' + v).join(' · ') : ''; return `<div style="display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);"><span style="width:8px;height:8px;border-radius:50%;background:${ok ? 'var(--green)' : 'var(--red)'};flex-shrink:0;"></span><span style="flex:1;color:white;">${escapeHtml(fn)}</span><span style="color:var(--muted);font-size:11px;">${x ? _fmtAgo(x.ran_at) + (x.ms ? ' · ' + x.ms + 'ms' : '') : 'ยังไม่เคยรัน'}${stale && x ? ' · ⚠️ นานผิดปกติ' : ''}</span></div>` + (sm ? `<div style="color:var(--muted);font-size:10.5px;padding:0 0 4px 16px;">${escapeHtml(sm)}</div>` : ''); }).join('');
+    } catch (e) { cronEl.innerHTML = '<div style="color:var(--muted);">รอรัน SQL (ตาราง cron_runs) + deploy notify_online v2</div>'; notes.push('cron_runs: ' + (e.message || e)); }
+    // ── 4) client_errors ──
+    const errEl = document.getElementById('sys-errors');
+    try {
+      const r = await SUPABASE.from('client_errors').select('user_id,created_at,kind,message,platform,app_version').order('created_at', { ascending: false }).limit(40);
+      if (r.error) throw r.error;
+      const d = (r.data || []).filter(x => !ex.has(x.user_id));
+      const since24 = Date.now() - 86400000; const n24 = d.filter(x => new Date(x.created_at).getTime() > since24).length;
+      document.getElementById('sys-err-sub').textContent = `· 24 ชม. ${n24} รายการ`;
+      const color = (k) => /sync|conflict|fallback/.test(k) ? 'var(--red)' : 'var(--yellow)';
+      errEl.innerHTML = d.length ? d.slice(0, 25).map(x => `<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);"><div style="display:flex;gap:8px;"><span style="color:${color(x.kind)};font-weight:700;">${escapeHtml(x.kind)}</span><span style="flex:1;color:#ddd;">${escapeHtml(_sysShopOf(x.user_id))}</span><span style="color:var(--muted);">${_plat(x.platform)} v${escapeHtml(x.app_version || '—')} · ${_fmtAgo(x.created_at)}</span></div><div style="color:var(--muted);font-size:10.5px;margin-top:2px;word-break:break-all;">${escapeHtml(String(x.message || '').slice(0, 140))}</div></div>`).join('') : '<div style="color:var(--muted);padding:6px 0;">ไม่มีข้อผิดพลาด 🎉</div>';
+    } catch (e) { errEl.innerHTML = '<div style="color:var(--muted);">รอรัน SQL (ตาราง client_errors)</div>'; notes.push('client_errors: ' + (e.message || e)); }
+    // ── 5) ขนาดข้อมูล (RPC · อ่านแค่ขนาด) ──
+    const szEl = document.getElementById('sys-sizes');
+    try {
+      const r = await SUPABASE.rpc('admin_user_sizes'); if (r.error) throw r.error;
+      const d = (r.data || []).filter(x => !ex.has(x.user_id)); const total = d.reduce((s, x) => s + (x.bytes || 0), 0);
+      const kb = (b) => b >= 1048576 ? (b / 1048576).toFixed(2) + ' MB' : Math.round(b / 1024) + ' KB';
+      document.getElementById('sys-size-sub').textContent = `· รวม ${kb(total)} · ${d.length} บัญชี · เกิน 200KB ${d.filter(x => x.bytes > 204800).length}`;
+      szEl.innerHTML = d.slice(0, 10).map(x => `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);"><span style="color:white;">${escapeHtml(_sysShopOf(x.user_id))}</span><span style="color:${x.bytes > 307200 ? 'var(--red)' : 'var(--muted)'};">${kb(x.bytes)}</span></div>`).join('');
+    } catch (e) { szEl.innerHTML = '<div style="color:var(--muted);">รอรัน SQL (RPC admin_user_sizes)</div>'; notes.push('admin_user_sizes: ' + (e.message || e)); }
+    // ── 6) พุช + สลิป ──
+    const pEl = document.getElementById('sys-push'); const parts = [];
+    try { const r = await SUPABASE.rpc('admin_push_health'); if (r.error) throw r.error; const d = (r.data || []).filter(x => !ex.has(x.user_id)); const stale = d.filter(x => x.last_updated && Date.now() - new Date(x.last_updated).getTime() > 90 * 86400000).length; parts.push(`🔔 สมัครพุช <b style="color:white;">${d.length}</b> บัญชี · ${d.reduce((s, x) => s + (x.devices || 0), 0)} เครื่อง · เก่ากว่า 90 วัน ${stale}`); } catch (e) { parts.push('🔔 รอรัน SQL (RPC admin_push_health)'); }
+    try { const r = await SUPABASE.rpc('admin_slip_stats'); if (r.error) throw r.error; const x = (r.data || [])[0] || {}; parts.push(`🧾 สลิป <b style="color:white;">${x.slips || 0}</b> ไฟล์ · ${Math.round((x.bytes || 0) / 1024)} KB · กำพร้า (เจ้าของลบบัญชีแล้ว) <b style="color:${x.orphan_slips > 0 ? 'var(--red)' : 'white'};">${x.orphan_slips || 0}</b>`); } catch (e) { parts.push('🧾 รอรัน SQL (RPC admin_slip_stats)'); }
+    pEl.innerHTML = parts.map(t => `<div style="padding:5px 0;color:var(--muted);">${t}</div>`).join('');
+    renderSysExclude();
+  } catch (e) { console.error('loadSystemView:', e); }
+  finally { _sysLoading = false; if (note) { note.style.display = notes.length ? '' : 'none'; note.textContent = notes.length ? '⚠️ ' + notes.join(' · ') : ''; } }
+}
+
 function formatLastSeen(s) {
   if (s < 60) return `${s}s`;
   const m = Math.floor(s/60); if (m < 60) return `${m} นาที`;

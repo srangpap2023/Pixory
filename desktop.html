@@ -85,9 +85,11 @@
   // error ตอนบูต/รันไทม์จะไม่หายเงียบอีก · อย่างน้อยมี log ให้ตามรอย
   window.addEventListener('error', function (e) {
     try { console.error('[pixory-desktop:error]', (e && (e.error || e.message)) || e); } catch (_) {}
+    try { const er = e && (e.error || e.message); if (typeof window.reportClientError === 'function') window.reportClientError('js_error', (er && (er.message || String(er))) || '', { stack: er && er.stack }); } catch (_) {}
   });
   window.addEventListener('unhandledrejection', function (e) {
     try { console.error('[pixory-desktop:promise]', e && e.reason); } catch (_) {}
+    try { const er = e && e.reason; if (typeof window.reportClientError === 'function') window.reportClientError('js_promise', (er && (er.message || String(er))) || '', { stack: er && er.stack }); } catch (_) {}
   });
 </script>
 <style>
@@ -3223,12 +3225,21 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.84';
+const PIXORY_DESKTOP_VERSION = '1.1.85';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.1.85': {
+    date: '2026-10-14',
+    title: 'ดูแลระบบได้ดีขึ้น 🛠',
+    subtitle: 'แอปรายงานปัญหาให้ทีมงานเอง · ไม่มีอะไรเปลี่ยนในการใช้งาน',
+    items: [
+      { icon: '🛟', title: 'ถ้าแอปมีปัญหา ทีมงานจะรู้ทันที', desc: 'เมื่อเกิดข้อผิดพลาดหรือบันทึกขึ้นคลาวด์ไม่สำเร็จ แอปจะส่งรายงานสั้นๆ (ไม่มีข้อมูลงานหรือลูกค้า) ให้ทีมงานตรวจสอบ' },
+      { icon: '🔒', title: 'แจ้งเตือนทีมงานแม่นขึ้น', desc: 'ระบบจะรู้ว่าคุณ "ใช้งานอยู่" เฉพาะตอนที่ใช้เมาส์/คีย์บอร์ดจริง · เปิดแท็บทิ้งไว้ไม่นับ' },
+    ]
+  },
   '1.1.84': {
     date: '2026-10-14',
     title: 'ซิงก์เบาลง · แอปเล็กลง 🪶',
@@ -4889,8 +4900,10 @@ async function pushToCloud(opts) {
             if (!confirm(msg)) {
               setSyncState('error', 'ยกเลิกการ save · รีเฟรชหน้าเพื่อ sync');
               toast('⚠ ยกเลิกการบันทึก · รีเฟรชหน้าเพื่อดึงข้อมูลใหม่', 'warn');
+              try { reportClientError('conflict_cancel', 'cloud v' + remoteVersion + ' > local v' + localVersion + ' · ' + countRemote + '/' + countLocal); } catch (_) {}
               return false;
             }
+            try { reportClientError('conflict_overwrite', 'user OK · cloud v' + remoteVersion + ' > local v' + localVersion + ' · ' + countRemote + '/' + countLocal); } catch (_) {}
             // User confirmed · snapshot ก่อน overwrite
             try {
               const snapKey = DATA_STORAGE_KEY + '_snapshot_' + Date.now();
@@ -4918,7 +4931,7 @@ async function pushToCloud(opts) {
       });
       if (rpcErr) {
         if (_isMissingFnError(rpcErr)) { _applied = null; } // not deployed → legacy fallback
-        else { console.warn('push RPC error:', rpcErr); setSyncState('error', rpcErr.message); toast('บันทึกขึ้นคลาวด์ล้มเหลว · ' + (rpcErr.message || ''), 'error'); return false; }
+        else { console.warn('push RPC error:', rpcErr); setSyncState('error', rpcErr.message); toast('บันทึกขึ้นคลาวด์ล้มเหลว · ' + (rpcErr.message || ''), 'error'); try { reportClientError('sync_fail', 'rpc: ' + rpcErr.message); } catch (_) {} return false; }
       } else {
         const row = Array.isArray(rpcRes) ? rpcRes[0] : rpcRes;
         _applied = !!(row && row.applied);
@@ -4937,6 +4950,7 @@ async function pushToCloud(opts) {
 
     if (_applied === null) {
       // Legacy path · RPC not deployed (or fell back) · identical to pre-v1.0.40 behavior
+      try { reportClientError('fallback_upsert', 'RPC unavailable → legacy upsert'); } catch (_) {}
       const { error } = await SUPABASE
         .from('user_data')
         .upsert({
@@ -4947,6 +4961,7 @@ async function pushToCloud(opts) {
         }, { onConflict: 'user_id' });
       if (error) {
         console.warn('Push failed:', error);
+        try { reportClientError('sync_fail', 'upsert: ' + error.message); } catch (_) {}
         setSyncState('error', error.message);
         toast('บันทึกขึ้นคลาวด์ล้มเหลว · ' + (error.message || ''), 'error');
         return false;
@@ -16392,9 +16407,17 @@ function closeDocPreview() {
 }
 
 // v1.0.97 · flag ถาวร "เคยออก PDF/JPEG" (เดสก์ไม่มี recordAction · แอดมินเดิมขึ้น 0% เพราะบั๊กการนับ)
-function markPdfExported() {
+function markPdfExported(docKind) {
   try {
-    if (PROFILE && !PROFILE.pdfExported) { PROFILE.pdfExported = true; if (typeof saveData === 'function') saveData(); }
+    if (!PROFILE) return;
+    PROFILE.pdfExported = true;
+    // v1.1.85 · AUDIT · นับเอกสารแยกชนิด (parity มือถือ v2.9.101)
+    const k = String(docKind || 'other').slice(0, 20);
+    PROFILE.docCounts = (PROFILE.docCounts && typeof PROFILE.docCounts === 'object') ? PROFILE.docCounts : {};
+    PROFILE.docCounts[k] = (Number(PROFILE.docCounts[k]) || 0) + 1;
+    PROFILE.docLastAt = (PROFILE.docLastAt && typeof PROFILE.docLastAt === 'object') ? PROFILE.docLastAt : {};
+    PROFILE.docLastAt[k] = new Date().toISOString();
+    if (typeof saveData === 'function') saveData();
   } catch (e) {}
 }
 
@@ -16404,7 +16427,7 @@ async function downloadPreviewImage(format) {
   const page = fdoc && fdoc.querySelector('.page');
   if (!page) { toast('ยังโหลดเอกสารไม่เสร็จ · รอสักครู่แล้วลองใหม่', 'error'); return; }
   const code = _previewDocCode || 'document';
-  markPdfExported();  // v1.0.97 · นับ export (flag ถาวร · แอดมิน)
+  markPdfExported('quote');  // v1.0.97 · นับ export (flag ถาวร · แอดมิน)
   toast('กำลังเตรียมไฟล์...', 'info');
   try {
     await _ensurePdfLibs();
@@ -16752,7 +16775,7 @@ async function deleteInvoice(code) {
 function printInvoicePdf(code) {
   const j = JOBS.find(x => x.code === code);
   if (!j) { toast('ไม่พบงาน', 'error'); return; }
-  markPdfExported();  // v1.0.97 · นับ export
+  markPdfExported('invoice');  // v1.0.97 · นับ export
   ensureJobInvoice(j);
   const w = window.open('', '_blank', 'width=900,height=1200');
   if (!w) { toast('เบราว์เซอร์บล็อก popup · อนุญาต popup ของไซต์นี้ก่อน', 'error'); return; }
@@ -17160,6 +17183,7 @@ function openBookingSummary(jobCode, opts) {
     try {
       opts.qrUrl = qrUrl || null;
       const html = buildBookingSummaryHtml(j, opts);
+      try { markPdfExported('booking'); } catch (e) {}
       const w = window.open('', '_blank', 'width=900,height=1200');
       if (!w) { toast('เบราว์เซอร์บล็อก popup · อนุญาต popup ของไซต์นี้ก่อน', 'error'); return; }
       w.document.write(html); w.document.close();
@@ -17867,15 +17891,73 @@ function startPresenceHeartbeatDesktop() {
   if (_dtPresenceTimer) return;
   _sendPresenceBeatDesktop();
   _dtPresenceTimer = setInterval(_sendPresenceBeatDesktop, 30 * 1000);
+  // v1.1.85 · beat ทันทีเมื่อสลับกลับมาแท็บ (parity มือถือ)
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') _sendPresenceBeatDesktop(); });
 }
+
+// ═══ v1.1.85 · AUDIT รอบ 3 · MONITORING v2 ═══════════════════════════════════════════
+//   1) ใช้งานจริง: นับ "แตะ/พิมพ์/เลื่อน" ใน 5 นาทีล่าสุด → ส่ง active_at (เปิดทิ้งไว้ = ไม่ส่ง)
+//   2) session_id ต่อการเปิดแอป 1 ครั้ง → เซิร์ฟเวอร์แจ้งเตือนครั้งเดียวต่อ session
+//   3) platform + app_version ไปกับ beat → แอดมินเห็นเวอร์ชันรายเครื่อง
+//   4) client_errors: JS error / sync ล้ม / conflict / fallback upsert → ตาราง (throttle 5 ครั้ง/นาที)
+//   ⚠️ ทุกอย่าง backward-compatible: คอลัมน์/ตารางยังไม่มี → ถอยไปใช้แบบเดิมเงียบๆ (ไม่พัง · ไม่ spam)
+const MON_PLATFORM = 'desktop';
+const MON_SESSION_ID = (function () { try { const a = new Uint32Array(2); (window.crypto || window.msCrypto).getRandomValues(a); return 's_' + a[0].toString(36) + a[1].toString(36); } catch (e) { return 's_' + Date.now().toString(36); } })();
+let _monLastInteractAt = Date.now();
+let _monPresenceLegacy = false;    // true = คอลัมน์ใหม่ยังไม่มี → ส่งแค่ last_seen
+let _monErrTableDead = false;
+const _monErrTimes = [];
+(function () {
+  const bump = function () { _monLastInteractAt = Date.now(); };
+  ['pointerdown', 'keydown', 'touchstart', 'wheel', 'scroll'].forEach(function (ev) { try { window.addEventListener(ev, bump, { passive: true, capture: true }); } catch (e) {} });
+})();
+function monIsActive() { return (Date.now() - _monLastInteractAt) < 5 * 60 * 1000; }
+function monPresencePayload() {
+  const now = new Date().toISOString();
+  const p = { user_id: CURRENT_USER.id, last_seen: now };
+  if (_monPresenceLegacy) return p;
+  p.platform = MON_PLATFORM;
+  p.app_version = (typeof PIXORY_DESKTOP_VERSION !== 'undefined' ? PIXORY_DESKTOP_VERSION : null);
+  p.session_id = MON_SESSION_ID;
+  if (monIsActive()) p.active_at = now;   // ไม่ส่ง key = ไม่ทับค่าเดิม (upsert อัปเดตเฉพาะคอลัมน์ที่ส่ง)
+  return p;
+}
+function monIsMissingColumn(error) {
+  const m = String((error && (error.message || error.code)) || '');
+  return error && (error.code === 'PGRST204' || error.code === '42703' || /column|schema cache/i.test(m));
+}
+async function reportClientError(kind, message, extra) {
+  try {
+    if (_monErrTableDead || !SUPABASE || !CURRENT_USER) return;
+    const now = Date.now();
+    while (_monErrTimes.length && now - _monErrTimes[0] > 60000) _monErrTimes.shift();
+    if (_monErrTimes.length >= 5) return;   // throttle 5/นาที
+    _monErrTimes.push(now);
+    const row = {
+      user_id: CURRENT_USER.id, kind: String(kind || 'js_error').slice(0, 30),
+      message: String(message || '').slice(0, 300), stack: String((extra && extra.stack) || '').slice(0, 800),
+      url: String(location.pathname + location.search).slice(0, 120), ua: String(navigator.userAgent || '').slice(0, 200),
+      platform: MON_PLATFORM, app_version: (typeof PIXORY_DESKTOP_VERSION !== 'undefined' ? PIXORY_DESKTOP_VERSION : null), session_id: MON_SESSION_ID
+    };
+    const { error } = await SUPABASE.from('client_errors').insert(row);
+    if (error && (error.code === '42P01' || /client_errors|does not exist|schema cache/i.test(String(error.message || '')))) _monErrTableDead = true;
+  } catch (e) { /* silent */ }
+}
+window.reportClientError = reportClientError;
+
 async function _sendPresenceBeatDesktop() {
   if (!CURRENT_USER || !SUPABASE || _dtPresenceDead) return;
   if (document.visibilityState !== 'visible') return;
   try {
-    const { error } = await SUPABASE
+    let { error } = await SUPABASE
       .from('user_presence')
-      .upsert({ user_id: CURRENT_USER.id, last_seen: new Date().toISOString() }, { onConflict: 'user_id' });
-    if (error && (error.code === '42P01' || /user_presence|does not exist|schema cache/i.test(String(error.message || '')))) {
+      .upsert(monPresencePayload(), { onConflict: 'user_id' });
+    // v1.1.85 · คอลัมน์ใหม่ยังไม่มี → ถอยไปส่งแค่ last_seen แบบเดิม
+    if (error && !_monPresenceLegacy && monIsMissingColumn(error)) {
+      _monPresenceLegacy = true;
+      ({ error } = await SUPABASE.from('user_presence').upsert(monPresencePayload(), { onConflict: 'user_id' }));
+    }
+    if (error && (error.code === '42P01' || /user_presence|does not exist/i.test(String(error.message || '')))) {
       _dtPresenceDead = true; // ตารางยังไม่มี · หยุดยิงจนกว่าจะรีโหลด
     }
   } catch (e) { /* silent */ }
