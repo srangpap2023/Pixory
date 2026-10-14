@@ -3223,12 +3223,21 @@ html body .auth-overlay .auth-social-txt b{color:#ecd49e !important;font-weight:
    100% schema parity with mobile (src: 01_app_deploy/index.html v2.5.20)
    =================================================================== */
 
-const PIXORY_DESKTOP_VERSION = '1.1.83';
+const PIXORY_DESKTOP_VERSION = '1.1.84';
 
 // ========== WHAT'S NEW (desktop · mirrors mobile) ==========
 // ⛔ STRICT RULE — never put admin/internal tooling here · users see everything
 const DESKTOP_LAST_SEEN_VERSION_KEY = 'pixory.desktop.lastSeenVersion';
 const RELEASE_NOTES = {
+  '1.1.84': {
+    date: '2026-10-14',
+    title: 'ซิงก์เบาลง · แอปเล็กลง 🪶',
+    subtitle: 'ประหยัดเน็ต และลบโค้ดเก่าที่ไม่ได้ใช้',
+    items: [
+      { icon: '☁️', title: 'บันทึกแล้วไม่ต้องดาวน์โหลดข้อมูลทั้งก้อนมาเช็กก่อน', desc: 'เช็กแค่เลขเวอร์ชัน · การกันข้อมูลชนกันระหว่าง 2 เครื่องยังทำงานเหมือนเดิมทุกอย่าง' },
+      { icon: '🪶', title: 'ลบโค้ดเก่าที่ไม่ได้ใช้ออก 61 KB', desc: 'เทมเพลต PDF รุ่นเก่า 3 แบบ รายงานภาพรวมรุ่นเก่า และฟังก์ชันที่เลิกใช้ · หน้าตาและข้อมูลไม่เปลี่ยน' },
+    ]
+  },
   '1.1.83': {
     date: '2026-10-14',
     title: 'แก้ 5 จุดจากการตรวจสอบระบบ 🛠',
@@ -4036,49 +4045,6 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-// Thai number to words (Baht) · for VAT/tax invoice compliance
-function numToThaiBaht(amount) {
-  const num = Math.max(0, Number(amount) || 0);
-  const baht = Math.floor(num);
-  const satang = Math.round((num - baht) * 100);
-  const digits = ['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า'];
-  const places = ['','สิบ','ร้อย','พัน','หมื่น','แสน','ล้าน'];
-  function readGroup(n) {
-    // n: integer 0..999999 (read as group · max 7 digits with ล้าน chain)
-    if (n === 0) return '';
-    let s = String(n).split('').reverse();
-    let out = '';
-    for (let i = 0; i < s.length; i++) {
-      const d = parseInt(s[i], 10);
-      if (d === 0) continue;
-      let word = digits[d];
-      // Special: ten place: '1' = สิบ (not หนึ่งสิบ); '2' = ยี่ (not สอง)
-      if (i === 1) {
-        if (d === 1) word = '';
-        else if (d === 2) word = 'ยี่';
-      }
-      // Unit place: '1' = เอ็ด (when there's another digit to the left)
-      if (i === 0 && d === 1 && s.length > 1) word = 'เอ็ด';
-      out = word + places[i] + out;
-    }
-    return out;
-  }
-  function readNum(n) {
-    if (n === 0) return 'ศูนย์';
-    let s = '';
-    if (n >= 1000000) {
-      const millions = Math.floor(n / 1000000);
-      s += readNum(millions) + 'ล้าน';
-      n = n % 1000000;
-    }
-    s += readGroup(n);
-    return s;
-  }
-  let text = readNum(baht) + 'บาท';
-  if (satang > 0) text += readGroup(satang) + 'สตางค์';
-  else text += 'ถ้วน';
-  return text;
-}
 
 // ===================================================================
 // TOAST
@@ -4896,18 +4862,21 @@ async function pushToCloud(opts) {
     // === FIX C2 · Peek cloud ก่อน push (เหมือน mobile v1.9.11) ===
     if (!opts.force) {
       try {
+        // v1.1.84 · AUDIT 4.1 · EGRESS · peek แค่ _meta (ไม่ถึง 1KB) แทนดึง blob ทั้งก้อน · ตรรกะกันชนเหมือนเดิม · ดึง blob เต็มเฉพาะตอน conflict จริง
         const { data: remote, error: peekErr } = await SUPABASE
           .from('user_data')
-          .select('data, device_id, updated_at')
+          .select('device_id, updated_at, meta:data->_meta')
           .eq('user_id', CURRENT_USER.id)
           .maybeSingle();
-        if (!peekErr && remote && remote.data && remote.data._meta) {
-          const remoteVersion = remote.data._meta.version || 0;
-          const remoteDeviceId = remote.data._meta.device_id;
+        if (!peekErr && remote && remote.meta) {
+          const remoteVersion = remote.meta.version || 0;
+          const remoteDeviceId = remote.meta.device_id;
           // Conflict: cloud ใหม่กว่า AND มาจากเครื่องอื่น
           if (remoteVersion > localVersion && remoteDeviceId && remoteDeviceId !== DEVICE_ID) {
+            let _rd = {};
+            try { const _r = await SUPABASE.from('user_data').select('data').eq('user_id', CURRENT_USER.id).maybeSingle(); _rd = (_r && _r.data && _r.data.data) || {}; } catch(e) {}
             const countLocal = ((blob.JOBS||[]).length) + ((blob.QUOTES||[]).length) + ((blob.EXPENSES||[]).length);
-            const countRemote = ((remote.data.JOBS||[]).length) + ((remote.data.QUOTES||[]).length) + ((remote.data.EXPENSES||[]).length);
+            const countRemote = ((_rd.JOBS||[]).length) + ((_rd.QUOTES||[]).length) + ((_rd.EXPENSES||[]).length);
             // v1.0.37 · clearer wording · default action = safe (Cancel)
             const diffCount = countRemote - countLocal;
             const diffText = diffCount > 0 ? ' (+' + diffCount + ' รายการมากกว่าเครื่องนี้)' : (diffCount < 0 ? ' (น้อยกว่าเครื่องนี้ ' + Math.abs(diffCount) + ')' : '');
@@ -5073,20 +5042,6 @@ function _nextShoot() {
     .sort((a,b) => (a.date||'').localeCompare(b.date||''))[0];
 }
 
-// 7-day daily payment trend
-function _weeklyTrend() {
-  const days = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = _addDays(new Date(), -i);
-    const iso = _isoLocal(d); // v1.1.71 · เดิมใช้ UTC → กราฟ 7 วันเลื่อนช่องผิดช่วงเช้ามืด
-    let sum = 0;
-    JOBS.forEach(j => {
-      (j.payments || []).forEach(p => { if (p.date === iso) sum += Number(p.amount) || 0; });
-    });
-    days.push({ date: iso, sum, label: ['อา','จ','อ','พ','พฤ','ศ','ส'][d.getDay()] });
-  }
-  return days;
-}
 
 // === Derive Todos automatically from data ===
 function _deriveTodos() {
@@ -7944,204 +7899,6 @@ function renderReportsOverview() {
   `;
 }
 
-// ===== Legacy renderReportsOverview · kept for compat but replaced by above =====
-function _renderReportsOverview_legacy() {
-  const yJobs = _reportYearJobs();
-  const yExp = _reportYearExpenses();
-  const income = yJobs.reduce((s, j) => s + jobRevenue(j), 0);
-  const cashIn = _reportYearCashIn();
-  const teamCost = yJobs.reduce((s, j) => s + (Number(j.teamCost) || 0), 0);
-  const travelCost = yJobs.reduce((s, j) => s + (Number(j.travelCost) || 0), 0);
-  const otherCost = yJobs.reduce((s, j) => s + (Number(j.otherCost) || 0), 0);
-  const costItemsSum = yJobs.reduce((s, j) => s + ((j.costItems || []).reduce((ss, c) => ss + (parseFloat(c.price) || 0), 0)), 0);
-  const expenseGen = yExp.reduce((s, e) => s + (Number(e.amount) || 0), 0);
-  const totalExpense = teamCost + travelCost + otherCost + costItemsSum + expenseGen;
-  const profit = income - totalExpense;
-  const margin = income > 0 ? (profit / income * 100) : 0;
-  const avgJob = yJobs.length > 0 ? income / yJobs.length : 0;
-
-  // Monthly bar data
-  const monthlyIn = new Array(12).fill(0);
-  const monthlyOut = new Array(12).fill(0);
-  yJobs.forEach(j => { monthlyIn[new Date(j.date).getMonth()] += (Number(j.sell) || 0); });
-  yJobs.forEach(j => {
-    const m = new Date(j.date).getMonth();
-    const ci = (j.costItems || []).reduce((s, c) => s + (parseFloat(c.price) || 0), 0);
-    monthlyOut[m] += (Number(j.teamCost) || 0) + (Number(j.travelCost) || 0) + (Number(j.otherCost) || 0) + ci;
-  });
-  yExp.forEach(e => { monthlyOut[new Date(e.date).getMonth()] += Number(e.amount) || 0; });
-  const maxMonthly = Math.max(...monthlyIn, ...monthlyOut, 1);
-
-  // Service breakdown (proportional)
-  const svc = {};
-  yJobs.forEach(j => {
-    const sell = Number(j.sell) || 0;
-    if (sell <= 0) return;
-    const fallback = j.type || deriveJobType(j) || 'อื่นๆ';
-    let gross = 0;
-    const components = [];
-    Object.values(j.selectedServices || {}).forEach(s => {
-      const p = parseFloat(s.price) || 0;
-      if (p > 0) {
-        const master = SERVICES.find(x => x.id === s.serviceId || x.name === s.serviceName);
-        const cat = master?.defaultJobType || fallback;
-        gross += p; components.push({ price: p, category: cat });
-      }
-    });
-    // Addons: loop ALL · รวม custom (ไม่ใช่แค่ qr/other) — fix audit #19
-    if (j.addons && typeof j.addons === 'object') {
-      Object.values(j.addons).forEach(p => { const pv = Number(p) || 0; if (pv > 0) { gross += pv; components.push({ price: pv, category: fallback }); } });
-    } else {
-      if (j.qr > 0) { gross += j.qr; components.push({ price: j.qr, category: fallback }); }
-      if (j.other > 0) { gross += j.other; components.push({ price: j.other, category: fallback }); }
-    }
-    (j.customItems || []).forEach(ci => {
-      const p = parseFloat(ci.price) || 0;
-      if (p > 0) { const cat = (ci.category || '').trim() || fallback; gross += p; components.push({ price: p, category: cat }); }
-    });
-    // v1.0.46 · MUST MATCH mobile · นับ billableCosts เข้า gross · ไม่งั้น ratio=sell/gross เพี้ยน สไลซ์โดนัทไม่ตรงมือถือ
-    (j.billableCosts || []).forEach(ci => {
-      const p = parseFloat(ci.price) || 0;
-      if (p > 0) { const cat = (ci.category || '').trim() || fallback; gross += p; components.push({ price: p, category: cat }); }
-    });
-    if (gross > 0) {
-      const ratio = sell / gross;
-      components.forEach(c => { svc[c.category] = (svc[c.category] || 0) + c.price * ratio; });
-    } else {
-      svc[fallback] = (svc[fallback] || 0) + sell;
-    }
-    // v1.0.41 · A2 · additional-invoice extras (OT + add-on) → fallback category · keeps donut total = revenue
-    const _ie = jobInvExtra(j);
-    if (_ie > 0) svc[fallback] = (svc[fallback] || 0) + _ie;
-  });
-  const svcEntries = Object.entries(svc).sort((a, b) => b[1] - a[1]);
-  const svcTotal = svcEntries.reduce((s, [_, v]) => s + v, 0);
-
-  // Expense by category
-  const expByCat = {};
-  yExp.forEach(e => { expByCat[e.cat || 'อื่นๆ'] = (expByCat[e.cat || 'อื่นๆ'] || 0) + (Number(e.amount) || 0); });
-  const expEntries = Object.entries(expByCat).sort((a, b) => b[1] - a[1]);
-  const expCatTotal = expEntries.reduce((s, [_, v]) => s + v, 0);
-
-  // Top 5 customers
-  const custRev = {};
-  yJobs.forEach(j => { custRev[j.customer || '-'] = (custRev[j.customer || '-'] || 0) + (Number(j.sell) || 0); });
-  const topCust = Object.entries(custRev).sort((a, b) => b[1] - a[1]).slice(0, 5);
-
-  return `
-    <div class="kpi-grid">
-      <div class="kpi">
-        <div class="kpi-label">💰 รายรับ</div>
-        <div class="kpi-value">${fmtTHB(income)}</div>
-        <div class="kpi-sub">${yJobs.length} งาน · เฉลี่ย ${fmtTHB(avgJob)}/งาน</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">💵 เงินสดเข้า</div>
-        <div class="kpi-value">${fmtTHB(cashIn)}</div>
-        <div class="kpi-sub">ยอดที่รับจริง</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">💸 ค่าใช้จ่าย</div>
-        <div class="kpi-value">${fmtTHB(totalExpense)}</div>
-        <div class="kpi-sub">ทีม + เดินทาง + อื่นๆ</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">📈 กำไร</div>
-        <div class="kpi-value" style="color:${profit >= 0 ? 'var(--green)' : 'var(--red)'};">${fmtTHB(profit)}</div>
-        <div class="kpi-sub">margin ${margin.toFixed(1)}%</div>
-      </div>
-    </div>
-
-    <div class="glass-card">
-      <div class="form-section-title">📊 รายเดือน · รายรับ vs ค่าใช้จ่าย</div>
-      <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:8px;height:200px;align-items:flex-end;padding:8px 0;">
-        ${monthlyIn.map((v, i) => {
-          const inH = (v / maxMonthly) * 180;
-          const outH = (monthlyOut[i] / maxMonthly) * 180;
-          return `
-            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;">
-              <div style="flex:1;display:flex;align-items:flex-end;gap:2px;width:100%;justify-content:center;">
-                <div title="รายรับ ${fmtTHB(v)}" style="width:14px;height:${inH}px;background:linear-gradient(180deg,var(--green),#0d7b5a);border-radius:3px 3px 0 0;"></div>
-                <div title="ค่าใช้จ่าย ${fmtTHB(monthlyOut[i])}" style="width:14px;height:${outH}px;background:linear-gradient(180deg,var(--red),#991b1b);border-radius:3px 3px 0 0;"></div>
-              </div>
-              <div class="text-mute text-sm" style="font-size:10px;">${['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][i]}</div>
-            </div>
-          `;
-        }).join('')}
-      </div>
-      <div style="display:flex;gap:16px;justify-content:center;margin-top:8px;font-size:12px;color:var(--ink-mute);">
-        <span><span style="display:inline-block;width:12px;height:12px;background:var(--green);border-radius:2px;vertical-align:middle;margin-right:4px;"></span>รายรับ</span>
-        <span><span style="display:inline-block;width:12px;height:12px;background:var(--red);border-radius:2px;vertical-align:middle;margin-right:4px;"></span>ค่าใช้จ่าย</span>
-      </div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div class="glass-card">
-        <div class="form-section-title">📷 รายรับตามประเภทบริการ</div>
-        ${svcEntries.length === 0
-          ? '<div class="text-mute text-sm">ยังไม่มีข้อมูล</div>'
-          : svcEntries.map(([cat, val]) => {
-              const pct = svcTotal > 0 ? (val / svcTotal * 100) : 0;
-              return `
-                <div style="margin-bottom:10px;">
-                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-                    <span><strong>${escapeHtml(cat)}</strong></span>
-                    <span class="text-mono">${fmtTHB(val)} <span class="text-mute">(${pct.toFixed(1)}%)</span></span>
-                  </div>
-                  <div style="height:6px;background:var(--glass);border-radius:999px;overflow:hidden;">
-                    <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand-dark));"></div>
-                  </div>
-                </div>
-              `;
-            }).join('')
-        }
-      </div>
-
-      <div class="glass-card">
-        <div class="form-section-title">💸 ค่าใช้จ่ายตามหมวด</div>
-        ${expEntries.length === 0
-          ? '<div class="text-mute text-sm">ยังไม่มีค่าใช้จ่ายในปีนี้</div>'
-          : expEntries.map(([cat, val]) => {
-              const pct = expCatTotal > 0 ? (val / expCatTotal * 100) : 0;
-              return `
-                <div style="margin-bottom:10px;">
-                  <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-                    <span><strong>${escapeHtml(cat)}</strong></span>
-                    <span class="text-mono">${fmtTHB(val)} <span class="text-mute">(${pct.toFixed(1)}%)</span></span>
-                  </div>
-                  <div style="height:6px;background:var(--glass);border-radius:999px;overflow:hidden;">
-                    <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#dc2626,#991b1b);"></div>
-                  </div>
-                </div>
-              `;
-            }).join('')
-        }
-      </div>
-    </div>
-
-    <div class="glass-card">
-      <div class="form-section-title">🏆 Top 5 ลูกค้า (ตามรายรับ)</div>
-      ${topCust.length === 0
-        ? '<div class="text-mute text-sm">ยังไม่มีงานในปีนี้</div>'
-        : `<table class="data-table">
-            <thead><tr><th style="width:30px;">${t('tbl.hash')}</th><th>${t('tbl.customer')}</th><th class="text-right">${t('tbl.jobs')}</th><th class="text-right">${t('tbl.revenue')}</th></tr></thead>
-            <tbody>
-              ${topCust.map(([name, val], i) => {
-                const jobCount = _reportYearJobs().filter(j => j.customer === name).length;
-                return `
-                  <tr onclick="openCustomerDetail('${jsStr(name)}')">
-                    <td class="text-mute text-mono">${i + 1}</td>
-                    <td><strong>${escapeHtml(name)}</strong></td>
-                    <td class="amount-cell">${jobCount}</td>
-                    <td class="amount-cell">${fmtTHB(val)}</td>
-                  </tr>`;
-              }).join('')}
-            </tbody>
-          </table>`
-      }
-    </div>
-  `;
-}
 
 // ===== Tab 2: Tax =====
 // === FIX C4+C5 · Full PIT calculator (port จาก mobile · ตรง schema 100%) ===
@@ -11028,19 +10785,6 @@ async function deleteAddon(idx) {
 
 // ===== Lists · JOB_TYPES, SOURCES, EXPENSE_CATS · simple string CRUD =====
 
-function renderSettingsLists() {
-  return `
-    <div class="glass-card">
-      ${renderStringListBlock('ประเภทงาน', 'JOB_TYPES', JOB_TYPES, '🎯')}
-    </div>
-    <div class="glass-card">
-      ${renderStringListBlock('ช่องทางรู้จัก (Sources)', 'SOURCES', SOURCES, '📡')}
-    </div>
-    <div class="glass-card">
-      ${renderStringListBlock('หมวดค่าใช้จ่าย', 'EXPENSE_CATS', EXPENSE_CATS, '💸')}
-    </div>
-  `;
-}
 
 function renderStringListBlock(title, key, arr, icon) {
   return `
@@ -11065,11 +10809,6 @@ function getStringArray(key) {
   if (key === 'SOURCES') return SOURCES;
   if (key === 'EXPENSE_CATS') return EXPENSE_CATS;
   return null;
-}
-function setStringArray(key, arr) {
-  if (key === 'JOB_TYPES') JOB_TYPES = arr;
-  else if (key === 'SOURCES') SOURCES = arr;
-  else if (key === 'EXPENSE_CATS') EXPENSE_CATS = arr;
 }
 
 async function addStringItem(key) {
@@ -11291,18 +11030,6 @@ function renderSettingsAbout() {
 // SETTINGS · STUBS (Step 1 · จะเติม implementation ใน Step 2-7)
 // ===================================================================
 
-function _stubSettingsPage(icon, title, desc) {
-  return `
-    <div class="glass-card">
-      <div class="form-section-title">${icon} ${escapeHtml(title)}</div>
-      <div class="empty-state">
-        <div class="emoji">🚧</div>
-        <div class="title">กำลังพัฒนา · มาเร็วๆ นี้</div>
-        <div class="desc">${escapeHtml(desc)}</div>
-      </div>
-    </div>
-  `;
-}
 
 function renderSettingsJobTypes() {
   return `
@@ -11836,15 +11563,6 @@ function _notifAddCustom(type) {
   _refreshNotifSection(type);
 }
 
-function _notifBumpDue(delta) {
-  if (!_NOTIF_STATE) _initNotifState();
-  let v = _NOTIF_STATE.balanceDueDays + delta;
-  if (v < 1) v = 1;
-  if (v > 60) v = 60;
-  _NOTIF_STATE.balanceDueDays = v;
-  const el = document.getElementById('nt-balanceDueDisplay');
-  if (el) el.textContent = v + ' วัน';
-}
 
 function _refreshNotifSection(type) {
   const chipsId = type === 'before' ? 'nt-before-chips' : 'nt-after-chips';
@@ -12106,10 +11824,6 @@ async function importBackupFromFile(event) {
   event.target.value = '';
 }
 
-function restartSetupWizard() {
-  if (!confirm('เริ่ม Setup Wizard ใหม่? · ข้อมูลปัจจุบันจะยังอยู่ · แค่เปิด wizard ให้ตั้งค่าใหม่')) return;
-  toast('Setup Wizard · Coming soon · ตอนนี้ใช้ Settings แต่ละ tab ปกติได้', 'info');
-}
 
 // v1.0.21 · ล้างข้อมูลงาน/ลูกค้า · port from mobile resetTransactionData()
 // ลบ JOBS · QUOTES · EXPENSES · CUSTOMER_INFO เท่านั้น · เก็บการตั้งค่าทั้งหมด
@@ -14121,7 +13835,6 @@ function _unifiedSyncState(ctx) {
   st.costs = costItems; st.billable = billable;
 }
 function loadUnifiedFromJob(ctx, j) { FORM_STATE[ctx].unified = buildUnifiedFromJob(j); _unifiedSyncState(ctx); }
-function resetUnifiedCosts(ctx) { FORM_STATE[ctx].unified = []; FORM_STATE[ctx].costs = []; FORM_STATE[ctx].billable = []; }
 function addUnifiedCost(ctx) {
   const st = FORM_STATE[ctx]; if (!Array.isArray(st.unified)) st.unified = [];
   st.unified.push({ id:'uni'+Date.now()+'_'+st.unified.length, label:'', category:'อื่นๆ', slot:null, charge:0, cost:0 });
@@ -15638,42 +15351,6 @@ function renderSelectedServicesList(selectedServices) {
   }).join('');
 }
 
-function renderExtraItemsList(doc) {
-  // Shows: addons (all custom + legacy) + customItems + costItems (Quote) or billableCosts (Job)
-  const parts = _gatherAddonItems(doc);
-  (doc.customItems || []).forEach(c => {
-    if ((Number(c.price) || 0) > 0 || (c.name || '').trim()) {
-      parts.push({ name: c.name || '(ไม่ระบุชื่อ)', desc: c.desc || '', price: Number(c.price) || 0 });
-    }
-  });
-  // Quote uses costItems (billable to customer) · Job has separate billableCosts
-  const billable = doc.code && doc.code.startsWith('JOB-') ? (doc.billableCosts || []) : (doc.costItems || []);
-  billable.forEach(c => {
-    if ((Number(c.price) || 0) > 0 || (c.name || '').trim()) {
-      parts.push({ name: c.name || '(ไม่ระบุชื่อ)', desc: c.desc || '', price: Number(c.price) || 0 });
-    }
-  });
-  if ((Number(doc.extraTime) || 0) > 0) {
-    parts.push({ name: '⏱ Extra time', desc: 'ค่าเวลาเพิ่มเติม', price: Number(doc.extraTime) || 0 });
-  }
-  if (parts.length === 0) return '';
-  return `
-    <div class="form-section">
-      <div class="form-section-title">รายการอื่นๆ</div>
-      ${parts.map(p => `
-        <div style="padding:8px 0;border-bottom:1px dashed var(--border);">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
-            <div style="flex:1;">
-              <div><strong>${escapeHtml(p.name)}</strong></div>
-              ${p.desc ? `<div class="text-mute text-sm" style="white-space:pre-line;margin-top:2px;">${escapeHtml(p.desc)}</div>` : ''}
-            </div>
-            <div class="text-mono" style="font-weight:600;">${fmtTHB(p.price)}</div>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
 
 // ===================================================================
 // QUOTE DETAIL · view + actions (Convert, Edit, Delete)
@@ -15875,15 +15552,6 @@ function renderQuoteDetailHtml(q) {
   `;
 }
 
-async function approveQuote(code) {
-  const q = QUOTES.find(x => x.code === code);
-  if (!q) return;
-  q.status = 'approved';
-  await saveData();
-  closeModal();
-  toast('✓ อนุมัติใบเสนอ ' + code, 'success');
-  navigate('quotes');
-}
 
 // FIX C8 · ปฏิเสธใบเสนอ
 async function rejectQuote(code) {
@@ -17901,729 +17569,9 @@ const PRINT_COMMON_CSS = `
   }
 `;
 
-// ===================================================================
-// ITEMS TABLE HELPER (shared by all templates)
-// ===================================================================
-function renderItemsTable(items, opts) {
-  opts = opts || {};
-  const hideQty = !!opts.hideQty;
-  const indexCol = !!opts.indexCol;
-  return items.length === 0
-    ? '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">ไม่มีรายการ</td></tr>'
-    : items.map((i, idx) => `
-        <tr>
-          ${indexCol ? `<td class="idx">${idx + 1}</td>` : ''}
-          <td>
-            <div class="name">${escapeHtml(i.name)}</div>
-            ${i.desc ? `<div class="desc">${escapeHtml(i.desc)}</div>` : ''}
-          </td>
-          ${hideQty ? '' : `<td class="qty">1 งาน</td>`}
-          ${hideQty ? '' : `<td class="price">${Number(i.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>`}
-          <td class="price">${hideQty ? fmtTHB(i.price) : Number(i.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-        </tr>
-      `).join('');
-}
 
-// ===================================================================
-// TEMPLATE B · MODERN (B2C / VIP) — based on Mockup B
-// Dark header bar + orange pill + meta strip + glass cards + clean totals
-// ===================================================================
-function buildPdfModern(ctx) {
-  const { doc, isQuote, phone, lineId, eventDate, issueDate, expireDate, docCode,
-          items, totalItems, discount, sell, deposit, remain,
-          taxOn, includeVat, includeWht, vatAmount, whtAmount, grandTotal, netReceived, tb,
-          bank, studioName, studioTagline, studioPhone, studioEmail, studioAddress, studioTaxId } = ctx;
 
-  // B2C/VIP: simple titles (casual/vatB2c)
-  const title = isQuote ? 'ใบเสนอราคา' : 'ใบเรียกเก็บยอดชำระเพิ่มเติม';
 
-  return printSharedHead(title + ' · ' + docCode) + `
-<style>
-  ${PRINT_COMMON_CSS}
-  html, body { font-family:'Inter', 'Sarabun', sans-serif; }
-  .page { width:210mm; min-height:297mm; margin:24px auto; background:white; box-shadow:0 6px 30px rgba(0,0,0,0.12); overflow:hidden; }
-  .h-bar { background:linear-gradient(135deg, #2A1F18 0%, #4a3727 100%); color:white; padding:24px 28px; display:flex; align-items:center; justify-content:space-between; }
-  .h-bar .brand { display:flex; align-items:center; gap:14px; }
-  .h-bar .brand img { width:46px; height:46px; border-radius:10px; background:white; padding:5px; }
-  .h-bar .brand .name { font-size:22px; font-weight:700; letter-spacing:-0.02em; }
-  .h-bar .brand .sub { font-size:11px; opacity:0.7; margin-top:2px; font-weight:400; }
-  .h-bar .doc-pill { background:#D97757; color:white; padding:8px 16px; border-radius:999px; font-weight:600; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; }
-  .meta-bar { background:#FBF7EE; padding:14px 28px; display:flex; gap:32px; border-bottom:1px solid #ebe2d2; flex-wrap:wrap; }
-  .meta-bar .item .k { font-size:9.5px; font-weight:700; color:#9a8a78; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:2px; }
-  .meta-bar .item .v { font-size:13px; font-weight:600; color:#1a1a1a; font-family:'Inter', monospace; }
-  .meta-bar .item .v.warn { color:#D97757; }
-  .body { padding:24px 28px; }
-  .pp-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; }
-  .pp-card { padding:14px 16px; border-radius:10px; background:#fafaf9; border:1px solid #ebe6dd; }
-  .pp-card .head { font-size:10px; font-weight:700; color:#D97757; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px; }
-  .pp-card .name { font-size:15px; font-weight:700; color:#1a1a1a; margin-bottom:2px; }
-  .pp-card .row { font-size:11.5px; color:#56473a; line-height:1.6; }
-  .pp-card .row .mute { color:#9a8a78; }
-  .items { border:1px solid #ebe6dd; border-radius:10px; overflow:hidden; margin-bottom:18px; }
-  .items table { width:100%; border-collapse:collapse; }
-  .items thead th { background:#1a1a1a; color:white; padding:11px 14px; text-align:left; font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; }
-  .items thead th.right { text-align:right; }
-  .items tbody td { padding:14px; border-top:1px solid #ebe6dd; vertical-align:top; }
-  .items tbody tr:first-child td { border-top:none; }
-  .items .name { font-weight:600; font-size:13px; color:#1a1a1a; }
-  .items .desc { font-size:11px; color:#7c6856; margin-top:3px; line-height:1.5; white-space:pre-line; }
-  .items .price { text-align:right; font-weight:600; font-size:13px; font-family:'Inter', monospace; white-space:nowrap; }
-  .totals-wrap { display:flex; justify-content:flex-end; margin-bottom:22px; }
-  .totals { width:46%; padding:18px 20px; border-radius:10px; background:linear-gradient(135deg, #FBF7EE 0%, #FFF8EE 100%); border:1px solid #ebe6dd; }
-  .totals .row { display:flex; justify-content:space-between; padding:5px 0; font-size:12.5px; }
-  .totals .row .k { color:#56473a; }
-  .totals .row .v { font-family:'Inter', monospace; font-weight:600; }
-  .totals .row.discount .v { color:#dc2626; }
-  .totals .row.vat .v { color:#15803d; }
-  .totals .row.grand { margin-top:6px; padding:8px 10px; background:#1a1a1a; color:white; border-radius:6px; font-size:14px; font-weight:800; }
-  .totals .row.grand .v { color:white; }
-  .totals .row.wht .v { color:#dc2626; }
-  .totals .row.net { margin-top:4px; padding:8px 10px; background:linear-gradient(135deg, #D97757, #B85A3D); color:white; border-radius:6px; font-size:14px; font-weight:800; }
-  .totals .row.net .v { color:white; }
-  .pay-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:22px; }
-  .pay-card { padding:14px 16px; border-radius:10px; }
-  .pay-card.dep { background:#fdf1e0; border-left:4px solid #D97757; }
-  .pay-card.bank { background:#eff6ff; border-left:4px solid #3b82f6; }
-  .pay-card .label { font-size:10px; font-weight:700; color:#7c6856; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:4px; }
-  .pay-card .val { font-size:18px; font-weight:800; color:#1a1a1a; font-family:'Inter', monospace; }
-  .pay-card.bank .val { font-size:14px; font-weight:700; color:#1e3a8a; }
-  .pay-card .sub { font-size:11px; color:#56473a; margin-top:2px; font-family:'Inter', monospace; }
-  .note-box { padding:12px 14px; border-radius:10px; background:#fff9ec; border-left:3px solid #ca8a04; font-size:11px; color:#7c2d12; line-height:1.55; margin-bottom:18px; white-space:pre-wrap; }
-  .note-box strong { color:#92400e; display:block; margin-bottom:3px; }
-  .thanks { text-align:center; padding:20px 28px 6px; font-size:13px; color:#56473a; }
-  .thanks strong { color:#D97757; font-weight:700; }
-  .foot { margin-top:30px; padding:18px 28px; background:#fafaf9; border-top:1px solid #ebe6dd; display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#56473a; }
-  .foot .left { display:flex; align-items:center; gap:10px; }
-  .foot .right { font-family:'Inter', monospace; color:#9a8a78; font-size:10px; letter-spacing:0.05em; }
-${ctx.luxCss}
-</style>
-</head><body>
-
-${printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
-
-<div class="page">
-
-  <div class="h-bar">
-    <div class="brand">
-      <img src="../02_brand/logo/pixory_mark.svg" alt="Pixory" onerror="this.style.display='none'" />
-      <div>
-        <div class="name">${escapeHtml(studioName)}</div>
-        ${studioTagline ? `<div class="sub">${escapeHtml(studioTagline)}</div>` : ''}
-      </div>
-    </div>
-    <div class="doc-pill">${escapeHtml(title)}</div>
-  </div>
-
-  <div class="meta-bar">
-    <div class="item"><div class="k">เลขที่</div><div class="v">${escapeHtml(docCode)}</div></div>
-    <div class="item"><div class="k">วันที่ออก</div><div class="v">${escapeHtml(fmtDateTH(issueDate))}</div></div>
-    ${expireDate ? `<div class="item"><div class="k">หมดอายุ</div><div class="v warn">${escapeHtml(fmtDateTH(expireDate))}</div></div>` : ''}
-    ${eventDate ? `<div class="item" style="margin-left:auto;"><div class="k">วันงาน</div><div class="v">${escapeHtml(fmtDateTH(eventDate))}</div></div>` : ''}
-  </div>
-
-  <div class="body">
-
-    <div class="pp-grid">
-      <div class="pp-card">
-        <div class="head">ผู้เสนอราคา · From</div>
-        <div class="name">${escapeHtml(studioName)}</div>
-        <div class="row">
-          ${studioAddress ? escapeHtml(studioAddress).replace(/\n/g, '<br>') + '<br>' : ''}
-          <span class="mute">${studioPhone ? '📱 ' + escapeHtml(studioPhone) + ' · ' : ''}${studioEmail ? '✉️ ' + escapeHtml(studioEmail) : ''}</span>
-        </div>
-      </div>
-      <div class="pp-card">
-        <div class="head">ลูกค้า · To</div>
-        <div class="name">${escapeHtml(doc.customer || '-')}${doc.custNick ? ` <span class="mute">(${escapeHtml(doc.custNick)})</span>` : ''}</div>
-        <div class="row">
-          ${ctx.sessionsHtml.replace(/<div>/g, '').replace(/<\/div>/g, '<br>').replace(/<br>$/, '') || (eventDate ? fmtDateTH(eventDate) : '')}<br>
-          <span class="mute">${phone ? '📱 ' + escapeHtml(phone) + ' · ' : ''}${lineId ? '💬 ' + escapeHtml(lineId) : ''}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="items">
-      <table>
-        <thead><tr><th style="width:70%;">รายการบริการ</th><th class="right">ราคา (บาท)</th></tr></thead>
-        <tbody>${renderItemsTable(items, { hideQty:true })}</tbody>
-      </table>
-    </div>
-
-    <div class="totals-wrap">
-      <div class="totals">
-        <div class="row"><span class="k">ราคารวม</span><span class="v">฿${totalItems.toLocaleString('en-US')}</span></div>
-        ${discount > 0 ? `<div class="row discount"><span class="k">ส่วนลด</span><span class="v">−฿${discount.toLocaleString('en-US')}</span></div>` : ''}
-        ${(includeVat || includeWht) ? `<div class="row" style="border-top:1px solid #1a1a1a; padding-top:7px; font-weight:700;"><span class="k">ราคาสุทธิ (ก่อน VAT)</span><span class="v">฿${sell.toLocaleString('en-US')}</span></div>` : ''}
-        ${includeVat ? `<div class="row vat"><span class="k">+ VAT ${tb.vatRate || 7}%</span><span class="v">฿${vatAmount.toLocaleString('en-US')}</span></div>` : ''}
-        ${includeVat ? `<div class="row grand"><span class="k">รวมทั้งสิ้น</span><span class="v">฿${grandTotal.toLocaleString('en-US')}</span></div>` : `<div class="row grand"><span class="k">ราคาสุทธิ</span><span class="v">฿${sell.toLocaleString('en-US')}</span></div>`}
-        ${includeWht ? `<div class="row wht"><span class="k">− WHT ${tb.whtRate || 3}% (${tb.whtBasis === 'total' ? 'รวม VAT' : 'ก่อน VAT'})</span><span class="v">−฿${whtAmount.toLocaleString('en-US')}</span></div>` : ''}
-        ${includeWht ? `<div class="row net"><span class="k">ยอดรับสุทธิ</span><span class="v">฿${netReceived.toLocaleString('en-US')}</span></div>` : ''}
-      </div>
-    </div>
-
-    ${renderInvoiceBlocks(ctx)}
-
-    ${(!ctx.inv && (deposit > 0 || bank)) ? `
-      <div class="pay-grid">
-        ${deposit > 0 ? `<div class="pay-card dep">
-          <div class="label">มัดจำเพื่อยืนยันการจอง</div>
-          <div class="val">฿${deposit.toLocaleString('en-US')}</div>
-          ${remain > 0 ? `<div class="sub">+ คงเหลือ ฿${remain.toLocaleString('en-US')} · ชำระก่อนวันงาน</div>` : '<div class="sub">ชำระครบแล้ว ✓</div>'}
-        </div>` : '<div></div>'}
-        ${bank ? `<div class="pay-card bank">
-          <div class="label">🏦 โอนเข้าบัญชี</div>
-          <div class="val">${escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + escapeHtml(bank.acc) : ''}</div>
-          <div class="sub">${escapeHtml(bank.holder || '')}</div>
-        </div>` : '<div></div>'}
-      </div>
-    ` : ''}
-
-    ${(ctx.inv && bank) ? `
-      <div style="margin-top:12px;padding:14px 16px;background:#eff6ff;border-left:4px solid #3b82f6;border-radius:10px;">
-        <div style="font-size:11px;color:#1e3a8a;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">🏦 โอนยอดคงเหลือเข้าบัญชี</div>
-        <div style="font-size:14px;font-weight:700;color:#1e3a8a;font-family:'Inter', monospace;">${escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + escapeHtml(bank.acc) : ''}</div>
-        <div style="font-size:11px;color:#1e3a8a;margin-top:2px;">${escapeHtml(bank.holder || '')}</div>
-      </div>
-    ` : ''}
-
-    ${ctx.inv ? promptPayBlockHtml() : ''}
-
-    ${(ctx.inv && ctx.invMessage) ? `<div class="note-box"><strong>📝 ข้อความจากร้าน</strong>${escapeHtml(ctx.invMessage)}</div>` : (doc.note ? `<div class="note-box"><strong>📝 หมายเหตุ</strong>${escapeHtml(doc.note)}</div>` : '')}
-
-  </div>
-
-  <div class="thanks">
-    <strong>✨ ขอบคุณที่ไว้วางใจให้บันทึกช่วงเวลาสำคัญของคุณ ✨</strong>
-  </div>
-
-  <div class="foot">
-    <div class="left">
-      <img src="../02_brand/logo/pixory_mark.svg" alt="" style="width:22px;height:22px;" onerror="this.style.display='none'" />
-      <span><strong>${escapeHtml(studioName)}</strong>${studioTaxId ? ' · เลขผู้เสียภาษี ' + escapeHtml(studioTaxId) : ''}</span>
-    </div>
-    <div class="right">${escapeHtml(docCode)} · PAGE 1/1</div>
-  </div>
-
-</div>
-
-</body></html>`;
-}
-
-// ===================================================================
-// TEMPLATE D · CORPORATE (B2B) — based on Mockup D
-// Classic Thai invoice · 2 signature blocks · tax IDs prominent
-// ===================================================================
-function buildPdfCorporate(ctx) {
-  const { doc, isQuote, phone, lineId, eventDate, issueDate, expireDate, docCode, taxInvNo,
-          items, totalItems, discount, sell, deposit, remain,
-          taxOn, includeVat, includeWht, vatAmount, whtAmount, grandTotal, netReceived, tb,
-          bank, studioName, studioTagline, studioPhone, studioEmail, studioAddress,
-          studioTaxId, studioTaxAddress, studioBranch } = ctx;
-
-  // B2B titles · combine VAT name only when studio is VAT-registered (i.e. case = fullPro)
-  const isFullPro = (ctx.docCase === 'fullPro');
-  const title = isQuote
-    ? (isFullPro ? 'ใบเสนอราคา / ใบกำกับภาษี' : 'ใบเสนอราคา')
-    : (isFullPro ? 'ใบเรียกเก็บฯ / ใบกำกับภาษี' : 'ใบเรียกเก็บยอดชำระเพิ่มเติม');
-  const enTitle = isQuote
-    ? (isFullPro ? 'Quotation / Tax Invoice' : 'Quotation')
-    : (isFullPro ? 'Invoice / Tax Invoice' : 'Invoice · Balance Due');
-  const aiwAmount = includeWht ? netReceived : (includeVat ? grandTotal : sell);
-
-  return printSharedHead(title + ' · ' + docCode) + `
-<style>
-  ${PRINT_COMMON_CSS}
-  html, body { font-family:'Sarabun', sans-serif; }
-  .page { width:210mm; min-height:297mm; margin:24px auto; padding:18mm 16mm; background:white; box-shadow:0 6px 30px rgba(0,0,0,0.12); }
-  .h-top { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:14px; border-bottom:2px solid #1a1a1a; margin-bottom:14px; }
-  .h-top .brand { display:flex; gap:14px; align-items:center; }
-  .h-top .brand img { width:54px; height:54px; }
-  .h-top .brand .name { font-size:22px; font-weight:800; color:#1a1a1a; letter-spacing:-0.01em; }
-  .h-top .brand .info { font-size:11px; color:#555; line-height:1.55; margin-top:3px; }
-  .h-top .doc { text-align:right; }
-  .h-top .doc .title { font-size:20px; font-weight:800; color:#1a1a1a; letter-spacing:0.02em; border:2px solid #1a1a1a; padding:6px 14px; display:inline-block; }
-  .h-top .doc .sub { font-size:11px; color:#7c6856; margin-top:6px; text-transform:uppercase; letter-spacing:0.1em; }
-  .h-top .doc .code { font-family:'Inter', monospace; font-size:13px; color:#D97757; font-weight:700; margin-top:4px; }
-  .h-top .doc .tax-no { font-family:'Inter', monospace; font-size:10.5px; color:#15803d; font-weight:700; margin-top:2px; }
-  .pp { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
-  .pp .box { padding:10px 14px; border:1px solid #d4d4d4; border-radius:4px; background:#fafafa; }
-  .pp .label { font-size:10px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:5px; border-bottom:1px solid #d4d4d4; padding-bottom:3px; }
-  .pp .name { font-size:13px; font-weight:700; color:#1a1a1a; margin-bottom:2px; }
-  .pp .row { font-size:11px; color:#444; line-height:1.6; }
-  .pp .row .k { color:#7c6856; font-weight:500; }
-  .pp .row .v { color:#1a1a1a; font-weight:600; }
-  .meta { display:flex; gap:0; align-items:stretch; background:#f3f4f6; padding:9px 0; border-radius:4px; margin-bottom:14px; }
-  .meta .cell { flex:1; padding:0 14px; border-right:1px solid #d4d4d4; }
-  .meta .cell:last-child { border-right:none; }
-  .meta .cell .k { font-size:9.5px; color:#7c6856; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; }
-  .meta .cell .v { font-size:12px; color:#1a1a1a; font-weight:600; }
-  .items { width:100%; border-collapse:collapse; margin-bottom:14px; font-size:11.5px; }
-  .items thead th { background:#1a1a1a; color:white; padding:8px 10px; text-align:left; font-weight:700; font-size:10.5px; letter-spacing:0.04em; text-transform:uppercase; }
-  .items thead th.right { text-align:right; }
-  .items thead th.center { text-align:center; }
-  .items tbody td { padding:9px 10px; border-bottom:1px solid #e5e5e5; vertical-align:top; }
-  .items tbody td.idx { text-align:center; font-family:'Inter', monospace; color:#7c6856; width:30px; }
-  .items tbody td.qty { text-align:center; color:#555; }
-  .items tbody td.price { text-align:right; font-family:'Inter', monospace; font-weight:600; }
-  .items .name { font-weight:700; }
-  .items .desc { font-size:10.5px; color:#666; margin-top:2px; line-height:1.5; white-space:pre-line; }
-  .totals-wrap { display:flex; justify-content:space-between; gap:14px; margin-bottom:14px; }
-  .totals-wrap .left { flex:1; padding:11px 14px; background:#fef9e7; border:1px solid #fbbf24; border-radius:4px; font-size:11px; color:#7c2d12; line-height:1.6; }
-  .totals-wrap .left strong { color:#92400e; display:block; margin-bottom:3px; }
-  .totals { width:46%; font-size:12px; }
-  .totals .row { display:flex; justify-content:space-between; padding:4px 0; }
-  .totals .row .k { color:#444; }
-  .totals .row .v { font-family:'Inter', monospace; font-weight:600; }
-  .totals .row.discount .v { color:#dc2626; }
-  .totals .row.subtotal { border-top:1px solid #1a1a1a; margin-top:5px; padding-top:7px; font-weight:700; }
-  .totals .row.vat .v { color:#15803d; font-weight:700; }
-  .totals .row.grand { margin-top:5px; padding:8px 10px; background:#1a1a1a; color:white; border-radius:3px; font-weight:700; font-size:13.5px; }
-  .totals .row.grand .v { color:white; }
-  .totals .row.wht .v { color:#dc2626; }
-  .totals .row.net { margin-top:4px; padding:8px 10px; background:#15803d; color:white; border-radius:3px; font-weight:700; font-size:13.5px; }
-  .totals .row.net .v { color:white; }
-  .aiw { margin-bottom:14px; padding:8px 12px; border:1px dashed #999; border-radius:4px; font-size:11px; color:#555; font-style:italic; line-height:1.6; }
-  .aiw strong { color:#1a1a1a; font-style:normal; }
-  .notes { margin-bottom:18px; padding:9px 12px; background:#eff6ff; border-left:3px solid #3b82f6; border-radius:3px; font-size:10.5px; color:#1e3a8a; line-height:1.6; }
-  .notes strong { color:#1e3a8a; }
-  .pay { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
-  .pay .card { padding:11px 14px; border:1px solid #d4d4d4; border-radius:4px; }
-  .pay .card.dep { background:#fef9e7; border-color:#fbbf24; }
-  .pay .card.bank { background:#eff6ff; border-color:#93c5fd; }
-  .pay .card .label { font-size:10px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:3px; }
-  .pay .card.dep .label { color:#92400e; }
-  .pay .card.bank .label { color:#1e3a8a; }
-  .pay .card .val { font-family:'Inter', monospace; font-size:18px; font-weight:800; color:#1a1a1a; }
-  .pay .card.bank .val { font-size:13px; color:#1e3a8a; }
-  .pay .card .sub { font-size:10.5px; color:#666; margin-top:2px; }
-  .sigs { margin-top:18px; padding-top:14px; border-top:1px dashed #999; display:grid; grid-template-columns:1fr 1fr; gap:30px; }
-  .sig { text-align:center; padding-top:34px; }
-  .sig .line { border-bottom:1px solid #1a1a1a; margin:0 16px 6px; }
-  .sig .name { font-size:11.5px; font-weight:700; color:#1a1a1a; }
-  .sig .role { font-size:10.5px; color:#555; margin-top:1px; }
-  .sig .date { margin-top:6px; font-size:10px; color:#7c6856; }
-  .sig .stamp { margin-top:8px; font-size:9.5px; color:#9a8a78; font-style:italic; }
-  .foot-meta { margin-top:16px; padding-top:8px; border-top:1px solid #d4d4d4; text-align:center; font-size:10px; color:#7c6856; font-family:'Inter', monospace; letter-spacing:0.05em; }
-${ctx.luxCss}
-</style>
-</head><body>
-
-${printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
-
-<div class="page">
-
-  <div class="h-top">
-    <div class="brand">
-      <img src="../02_brand/logo/pixory_mark.svg" alt="Pixory" onerror="this.style.display='none'" />
-      <div>
-        <div class="name">${escapeHtml(studioName)}</div>
-        <div class="info">
-          ${studioAddress ? escapeHtml(studioAddress) + '<br>' : ''}
-          ${studioPhone ? '📱 ' + escapeHtml(studioPhone) + ' · ' : ''}${studioEmail ? '✉️ ' + escapeHtml(studioEmail) : ''}<br>
-          ${studioTaxId ? `<strong>เลขผู้เสียภาษี: ${escapeHtml(studioTaxId)} · สาขา: ${escapeHtml(studioBranch)}</strong>` : ''}
-        </div>
-      </div>
-    </div>
-    <div class="doc">
-      <div class="title">${escapeHtml(title)}</div>
-      <div class="sub">${escapeHtml(enTitle)}</div>
-      <div class="code">${escapeHtml(docCode)}</div>
-      ${taxInvNo ? `<div class="tax-no">เลขใบกำกับ ${escapeHtml(taxInvNo)}</div>` : ''}
-    </div>
-  </div>
-
-  <div class="pp">
-    <div class="box">
-      <div class="label">ผู้ขาย · Seller</div>
-      <div class="name">${escapeHtml(studioName)}</div>
-      ${studioTaxId ? `<div class="row"><span class="k">เลขผู้เสียภาษี:</span> <span class="v">${escapeHtml(studioTaxId)}</span></div>` : ''}
-      <div class="row"><span class="k">สาขา:</span> <span class="v">${escapeHtml(studioBranch)}</span></div>
-      ${studioTaxAddress ? `<div class="row"><span class="k">ที่อยู่:</span> ${escapeHtml(studioTaxAddress)}</div>` : ''}
-    </div>
-    <div class="box">
-      <div class="label">ผู้ซื้อ · Buyer</div>
-      <div class="name">${escapeHtml(doc.customerCompanyName || doc.customer || '-')}</div>
-      ${doc.customerTaxId ? `<div class="row"><span class="k">เลขผู้เสียภาษี:</span> <span class="v">${escapeHtml(doc.customerTaxId)}</span></div>` : ''}
-      ${doc.customerBranch ? `<div class="row"><span class="k">สาขา:</span> <span class="v">${escapeHtml(doc.customerBranch)}</span></div>` : ''}
-      ${doc.customerTaxAddress ? `<div class="row"><span class="k">ที่อยู่:</span> ${escapeHtml(doc.customerTaxAddress)}</div>` : ''}
-      ${doc.customerContactPerson ? `<div class="row"><span class="k">ผู้ติดต่อ:</span> <span class="v">${escapeHtml(doc.customerContactPerson)}${doc.customerContactPosition ? ' · ' + escapeHtml(doc.customerContactPosition) : ''}</span></div>` : ''}
-      ${phone ? `<div class="row"><span class="k">📱</span> ${escapeHtml(phone)}</div>` : ''}
-    </div>
-  </div>
-
-  <div class="meta">
-    <div class="cell"><div class="k">วันที่ออก</div><div class="v">${escapeHtml(fmtDateTH(issueDate))}</div></div>
-    ${expireDate ? `<div class="cell"><div class="k">หมดอายุ</div><div class="v">${escapeHtml(fmtDateTH(expireDate))}</div></div>` : ''}
-    ${eventDate ? `<div class="cell"><div class="k">วันงาน</div><div class="v">${escapeHtml(fmtDateTH(eventDate))}</div></div>` : ''}
-    ${ctx.sessions && ctx.sessions[0] && ctx.sessions[0].loc ? `<div class="cell"><div class="k">สถานที่</div><div class="v">${escapeHtml(ctx.sessions[0].loc)}</div></div>` : ''}
-  </div>
-
-  <table class="items">
-    <thead><tr>
-      <th class="center" style="width:30px;">#</th>
-      <th>รายการบริการ</th>
-      <th class="right" style="width:80px;">จำนวน</th>
-      <th class="right" style="width:110px;">ราคาต่อหน่วย</th>
-      <th class="right" style="width:120px;">จำนวนเงิน</th>
-    </tr></thead>
-    <tbody>
-      ${items.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">ไม่มีรายการ</td></tr>' :
-        items.map((it, i) => `
-        <tr>
-          <td class="idx">${i + 1}</td>
-          <td>
-            <div class="name">${escapeHtml(it.name)}</div>
-            ${it.desc ? `<div class="desc">${escapeHtml(it.desc)}</div>` : ''}
-          </td>
-          <td class="qty">1 งาน</td>
-          <td class="price">${Number(it.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-          <td class="price">${Number(it.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-        </tr>
-      `).join('')}
-    </tbody>
-  </table>
-
-  <div class="totals-wrap">
-    <div class="left">
-      <strong>หมายเหตุการชำระ:</strong>
-      ${doc.note ? escapeHtml(doc.note).replace(/\n/g, '<br>') : 'มัดจำเพื่อยืนยันคิว · ส่วนที่เหลือชำระภายใน 7 วันหลังส่งงาน · ออกใบกำกับภาษีเต็มรูปแบบ'}
-    </div>
-    <div class="totals">
-      <div class="row subtotal"><span class="k">ราคารวม${includeVat ? ' (ก่อน VAT)' : ''}</span><span class="v">฿${sell.toLocaleString('en-US')}</span></div>
-      ${includeVat ? `<div class="row vat"><span class="k">+ ภาษีมูลค่าเพิ่ม ${tb.vatRate || 7}%</span><span class="v">฿${vatAmount.toLocaleString('en-US')}</span></div>` : ''}
-      ${includeVat ? `<div class="row grand"><span class="k">ราคารวมทั้งสิ้น</span><span class="v">฿${grandTotal.toLocaleString('en-US')}</span></div>` : `<div class="row grand"><span class="k">ราคารวม</span><span class="v">฿${sell.toLocaleString('en-US')}</span></div>`}
-      ${includeWht ? `<div class="row wht"><span class="k">− หัก ณ ที่จ่าย ${tb.whtRate || 3}% (${tb.whtBasis === 'total' ? 'รวม VAT' : 'ก่อน VAT'})</span><span class="v">−฿${whtAmount.toLocaleString('en-US')}</span></div>` : ''}
-      ${includeWht ? `<div class="row net"><span class="k">ยอดสุทธิที่ได้รับ</span><span class="v">฿${netReceived.toLocaleString('en-US')}</span></div>` : ''}
-    </div>
-  </div>
-
-  <div class="aiw">
-    <strong>จำนวนเงินตัวอักษร:</strong> ${escapeHtml(numToThaiBaht(aiwAmount))}
-  </div>
-
-  ${renderInvoiceBlocks(ctx)}
-
-  ${(!ctx.inv && (deposit > 0 || bank)) ? `<div class="pay">
-    ${deposit > 0 ? `<div class="card dep">
-      <div class="label">มัดจำเพื่อยืนยันคิว</div>
-      <div class="val">฿${deposit.toLocaleString('en-US')}</div>
-      ${remain > 0 ? `<div class="sub">ส่วนที่เหลือ ฿${remain.toLocaleString('en-US')} ชำระหลังส่งงาน</div>` : '<div class="sub">ชำระครบแล้ว ✓</div>'}
-    </div>` : '<div></div>'}
-    ${bank ? `<div class="card bank">
-      <div class="label">🏦 โอนเข้าบัญชี</div>
-      <div class="val">${escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + escapeHtml(bank.acc) : ''}</div>
-      <div class="sub">${escapeHtml(bank.holder || '')}</div>
-    </div>` : '<div></div>'}
-  </div>` : ''}
-
-  ${(ctx.inv && bank) ? `<div class="pay" style="grid-template-columns:1fr;"><div class="card bank">
-    <div class="label">🏦 โอนยอดคงเหลือเข้าบัญชี</div>
-    <div class="val">${escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + escapeHtml(bank.acc) : ''}</div>
-    <div class="sub">${escapeHtml(bank.holder || '')}</div>
-  </div></div>` : ''}
-
-  ${ctx.inv ? promptPayBlockHtml() : ''}
-
-  ${(ctx.inv && ctx.invMessage) ? `<div class="notes" style="background:#fff9ec;border-left-color:#ca8a04;color:#7c2d12;"><strong style="color:#92400e;">📝 ข้อความจากร้าน:</strong> ${escapeHtml(ctx.invMessage)}</div>` : ''}
-
-  ${includeWht ? `<div class="notes">
-    <strong>📌 หมายเหตุภาษี:</strong> ผู้ซื้อหัก ณ ที่จ่าย ${tb.whtRate}% สำหรับค่าบริการ · ออก ภ.ง.ด.3 / 53 ให้ผู้รับเงินภายใน 7 วันหลังโอน · ส่งสำเนาทาง email: ${escapeHtml(studioEmail || '')}
-  </div>` : ''}
-
-  <div class="sigs">
-    <div class="sig">
-      <div class="line"></div>
-      <div class="name">(................................................)</div>
-      <div class="role">ผู้ซื้อ / Buyer</div>
-      <div class="date">วันที่ ____ / ____ / ________</div>
-      <div class="stamp">(ประทับตราบริษัท)</div>
-    </div>
-    <div class="sig">
-      <div class="line"></div>
-      <div class="name">${escapeHtml(PROFILE.ownerName || studioName)}</div>
-      <div class="role">ผู้ขาย / Seller · ${escapeHtml(studioName)}</div>
-      <div class="date">วันที่ ${escapeHtml(fmtDateTH(issueDate))}</div>
-      <div class="stamp">&nbsp;</div>
-    </div>
-  </div>
-
-  <div class="foot-meta">
-    ${escapeHtml(studioName)} · ${escapeHtml(docCode)}${taxInvNo ? ' · ' + escapeHtml(taxInvNo) : ''} · PAGE 1 OF 1
-  </div>
-
-</div>
-
-</body></html>`;
-}
-
-// ===================================================================
-// TEMPLATE E · GOVERNMENT (Gov) — based on Mockup E
-// Centered header · big bilingual title · PO banner · 3 signatures · ภ.ง.ด.3/53 reminder
-// ===================================================================
-function buildPdfGov(ctx) {
-  const { doc, isQuote, phone, lineId, eventDate, issueDate, expireDate, docCode, taxInvNo,
-          items, totalItems, discount, sell, deposit, remain,
-          taxOn, includeVat, includeWht, vatAmount, whtAmount, grandTotal, netReceived, tb,
-          bank, studioName, studioTagline, studioPhone, studioEmail, studioAddress,
-          studioTaxId, studioTaxAddress, studioBranch } = ctx;
-
-  // Gov titles · ราชการ uses combined name only when studio VAT (fullPro)
-  const isFullPro = (ctx.docCase === 'fullPro');
-  const title = isQuote
-    ? (isFullPro ? 'ใบเสนอราคา / ใบกำกับภาษี' : 'ใบเสนอราคา')
-    : (isFullPro ? 'ใบเรียกเก็บฯ / ใบกำกับภาษี' : 'ใบเรียกเก็บยอดชำระเพิ่มเติม');
-  const enTitle = isQuote
-    ? (isFullPro ? 'Quotation / Tax Invoice' : 'Quotation')
-    : (isFullPro ? 'Invoice / Tax Invoice' : 'Invoice · Balance Due');
-  const aiwAmount = includeWht ? netReceived : (includeVat ? grandTotal : sell);
-  const aiwBeforeWht = includeVat ? grandTotal : sell;
-
-  return printSharedHead(title + ' · ' + docCode) + `
-<style>
-  ${PRINT_COMMON_CSS}
-  html, body { font-family:'Sarabun', sans-serif; font-size:11.5px; }
-  .page { width:210mm; min-height:297mm; margin:24px auto; padding:16mm 14mm 14mm; background:white; box-shadow:0 6px 30px rgba(0,0,0,0.12); }
-  .h-row { text-align:center; padding-bottom:12px; border-bottom:3px double #1a1a1a; margin-bottom:14px; }
-  .h-row .brand { display:flex; gap:12px; align-items:center; justify-content:center; margin-bottom:8px; }
-  .h-row .brand img { width:48px; height:48px; }
-  .h-row .brand .name { font-size:22px; font-weight:800; color:#1a1a1a; letter-spacing:-0.01em; text-align:left; }
-  .h-row .brand .name-sub { font-size:11px; color:#7c6856; margin-top:2px; text-align:left; }
-  .h-row .studio-detail { font-size:10.5px; color:#444; line-height:1.55; }
-  .h-row .studio-detail strong { color:#15803d; }
-  .doc-title-box { text-align:center; margin-bottom:14px; padding:10px 16px; border:2px solid #15803d; border-radius:4px; background:linear-gradient(180deg, #ecfdf5, #d1fae5); }
-  .doc-title-box .title { font-size:22px; font-weight:800; color:#14532d; letter-spacing:0.03em; }
-  .doc-title-box .en { font-size:11px; color:#15803d; text-transform:uppercase; letter-spacing:0.15em; font-weight:600; margin-top:2px; }
-  .doc-title-box .ids { display:flex; justify-content:center; gap:32px; margin-top:8px; padding-top:8px; border-top:1px dashed #15803d; font-size:11.5px; }
-  .doc-title-box .ids .k { color:#15803d; font-weight:600; }
-  .doc-title-box .ids .v { font-family:'Inter', monospace; font-weight:700; color:#14532d; }
-  .po-banner { margin-bottom:14px; padding:10px 14px; background:#fff8ed; border:1px solid #fbbf24; border-radius:4px; display:flex; justify-content:space-between; align-items:center; }
-  .po-banner .left { font-size:12px; color:#92400e; font-weight:600; }
-  .po-banner .right { font-family:'Inter', monospace; font-size:14px; font-weight:800; color:#92400e; }
-  .pp { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-  .pp .box { padding:9px 12px; border:1px solid #999; border-radius:3px; }
-  .pp .box.gov { border-color:#15803d; background:#f0fdf4; }
-  .pp .label { font-size:9.5px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px; border-bottom:1px solid #999; padding-bottom:2px; }
-  .pp .box.gov .label { color:#15803d; border-bottom-color:#15803d; }
-  .pp .name { font-size:12.5px; font-weight:700; color:#1a1a1a; margin-bottom:2px; }
-  .pp .row { font-size:10.5px; color:#444; line-height:1.6; }
-  .pp .row .k { color:#7c6856; font-weight:500; min-width:60px; display:inline-block; }
-  .pp .row .v { color:#1a1a1a; font-weight:600; }
-  .meta { display:grid; grid-template-columns:repeat(4, 1fr); gap:0; background:#f3f4f6; padding:8px 0; border-radius:3px; margin-bottom:12px; border:1px solid #d4d4d4; }
-  .meta .cell { padding:0 12px; border-right:1px solid #d4d4d4; }
-  .meta .cell:last-child { border-right:none; }
-  .meta .cell .k { font-size:9px; color:#7c6856; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; }
-  .meta .cell .v { font-size:11.5px; color:#1a1a1a; font-weight:600; }
-  .items-title { font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
-  .items { width:100%; border-collapse:collapse; margin-bottom:12px; font-size:11px; border:1.5px solid #1a1a1a; }
-  .items thead th { background:#1a1a1a; color:white; padding:7px 9px; text-align:left; font-weight:700; font-size:10px; letter-spacing:0.04em; text-transform:uppercase; }
-  .items thead th.right { text-align:right; }
-  .items thead th.center { text-align:center; }
-  .items tbody td { padding:8px 9px; border-bottom:1px solid #d4d4d4; vertical-align:top; }
-  .items tbody td.idx { text-align:center; font-family:'Inter', monospace; color:#555; width:28px; }
-  .items tbody td.qty { text-align:center; }
-  .items tbody td.price { text-align:right; font-family:'Inter', monospace; font-weight:600; }
-  .items .name { font-weight:700; }
-  .items .desc { font-size:10px; color:#666; margin-top:2px; line-height:1.5; white-space:pre-line; }
-  .totals-wrap { display:flex; justify-content:flex-end; margin-bottom:10px; }
-  .totals { width:48%; font-size:11.5px; border:1.5px solid #1a1a1a; }
-  .totals .row { display:flex; justify-content:space-between; padding:5px 10px; border-bottom:1px solid #d4d4d4; }
-  .totals .row:last-child { border-bottom:none; }
-  .totals .row .k { color:#444; }
-  .totals .row .v { font-family:'Inter', monospace; font-weight:600; }
-  .totals .row.discount .v { color:#dc2626; }
-  .totals .row.subtotal { background:#f3f4f6; font-weight:700; }
-  .totals .row.vat .v { color:#15803d; font-weight:700; }
-  .totals .row.grand { background:#1a1a1a; color:white; font-weight:700; font-size:13px; }
-  .totals .row.grand .v { color:white; }
-  .totals .row.wht .v { color:#dc2626; }
-  .totals .row.net { background:#15803d; color:white; font-weight:700; font-size:13px; }
-  .totals .row.net .v { color:white; }
-  .aiw { margin-bottom:14px; padding:7px 12px; border:1px solid #555; border-radius:3px; font-size:10.5px; color:#444; line-height:1.55; }
-  .aiw strong { color:#1a1a1a; }
-  .gov-notes { margin-bottom:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-  .gov-notes .note { padding:8px 11px; border-radius:3px; font-size:10px; line-height:1.55; }
-  .gov-notes .note.wht { background:#fff8ed; border:1px solid #fbbf24; color:#92400e; }
-  .gov-notes .note.pnd { background:#eff6ff; border:1px solid #93c5fd; color:#1e3a8a; }
-  .gov-notes .note strong { display:block; margin-bottom:2px; }
-  .bank { margin-bottom:14px; padding:10px 14px; background:#eff6ff; border:1px solid #93c5fd; border-radius:3px; display:flex; justify-content:space-between; align-items:center; }
-  .bank .left { font-size:10px; color:#1e3a8a; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; }
-  .bank .right { font-family:'Inter', monospace; font-weight:700; color:#1e3a8a; font-size:12px; text-align:right; }
-  .bank .right .acc { font-size:14px; font-weight:800; }
-  .bank .right .holder { font-size:10.5px; font-weight:500; }
-  .sigs { margin-top:16px; padding-top:12px; border-top:1.5px solid #1a1a1a; }
-  .sigs-title { text-align:center; font-size:11.5px; font-weight:700; color:#1a1a1a; margin-bottom:14px; text-transform:uppercase; letter-spacing:0.1em; }
-  .sigs-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
-  .sig { text-align:center; padding-top:34px; }
-  .sig .line { border-bottom:1px solid #1a1a1a; margin:0 8px 5px; }
-  .sig .name { font-size:11px; font-weight:700; color:#1a1a1a; }
-  .sig .name .placeholder { color:#999; }
-  .sig .role { font-size:10px; color:#555; margin-top:1px; }
-  .sig .date { margin-top:5px; font-size:9.5px; color:#7c6856; }
-  .sig .stamp { margin-top:6px; font-size:9px; color:#9a8a78; font-style:italic; }
-  .foot-meta { margin-top:14px; padding-top:7px; border-top:1px solid #d4d4d4; text-align:center; font-size:9.5px; color:#7c6856; font-family:'Inter', monospace; letter-spacing:0.05em; }
-${ctx.luxCss}
-</style>
-</head><body>
-
-${printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
-
-<div class="page">
-
-  <div class="h-row">
-    <div class="brand">
-      <img src="../02_brand/logo/pixory_mark.svg" alt="Pixory" onerror="this.style.display='none'" />
-      <div>
-        <div class="name">${escapeHtml(studioName)}</div>
-        ${studioTagline ? `<div class="name-sub">${escapeHtml(studioTagline)}</div>` : ''}
-      </div>
-    </div>
-    <div class="studio-detail">
-      ${studioAddress ? escapeHtml(studioAddress) + '<br>' : ''}
-      ${studioPhone ? 'โทร. ' + escapeHtml(studioPhone) + ' · ' : ''}${studioEmail ? 'อีเมล ' + escapeHtml(studioEmail) : ''}
-      ${studioTaxId ? ` · <strong>เลขประจำตัวผู้เสียภาษี ${escapeHtml(studioTaxId)} · สาขา ${escapeHtml(studioBranch)}</strong>` : ''}
-    </div>
-  </div>
-
-  <div class="doc-title-box">
-    <div class="title">${escapeHtml(title)}</div>
-    <div class="en">${escapeHtml(enTitle)}</div>
-    <div class="ids">
-      <div><span class="k">${isQuote ? 'เลขที่ใบเสนอ:' : 'เลขที่ใบเสร็จ:'}</span> <span class="v">${escapeHtml(docCode)}</span></div>
-      ${taxInvNo ? `<div><span class="k">เลขที่ใบกำกับภาษี:</span> <span class="v">${escapeHtml(taxInvNo)}</span></div>` : ''}
-    </div>
-  </div>
-
-  ${doc.poNumber ? `<div class="po-banner">
-    <div class="left">📋 อ้างอิงใบสั่งซื้อ (Purchase Order)</div>
-    <div class="right">${escapeHtml(doc.poNumber)}</div>
-  </div>` : ''}
-
-  <div class="pp">
-    <div class="box">
-      <div class="label">ผู้ขาย · Seller</div>
-      <div class="name">${escapeHtml(studioName)}</div>
-      ${studioTaxId ? `<div class="row"><span class="k">เลขผู้เสียภาษี:</span> <span class="v">${escapeHtml(studioTaxId)}</span></div>` : ''}
-      <div class="row"><span class="k">สาขา:</span> <span class="v">${escapeHtml(studioBranch)}</span></div>
-      ${studioTaxAddress ? `<div class="row"><span class="k">ที่อยู่:</span> ${escapeHtml(studioTaxAddress)}</div>` : ''}
-    </div>
-    <div class="box gov">
-      <div class="label">ผู้ซื้อ · Government Agency</div>
-      <div class="name">${escapeHtml(doc.customerCompanyName || doc.customer || '-')}</div>
-      ${doc.customerTaxId ? `<div class="row"><span class="k">เลขผู้เสียภาษี:</span> <span class="v">${escapeHtml(doc.customerTaxId)}</span></div>` : ''}
-      ${doc.customerBranch ? `<div class="row"><span class="k">สำนัก:</span> <span class="v">${escapeHtml(doc.customerBranch)}</span></div>` : ''}
-      ${doc.customerTaxAddress ? `<div class="row"><span class="k">ที่อยู่:</span> ${escapeHtml(doc.customerTaxAddress)}</div>` : ''}
-      ${doc.customerContactPerson ? `<div class="row"><span class="k">ผู้ติดต่อ:</span> <span class="v">${escapeHtml(doc.customerContactPerson)}${doc.customerContactPosition ? ' · ' + escapeHtml(doc.customerContactPosition) : ''}</span></div>` : ''}
-    </div>
-  </div>
-
-  <div class="meta">
-    <div class="cell"><div class="k">วันที่ออก</div><div class="v">${escapeHtml(fmtDateTH(issueDate))}</div></div>
-    ${expireDate ? `<div class="cell"><div class="k">หมดอายุ</div><div class="v">${escapeHtml(fmtDateTH(expireDate))}</div></div>` : '<div class="cell"></div>'}
-    ${eventDate ? `<div class="cell"><div class="k">วันงาน</div><div class="v">${escapeHtml(fmtDateTH(eventDate))}</div></div>` : '<div class="cell"></div>'}
-    ${ctx.sessions && ctx.sessions[0] && ctx.sessions[0].loc ? `<div class="cell"><div class="k">สถานที่</div><div class="v">${escapeHtml(ctx.sessions[0].loc)}</div></div>` : '<div class="cell"></div>'}
-  </div>
-
-  <div class="items-title">รายการสินค้า / บริการ · Items</div>
-
-  <table class="items">
-    <thead><tr>
-      <th class="center" style="width:28px;">ลำดับ</th>
-      <th>รายการ</th>
-      <th class="center" style="width:60px;">หน่วย</th>
-      <th class="right" style="width:110px;">ราคาต่อหน่วย</th>
-      <th class="right" style="width:120px;">จำนวนเงิน</th>
-    </tr></thead>
-    <tbody>
-      ${items.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">ไม่มีรายการ</td></tr>' :
-        items.map((it, i) => `
-        <tr>
-          <td class="idx">${i + 1}</td>
-          <td>
-            <div class="name">${escapeHtml(it.name)}</div>
-            ${it.desc ? `<div class="desc">${escapeHtml(it.desc)}</div>` : ''}
-          </td>
-          <td class="qty">1 งาน</td>
-          <td class="price">${Number(it.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-          <td class="price">${Number(it.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-        </tr>
-      `).join('')}
-    </tbody>
-  </table>
-
-  <div class="totals-wrap">
-    <div class="totals">
-      <div class="row subtotal"><span class="k">ราคารวม${includeVat ? ' (ก่อนภาษี)' : ''}</span><span class="v">฿${sell.toLocaleString('en-US')}</span></div>
-      ${includeVat ? `<div class="row vat"><span class="k">+ ภาษีมูลค่าเพิ่ม ${tb.vatRate || 7}%</span><span class="v">฿${vatAmount.toLocaleString('en-US')}</span></div>` : ''}
-      ${includeVat ? `<div class="row grand"><span class="k">ราคารวมทั้งสิ้น</span><span class="v">฿${grandTotal.toLocaleString('en-US')}</span></div>` : `<div class="row grand"><span class="k">ราคารวม</span><span class="v">฿${sell.toLocaleString('en-US')}</span></div>`}
-      ${includeWht ? `<div class="row wht"><span class="k">− หัก ณ ที่จ่าย ${tb.whtRate || 1}% (ม.69 ทวิ)</span><span class="v">−฿${whtAmount.toLocaleString('en-US')}</span></div>` : ''}
-      ${includeWht ? `<div class="row net"><span class="k">ยอดสุทธิที่ได้รับ</span><span class="v">฿${netReceived.toLocaleString('en-US')}</span></div>` : ''}
-    </div>
-  </div>
-
-  <div class="aiw">
-    <strong>(จำนวนเงินตัวอักษร:</strong> ${escapeHtml(numToThaiBaht(aiwAmount))}<strong>)</strong>${includeWht && aiwBeforeWht !== aiwAmount ? ' · ก่อนหัก ณ ที่จ่าย: ' + escapeHtml(numToThaiBaht(aiwBeforeWht)) : ''}
-  </div>
-
-  ${includeWht ? `<div class="gov-notes">
-    <div class="note wht">
-      <strong>ℹ️ การหัก ณ ที่จ่าย</strong>
-      ราชการหัก ${tb.whtRate || 1}% ของยอดก่อน VAT สำหรับค่าบริการ ตามมาตรา 69 ทวิ แห่งประมวลรัษฎากร
-    </div>
-    <div class="note pnd">
-      <strong>📋 ภ.ง.ด. 3 / 53</strong>
-      ขอให้ส่งหนังสือรับรองการหัก ณ ที่จ่ายให้ผู้รับเงินภายใน 7 วันนับจากวันโอนเงิน
-    </div>
-  </div>` : ''}
-
-  ${renderInvoiceBlocks(ctx)}
-
-  ${bank ? `<div class="bank">
-    <div class="left">🏦 ${ctx.inv ? 'โอนยอดคงเหลือเข้าบัญชี' : 'โอนเข้าบัญชี'}</div>
-    <div class="right">
-      <div class="acc">${escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + escapeHtml(bank.acc) : ''}</div>
-      <div class="holder">${escapeHtml(bank.holder || '')}</div>
-    </div>
-  </div>` : ''}
-
-  ${ctx.inv ? promptPayBlockHtml() : ''}
-
-  ${(ctx.inv && ctx.invMessage) ? `<div style="margin-bottom:14px;padding:8px 12px;background:#fff9ec;border:1px solid #fbbf24;border-radius:4px;font-size:10.5px;color:#7c2d12;"><strong style="color:#92400e;">📝 ข้อความ:</strong> ${escapeHtml(ctx.invMessage)}</div>` : ''}
-
-  <div class="sigs">
-    <div class="sigs-title">ลงนาม / Signatures</div>
-    <div class="sigs-grid">
-      <div class="sig">
-        <div class="line"></div>
-        <div class="name"><span class="placeholder">(................................................)</span></div>
-        <div class="role">ผู้รับเงิน · Payee</div>
-        <div class="date">วันที่ ____ / ____ / ________</div>
-        <div class="stamp">(ประทับตรา หากมี)</div>
-      </div>
-      <div class="sig">
-        <div class="line"></div>
-        <div class="name"><span class="placeholder">(................................................)</span></div>
-        <div class="role">ผู้จ่ายเงิน · Payer</div>
-        <div class="date">วันที่ ____ / ____ / ________</div>
-        <div class="stamp">(ตราหน่วยงาน)</div>
-      </div>
-      <div class="sig">
-        <div class="line"></div>
-        <div class="name"><span class="placeholder">(................................................)</span></div>
-        <div class="role">ผู้อนุมัติ · Approver</div>
-        <div class="date">วันที่ ____ / ____ / ________</div>
-        <div class="stamp">(ตำแหน่ง)</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="foot-meta">
-    ${escapeHtml(studioName)} · ${escapeHtml(docCode)}${taxInvNo ? ' · ' + escapeHtml(taxInvNo) : ''}${doc.poNumber ? ' · ' + escapeHtml(doc.poNumber) : ''} · PAGE 1 OF 1
-  </div>
-
-</div>
-
-</body></html>`;
-}
 
 
 // ===================================================================

@@ -1315,7 +1315,17 @@ function subscribeToRealtime() {
   if (!SUPABASE || _realtimeChannel) return;
   try {
     _realtimeChannel = SUPABASE.channel('admin:user_data')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_data' }, () => _debouncedReload())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_data' }, (payload) => {
+        // v4.2 · AUDIT 4.2 · EGRESS · realtime ส่งแถวใหม่ทั้งก้อนมาแล้ว → ใส่ cache เลย ไม่ดึงซ้ำ (เดิมทิ้ง payload แล้ว loadDashboard ดึง blob เดิมอีกรอบ = 2 เท่า)
+        try {
+          const r = payload && payload.new;
+          if (r && r.user_id && r.data && window._rawRowsCache) {
+            window._rawRowsCache.set(r.user_id, r);
+            if (!window._lastRowTs || (r.updated_at && r.updated_at > window._lastRowTs)) window._lastRowTs = r.updated_at;
+          }
+        } catch (e) {}
+        _debouncedReload(); // รอบนี้ .gt(updated_at, lastTs) จะได้ 0 แถว · เหลือแค่ presence + render
+      })
       .subscribe(status => {
         const pill = document.getElementById('live-pill');
         if (!pill) return;

@@ -9117,13 +9117,6 @@ function jobValueShotInYear(Y) {
   return s;
 }
 
-// Smart K formatter — 24000→"24K", 8500→"8.5K", 8900→"8.9K"
-function fmtPkgK(n) {
-  if (n == null) return '';
-  const k = n / 1000;
-  const rounded = Math.round(k * 10) / 10;
-  return '฿' + (Number.isInteger(rounded) ? rounded : rounded.toFixed(1)) + 'K';
-}
 // Convert CE year (internal) → display year based on LANG
 // TH: Buddhist Era (year + 543) · EN: keep CE
 function displayYear(yCE) {
@@ -9277,7 +9270,7 @@ function selectOne(el, group) {
 }
 
 // ========== WHAT'S NEW MODAL ==========
-const PIXORY_VERSION = '2.9.99';
+const PIXORY_VERSION = '2.9.100';
 const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 
 // ⛔ STRICT RULE — Release notes for admin/internal tooling go in dev-notes,
@@ -9288,6 +9281,17 @@ const LAST_SEEN_VERSION_KEY = 'pixory.lastSeenVersion';
 // Release notes — newest first
 // Maintain this object on every version bump
 const RELEASE_NOTES = {
+  '2.9.100': {
+    date: '2026-10-14',
+    title: 'ซิงก์เบาลง · แอปเล็กลง 🪶',
+    subtitle: 'ประหยัดเน็ต และกันข้อมูลที่กำลังพิมพ์หายเมื่อใช้ 2 เครื่องพร้อมกัน',
+    items: [
+      { icon: '☁️', title: 'บันทึกแล้วไม่ต้องดาวน์โหลดข้อมูลทั้งก้อนมาเช็กก่อน', desc: 'เดิมทุกครั้งที่เซฟ แอปดึงข้อมูลทั้งหมดมาเทียบ (หลายร้อย KB) · ตอนนี้เช็กแค่เลขเวอร์ชัน · การกันข้อมูลชนกันระหว่าง 2 เครื่องยังทำงานเหมือนเดิมทุกอย่าง' },
+      { icon: '📲', title: 'ใช้ 2 เครื่องพร้อมกัน ข้อมูลที่กำลังพิมพ์ไม่หาย', desc: 'ถ้าอีกเครื่องบันทึกเข้ามาตอนคุณกำลังพิมพ์ในหน้าลูกค้า ตั้งค่า บรีฟ ใบเรียกเก็บ ฯลฯ แอปจะรอให้คุณบันทึกก่อน ไม่รีโหลดทับ' },
+      { icon: '🔄', title: 'เปิดแอปบนเครื่องใหม่ รับข้อมูลสดจากเครื่องอื่นได้ทันที', desc: 'เดิมเปิดครั้งแรกบนเครื่องใหม่ต้องรีโหลดก่อนถึงจะเห็นอัปเดตจากอีกเครื่อง' },
+      { icon: '🪶', title: 'ลบโค้ดเก่าที่ไม่ได้ใช้ออก 52 KB', desc: 'เทมเพลต PDF รุ่นเก่า 3 แบบและฟังก์ชันที่เลิกใช้ · แอปโหลดเร็วขึ้นเล็กน้อย · หน้าตาและข้อมูลไม่เปลี่ยน' },
+    ]
+  },
   '2.9.99': {
     date: '2026-10-14',
     title: 'แก้ 5 จุดจากการตรวจสอบระบบ 🛠',
@@ -13608,17 +13612,21 @@ async function pushToCloud(opts) {
     // v1.9.11 · C4 — check cloud version before overwriting
     if (!opts.force) {
       try {
+        // v2.9.100 · AUDIT 4.1 · EGRESS · peek แค่ _meta (ไม่ถึง 1KB) แทนดึง blob ทั้งก้อน (บัญชีใหญ่ 384KB ต่อการเซฟ 1 ครั้ง)
+        //   ตรรกะกันชนเหมือนเดิมทุกอย่าง · ดึง blob เต็มเฉพาะตอนเจอ conflict จริง (หายาก) เพื่อโชว์จำนวนรายการในกล่องยืนยัน
         const { data: remote, error: peekErr } = await SUPABASE
           .from('user_data')
-          .select('data, device_id, updated_at')
+          .select('device_id, updated_at, meta:data->_meta')
           .eq('user_id', CURRENT_USER.id)
           .maybeSingle();
-        if (!peekErr && remote && remote.data && remote.data._meta) {
-          const remoteVersion = remote.data._meta.version || 0;
-          const remoteDeviceId = remote.data._meta.device_id;
+        if (!peekErr && remote && remote.meta) {
+          const remoteVersion = remote.meta.version || 0;
+          const remoteDeviceId = remote.meta.device_id;
           // Conflict: cloud is newer AND was written by a different device
           if (remoteVersion > localVersion && remoteDeviceId && remoteDeviceId !== DEVICE_ID) {
-            const remoteCount = countMeaningfulItems(remote.data);
+            let _remoteFull = null;
+            try { const _r = await SUPABASE.from('user_data').select('data').eq('user_id', CURRENT_USER.id).maybeSingle(); _remoteFull = _r && _r.data && _r.data.data; } catch (_) {}
+            const remoteCount = countMeaningfulItems(_remoteFull);
             const localCount = countMeaningfulItems(blob);
             // v2.5.56 · clearer wording · default action = safe (Cancel)
             const diffCount = remoteCount - localCount;
@@ -13945,11 +13953,14 @@ async function syncOnStartup() {
     catch (e) { console.warn('[Pixory sync] localStorage parse failed, treating as empty', e); }
   }
 
+  // v2.9.100 · AUDIT 2.8 · เริ่มฟังข้อมูลสด (realtime) ในทุกเส้นทาง · เดิม 3 กรณีด้านล่าง return ก่อนถึง startRealtimeSync → เครื่องใหม่/เปิดครั้งแรกไม่ได้รับอัปเดตจากเครื่องอื่นจนกว่าจะรีโหลด
+  const _startRT = () => { try { startRealtimeSync(); } catch(e) { console.warn('startRealtimeSync:', e); } };
   if (!remote && !localRaw) {
     // Both empty — fresh new account, nothing to sync yet
     _cloudInitialSyncDone = true;
     _cloudLastSyncAt = new Date().toISOString();
     setSyncState('synced');
+    _startRT();
     return;
   }
 
@@ -13959,6 +13970,7 @@ async function syncOnStartup() {
     _cloudLastSyncAt = remote.updated_at;
     _cloudInitialSyncDone = true;
     setSyncState('synced');
+    _startRT();
     return;
   }
 
@@ -13966,6 +13978,7 @@ async function syncOnStartup() {
     // Only local has data → push to cloud (first-time migration to cloud)
     _cloudInitialSyncDone = true;
     await pushToCloud();
+    _startRT();
     return;
   }
 
@@ -14037,7 +14050,11 @@ function onRealtimeUpdate(payload) {
   // Skip if active screen is a form (add job / new quote / etc.)
   const activeScreen = document.querySelector('.screen.active');
   const screenId = activeScreen ? activeScreen.id : '';
-  const editingScreens = ['screen-add', 'screen-quote-new', 'screen-add-expense', 'screen-edit-service', 'screen-edit-package', 'screen-edit-item', 'screen-note-edit', 'screen-receive-payment'];
+  // v2.9.100 · AUDIT 2.5 · เพิ่มหน้าที่มีช่องพิมพ์ซึ่งเดิมไม่ถูกกัน (ข้อมูลลูกค้า/ตั้งค่าร้าน/ภาษี/บรีฟ/ใบเรียกเก็บ/เทมเพลต/อุปกรณ์/แชท) · กัน reload ทิ้งสิ่งที่กำลังพิมพ์
+  const editingScreens = ['screen-add', 'screen-quote-new', 'screen-add-expense', 'screen-edit-service', 'screen-edit-package', 'screen-edit-item', 'screen-note-edit', 'screen-receive-payment',
+    'screen-customer-detail', 'screen-settings-profile', 'screen-settings-tax', 'screen-brief', 'screen-invoice', 'screen-settings-quote-template', 'screen-equipment-edit', 'screen-support-chat', 'screen-settings-jobstatus-edit'];
+  // v2.9.100 · ถ้ายังมี push ค้าง (debounce 1.5 วิ) หรือ brief กำลัง flush → รอรอบหน้า (ข้อมูลเราจะถูก push ไปก่อน แล้ว realtime ของเราเองจะวนกลับมา)
+  if (_cloudPushTimer || (typeof _briefTimer !== 'undefined' && _briefTimer)) { try { toast('📲 มีข้อมูลใหม่จากอีกเครื่อง · กำลังบันทึกของเครื่องนี้ก่อน', 'warn'); } catch(e) {} return; }
   if (editingScreens.includes(screenId)) {
     try { toast('📲 มีข้อมูลใหม่จากอีกเครื่อง · save งานนี้ก่อน sync', 'warn'); } catch(e) {}
     return;
@@ -14734,8 +14751,6 @@ function toggleTheme() {
   applyTheme('luxe');
   toast('🌙 มืด · Quiet Luxury · ธีมสว่างเร็วๆ นี้');
 }
-function _resolveTheme(mode) { return 'luxe'; }
-function applyThemeMode(mode) { applyTheme('luxe'); }
 function applyTheme(effective) {
   // v1.1.39 · ล็อก luxe เท่านั้น (ตัด dark/auto/light) · เก็บ back-compat ของชื่อฟังก์ชัน
   document.body.classList.remove('dark-theme');
@@ -15968,20 +15983,7 @@ function renderWallpaperLibrary() {
   });
 }
 
-function loadWallpaper() {
-  try {
-    const w = localStorage.getItem(WP_KEY);
-    applyWallpaper(w || WP_DEFAULT);
-  } catch(e) { applyWallpaper(WP_DEFAULT); }
-  renderPixoryPresets();
-  renderWallpaperLibrary();
-}
 
-function resetWallpaper() {
-  applyWallpaper(WP_DEFAULT);
-  try { localStorage.removeItem(WP_KEY); } catch(e) {}
-  toast('คืนค่าเริ่มต้นแล้ว · Warm Studio Glow');
-}
 
 // Render the 3 Pixory presets as selectable cards
 function renderPixoryPresets() {
@@ -16016,46 +16018,6 @@ function renderPixoryPresets() {
   });
 }
 
-function handleWallpaperUpload(e) {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  if (!file.type.startsWith('image/')) { toast(t('toast.errFile')); return; }
-  if (file.size > 5 * 1024 * 1024) { toast('ไฟล์ใหญ่เกินไป (เกิน 5MB) — กรุณาย่อขนาดก่อน'); return; }
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const img = new Image();
-    img.onload = () => {
-      const maxW = 1200;
-      let w = img.width, h = img.height;
-      if (w > maxW) { h = h * (maxW / w); w = maxW; }
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, w, h);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-      const value = "url('" + dataUrl + "')";
-      try {
-        localStorage.setItem(WP_KEY, value);
-        applyWallpaper(value);
-        // Add to library (max 12 to limit storage)
-        const lib = getWallpaperLibrary();
-        if (!lib.includes(dataUrl)) {
-          lib.unshift(dataUrl);
-          if (lib.length > 12) lib.length = 12;
-          saveWallpaperLibrary(lib);
-          renderWallpaperLibrary();
-        }
-        toast('อัพโหลดและเก็บในคลังแล้ว');
-      } catch(err) {
-        toast('Storage เต็ม — ลองลบภาพในคลังก่อน');
-      }
-    };
-    img.onerror = () => toast('เปิดไฟล์ไม่สำเร็จ');
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-  e.target.value = '';
-}
 
 // ========== EDIT ITEM (universal) ==========
 let EDIT_CTX = null;  // { type, index }
@@ -16318,30 +16280,6 @@ function saveWorkflowTemplates(list) {
   } catch (e) {}
 }
 
-// Save current Job (or Quote draft) as a template
-function saveCurrentJobAsTemplate() {
-  const j = window._currentJob;
-  if (!j) { toast(LANG === 'en' ? 'No job selected' : 'ยังไม่ได้เลือกงาน'); return; }
-  const defaultName = (j.type || 'Job') + ' · ' + (j.sessions && j.sessions.length ? j.sessions.length + ' ช่วง' : 'งาน');
-  const name = window.prompt(LANG === 'en' ? 'Template name:' : 'ตั้งชื่อเทมเพลต:', defaultName);
-  if (!name || !name.trim()) return;
-  const tpl = {
-    id: 'tpl-' + Date.now(),
-    name: name.trim(),
-    type: j.type,
-    selectedServices: JSON.parse(JSON.stringify(j.selectedServices || {})),
-    extraTime: j.extraTime || 0,
-    qr: j.qr || null,
-    other: j.other || null,
-    addons: j.addons ? {...j.addons} : null, // v2.8.8 · เก็บบริการเสริมครบในเทมเพลต
-    note: '',
-    createdAt: new Date().toISOString()
-  };
-  const list = loadWorkflowTemplates();
-  list.unshift(tpl);
-  saveWorkflowTemplates(list);
-  toast(LANG === 'en' ? 'Template saved' : 'บันทึกเทมเพลตแล้ว');
-}
 
 // Apply a template — fill Add Job form with services from template
 function applyWorkflowTemplate(tplId) {
@@ -16529,104 +16467,6 @@ function quickStartPickExisting(name) {
   }, 60);
 }
 
-// C1 · Open a NEW quote form pre-filled from a saved Job (was: showed job's PDF)
-function openQuoteFromJob() {
-  const j = window._currentJob;
-  if (!j) { toast(LANG === 'en' ? 'No job selected' : 'ยังไม่ได้เลือกงาน'); return; }
-
-  // Reset to create-mode (new quote — not edit)
-  _editingQuoteCode = null;
-  if (typeof _setQuoteFormMode === 'function') _setQuoteFormMode('create');
-
-  // Pre-fill service selections, add-ons, sessions from the job
-  NQ_SELECTED = j.selectedServices ? JSON.parse(JSON.stringify(j.selectedServices)) : {};
-  NQ_ADDONS = {};
-  if (j.addons && typeof j.addons === 'object') { // v2.8.8 · โหลดบริการเสริมครบทุกตัว
-    Object.entries(j.addons).forEach(([k, v]) => { if (Number(v) > 0) NQ_ADDONS[k] = Number(v); });
-  } else {
-    if (j.qr) NQ_ADDONS.qr = j.qr;
-    if (j.other) NQ_ADDONS.profile = j.other;
-  }
-  // v1.9.14 · carry custom items from the job into the new quote
-  loadCustomItems('nq', j.customItems || []);
-  // v1.9.27 · carry billable cost items from job (if any · job-side ones are internal but we don't auto-bill them)
-  // Default: do NOT copy — billable expenses are typically set fresh per quote.
-  if (typeof resetCostItems === 'function') resetCostItems('nq');
-  NQ_SESSIONS.length = 0;
-  if (Array.isArray(j.sessions) && j.sessions.length) {
-    j.sessions.forEach(s => NQ_SESSIONS.push({...s}));
-  } else {
-    NQ_SESSIONS.push({ date: j.date || j.dateEvent || _todayLocal(), start: '14:00', end: '22:00', label: '' });
-  }
-
-  // Generate new quote code — v1.9.11 C2 fix: use generateQuoteCode (max+1) not length+1
-  document.getElementById('new-quote-code').textContent = generateQuoteCode();
-
-  // Customer block — read from CUSTOMER_INFO master (C2 fix) with job snapshot fallback
-  const cInfo = (j.customer && CUSTOMER_INFO[j.customer]) ? CUSTOMER_INFO[j.customer] : {};
-  document.getElementById('nq-customer').value = j.customer || '';
-  // v1.9.11 M1 fix: master uses 'nickname' not 'nick'
-  const nickEl = document.getElementById('nq-nick'); if (nickEl) nickEl.value = cInfo.nickname || j.custNick || '';
-  document.getElementById('nq-phone').value = cInfo.phone || j.custPhone || '';
-  document.getElementById('nq-line').value = cInfo.line || j.custLine || '';
-
-  // Form fields from the job
-  document.getElementById('nq-loc').value = (j.loc && j.loc !== '-') ? j.loc : '';
-  document.getElementById('nq-discount').value = j.discount || 0;
-  document.getElementById('nq-deposit').value = j.deposit || 0;
-  document.getElementById('nq-note').value = j.note || '';
-  const exEl = document.getElementById('nq-extratime'); if (exEl) exEl.value = j.extraTime || 0;
-
-  // Bank dropdown — default to job's bank if it had one, else first bank
-  const bankSel = document.getElementById('nq-bank');
-  bankSel.innerHTML = '<option value="">' + t('aj.bankNoneOption') + '</option>';
-  BANKS.forEach((b, i) => {
-    const o = document.createElement('option');
-    o.value = i;
-    o.textContent = (b.bank || '?') + ' · ' + (b.name || '') + ' · ' + (b.acc || '');
-    bankSel.appendChild(o);
-  });
-  if (j.bankIdx != null && j.bankIdx !== '') bankSel.value = j.bankIdx;
-  else if (BANKS.length > 0) bankSel.value = '0';
-
-  // Expire — new quote starts fresh: +1 month from today
-  const expire = new Date(); expire.setMonth(expire.getMonth() + 1);
-  document.getElementById('nq-expire').value = _isoLocal(expire);
-
-  // Job type chips — pre-select the job's type
-  populateJobTypeChipsForNQ();
-  const typeRow = document.getElementById('nq-type-row');
-  if (typeRow && j.type) {
-    typeRow.querySelectorAll('.chip').forEach(c => {
-      if (c.textContent.trim() === j.type) {
-        typeRow.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
-        c.classList.add('active');
-      }
-    });
-  }
-
-  renderSessions('nq');
-  renderNQPackages();
-
-  // Tax — populate from job's tax settings (job has .tax + .taxEnabled like a quote)
-  if (typeof populateNQTaxFromQuote === 'function') {
-    populateNQTaxFromQuote(j);
-  } else if (typeof resetNQTaxUI === 'function') {
-    resetNQTaxUI();
-  }
-  // Customer type pill
-  const _cTypeForForm = j.customerType || cInfo.type || '';
-  if (typeof renderFormCustomerTypePill === 'function') {
-    renderFormCustomerTypePill('nq', _cTypeForForm);
-  }
-  if (typeof refreshCustTaxIdWarning === 'function') refreshCustTaxIdWarning('nq');
-  // v1.9.26 · auto-expand inline B2B/Gov tax fields + populate from master
-  if (typeof applyTaxFieldsVisibility === 'function') applyTaxFieldsVisibility('nq', _cTypeForForm);
-  if (typeof populateTaxFieldsFromMaster === 'function') populateTaxFieldsFromMaster('nq', j.customer);
-
-  toast(LANG === 'en' ? 'New quote pre-filled from job · adjust as needed' : 'สร้างใบเสนอราคาใหม่จากงานนี้ · ปรับได้ตามต้องการ');
-  goTo('quote-new');
-}
 
 // S1.3 — Re-render whichever tab is active (called by search input)
 function reRenderJobsOrQuotes() {
@@ -19497,12 +19337,6 @@ function setBalanceDueMode(mode) {
   syncPushPreviewLabels();
 }
 
-// Backward-compat: legacy save button still wired; just no-op since auto-save is in place
-function saveNotifSettings() {
-  saveData();
-  if (typeof renderHomeNotifs === 'function') renderHomeNotifs();
-  if (typeof toast === 'function') toast('✓ บันทึกแล้ว');
-}
 
 // ========== v2.1 · WEB PUSH NOTIFICATIONS ==========
 // Architecture:
@@ -21884,21 +21718,6 @@ function populateJobTypeChipsForNQ() {
   });
 }
 
-// ========== v1.9.18 · Form tab system (Layout C) ==========
-// Switch between Customer / Job / Price / Team tabs in Add Job + New Quote forms
-function setFormTab(form, tabId) {
-  // form: 'add' or 'nq'
-  const screenId = form === 'add' ? 'screen-add' : 'screen-quote-new';
-  const screen = document.getElementById(screenId);
-  if (!screen) return;
-  screen.setAttribute('data-active-tab', tabId);
-  // Update tab button active state
-  screen.querySelectorAll('.form-tab').forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-tab-id') === tabId);
-  });
-  // Scroll to top
-  try { screen.scrollTop = 0; window.scrollTo(0, 0); } catch (e) {}
-}
 
 // ========== v1.9.19 · "ค่าใช้จ่ายในงานนี้" (Cost items, multi-item) ==========
 // v1.9.27 · ctx-aware: 'add' (New Job · internal cost · not shown to customer)
@@ -22068,29 +21887,6 @@ function _addResetPresetCosts() {
   const b = document.getElementById('addCostTravel');  if (b) b.value = 0;
 }
 
-// v1.9.31 · Split incoming costItems into preset slots + other rows (used on edit-load)
-function _addLoadCostItemsSplit(items) {
-  _addResetPresetCosts();
-  const others = [];
-  let lodging = 0;
-  let travel = 0;
-  (Array.isArray(items) ? items : []).forEach(function (it) {
-    const slot = it && it.slot;
-    const cat = it && it.category;
-    const name = String((it && it.name) || '').trim();
-    const price = parseFloat(it && it.price) || 0;
-    if (slot === 'lodging' || cat === 'ที่พัก' || name === 'ค่าที่พัก') {
-      lodging += price;
-    } else if (slot === 'travel' || cat === 'เดินทาง' || name === 'ค่าเดินทาง' || name === 'ค่าน้ำมัน' || name === 'ค่าที่พัก/เดินทาง') {
-      travel += price;
-    } else {
-      others.push(it);
-    }
-  });
-  const eL = document.getElementById('addCostLodging'); if (eL && lodging > 0) eL.value = lodging;
-  const eT = document.getElementById('addCostTravel');  if (eT && travel  > 0) eT.value = travel;
-  loadCostItems('add', others);
-}
 
 // v1.9.30 · Show "Customer pays X" banner if this job has billableCosts (carried from a converted quote)
 function renderJobBillableBanner(job) {
@@ -23837,565 +23633,8 @@ const V2PDF_COMMON_CSS = `
   }
 `;
 
-// =============================================================
-// TEMPLATE B · MODERN (B2C / VIP)
-// =============================================================
-function v2pdf_buildPdfModern(ctx) {
-  const { doc, isQuote, phone, lineId, eventDate, issueDate, expireDate, docCode,
-          items, totalItems, discount, sell, deposit, remain,
-          taxOn, includeVat, includeWht, vatAmount, whtAmount, grandTotal, netReceived, tb,
-          bank, studioName, studioTagline, studioPhone, studioEmail, studioAddress, studioTaxId } = ctx;
-  const title = isQuote ? 'ใบเสนอราคา' : 'ใบเรียกเก็บยอดชำระเพิ่มเติม';
 
-  return v2pdf_printSharedHead(title + ' · ' + docCode) + `
-<style>${V2PDF_COMMON_CSS}
-  html, body { font-family:'Inter', 'Sarabun', sans-serif; }
-  .page { width:210mm; min-height:297mm; margin:24px auto; background:white; box-shadow:0 6px 30px rgba(0,0,0,0.12); overflow:hidden; }
-  .h-bar { background:linear-gradient(135deg, #2A1F18 0%, #4a3727 100%); color:white; padding:24px 28px; display:flex; align-items:center; justify-content:space-between; }
-  .h-bar .brand { display:flex; align-items:center; gap:14px; }
-  .h-bar .brand .name { font-size:22px; font-weight:700; letter-spacing:-0.02em; }
-  .h-bar .brand .sub { font-size:11px; opacity:0.7; margin-top:2px; font-weight:400; }
-  .h-bar .doc-pill { background:#D97757; color:white; padding:8px 16px; border-radius:999px; font-weight:600; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; }
-  .meta-bar { background:#FBF7EE; padding:14px 28px; display:flex; gap:32px; border-bottom:1px solid #ebe2d2; flex-wrap:wrap; }
-  .meta-bar .item .k { font-size:9.5px; font-weight:700; color:#9a8a78; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:2px; }
-  .meta-bar .item .v { font-size:13px; font-weight:600; color:#1a1a1a; font-family:'Inter', monospace; }
-  .meta-bar .item .v.warn { color:#D97757; }
-  .body { padding:24px 28px; }
-  .pp-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; }
-  .pp-card { padding:14px 16px; border-radius:10px; background:#fafaf9; border:1px solid #ebe6dd; }
-  .pp-card .head { font-size:10px; font-weight:700; color:#D97757; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px; }
-  .pp-card .name { font-size:15px; font-weight:700; color:#1a1a1a; margin-bottom:2px; }
-  .pp-card .row { font-size:11.5px; color:#56473a; line-height:1.6; }
-  .pp-card .row .mute { color:#9a8a78; }
-  .items { border:1px solid #ebe6dd; border-radius:10px; overflow:hidden; margin-bottom:18px; }
-  .items table { width:100%; border-collapse:collapse; }
-  .items thead th { background:#1a1a1a; color:white; padding:11px 14px; text-align:left; font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; }
-  .items thead th.right { text-align:right; }
-  .items tbody td { padding:14px; border-top:1px solid #ebe6dd; vertical-align:top; }
-  .items tbody tr:first-child td { border-top:none; }
-  .items .name { font-weight:600; font-size:13px; color:#1a1a1a; }
-  .items .desc { font-size:11px; color:#7c6856; margin-top:3px; line-height:1.5; white-space:pre-line; }
-  .items .price { text-align:right; font-weight:600; font-size:13px; font-family:'Inter', monospace; white-space:nowrap; }
-  .totals-wrap { display:flex; justify-content:flex-end; margin-bottom:22px; }
-  .totals { width:46%; padding:18px 20px; border-radius:10px; background:linear-gradient(135deg, #FBF7EE 0%, #FFF8EE 100%); border:1px solid #ebe6dd; }
-  .totals .row { display:flex; justify-content:space-between; padding:5px 0; font-size:12.5px; }
-  .totals .row .k { color:#56473a; }
-  .totals .row .v { font-family:'Inter', monospace; font-weight:600; }
-  .totals .row.discount .v { color:#dc2626; }
-  .totals .row.vat .v { color:#15803d; }
-  .totals .row.grand { margin-top:6px; padding:8px 10px; background:#1a1a1a; color:white; border-radius:6px; font-size:14px; font-weight:800; }
-  .totals .row.grand .v { color:white; }
-  .totals .row.wht .v { color:#dc2626; }
-  .totals .row.net { margin-top:4px; padding:8px 10px; background:linear-gradient(135deg, #D97757, #B85A3D); color:white; border-radius:6px; font-size:14px; font-weight:800; }
-  .totals .row.net .v { color:white; }
-  .pay-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:22px; }
-  .pay-card { padding:14px 16px; border-radius:10px; }
-  .pay-card.dep { background:#fdf1e0; border-left:4px solid #D97757; }
-  .pay-card.bank { background:#eff6ff; border-left:4px solid #3b82f6; }
-  .pay-card .label { font-size:10px; font-weight:700; color:#7c6856; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:4px; }
-  .pay-card .val { font-size:18px; font-weight:800; color:#1a1a1a; font-family:'Inter', monospace; }
-  .pay-card.bank .val { font-size:14px; font-weight:700; color:#1e3a8a; }
-  .pay-card .sub { font-size:11px; color:#56473a; margin-top:2px; }
-  .note-box { padding:12px 14px; border-radius:10px; background:#fff9ec; border-left:3px solid #ca8a04; font-size:11px; color:#7c2d12; line-height:1.55; margin-bottom:18px; white-space:pre-wrap; }
-  .note-box strong { color:#92400e; display:block; margin-bottom:3px; }
-  .thanks { text-align:center; padding:20px 28px 6px; font-size:13px; color:#56473a; }
-  .thanks strong { color:#D97757; font-weight:700; }
-  .foot { margin-top:30px; padding:18px 28px; background:#fafaf9; border-top:1px solid #ebe6dd; display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#56473a; }
-${ctx.luxCss}</style></head><body>
 
-${v2pdf_printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
-
-<div class="page">
-  <div class="h-bar">
-    <div class="brand">
-      <div>
-        <div class="name">${v2pdf_escapeHtml(studioName)}</div>
-        ${studioTagline ? `<div class="sub">${v2pdf_escapeHtml(studioTagline)}</div>` : ''}
-      </div>
-    </div>
-    <div class="doc-pill">${v2pdf_escapeHtml(title)}</div>
-  </div>
-
-  <div class="meta-bar">
-    <div class="item"><div class="k">เลขที่</div><div class="v">${v2pdf_escapeHtml(docCode)}</div></div>
-    <div class="item"><div class="k">วันที่ออก</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(issueDate))}</div></div>
-    ${expireDate ? `<div class="item"><div class="k">${isQuote ? 'หมดอายุ' : 'กำหนดชำระ'}</div><div class="v warn">${v2pdf_escapeHtml(v2pdf_fmtDateTH(expireDate))}</div></div>` : ''}
-    ${eventDate ? `<div class="item" style="margin-left:auto;"><div class="k">วันงาน</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(eventDate))}</div></div>` : ''}
-  </div>
-
-  <div class="body">
-    <div class="pp-grid">
-      <div class="pp-card">
-        <div class="head">ผู้เสนอราคา · From</div>
-        <div class="name">${v2pdf_escapeHtml(studioName)}</div>
-        <div class="row">
-          ${studioAddress ? v2pdf_escapeHtml(studioAddress).replace(/\n/g, '<br>') + '<br>' : ''}
-          <span class="mute">${studioPhone ? '📱 ' + v2pdf_escapeHtml(studioPhone) + ' · ' : ''}${studioEmail ? '✉️ ' + v2pdf_escapeHtml(studioEmail) : ''}</span>
-        </div>
-      </div>
-      <div class="pp-card">
-        <div class="head">ลูกค้า · To</div>
-        <div class="name">${v2pdf_escapeHtml(doc.customer || '-')}${doc.custNick ? ` <span class="mute">(${v2pdf_escapeHtml(doc.custNick)})</span>` : ''}</div>
-        <div class="row">
-          ${ctx.sessionsHtml.replace(/<div>/g, '').replace(/<\/div>/g, '<br>').replace(/<br>$/, '') || (eventDate ? v2pdf_fmtDateTH(eventDate) : '')}<br>
-          <span class="mute">${phone ? '📱 ' + v2pdf_escapeHtml(phone) + ' · ' : ''}${lineId ? '💬 ' + v2pdf_escapeHtml(lineId) : ''}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="items">
-      <table>
-        <thead><tr><th style="width:70%;">รายการบริการ</th><th class="right">ราคา (บาท)</th></tr></thead>
-        <tbody>
-          ${items.length === 0 ? '<tr><td colspan="2" style="text-align:center;color:#999;padding:20px;">ไม่มีรายการ</td></tr>' :
-            items.map(i => `<tr>
-              <td><div class="name">${v2pdf_escapeHtml(i.name)}</div>${i.desc ? `<div class="desc">${v2pdf_escapeHtml(i.desc)}</div>` : ''}</td>
-              <td class="price">${v2pdf_fmtTHB(i.price)}</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="totals-wrap">
-      <div class="totals">
-        <div class="row"><span class="k">ราคารวม</span><span class="v">${v2pdf_fmtTHB(totalItems)}</span></div>
-        ${discount > 0 ? `<div class="row discount"><span class="k">ส่วนลด</span><span class="v">−${v2pdf_fmtTHB(discount)}</span></div>` : ''}
-        ${(includeVat || includeWht) ? `<div class="row" style="border-top:1px solid #1a1a1a; padding-top:7px; font-weight:700;"><span class="k">ราคาสุทธิ (ก่อน VAT)</span><span class="v">${v2pdf_fmtTHB(sell)}</span></div>` : ''}
-        ${includeVat ? `<div class="row vat"><span class="k">+ VAT ${tb.vatRate || 7}%</span><span class="v">${v2pdf_fmtTHB(vatAmount)}</span></div>` : ''}
-        ${includeVat ? `<div class="row grand"><span class="k">รวมทั้งสิ้น</span><span class="v">${v2pdf_fmtTHB(grandTotal)}</span></div>` : `<div class="row grand"><span class="k">ราคาสุทธิ</span><span class="v">${v2pdf_fmtTHB(sell)}</span></div>`}
-        ${includeWht ? `<div class="row wht"><span class="k">− WHT ${tb.whtRate || 3}%</span><span class="v">−${v2pdf_fmtTHB(whtAmount)}</span></div>` : ''}
-        ${includeWht ? `<div class="row net"><span class="k">ยอดรับสุทธิ</span><span class="v">${v2pdf_fmtTHB(netReceived)}</span></div>` : ''}
-      </div>
-    </div>
-
-    ${v2pdf_renderInvoiceBlocks(ctx)}
-
-    ${(!ctx.inv && (deposit > 0 || bank)) ? `<div class="pay-grid">
-      ${deposit > 0 ? `<div class="pay-card dep"><div class="label">มัดจำ</div><div class="val">${v2pdf_fmtTHB(deposit)}</div>${remain > 0 ? `<div class="sub">+ คงเหลือ ${v2pdf_fmtTHB(remain)}</div>` : ''}</div>` : '<div></div>'}
-      ${bank ? `<div class="pay-card bank"><div class="label">🏦 โอนเข้าบัญชี</div><div class="val">${v2pdf_escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + v2pdf_escapeHtml(bank.acc) : ''}</div><div class="sub">${v2pdf_escapeHtml(bank.holder || '')}</div></div>` : '<div></div>'}
-    </div>` : ''}
-
-    ${(ctx.inv && bank) ? `<div style="margin-top:12px;padding:14px 16px;background:#eff6ff;border-left:4px solid #3b82f6;border-radius:10px;"><div style="font-size:11px;color:#1e3a8a;font-weight:700;text-transform:uppercase;margin-bottom:4px;">🏦 โอนยอดคงเหลือเข้าบัญชี</div><div style="font-size:14px;font-weight:700;color:#1e3a8a;">${v2pdf_escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + v2pdf_escapeHtml(bank.acc) : ''}</div><div style="font-size:11px;color:#1e3a8a;margin-top:2px;">${v2pdf_escapeHtml(bank.holder || '')}</div></div>` : ''}
-
-    ${ctx.inv ? v2pdf_promptPayBlock() : ''}
-
-    ${(ctx.inv && ctx.invMessage) ? `<div class="note-box"><strong>📝 ข้อความจากร้าน</strong>${v2pdf_escapeHtml(ctx.invMessage)}</div>` : (doc.note ? `<div class="note-box"><strong>📝 หมายเหตุ</strong>${v2pdf_escapeHtml(doc.note)}</div>` : '')}
-  </div>
-
-  <div class="thanks"><strong>✨ ขอบคุณที่ไว้วางใจให้บันทึกช่วงเวลาสำคัญของคุณ ✨</strong></div>
-
-  <div class="foot">
-    <span><strong>${v2pdf_escapeHtml(studioName)}</strong>${studioTaxId ? ' · เลขผู้เสียภาษี ' + v2pdf_escapeHtml(studioTaxId) : ''}</span>
-    <span style="font-family:'Inter', monospace;color:#9a8a78;font-size:10px;">${v2pdf_escapeHtml(docCode)} · PAGE 1/1</span>
-  </div>
-</div>
-
-</body></html>`;
-}
-
-// =============================================================
-// TEMPLATE D · CORPORATE (B2B)
-// =============================================================
-function v2pdf_buildPdfCorporate(ctx) {
-  const { doc, isQuote, phone, lineId, eventDate, issueDate, expireDate, docCode, taxInvNo,
-          items, totalItems, discount, sell, deposit, remain,
-          taxOn, includeVat, includeWht, vatAmount, whtAmount, grandTotal, netReceived, tb,
-          bank, studioName, studioPhone, studioEmail, studioAddress, studioTaxId, studioTaxAddress, studioBranch } = ctx;
-  const isFullPro = (ctx.docCase === 'fullPro');
-  const title = isQuote
-    ? (isFullPro ? 'ใบเสนอราคา / ใบกำกับภาษี' : 'ใบเสนอราคา')
-    : (isFullPro ? 'ใบเรียกเก็บฯ / ใบกำกับภาษี' : 'ใบเรียกเก็บยอดชำระเพิ่มเติม');
-  const enTitle = isQuote ? 'Quotation' : 'Invoice · Balance Due';
-  const aiwAmount = includeWht ? netReceived : (includeVat ? grandTotal : sell);
-
-  return v2pdf_printSharedHead(title + ' · ' + docCode) + `
-<style>${V2PDF_COMMON_CSS}
-  html, body { font-family:'Sarabun', sans-serif; }
-  .page { width:210mm; min-height:297mm; margin:24px auto; padding:18mm 16mm; background:white; box-shadow:0 6px 30px rgba(0,0,0,0.12); }
-  .h-top { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:14px; border-bottom:2px solid #1a1a1a; margin-bottom:14px; }
-  .h-top .brand .name { font-size:22px; font-weight:800; color:#1a1a1a; }
-  .h-top .brand .info { font-size:11px; color:#555; line-height:1.55; margin-top:3px; }
-  .h-top .doc { text-align:right; }
-  .h-top .doc .title { font-size:20px; font-weight:800; color:#1a1a1a; border:2px solid #1a1a1a; padding:6px 14px; display:inline-block; }
-  .h-top .doc .sub { font-size:11px; color:#7c6856; margin-top:6px; text-transform:uppercase; letter-spacing:0.1em; }
-  .h-top .doc .code { font-family:'Inter', monospace; font-size:13px; color:#D97757; font-weight:700; margin-top:4px; }
-  .h-top .doc .tax-no { font-family:'Inter', monospace; font-size:10.5px; color:#15803d; font-weight:700; margin-top:2px; }
-  .pp { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
-  .pp .box { padding:10px 14px; border:1px solid #d4d4d4; border-radius:4px; background:#fafafa; }
-  .pp .label { font-size:10px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:5px; border-bottom:1px solid #d4d4d4; padding-bottom:3px; }
-  .pp .name { font-size:13px; font-weight:700; color:#1a1a1a; margin-bottom:2px; }
-  .pp .row { font-size:11px; color:#444; line-height:1.6; }
-  .pp .row .k { color:#7c6856; font-weight:500; }
-  .pp .row .v { color:#1a1a1a; font-weight:600; }
-  .meta { display:flex; gap:0; background:#f3f4f6; padding:9px 0; border-radius:4px; margin-bottom:14px; }
-  .meta .cell { flex:1; padding:0 14px; border-right:1px solid #d4d4d4; }
-  .meta .cell:last-child { border-right:none; }
-  .meta .cell .k { font-size:9.5px; color:#7c6856; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; }
-  .meta .cell .v { font-size:12px; color:#1a1a1a; font-weight:600; }
-  .items { width:100%; border-collapse:collapse; margin-bottom:14px; font-size:11.5px; }
-  .items thead th { background:#1a1a1a; color:white; padding:8px 10px; text-align:left; font-weight:700; font-size:10.5px; text-transform:uppercase; }
-  .items thead th.right { text-align:right; }
-  .items thead th.center { text-align:center; }
-  .items tbody td { padding:9px 10px; border-bottom:1px solid #e5e5e5; vertical-align:top; }
-  .items tbody td.idx { text-align:center; font-family:'Inter', monospace; color:#7c6856; width:30px; }
-  .items tbody td.qty { text-align:center; color:#555; }
-  .items tbody td.price { text-align:right; font-family:'Inter', monospace; font-weight:600; }
-  .items .name { font-weight:700; }
-  .items .desc { font-size:10.5px; color:#666; margin-top:2px; line-height:1.5; white-space:pre-line; }
-  .totals-wrap { display:flex; justify-content:space-between; gap:14px; margin-bottom:14px; }
-  .totals-wrap .left { flex:1; padding:11px 14px; background:#fef9e7; border:1px solid #fbbf24; border-radius:4px; font-size:11px; color:#7c2d12; line-height:1.6; }
-  .totals-wrap .left strong { color:#92400e; display:block; margin-bottom:3px; }
-  .totals { width:46%; font-size:12px; }
-  .totals .row { display:flex; justify-content:space-between; padding:4px 0; }
-  .totals .row .v { font-family:'Inter', monospace; font-weight:600; }
-  .totals .row.discount .v { color:#dc2626; }
-  .totals .row.subtotal { border-top:1px solid #1a1a1a; margin-top:5px; padding-top:7px; font-weight:700; }
-  .totals .row.vat .v { color:#15803d; font-weight:700; }
-  .totals .row.grand { margin-top:5px; padding:8px 10px; background:#1a1a1a; color:white; border-radius:3px; font-weight:700; font-size:13.5px; }
-  .totals .row.grand .v { color:white; }
-  .totals .row.wht .v { color:#dc2626; }
-  .totals .row.net { margin-top:4px; padding:8px 10px; background:#15803d; color:white; border-radius:3px; font-weight:700; font-size:13.5px; }
-  .totals .row.net .v { color:white; }
-  .aiw { margin-bottom:14px; padding:8px 12px; border:1px dashed #999; border-radius:4px; font-size:11px; color:#555; font-style:italic; }
-  .aiw strong { color:#1a1a1a; font-style:normal; }
-  .notes { margin-bottom:18px; padding:9px 12px; background:#eff6ff; border-left:3px solid #3b82f6; border-radius:3px; font-size:10.5px; color:#1e3a8a; line-height:1.6; }
-  .pay { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
-  .pay .card { padding:11px 14px; border:1px solid #d4d4d4; border-radius:4px; }
-  .pay .card.dep { background:#fef9e7; border-color:#fbbf24; }
-  .pay .card.bank { background:#eff6ff; border-color:#93c5fd; }
-  .pay .card .label { font-size:10px; font-weight:700; color:#555; text-transform:uppercase; margin-bottom:3px; }
-  .pay .card .val { font-family:'Inter', monospace; font-size:18px; font-weight:800; color:#1a1a1a; }
-  .pay .card.bank .val { font-size:13px; color:#1e3a8a; }
-  .pay .card .sub { font-size:10.5px; color:#666; margin-top:2px; }
-  .sigs { margin-top:18px; padding-top:14px; border-top:1px dashed #999; display:grid; grid-template-columns:1fr 1fr; gap:30px; }
-  .sig { text-align:center; padding-top:34px; }
-  .sig .line { border-bottom:1px solid #1a1a1a; margin:0 16px 6px; }
-  .sig .name { font-size:11.5px; font-weight:700; color:#1a1a1a; }
-  .sig .role { font-size:10.5px; color:#555; margin-top:1px; }
-  .sig .date { margin-top:6px; font-size:10px; color:#7c6856; }
-  .sig .stamp { margin-top:8px; font-size:9.5px; color:#9a8a78; font-style:italic; }
-  .foot-meta { margin-top:16px; padding-top:8px; border-top:1px solid #d4d4d4; text-align:center; font-size:10px; color:#7c6856; font-family:'Inter', monospace; letter-spacing:0.05em; }
-${ctx.luxCss}</style></head><body>
-
-${v2pdf_printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
-
-<div class="page">
-  <div class="h-top">
-    <div class="brand">
-      <div class="name">${v2pdf_escapeHtml(studioName)}</div>
-      <div class="info">
-        ${studioAddress ? v2pdf_escapeHtml(studioAddress) + '<br>' : ''}
-        ${studioPhone ? '📱 ' + v2pdf_escapeHtml(studioPhone) + ' · ' : ''}${studioEmail ? '✉️ ' + v2pdf_escapeHtml(studioEmail) : ''}<br>
-        ${studioTaxId ? `<strong>เลขผู้เสียภาษี: ${v2pdf_escapeHtml(studioTaxId)} · สาขา: ${v2pdf_escapeHtml(studioBranch)}</strong>` : ''}
-      </div>
-    </div>
-    <div class="doc">
-      <div class="title">${v2pdf_escapeHtml(title)}</div>
-      <div class="sub">${v2pdf_escapeHtml(enTitle)}</div>
-      <div class="code">${v2pdf_escapeHtml(docCode)}</div>
-      ${taxInvNo ? `<div class="tax-no">เลขใบกำกับ ${v2pdf_escapeHtml(taxInvNo)}</div>` : ''}
-    </div>
-  </div>
-
-  <div class="pp">
-    <div class="box">
-      <div class="label">ผู้ขาย · Seller</div>
-      <div class="name">${v2pdf_escapeHtml(studioName)}</div>
-      ${studioTaxId ? `<div class="row"><span class="k">เลขผู้เสียภาษี:</span> <span class="v">${v2pdf_escapeHtml(studioTaxId)}</span></div>` : ''}
-      <div class="row"><span class="k">สาขา:</span> <span class="v">${v2pdf_escapeHtml(studioBranch)}</span></div>
-      ${studioTaxAddress ? `<div class="row"><span class="k">ที่อยู่:</span> ${v2pdf_escapeHtml(studioTaxAddress)}</div>` : ''}
-    </div>
-    <div class="box">
-      <div class="label">ผู้ซื้อ · Buyer</div>
-      <div class="name">${v2pdf_escapeHtml(doc.customerCompanyName || doc.customer || '-')}</div>
-      ${doc.customerTaxId ? `<div class="row"><span class="k">เลขผู้เสียภาษี:</span> <span class="v">${v2pdf_escapeHtml(doc.customerTaxId)}</span></div>` : ''}
-      ${doc.customerBranch ? `<div class="row"><span class="k">สาขา:</span> <span class="v">${v2pdf_escapeHtml(doc.customerBranch)}</span></div>` : ''}
-      ${doc.customerTaxAddress ? `<div class="row"><span class="k">ที่อยู่:</span> ${v2pdf_escapeHtml(doc.customerTaxAddress)}</div>` : ''}
-      ${doc.customerContactPerson ? `<div class="row"><span class="k">ผู้ติดต่อ:</span> <span class="v">${v2pdf_escapeHtml(doc.customerContactPerson)}${doc.customerContactPosition ? ' · ' + v2pdf_escapeHtml(doc.customerContactPosition) : ''}</span></div>` : ''}
-      ${phone ? `<div class="row"><span class="k">📱</span> ${v2pdf_escapeHtml(phone)}</div>` : ''}
-    </div>
-  </div>
-
-  <div class="meta">
-    <div class="cell"><div class="k">วันที่ออก</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(issueDate))}</div></div>
-    ${expireDate ? `<div class="cell"><div class="k">${isQuote ? 'หมดอายุ' : 'กำหนดชำระ'}</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(expireDate))}</div></div>` : ''}
-    ${eventDate ? `<div class="cell"><div class="k">วันงาน</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(eventDate))}</div></div>` : ''}
-    ${ctx.sessions && ctx.sessions[0] && ctx.sessions[0].loc ? `<div class="cell"><div class="k">สถานที่</div><div class="v">${v2pdf_escapeHtml(ctx.sessions[0].loc)}</div></div>` : ''}
-  </div>
-
-  <table class="items">
-    <thead><tr><th class="center" style="width:30px;">#</th><th>รายการบริการ</th><th class="right" style="width:80px;">จำนวน</th><th class="right" style="width:110px;">ราคาต่อหน่วย</th><th class="right" style="width:120px;">จำนวนเงิน</th></tr></thead>
-    <tbody>
-      ${items.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">ไม่มีรายการ</td></tr>' :
-        items.map((it, i) => `<tr>
-          <td class="idx">${i + 1}</td>
-          <td><div class="name">${v2pdf_escapeHtml(it.name)}</div>${it.desc ? `<div class="desc">${v2pdf_escapeHtml(it.desc)}</div>` : ''}</td>
-          <td class="qty">1 งาน</td>
-          <td class="price">${Number(it.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-          <td class="price">${Number(it.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-        </tr>`).join('')}
-    </tbody>
-  </table>
-
-  <div class="totals-wrap">
-    <div class="left">
-      <strong>หมายเหตุการชำระ:</strong>
-      ${doc.note ? v2pdf_escapeHtml(doc.note).replace(/\n/g, '<br>') : 'มัดจำเพื่อยืนยันคิว · ส่วนที่เหลือชำระภายใน 7 วัน · ออกใบกำกับภาษีเต็มรูปแบบ'}
-    </div>
-    <div class="totals">
-      <div class="row subtotal"><span class="k">ราคารวม${includeVat ? ' (ก่อน VAT)' : ''}</span><span class="v">${v2pdf_fmtTHB(sell)}</span></div>
-      ${includeVat ? `<div class="row vat"><span class="k">+ ภาษีมูลค่าเพิ่ม ${tb.vatRate || 7}%</span><span class="v">${v2pdf_fmtTHB(vatAmount)}</span></div>` : ''}
-      ${includeVat ? `<div class="row grand"><span class="k">ราคารวมทั้งสิ้น</span><span class="v">${v2pdf_fmtTHB(grandTotal)}</span></div>` : `<div class="row grand"><span class="k">ราคารวม</span><span class="v">${v2pdf_fmtTHB(sell)}</span></div>`}
-      ${includeWht ? `<div class="row wht"><span class="k">− หัก ณ ที่จ่าย ${tb.whtRate || 3}%</span><span class="v">−${v2pdf_fmtTHB(whtAmount)}</span></div>` : ''}
-      ${includeWht ? `<div class="row net"><span class="k">ยอดสุทธิที่ได้รับ</span><span class="v">${v2pdf_fmtTHB(netReceived)}</span></div>` : ''}
-    </div>
-  </div>
-
-  <div class="aiw"><strong>จำนวนเงินตัวอักษร:</strong> ${v2pdf_escapeHtml(v2pdf_numToThaiBaht(aiwAmount))}</div>
-
-  ${v2pdf_renderInvoiceBlocks(ctx)}
-
-  ${(!ctx.inv && (deposit > 0 || bank)) ? `<div class="pay">
-    ${deposit > 0 ? `<div class="card dep"><div class="label">มัดจำเพื่อยืนยันคิว</div><div class="val">${v2pdf_fmtTHB(deposit)}</div>${remain > 0 ? `<div class="sub">คงเหลือ ${v2pdf_fmtTHB(remain)}</div>` : ''}</div>` : '<div></div>'}
-    ${bank ? `<div class="card bank"><div class="label">🏦 โอนเข้าบัญชี</div><div class="val">${v2pdf_escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + v2pdf_escapeHtml(bank.acc) : ''}</div><div class="sub">${v2pdf_escapeHtml(bank.holder || '')}</div></div>` : '<div></div>'}
-  </div>` : ''}
-
-  ${(ctx.inv && bank) ? `<div class="pay" style="grid-template-columns:1fr;"><div class="card bank"><div class="label">🏦 โอนยอดคงเหลือเข้าบัญชี</div><div class="val">${v2pdf_escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + v2pdf_escapeHtml(bank.acc) : ''}</div><div class="sub">${v2pdf_escapeHtml(bank.holder || '')}</div></div></div>` : ''}
-
-  ${ctx.inv ? v2pdf_promptPayBlock() : ''}
-
-  ${(ctx.inv && ctx.invMessage) ? `<div class="notes" style="background:#fff9ec;border-left-color:#ca8a04;color:#7c2d12;"><strong style="color:#92400e;">📝 ข้อความจากร้าน:</strong> ${v2pdf_escapeHtml(ctx.invMessage)}</div>` : ''}
-
-  ${includeWht ? `<div class="notes"><strong>📌 หมายเหตุภาษี:</strong> ผู้ซื้อหัก ณ ที่จ่าย ${tb.whtRate}% สำหรับค่าบริการ · ออก ภ.ง.ด.3 / 53 ให้ผู้รับเงินภายใน 7 วัน · ส่งสำเนาทาง email: ${v2pdf_escapeHtml(studioEmail || '')}</div>` : ''}
-
-  <div class="sigs">
-    <div class="sig">
-      <div class="line"></div>
-      <div class="name">(................................................)</div>
-      <div class="role">ผู้ซื้อ / Buyer</div>
-      <div class="date">วันที่ ____ / ____ / ________</div>
-      <div class="stamp">(ประทับตราบริษัท)</div>
-    </div>
-    <div class="sig">
-      <div class="line"></div>
-      <div class="name">${v2pdf_escapeHtml(PROFILE.ownerName || studioName)}</div>
-      <div class="role">ผู้ขาย / Seller · ${v2pdf_escapeHtml(studioName)}</div>
-      <div class="date">วันที่ ${v2pdf_escapeHtml(v2pdf_fmtDateTH(issueDate))}</div>
-      <div class="stamp">&nbsp;</div>
-    </div>
-  </div>
-
-  <div class="foot-meta">${v2pdf_escapeHtml(studioName)} · ${v2pdf_escapeHtml(docCode)}${taxInvNo ? ' · ' + v2pdf_escapeHtml(taxInvNo) : ''} · PAGE 1 OF 1</div>
-</div>
-
-</body></html>`;
-}
-
-// =============================================================
-// TEMPLATE E · GOVERNMENT (Gov)
-// =============================================================
-function v2pdf_buildPdfGov(ctx) {
-  const { doc, isQuote, phone, eventDate, issueDate, expireDate, docCode, taxInvNo,
-          items, sell, includeVat, includeWht, vatAmount, whtAmount, grandTotal, netReceived, tb,
-          bank, studioName, studioTagline, studioPhone, studioEmail, studioAddress,
-          studioTaxId, studioTaxAddress, studioBranch } = ctx;
-  const isFullPro = (ctx.docCase === 'fullPro');
-  const title = isQuote
-    ? (isFullPro ? 'ใบเสนอราคา / ใบกำกับภาษี' : 'ใบเสนอราคา')
-    : (isFullPro ? 'ใบเรียกเก็บฯ / ใบกำกับภาษี' : 'ใบเรียกเก็บยอดชำระเพิ่มเติม');
-  const enTitle = isQuote ? 'Quotation / Tax Invoice' : 'Invoice · Balance Due';
-  const aiwAmount = includeWht ? netReceived : (includeVat ? grandTotal : sell);
-  const aiwBeforeWht = includeVat ? grandTotal : sell;
-
-  return v2pdf_printSharedHead(title + ' · ' + docCode) + `
-<style>${V2PDF_COMMON_CSS}
-  html, body { font-family:'Sarabun', sans-serif; font-size:11.5px; }
-  .page { width:210mm; min-height:297mm; margin:24px auto; padding:16mm 14mm 14mm; background:white; box-shadow:0 6px 30px rgba(0,0,0,0.12); }
-  .h-row { text-align:center; padding-bottom:12px; border-bottom:3px double #1a1a1a; margin-bottom:14px; }
-  .h-row .brand { margin-bottom:8px; }
-  .h-row .brand .name { font-size:22px; font-weight:800; color:#1a1a1a; }
-  .h-row .brand .name-sub { font-size:11px; color:#7c6856; margin-top:2px; }
-  .h-row .studio-detail { font-size:10.5px; color:#444; line-height:1.55; }
-  .h-row .studio-detail strong { color:#15803d; }
-  .doc-title-box { text-align:center; margin-bottom:14px; padding:10px 16px; border:2px solid #15803d; border-radius:4px; background:linear-gradient(180deg, #ecfdf5, #d1fae5); }
-  .doc-title-box .title { font-size:22px; font-weight:800; color:#14532d; }
-  .doc-title-box .en { font-size:11px; color:#15803d; text-transform:uppercase; letter-spacing:0.15em; font-weight:600; margin-top:2px; }
-  .doc-title-box .ids { display:flex; justify-content:center; gap:32px; margin-top:8px; padding-top:8px; border-top:1px dashed #15803d; font-size:11.5px; }
-  .doc-title-box .ids .k { color:#15803d; font-weight:600; }
-  .doc-title-box .ids .v { font-family:'Inter', monospace; font-weight:700; color:#14532d; }
-  .po-banner { margin-bottom:14px; padding:10px 14px; background:#fff8ed; border:1px solid #fbbf24; border-radius:4px; display:flex; justify-content:space-between; align-items:center; }
-  .po-banner .left { font-size:12px; color:#92400e; font-weight:600; }
-  .po-banner .right { font-family:'Inter', monospace; font-size:14px; font-weight:800; color:#92400e; }
-  .pp { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-  .pp .box { padding:9px 12px; border:1px solid #999; border-radius:3px; }
-  .pp .box.gov { border-color:#15803d; background:#f0fdf4; }
-  .pp .label { font-size:9.5px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px; border-bottom:1px solid #999; padding-bottom:2px; }
-  .pp .box.gov .label { color:#15803d; border-bottom-color:#15803d; }
-  .pp .name { font-size:12.5px; font-weight:700; color:#1a1a1a; margin-bottom:2px; }
-  .pp .row { font-size:10.5px; color:#444; line-height:1.6; }
-  .pp .row .k { color:#7c6856; font-weight:500; min-width:60px; display:inline-block; }
-  .pp .row .v { color:#1a1a1a; font-weight:600; }
-  .meta { display:grid; grid-template-columns:repeat(4, 1fr); gap:0; background:#f3f4f6; padding:8px 0; border-radius:3px; margin-bottom:12px; border:1px solid #d4d4d4; }
-  .meta .cell { padding:0 12px; border-right:1px solid #d4d4d4; }
-  .meta .cell:last-child { border-right:none; }
-  .meta .cell .k { font-size:9px; color:#7c6856; text-transform:uppercase; font-weight:700; }
-  .meta .cell .v { font-size:11.5px; color:#1a1a1a; font-weight:600; }
-  .items-title { font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
-  .items { width:100%; border-collapse:collapse; margin-bottom:12px; font-size:11px; border:1.5px solid #1a1a1a; }
-  .items thead th { background:#1a1a1a; color:white; padding:7px 9px; text-align:left; font-weight:700; font-size:10px; text-transform:uppercase; }
-  .items thead th.right { text-align:right; }
-  .items thead th.center { text-align:center; }
-  .items tbody td { padding:8px 9px; border-bottom:1px solid #d4d4d4; vertical-align:top; }
-  .items tbody td.idx { text-align:center; font-family:'Inter', monospace; color:#555; width:28px; }
-  .items tbody td.qty { text-align:center; }
-  .items tbody td.price { text-align:right; font-family:'Inter', monospace; font-weight:600; }
-  .items .name { font-weight:700; }
-  .items .desc { font-size:10px; color:#666; margin-top:2px; line-height:1.5; white-space:pre-line; }
-  .totals-wrap { display:flex; justify-content:flex-end; margin-bottom:10px; }
-  .totals { width:48%; font-size:11.5px; border:1.5px solid #1a1a1a; }
-  .totals .row { display:flex; justify-content:space-between; padding:5px 10px; border-bottom:1px solid #d4d4d4; }
-  .totals .row:last-child { border-bottom:none; }
-  .totals .row .v { font-family:'Inter', monospace; font-weight:600; }
-  .totals .row.subtotal { background:#f3f4f6; font-weight:700; }
-  .totals .row.vat .v { color:#15803d; font-weight:700; }
-  .totals .row.grand { background:#1a1a1a; color:white; font-weight:700; font-size:13px; }
-  .totals .row.grand .v { color:white; }
-  .totals .row.wht .v { color:#dc2626; }
-  .totals .row.net { background:#15803d; color:white; font-weight:700; font-size:13px; }
-  .totals .row.net .v { color:white; }
-  .aiw { margin-bottom:14px; padding:7px 12px; border:1px solid #555; border-radius:3px; font-size:10.5px; color:#444; }
-  .aiw strong { color:#1a1a1a; }
-  .gov-notes { margin-bottom:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-  .gov-notes .note { padding:8px 11px; border-radius:3px; font-size:10px; line-height:1.55; }
-  .gov-notes .note.wht { background:#fff8ed; border:1px solid #fbbf24; color:#92400e; }
-  .gov-notes .note.pnd { background:#eff6ff; border:1px solid #93c5fd; color:#1e3a8a; }
-  .gov-notes .note strong { display:block; margin-bottom:2px; }
-  .bank { margin-bottom:14px; padding:10px 14px; background:#eff6ff; border:1px solid #93c5fd; border-radius:3px; display:flex; justify-content:space-between; align-items:center; }
-  .bank .left { font-size:10px; color:#1e3a8a; font-weight:700; text-transform:uppercase; }
-  .bank .right { font-family:'Inter', monospace; font-weight:700; color:#1e3a8a; font-size:12px; text-align:right; }
-  .bank .right .acc { font-size:14px; font-weight:800; }
-  .bank .right .holder { font-size:10.5px; font-weight:500; }
-  .sigs { margin-top:16px; padding-top:12px; border-top:1.5px solid #1a1a1a; }
-  .sigs-title { text-align:center; font-size:11.5px; font-weight:700; margin-bottom:14px; text-transform:uppercase; letter-spacing:0.1em; }
-  .sigs-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
-  .sig { text-align:center; padding-top:34px; }
-  .sig .line { border-bottom:1px solid #1a1a1a; margin:0 8px 5px; }
-  .sig .name { font-size:11px; font-weight:700; color:#1a1a1a; }
-  .sig .role { font-size:10px; color:#555; margin-top:1px; }
-  .sig .date { margin-top:5px; font-size:9.5px; color:#7c6856; }
-  .sig .stamp { margin-top:6px; font-size:9px; color:#9a8a78; font-style:italic; }
-  .foot-meta { margin-top:14px; padding-top:7px; border-top:1px solid #d4d4d4; text-align:center; font-size:9.5px; color:#7c6856; font-family:'Inter', monospace; }
-${ctx.luxCss}</style></head><body>
-
-${v2pdf_printToolbar('Pixory · ' + title + ' · ' + (doc.customer || ''))}
-
-<div class="page">
-  <div class="h-row">
-    <div class="brand">
-      <div class="name">${v2pdf_escapeHtml(studioName)}</div>
-      ${studioTagline ? `<div class="name-sub">${v2pdf_escapeHtml(studioTagline)}</div>` : ''}
-    </div>
-    <div class="studio-detail">
-      ${studioAddress ? v2pdf_escapeHtml(studioAddress) + '<br>' : ''}
-      ${studioPhone ? 'โทร. ' + v2pdf_escapeHtml(studioPhone) + ' · ' : ''}${studioEmail ? 'อีเมล ' + v2pdf_escapeHtml(studioEmail) : ''}
-      ${studioTaxId ? ` · <strong>เลขประจำตัวผู้เสียภาษี ${v2pdf_escapeHtml(studioTaxId)} · สาขา ${v2pdf_escapeHtml(studioBranch)}</strong>` : ''}
-    </div>
-  </div>
-
-  <div class="doc-title-box">
-    <div class="title">${v2pdf_escapeHtml(title)}</div>
-    <div class="en">${v2pdf_escapeHtml(enTitle)}</div>
-    <div class="ids">
-      <div><span class="k">${isQuote ? 'เลขที่ใบเสนอ:' : 'เลขที่ใบเรียกเก็บ:'}</span> <span class="v">${v2pdf_escapeHtml(docCode)}</span></div>
-      ${taxInvNo ? `<div><span class="k">เลขที่ใบกำกับภาษี:</span> <span class="v">${v2pdf_escapeHtml(taxInvNo)}</span></div>` : ''}
-    </div>
-  </div>
-
-  ${doc.poNumber ? `<div class="po-banner"><div class="left">📋 อ้างอิงใบสั่งซื้อ (PO)</div><div class="right">${v2pdf_escapeHtml(doc.poNumber)}</div></div>` : ''}
-
-  <div class="pp">
-    <div class="box">
-      <div class="label">ผู้ขาย · Seller</div>
-      <div class="name">${v2pdf_escapeHtml(studioName)}</div>
-      ${studioTaxId ? `<div class="row"><span class="k">เลขผู้เสียภาษี:</span> <span class="v">${v2pdf_escapeHtml(studioTaxId)}</span></div>` : ''}
-      <div class="row"><span class="k">สาขา:</span> <span class="v">${v2pdf_escapeHtml(studioBranch)}</span></div>
-      ${studioTaxAddress ? `<div class="row"><span class="k">ที่อยู่:</span> ${v2pdf_escapeHtml(studioTaxAddress)}</div>` : ''}
-    </div>
-    <div class="box gov">
-      <div class="label">ผู้ซื้อ · Government Agency</div>
-      <div class="name">${v2pdf_escapeHtml(doc.customerCompanyName || doc.customer || '-')}</div>
-      ${doc.customerTaxId ? `<div class="row"><span class="k">เลขผู้เสียภาษี:</span> <span class="v">${v2pdf_escapeHtml(doc.customerTaxId)}</span></div>` : ''}
-      ${doc.customerBranch ? `<div class="row"><span class="k">สำนัก:</span> <span class="v">${v2pdf_escapeHtml(doc.customerBranch)}</span></div>` : ''}
-      ${doc.customerTaxAddress ? `<div class="row"><span class="k">ที่อยู่:</span> ${v2pdf_escapeHtml(doc.customerTaxAddress)}</div>` : ''}
-      ${doc.customerContactPerson ? `<div class="row"><span class="k">ผู้ติดต่อ:</span> <span class="v">${v2pdf_escapeHtml(doc.customerContactPerson)}${doc.customerContactPosition ? ' · ' + v2pdf_escapeHtml(doc.customerContactPosition) : ''}</span></div>` : ''}
-    </div>
-  </div>
-
-  <div class="meta">
-    <div class="cell"><div class="k">วันที่ออก</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(issueDate))}</div></div>
-    ${expireDate ? `<div class="cell"><div class="k">${isQuote ? 'หมดอายุ' : 'กำหนดชำระ'}</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(expireDate))}</div></div>` : '<div class="cell"></div>'}
-    ${eventDate ? `<div class="cell"><div class="k">วันงาน</div><div class="v">${v2pdf_escapeHtml(v2pdf_fmtDateTH(eventDate))}</div></div>` : '<div class="cell"></div>'}
-    ${ctx.sessions && ctx.sessions[0] && ctx.sessions[0].loc ? `<div class="cell"><div class="k">สถานที่</div><div class="v">${v2pdf_escapeHtml(ctx.sessions[0].loc)}</div></div>` : '<div class="cell"></div>'}
-  </div>
-
-  <div class="items-title">รายการสินค้า / บริการ · Items</div>
-
-  <table class="items">
-    <thead><tr><th class="center" style="width:28px;">ลำดับ</th><th>รายการ</th><th class="center" style="width:60px;">หน่วย</th><th class="right" style="width:110px;">ราคาต่อหน่วย</th><th class="right" style="width:120px;">จำนวนเงิน</th></tr></thead>
-    <tbody>
-      ${items.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">ไม่มีรายการ</td></tr>' :
-        items.map((it, i) => `<tr>
-          <td class="idx">${i + 1}</td>
-          <td><div class="name">${v2pdf_escapeHtml(it.name)}</div>${it.desc ? `<div class="desc">${v2pdf_escapeHtml(it.desc)}</div>` : ''}</td>
-          <td class="qty">1 งาน</td>
-          <td class="price">${Number(it.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-          <td class="price">${Number(it.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-        </tr>`).join('')}
-    </tbody>
-  </table>
-
-  <div class="totals-wrap">
-    <div class="totals">
-      <div class="row subtotal"><span class="k">ราคารวม${includeVat ? ' (ก่อนภาษี)' : ''}</span><span class="v">${v2pdf_fmtTHB(sell)}</span></div>
-      ${includeVat ? `<div class="row vat"><span class="k">+ ภาษีมูลค่าเพิ่ม ${tb.vatRate || 7}%</span><span class="v">${v2pdf_fmtTHB(vatAmount)}</span></div>` : ''}
-      ${includeVat ? `<div class="row grand"><span class="k">ราคารวมทั้งสิ้น</span><span class="v">${v2pdf_fmtTHB(grandTotal)}</span></div>` : `<div class="row grand"><span class="k">ราคารวม</span><span class="v">${v2pdf_fmtTHB(sell)}</span></div>`}
-      ${includeWht ? `<div class="row wht"><span class="k">− หัก ณ ที่จ่าย ${tb.whtRate || 1}% (ม.69 ทวิ)</span><span class="v">−${v2pdf_fmtTHB(whtAmount)}</span></div>` : ''}
-      ${includeWht ? `<div class="row net"><span class="k">ยอดสุทธิที่ได้รับ</span><span class="v">${v2pdf_fmtTHB(netReceived)}</span></div>` : ''}
-    </div>
-  </div>
-
-  <div class="aiw"><strong>(จำนวนเงินตัวอักษร:</strong> ${v2pdf_escapeHtml(v2pdf_numToThaiBaht(aiwAmount))}<strong>)</strong>${includeWht && aiwBeforeWht !== aiwAmount ? ' · ก่อนหัก ณ ที่จ่าย: ' + v2pdf_escapeHtml(v2pdf_numToThaiBaht(aiwBeforeWht)) : ''}</div>
-
-  ${includeWht ? `<div class="gov-notes">
-    <div class="note wht"><strong>ℹ️ การหัก ณ ที่จ่าย</strong>ราชการหัก ${tb.whtRate || 1}% ของยอดก่อน VAT สำหรับค่าบริการ ตามมาตรา 69 ทวิ แห่งประมวลรัษฎากร</div>
-    <div class="note pnd"><strong>📋 ภ.ง.ด. 3 / 53</strong>ขอให้ส่งหนังสือรับรองการหัก ณ ที่จ่ายให้ผู้รับเงินภายใน 7 วันนับจากวันโอนเงิน</div>
-  </div>` : ''}
-
-  ${v2pdf_renderInvoiceBlocks(ctx)}
-
-  ${bank ? `<div class="bank">
-    <div class="left">🏦 ${ctx.inv ? 'โอนยอดคงเหลือเข้าบัญชี' : 'โอนเข้าบัญชี'}</div>
-    <div class="right"><div class="acc">${v2pdf_escapeHtml(bank.bank || bank.name || '')}${bank.acc ? ' · ' + v2pdf_escapeHtml(bank.acc) : ''}</div><div class="holder">${v2pdf_escapeHtml(bank.holder || '')}</div></div>
-  </div>` : ''}
-
-  ${ctx.inv ? v2pdf_promptPayBlock() : ''}
-
-  ${(ctx.inv && ctx.invMessage) ? `<div style="margin-bottom:14px;padding:8px 12px;background:#fff9ec;border:1px solid #fbbf24;border-radius:4px;font-size:10.5px;color:#7c2d12;"><strong style="color:#92400e;">📝 ข้อความ:</strong> ${v2pdf_escapeHtml(ctx.invMessage)}</div>` : ''}
-
-  <div class="sigs">
-    <div class="sigs-title">ลงนาม / Signatures</div>
-    <div class="sigs-grid">
-      <div class="sig"><div class="line"></div><div class="name">(................................................)</div><div class="role">ผู้รับเงิน · Payee</div><div class="date">วันที่ ____ / ____ / ________</div><div class="stamp">(ประทับตรา หากมี)</div></div>
-      <div class="sig"><div class="line"></div><div class="name">(................................................)</div><div class="role">ผู้จ่ายเงิน · Payer</div><div class="date">วันที่ ____ / ____ / ________</div><div class="stamp">(ตราหน่วยงาน)</div></div>
-      <div class="sig"><div class="line"></div><div class="name">(................................................)</div><div class="role">ผู้อนุมัติ · Approver</div><div class="date">วันที่ ____ / ____ / ________</div><div class="stamp">(ตำแหน่ง)</div></div>
-    </div>
-  </div>
-
-  <div class="foot-meta">${v2pdf_escapeHtml(studioName)} · ${v2pdf_escapeHtml(docCode)}${taxInvNo ? ' · ' + v2pdf_escapeHtml(taxInvNo) : ''}${doc.poNumber ? ' · ' + v2pdf_escapeHtml(doc.poNumber) : ''} · PAGE 1 OF 1</div>
-</div>
-
-</body></html>`;
-}
 
 // ===== Mobile entry points =====
 function openQuoteNewPdf() {
@@ -27506,15 +26745,6 @@ function getJobSessions(j) {
   return [];
 }
 
-// v2.5.9 · Returns count of unique session dates for a job (1 = single-day, >1 = multi-day)
-function getJobDayCount(j) {
-  const sessions = (j && j.sessions) || [];
-  if (sessions.length === 0) return j && j.date ? 1 : 0;
-  const set = new Set();
-  sessions.forEach(s => { if (s && s.date) set.add(s.date); });
-  if (set.size === 0 && j.date) return 1;
-  return set.size;
-}
 
 // v2.5.2 · Returns array of unique non-empty locations across all sessions of a job
 function getJobLocations(j) {
